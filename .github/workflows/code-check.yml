@@ -153,9 +153,9 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright Browsers
-        run: npx playwright install-deps
+        run: cd apps/web && npx playwright install-deps
 
       - name: Run Playwright tests
-        run: pnpm test:e2e
+        run: npm run test:e2e
         env:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
