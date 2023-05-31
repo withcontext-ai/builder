@@ -138,9 +138,6 @@ jobs:
         with:
           run_install: false
 
-      - name: Install Playwright Browsers
-        run: npx playwright install-deps
-
       - name: Get pnpm store directory
         id: pnpm-cache
         run: |
@@ -154,6 +151,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install-deps
 
       - name: Run Playwright tests
         run: pnpm test:e2e
