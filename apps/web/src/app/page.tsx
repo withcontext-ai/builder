@@ -1,4 +1,5 @@
 import Image from 'next/image'
+
 import Counter from './counter'
 
 export default function Home() {
