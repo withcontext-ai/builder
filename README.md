@@ -35,7 +35,9 @@ We have a list of [good first issues](https://github.com/withcontext-ai/builder
 
 ### Building additional features
 
-To contribute code, please [fork this repository](https://github.com/withcontext-ai/builder/fork) first.
+To contribute to this project, we follow a ["fork and pull request"](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) workflow. Please do not try to push directly to this repo unless you are a maintainer.
+
+First, please [fork this repository](https://github.com/withcontext-ai/builder/fork).
 
 Then clone your GitHub forked repository to your local machine:
 
@@ -77,7 +79,7 @@ If you use VS Code, we recommend installing the following extensions:
 - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-## Recommend Reading
+## 📚 Recommend Reading
 
 Libaries and tools used in this project:
 
