@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { auth, UserButton } from '@clerk/nextjs'
 
-export default async function Home() {
+export default function Home() {
   const { userId } = auth()
 
   return (
