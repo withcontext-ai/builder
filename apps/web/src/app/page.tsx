@@ -101,7 +101,7 @@ export default async function Home() {
               </div>
             </div>
           ) : (
-            <Link href="/sign-in">
+            <Link href="/sign-in" className="flex items-center space-x-2">
               <LogIn />
               <p className="pl-6 text-sm font-medium">Log In</p>
             </Link>
