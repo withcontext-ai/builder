@@ -3,7 +3,11 @@ import { auth } from '@clerk/nextjs'
 import AppLayout from '@/components/app-layout'
 import AppSidebar from '@/components/app-sidebar'
 
-export default function BotLayout({ children }: { children: React.ReactNode }) {
+export default function ExploreLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const { userId } = auth()
 
   return (
