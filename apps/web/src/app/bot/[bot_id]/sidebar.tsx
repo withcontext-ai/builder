@@ -1,5 +1,6 @@
 import { currentUser, UserButton } from '@clerk/nextjs'
 
+import ChatList from '@/components/chat-list'
 import LoginLink from '@/components/login-link'
 
 interface IProps {
@@ -18,9 +19,11 @@ export default async function BotSidebar({ botId }: IProps) {
 
   return (
     <>
-      <h1 className="px-6 py-4 text-2xl font-semibold">Bot: {botId}</h1>
+      <h1 className="p-4 text-2xl font-semibold">Bot: {botId}</h1>
       <div className="m-full h-px bg-slate-100" />
-      <div className="flex-1 overflow-y-auto px-6 py-4">desc</div>
+      <div className="flex-1 overflow-y-auto p-4">
+        <ChatList botId={botId} />
+      </div>
       <div className="flex h-16 items-center bg-slate-100">
         {userId ? (
           <div className="flex items-center space-x-2 px-4">

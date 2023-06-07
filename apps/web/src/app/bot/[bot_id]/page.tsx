@@ -1,13 +1,13 @@
-import SidebarLayout from '@/components/sidebar-layout'
+import { redirect } from 'next/navigation'
 
-import BotSidebar from './sidebar'
+interface IProps {
+  params: { bot_id: string }
+}
 
-export default function BotPage({ params }: { params: { bot_id: string } }) {
+export default function BotPage({ params }: IProps) {
   const { bot_id } = params
+  // TODO: use bot_id to fetch the latest chat id
+  // if no chat id found, create one
 
-  return (
-    <SidebarLayout sidebar={<BotSidebar botId={bot_id} />}>
-      Chat: {bot_id}
-    </SidebarLayout>
-  )
+  redirect(`/bot/${bot_id}/chat/c1`)
 }
