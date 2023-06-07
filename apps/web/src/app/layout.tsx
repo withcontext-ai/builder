@@ -1,8 +1,11 @@
 import './globals.css'
 
 import { Inter } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
+import { auth, ClerkProvider } from '@clerk/nextjs'
 import clsx from 'clsx'
+
+import AppLayout from '@/components/app-layout'
+import AppSidebar from '@/components/app-sidebar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,10 +19,16 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { userId } = auth()
+
   return (
     <ClerkProvider>
       <html lang="en" className="h-full">
-        <body className={clsx('h-full', inter.className)}>{children}</body>
+        <body className={clsx('h-full', inter.className)}>
+          <AppLayout sidebar={userId ? <AppSidebar /> : null}>
+            {children}
+          </AppLayout>
+        </body>
       </html>
     </ClerkProvider>
   )
