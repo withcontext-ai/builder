@@ -1,7 +1,8 @@
-import React, { ReactNode, useCallback, useState } from 'react'
-import { Upload as UploadIcon, X } from 'lucide-react'
+import React, { useCallback } from 'react'
+import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
+// @ts-ignore
 import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
@@ -398,7 +399,7 @@ const Upload = (props: UploadProps) => {
           }`}
         >
           {listType !== 'image' &&
-            mergedFileList?.map((file) => {
+            mergedFileList?.map((file: UploadFile) => {
               const type = checkType(file)
               return type === 'isPDF' ? (
                 <PDFFile

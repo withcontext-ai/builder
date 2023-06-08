@@ -9,6 +9,10 @@ export interface HttpRequestHeader {
   [key: string]: string
 }
 
+export interface InternalUploadFile<T = any> extends UploadFile<T> {
+  originFileObj: RcFile
+}
+
 // ----------------------------------------------------------------------
 export type UploadFileStatus =
   | 'error'
@@ -58,6 +62,7 @@ export interface UploadFile<T = any> {
   xhr?: T
   preview?: string
 }
+// export type UploadListProgressProps = Omit<ProgressProps, 'percent' | 'type'>
 type BeforeUploadValueType = void | boolean | string | Blob | File
 
 export interface UploadChangeParam<T = UploadFile> {
@@ -131,7 +136,6 @@ export interface UploadState<T = any> {
   fileList: UploadFile<T>[]
   dragState: string
 }
-
 export interface FileItemProps<T = any> {
   onPreview?: (file: UploadFile<T>) => void
   onDownload?: (file: UploadFile<T>) => void

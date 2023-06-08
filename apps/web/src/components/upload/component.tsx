@@ -66,6 +66,7 @@ export const PdfImage = () => (
     viewBox="0 0 25 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    // @ts-ignore
     xlink="http://www.w3.org/1999/xlink"
   >
     <rect width="24.2759" height="32" fill="url(#pattern0)" />
@@ -215,10 +216,10 @@ export const ImageFile = (props: FileItemProps) => {
         <DialogContent className="sm:max-w-[425px]">
           <Image
             src={file?.url || ''}
-            full
             sizes="(max-width: 500px)"
             width={500}
             height={500}
+            alt="oreview image"
           />
         </DialogContent>
       </Dialog>

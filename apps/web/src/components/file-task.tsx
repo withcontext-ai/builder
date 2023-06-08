@@ -74,6 +74,7 @@ const AddorEditTask = (props: IProps) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
             <FormField
               control={control}
+              // @ts-ignore
               name="title"
               render={({ field }) => (
                 <FormItem className="space-y-1">
@@ -90,6 +91,7 @@ const AddorEditTask = (props: IProps) => {
             />
             <FormField
               control={control}
+              // @ts-ignore
               name="key"
               render={({ field, fieldState: { error } }) => (
                 <FormItem className="space-y-1">
@@ -100,6 +102,7 @@ const AddorEditTask = (props: IProps) => {
                   <FormControl>
                     <Input placeholder="please input key" {...field} />
                   </FormControl>
+                  {/* @ts-ignore */}
                   <FormMessage className="mt-0">{error}</FormMessage>
                 </FormItem>
               )}
