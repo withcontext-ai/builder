@@ -93,4 +93,4 @@ Libaries and tools used in this project:
 - [Playwright](https://playwright.dev/docs/writing-tests)
 - [Monorepo Handbook](https://turbo.build/repo/docs/handbook)
 
-EOF
+EOF.
