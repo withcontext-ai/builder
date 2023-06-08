@@ -57,6 +57,7 @@ importers:
       eslint-config-next: 13.4.4
       jsdom: ^22.1.0
       lucide-react: ^0.240.0
+      nanoid: ^4.0.2
       next: 13.4.4
       postcss: 8.4.24
       react: 18.2.0
@@ -84,6 +85,7 @@ importers:
       eslint: 8.42.0
       eslint-config-next: 13.4.4_tizxnkcvjrb4cldxgwq5h3lj5u
       lucide-react: 0.240.0_react@18.2.0
+      nanoid: 4.0.2
       next: 13.4.4_biqbaboplfbrettd7655fr4n2y
       postcss: 8.4.24
       react: 18.2.0
@@ -4100,6 +4102,12 @@ packages:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /nanoid/4.0.2:
+    resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
+    engines: {node: ^14 || ^16 || >=18}
+    hasBin: true
+    dev: false
 
   /natural-compare/1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
