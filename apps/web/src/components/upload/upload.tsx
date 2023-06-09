@@ -58,39 +58,42 @@ const Upload = (props: UploadProps) => {
     })
   }, [fileList])
 
-  const onInternalChange = (
-    file: UploadFile,
-    changedFileList: UploadFile[],
-    event?: { percent: number }
-  ) => {
-    let cloneList = [...changedFileList]
+  const onInternalChange = useCallback(
+    (
+      file: UploadFile,
+      changedFileList: UploadFile[],
+      event?: { percent: number }
+    ) => {
+      let cloneList = [...changedFileList]
 
-    // Cut to match count
-    if (maxCount === 1) {
-      cloneList = cloneList.slice(-1)
-    } else if (maxCount) {
-      cloneList = cloneList.slice(0, maxCount)
-    }
+      // Cut to match count
+      if (maxCount === 1) {
+        cloneList = cloneList.slice(-1)
+      } else if (maxCount) {
+        cloneList = cloneList.slice(0, maxCount)
+      }
 
-    // Prevent React18 auto batch since input[upload] trigger process at same time
-    // which makes fileList closure problem
-    flushSync(() => {
-      setMergedFileList(cloneList)
-    })
+      // Prevent React18 auto batch since input[upload] trigger process at same time
+      // which makes fileList closure problem
+      flushSync(() => {
+        setMergedFileList(cloneList)
+      })
 
-    const changeInfo: UploadChangeParam<UploadFile> = {
-      file: file as UploadFile,
-      fileList: cloneList,
-    }
+      const changeInfo: UploadChangeParam<UploadFile> = {
+        file: file as UploadFile,
+        fileList: cloneList,
+      }
 
-    if (event) {
-      changeInfo.event = event
-    }
+      if (event) {
+        changeInfo.event = event
+      }
 
-    flushSync(() => {
-      onChange?.(changeInfo)
-    })
-  }
+      flushSync(() => {
+        onChange?.(changeInfo)
+      })
+    },
+    [maxCount, onChange, setMergedFileList]
+  )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
     const { beforeUpload } = props

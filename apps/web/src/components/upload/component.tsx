@@ -47,7 +47,6 @@ export const PreviewPdf = (props: PreviewProps) => {
   return (
     <div>
       <Sheet open={props?.open} onOpenChange={() => props?.setOpen(false)}>
-        {/* <SheetTrigger>Open</SheetTrigger> */}
         <SheetContent className=" sm:w-full md:w-[960px]">
           <SheetHeader>
             <SheetTitle>Preview</SheetTitle>
