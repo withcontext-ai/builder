@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  upload-api:
+    build: ./apps/upload-api
+    ports:
+      - '3010:3010'
+    volumes:
+      - ./apps/upload-api/uploads:/app/uploads

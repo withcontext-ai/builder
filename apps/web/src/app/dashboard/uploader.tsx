@@ -2,6 +2,8 @@
 
 import axios from 'axios'
 
+const UPLOAD_API_URL = 'http://localhost:3010/upload'
+
 export default function Uploader() {
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -12,7 +14,7 @@ export default function Uploader() {
       formData.append('file', file)
 
       axios
-        .post('http://127.0.0.1:5000/upload', formData, {
+        .post(UPLOAD_API_URL, formData, {
           onUploadProgress: (progressEvent) => {
             console.log('progressEvent:', progressEvent)
           },
