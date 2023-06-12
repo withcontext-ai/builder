@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ success: true, data })
-  } catch (e) {
-    return NextResponse.json({ success: false })
+  } catch (e: any) {
+    return NextResponse.json({ success: false, error: e.message })
   }
 }
