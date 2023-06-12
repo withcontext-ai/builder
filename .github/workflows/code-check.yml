@@ -156,6 +156,6 @@ jobs:
         run: npx playwright install-deps && npx playwright install
 
       - name: Run Playwright tests
-        run: pnpm test:e2e
+        run: npx playwright install && pnpm test:e2e
         env:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
