@@ -40,10 +40,8 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="h-full">
-      <body className={clsx('h-full', inter.className)}>
-        <AppLayout sidebar={userId ? <AppSidebar /> : null}>
-          {children}
-        </AppLayout>
+      <body className="h-full">
+        <AppLayout sidebar={<AppSidebar />}>{children}</AppLayout>
       </body>
     </html>
   )

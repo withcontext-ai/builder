@@ -7,7 +7,7 @@ const { isDev, enabledAuth } = getFlags()
 
 export default authMiddleware({
   debug: isDev,
-  publicRoutes: ['/', '/explore'],
+  publicRoutes: enabledAuth ? ['/', '/explore'] : [],
   beforeAuth: () => {
     if (enabledAuth) return NextResponse.next()
     return false
