@@ -1,8 +1,5 @@
 import Link from 'next/link'
 
-import UploadInput from './upload-input'
-import Uploader from './uploader'
-
 export default function DashboardPage() {
   return (
     <div className="p-2">
@@ -13,8 +10,6 @@ export default function DashboardPage() {
       >
         About
       </Link>
-      <UploadInput />
-      <Uploader />
     </div>
   )
 }
