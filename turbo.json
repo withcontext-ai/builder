@@ -6,6 +6,8 @@
     "NODE_ENV",
     "BASE_URL",
     "CI",
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+    "CLERK_SECRET_KEY",
     "NEXT_PUBLIC_BUCKET_NAME"
   ],
   "pipeline": {
