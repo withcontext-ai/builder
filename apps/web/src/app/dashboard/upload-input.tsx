@@ -1,7 +1,6 @@
 'use client'
 
 import { ChangeEvent, useState } from 'react'
-import Image from 'next/image'
 import axios from 'axios'
 
 import { isImage } from '@/lib/utils'
