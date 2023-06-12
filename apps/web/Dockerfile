@@ -17,13 +17,14 @@ RUN turbo prune --scope=web --docker
 FROM base AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
+RUN corepack enable
 WORKDIR /app
 
 # First install the dependencies (as they change less often)
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/yarn.lock ./yarn.lock
-RUN yarn install
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+RUN pnpm install --frozen-lockfile
 
 # Build the project
 COPY --from=builder /app/out/full/ .
@@ -36,7 +37,7 @@ COPY turbo.json turbo.json
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
 
-RUN yarn turbo run build --filter=web...
+RUN pnpm run build --filter=web
 
 FROM base AS runner
 WORKDIR /app
