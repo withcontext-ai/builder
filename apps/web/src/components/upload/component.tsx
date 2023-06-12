@@ -1,3 +1,5 @@
+'use client'
+
 import { ReactNode, useState } from 'react'
 import Image from 'next/image'
 import { Download, Eye, X } from 'lucide-react'
