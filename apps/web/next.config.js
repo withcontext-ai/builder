@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: process.env.IS_DOCKER ? 'standalone' : undefined,
   async redirects() {
     return [
       {
