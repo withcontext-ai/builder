@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { flags } from '@/lib/flags'
+import { flags } from '../lib/flags'
 
 test('should navigate to the sign in page', async ({ page }) => {
   if (!flags.enabledAuth) return
