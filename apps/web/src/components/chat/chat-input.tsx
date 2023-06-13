@@ -39,6 +39,7 @@ const ChatInput = (props: InputProps) => {
   return (
     <div className="flex justify-between gap-2 px-6 py-4">
       <Input
+        type="textarea"
         placeholder="Type a message"
         onKeyUp={handleKeyUp}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
