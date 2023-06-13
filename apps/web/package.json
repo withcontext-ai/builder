@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,mdx}\" --cache",
     "format:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,mdx}\" --cache",
     "test": "vitest run",
