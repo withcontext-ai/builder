@@ -21,7 +21,14 @@ export default async function UserList() {
       users = await db.select().from(UsersTable)
     } else {
       // throw e
-      return <div>{e.message}</div>
+      return (
+        <div>
+          <div>Error message: {e.message}</div>
+          <div>
+            Tip: Have you run the docker with <code>docker compose up</code>?
+          </div>
+        </div>
+      )
     }
   }
 

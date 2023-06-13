@@ -15,6 +15,7 @@
   "dependencies": {
     "@clerk/nextjs": "^4.21.1",
     "@google-cloud/storage": "^6.11.0",
+    "@neondatabase/serverless": "^0.4.14",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@types/node": "20.3.1",
