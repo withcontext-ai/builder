@@ -1,4 +1,4 @@
-import ChatItem from '@/components/chat'
+import ChatItem from '@/components/chat/page'
 
 interface IProps {
   params: { chat_id: string }
