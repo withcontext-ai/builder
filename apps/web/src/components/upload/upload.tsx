@@ -359,8 +359,8 @@ const Upload = (props: UploadProps) => {
 
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
-    const showUpload = listType === 'image' && mergedFileList?.length === 0
-    return showUpload ? (
+    const showImage = listType === 'image' && mergedFileList?.length !== 0
+    return showImage ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
