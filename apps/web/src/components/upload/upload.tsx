@@ -327,7 +327,7 @@ const Upload = (props: UploadProps) => {
   const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
-        <Button className="bg-primary flex cursor-pointer flex-row rounded-md px-4 py-2 text-sm text-white">
+        <Button className="flex cursor-pointer flex-row rounded-md bg-primary px-4 py-2 text-sm text-white">
           <UploadIcon size={16} strokeWidth={3} />
           <span className="pl-2">Upload File</span>
         </Button>
