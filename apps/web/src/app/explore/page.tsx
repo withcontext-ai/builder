@@ -1,14 +1,11 @@
 import SidebarLayout from '@/components/sidebar-layout'
 
-import DemoPage from '../demo/page'
 import ExploreSidebar from './sidebar'
 
 export default async function ExplorePage() {
   return (
     <SidebarLayout sidebar={<ExploreSidebar />}>
-      <div className="h-96">
-        <DemoPage />
-      </div>
+      <div className="h-96">Main area</div>
       <div className="h-96">Main area</div>
       <div className="h-96">Main area</div>
       <div className="h-96">Main area</div>
