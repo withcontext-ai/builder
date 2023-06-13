@@ -7,6 +7,7 @@ import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
 import { Button } from '../ui/button'
+import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
 import { RcFile, UploadChangeParam, UploadFile, UploadProps } from './type'
 import { file2Obj, getFileItem, removeFileItem, updateFileList } from './utils'
@@ -333,9 +334,10 @@ const Upload = (props: UploadProps) => {
       )
     } else {
       return (
-        <Button className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
+        // @ts-ignore
+        <Toggle className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
           <UploadIcon size={28} strokeWidth={2} />
-        </Button>
+        </Toggle>
       )
     }
   }, [listType])

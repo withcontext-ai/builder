@@ -1,5 +1,6 @@
 import SidebarLayout from '@/components/sidebar-layout'
 
+import DemoPage from '../demo/page'
 import ExploreSidebar from './sidebar'
 
 export default async function ExplorePage() {
