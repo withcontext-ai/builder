@@ -7,18 +7,17 @@ import { UploadFile, UploadProps } from './type'
 import Upload from './upload'
 
 const TestUpload = (props: UploadProps) => {
-  const { listType, accept } = props
   const [files, setFiles] = useState<UploadFile[]>([])
 
-  const changeFile = async (file: UploadFile, filelist: UploadFile[]) => {
-    const index = filelist?.indexOf(
+  const changeFile = async (file: UploadFile, fileList: UploadFile[]) => {
+    const index = fileList?.indexOf(
       // @ts-ignore
       (item: { uid: any }) => item?.uid === file?.uid
     )
     if (index !== -1) {
-      filelist[index] = file
+      fileList[index] = file
     }
-    setFiles([...files, ...filelist])
+    setFiles([...files, ...fileList])
   }
   const onChange = async ({
     file,
@@ -33,7 +32,7 @@ const TestUpload = (props: UploadProps) => {
     if (!file) return
     const filename = encodeURIComponent(file?.name || '')
     const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
-    const { success, data, error } = await res.json()
+    const { success, data } = await res.json()
     if (!success) {
       file.status = 'error'
       changeFile(file, fileList)
@@ -85,7 +84,7 @@ const TestUpload = (props: UploadProps) => {
       fileList={files}
       onChange={onChange}
       onRemove={handleRemove}
-      // 自定义请求方式，这里在onChange阶段调用的geogle cloude，不处理会使用rc-upload的请求方式多发送一次请求
+      // 自定义请求方式，这里在onChange阶段调用的Google cloud，不处理会使用rc-upload的请求方式多发送一次请求
       customRequest={() => {}}
       {...props}
     />

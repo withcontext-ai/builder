@@ -1,8 +1,7 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
-// @ts-ignore
 import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
@@ -29,6 +28,7 @@ const Upload = (props: UploadProps) => {
     listType = 'pdf',
     showUploadList = true,
     data,
+    className,
     disabled: mergedDisabled,
     customRequest,
   } = props
@@ -40,7 +40,7 @@ const Upload = (props: UploadProps) => {
     }
   )
 
-  const [dragState, setDragState] = React.useState<string>('drop')
+  const [_, setDragState] = React.useState<string>('drop')
   const upload = React.useRef<RcUpload>(null)
 
   React.useMemo(() => {
@@ -275,7 +275,7 @@ const Upload = (props: UploadProps) => {
     }
   }
 
-  const donwload = (file: UploadFile) => {
+  const handleDownload = (file: UploadFile) => {
     if (props?.onDownload) {
       props?.onDownload(file)
     } else {
@@ -327,14 +327,13 @@ const Upload = (props: UploadProps) => {
   const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
-        <Button className="flex cursor-pointer flex-row rounded-md bg-[#0F172A] px-4 py-2 text-sm text-white">
+        <Button className="bg-primary flex cursor-pointer flex-row rounded-md px-4 py-2 text-sm text-white">
           <UploadIcon size={16} strokeWidth={3} />
           <span className="pl-2">Upload File</span>
         </Button>
       )
     } else {
       return (
-        // @ts-ignore
         <Toggle className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
           <UploadIcon size={28} strokeWidth={2} />
         </Toggle>
@@ -347,7 +346,7 @@ const Upload = (props: UploadProps) => {
       return (
         <div
           className="
-          borer-[#919eab] opcity-[0.32] rounded-md bg-[#f4f6f8] p-10 transition delay-150 ease-in-out hover:bg-slate-50 hover:p-12"
+          rounded-md bg-slate-200 p-10 transition delay-150 ease-in-out hover:bg-gray-100 hover:p-12"
         >
           Upload Files
           <div>
@@ -367,7 +366,7 @@ const Upload = (props: UploadProps) => {
         key={file?.url || file?.uid}
         file={file}
         onRemove={() => handleRemove(file)}
-        className={`h-16 w-16 `}
+        className={`h-16 w-16 ${className}`}
         showUploadList={showUploadList}
       />
     ) : (
@@ -376,16 +375,17 @@ const Upload = (props: UploadProps) => {
       </RcUpload>
     )
   }, [
-    listType,
     mergedFileList,
-    handleRemove,
-    props,
-    rcUploadProps,
-    defaultButton,
+    listType,
+    className,
     showUploadList,
+    rcUploadProps,
+    props?.children,
+    defaultButton,
+    handleRemove,
   ])
   return (
-    <div className="upload-wraper p-8">
+    <div className={`p-8 ${className}`}>
       <div className={` flex flex-col gap-4`} onClick={onFileDrop}>
         {showUploadIcon}
         <div
@@ -401,8 +401,7 @@ const Upload = (props: UploadProps) => {
               return listType === 'pdf' ? (
                 <PDFFile
                   file={file}
-                  onDownload={donwload}
-                  //@ts-ignore
+                  onDownload={handleDownload}
                   onRemove={handleRemove}
                   showUploadList={showUploadList}
                   {...props}
@@ -411,7 +410,6 @@ const Upload = (props: UploadProps) => {
               ) : (
                 <ImageFile
                   file={file}
-                  // @ts-ignore
                   onRemove={handleRemove}
                   showUploadList={showUploadList}
                   key={file?.uid}

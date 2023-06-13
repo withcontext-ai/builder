@@ -127,13 +127,11 @@ export const PDFFile = (props: FileItemProps) => {
                 file?.url && (
                   <>
                     <IconBox onClick={() => onDownload!(file)}>
-                      {/* @ts-ignore */}
                       {showIcon?.downloadIcon || (
                         <Download size={16} strokeWidth={3} color="#000" />
                       )}
                     </IconBox>
                     <IconBox onClick={() => preview(file)}>
-                      {/* @ts-ignore */}
                       {showIcon?.previewIcon || (
                         <Eye size={16} strokeWidth={3} />
                       )}
@@ -141,7 +139,6 @@ export const PDFFile = (props: FileItemProps) => {
                   </>
                 )}
               <IconBox onClick={() => onRemove!(file)}>
-                {/* @ts-ignore */}
                 {showIcon?.removeIcon || <X size={16} strokeWidth={3} />}
               </IconBox>
             </div>
@@ -199,7 +196,6 @@ export const ImageFile = (props: FileItemProps) => {
           )}
         </div>
         {showUploadList !== false && (
-          // @ts-ignore
           <Toggle
             onClick={(e: React.SyntheticEvent) => {
               e.stopPropagation()
@@ -210,7 +206,6 @@ export const ImageFile = (props: FileItemProps) => {
               file?.status === 'uploading' ? 'bg-white' : 'bg-sky-50'
             } absolute right-1 top-1`}
           >
-            {/* @ts-ignore */}
             {showIcon?.removeIcon || <X size={18} strokeWidth={3} />}
           </Toggle>
         )}

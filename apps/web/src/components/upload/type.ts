@@ -119,9 +119,9 @@ export interface ShowUploadListInterface<T = any> {
   showRemoveIcon?: boolean
   showPreviewIcon?: boolean
   showDownloadIcon?: boolean
-  removeIcon?: React.ReactNode | ((file: UploadFile<T>) => React.ReactNode)
-  downloadIcon?: React.ReactNode | ((file: UploadFile<T>) => React.ReactNode)
-  previewIcon?: React.ReactNode | ((file: UploadFile<T>) => React.ReactNode)
+  removeIcon?: React.ReactNode
+  downloadIcon?: React.ReactNode
+  previewIcon?: React.ReactNode
 }
 
 export interface UploadLocale {
@@ -139,7 +139,7 @@ export interface UploadState<T = any> {
 export interface FileItemProps<T = any> {
   onPreview?: (file: UploadFile<T>) => void
   onDownload?: (file: UploadFile<T>) => void
-  onRemove?: (file: UploadFile<T>) => void | boolean
+  onRemove?: (file: UploadFile<T>) => void | boolean | Promise<boolean | void>
   file: UploadFile
   progress?: ReactNode | number
   className?: string
