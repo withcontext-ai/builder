@@ -9,13 +9,7 @@ import { flushSync } from 'react-dom'
 import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
 import { RcFile, UploadChangeParam, UploadFile, UploadProps } from './type'
-import {
-  checkType,
-  file2Obj,
-  getFileItem,
-  removeFileItem,
-  updateFileList,
-} from './utils'
+import { file2Obj, getFileItem, removeFileItem, updateFileList } from './utils'
 
 export const LIST_IGNORE = `__LIST_IGNORE_${Date.now()}__`
 
@@ -329,7 +323,7 @@ const Upload = (props: UploadProps) => {
     delete rcUploadProps.id
   }
 
-  const selectDefaultButton = useCallback(() => {
+  const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
         <Toggle className="flex cursor-pointer flex-row rounded-md bg-[#0F172A] px-4 py-2 text-sm text-white">
@@ -345,7 +339,7 @@ const Upload = (props: UploadProps) => {
       )
     }
   }, [listType])
-  const defaultButton = useCallback(() => {
+  const defaultButton = React.useMemo(() => {
     // 上传按钮的默认样式
     if (type === 'drag') {
       return (
@@ -360,13 +354,13 @@ const Upload = (props: UploadProps) => {
         </div>
       )
     }
-    return selectDefaultButton()
+    return selectDefaultButton
   }, [selectDefaultButton, type])
 
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showUpload = listType === 'image' && mergedFileList?.length === 0
-    return !showUpload ? (
+    return showUpload ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
@@ -375,12 +369,8 @@ const Upload = (props: UploadProps) => {
         showUploadList={showUploadList}
       />
     ) : (
-      <RcUpload
-        {...rcUploadProps}
-        ref={upload}
-        // className={`${notShow ? 'hidden' : 'block'}`}
-      >
-        {props?.children || defaultButton()}
+      <RcUpload {...rcUploadProps} ref={upload}>
+        {props?.children || defaultButton}
       </RcUpload>
     )
   }, [
