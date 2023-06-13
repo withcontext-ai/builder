@@ -6,7 +6,7 @@ import type { UploadProps as RcUploadProps } from 'rc-upload'
 import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
-import { Toggle } from '../ui/toggle'
+import { Button } from '../ui/button'
 import { ImageFile, PDFFile } from './component'
 import { RcFile, UploadChangeParam, UploadFile, UploadProps } from './type'
 import { file2Obj, getFileItem, removeFileItem, updateFileList } from './utils'
@@ -326,16 +326,16 @@ const Upload = (props: UploadProps) => {
   const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
-        <Toggle className="flex cursor-pointer flex-row rounded-md bg-[#0F172A] px-4 py-2 text-sm text-white">
+        <Button className="flex cursor-pointer flex-row rounded-md bg-[#0F172A] px-4 py-2 text-sm text-white">
           <UploadIcon size={16} strokeWidth={3} />
           <span className="pl-2">Upload File</span>
-        </Toggle>
+        </Button>
       )
     } else {
       return (
-        <Toggle className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
+        <Button className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
           <UploadIcon size={28} strokeWidth={2} />
-        </Toggle>
+        </Button>
       )
     }
   }, [listType])
