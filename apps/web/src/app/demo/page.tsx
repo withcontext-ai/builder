@@ -1,3 +1,5 @@
+import TestUpload from '@/components/upload/test'
+
 import UploadInputGCP from './upload-input-gcp'
 import UploadInputLocal from './upload-input-local'
 
@@ -8,8 +10,6 @@ export default function DemoPage() {
       <div className="mt-3 space-y-2">
         <UploadInputGCP />
         <UploadInputLocal />
-<<<<<<< HEAD
-=======
         <div>
           upload pdf: <TestUpload listType="pdf" accept=".pdf" />
         </div>
@@ -25,7 +25,6 @@ export default function DemoPage() {
           upload files:
           <TestUpload />
         </div>
->>>>>>> dailly-upload
       </div>
     </div>
   )

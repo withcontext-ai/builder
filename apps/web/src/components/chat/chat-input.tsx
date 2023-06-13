@@ -7,12 +7,12 @@ import { Input } from '../ui/input'
 
 interface InputProps {
   onSend?: (data: Record<string, string>) => void
-  conversationId: string
+  conversationId?: string
   loading?: boolean
 }
 
 const ChatInput = (props: InputProps) => {
-  const { loading = false, onSend, conversationId } = props
+  const { loading = false, onSend, conversationId = '' } = props
   const [message, setMessage] = useState('')
 
   const checkMsg = (msg: string) => {
