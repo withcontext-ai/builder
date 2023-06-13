@@ -1,7 +1,6 @@
 'use client'
 
 import { ReactNode, useState } from 'react'
-import Image from 'next/image'
 import { Download, Eye, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -67,8 +66,6 @@ export const PdfImage = () => (
     viewBox="0 0 25 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    // @ts-ignore
-    xlink="http://www.w3.org/1999/xlink"
   >
     <rect width="24.2759" height="32" fill="url(#pattern0)" />
     <defs>
@@ -120,26 +117,29 @@ export const PDFFile = (props: FileItemProps) => {
               </div>
               {file?.status === 'uploading' &&
                 (props?.progress || (
-                  <Progress value={file?.percent} className="h-1" />
+                  <Progress value={file?.percent || 0} className="h-1" />
                 ))}
             </div>
           </div>
           {showIcon?.show && (
             <div className="flex gap-2">
-              {(file?.status === 'success' || file?.status === 'done') && (
-                <>
-                  <IconBox onClick={() => onDownload!(file)}>
-                    {/* @ts-ignore */}
-                    {showIcon?.downloadIcon || (
-                      <Download size={16} strokeWidth={3} color="#000" />
-                    )}
-                  </IconBox>
-                  <IconBox onClick={() => preview(file)}>
-                    {/* @ts-ignore */}
-                    {showIcon?.previewIcon || <Eye size={16} strokeWidth={3} />}
-                  </IconBox>
-                </>
-              )}
+              {(file?.status === 'success' || file?.status === 'done') &&
+                file?.url && (
+                  <>
+                    <IconBox onClick={() => onDownload!(file)}>
+                      {/* @ts-ignore */}
+                      {showIcon?.downloadIcon || (
+                        <Download size={16} strokeWidth={3} color="#000" />
+                      )}
+                    </IconBox>
+                    <IconBox onClick={() => preview(file)}>
+                      {/* @ts-ignore */}
+                      {showIcon?.previewIcon || (
+                        <Eye size={16} strokeWidth={3} />
+                      )}
+                    </IconBox>
+                  </>
+                )}
               <IconBox onClick={() => onRemove!(file)}>
                 {/* @ts-ignore */}
                 {showIcon?.removeIcon || <X size={16} strokeWidth={3} />}
@@ -183,7 +183,7 @@ export const ImageFile = (props: FileItemProps) => {
             <div className="flex h-full w-full flex-col items-center justify-center gap-1">
               {props?.locale?.uploading || 'uploading'}
               {props?.progress || (
-                <Progress value={file?.percent} className="h-1" />
+                <Progress value={file?.percent || 0} className="h-1" />
               )}
             </div>
           ) : (
@@ -199,8 +199,9 @@ export const ImageFile = (props: FileItemProps) => {
           )}
         </div>
         {showUploadList !== false && (
+          // @ts-ignore
           <Toggle
-            onClick={(e) => {
+            onClick={(e: React.SyntheticEvent) => {
               e.stopPropagation()
               e.preventDefault()
               onRemove!(file)

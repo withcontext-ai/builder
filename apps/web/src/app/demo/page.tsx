@@ -11,10 +11,19 @@ export default function DemoPage() {
         <UploadInputGCP />
         <UploadInputLocal />
         <div>
-          upload pdf: <TestUpload listType="pdf" />
+          upload pdf: <TestUpload listType="pdf" accept=".pdf" />
         </div>
         <div>
-          upload image: <TestUpload listType="image" />
+          upload image:
+          <TestUpload listType="image" accept=".jpg,.png,.jpeg,.webp" />
+        </div>
+        <div>
+          upload images:
+          <TestUpload listType="images-list" accept=".jpg,.png,.jpeg,.webp" />
+        </div>
+        <div>
+          upload files:
+          <TestUpload />
         </div>
       </div>
     </div>

@@ -3,14 +3,11 @@
 import { useState } from 'react'
 import axios from 'axios'
 
-import { UploadFile } from './type'
+import { UploadFile, UploadProps } from './type'
 import Upload from './upload'
 
-const TestUpload = ({
-  listType,
-}: {
-  listType: 'image' | 'pdf' | 'images-list'
-}) => {
+const TestUpload = (props: UploadProps) => {
+  const { listType, accept } = props
   const [files, setFiles] = useState<UploadFile[]>([])
 
   const changeFile = async (file: UploadFile, filelist: UploadFile[]) => {
@@ -87,10 +84,10 @@ const TestUpload = ({
     <Upload
       fileList={files}
       onChange={onChange}
-      listType={listType || 'pdf'}
       onRemove={handleRemove}
       // 自定义请求方式，这里在onChange阶段调用的geogle cloude，不处理会使用rc-upload的请求方式多发送一次请求
       customRequest={() => {}}
+      {...props}
     />
   )
 }
