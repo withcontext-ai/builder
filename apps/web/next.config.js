@@ -8,17 +8,6 @@ const nextConfig = {
         permanent: true,
       },
     ]
-  },
-  images: {
-    domain: ['storage.googleapis.com'],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'storage.googleapis.com',
-        port: '',
-        pathname: '',
-      },
-    ],
   }
 }
 
