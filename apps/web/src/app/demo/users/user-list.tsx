@@ -20,7 +20,8 @@ export default async function UserList() {
       startTime = Date.now()
       users = await db.select().from(UsersTable)
     } else {
-      throw e
+      // throw e
+      return <div>{e.message}</div>
     }
   }
 
