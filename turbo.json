@@ -25,6 +25,10 @@
       "outputs": []
     },
     "lint": {},
+    "lint:fix": {
+      "cache": false,
+      "outputs": []
+    },
     "test": {},
     "test:e2e": {}
   }
