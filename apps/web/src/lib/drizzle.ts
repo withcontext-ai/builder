@@ -30,7 +30,7 @@ export type NewUser = InferModel<typeof UsersTable, 'insert'>
 
 const pool = new Pool({
   // connectionString: 'postgres://user:password@host:port/db',
-  connectionString: 'postgres://postgres:postgres@localhost:5432/postgres',
+  connectionString: process.env.DATABASE_URL,
 })
 
 export const db = drizzle(pool)
