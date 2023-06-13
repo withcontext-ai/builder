@@ -11,7 +11,10 @@ export default function BotLayout({ children, params }: IProps) {
   const { bot_id } = params
 
   return (
-    <SidebarLayout sidebar={<BotSidebar botId={bot_id} />}>
+    <SidebarLayout
+      sidebar={<BotSidebar botId={bot_id} />}
+      mainClassName="px-0 py-0"
+    >
       {children}
     </SidebarLayout>
   )

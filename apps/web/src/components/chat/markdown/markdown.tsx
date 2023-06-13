@@ -45,4 +45,20 @@ const markdownComponent = {
   h5: ({ ...props }) => <Typography variant="h5" {...props} />,
   h6: ({ ...props }) => <Typography variant="h6" {...props} />,
   p: ({ ...props }) => <Typography variant="body2" {...props} />,
+  img: ({ ...props }) => (
+    <img
+      style={{ display: 'inline-block', marginBottom: -3 }}
+      alt={props.alt}
+      src={props.src}
+      {...props}
+    />
+  ),
+  a: ({ ...props }) => {
+    const isHttp = props.href.includes('http')
+    const isPdf = props.node.properties.href.includes('pdf')
+    if (isPdf) {
+      return <div>preview pdf</div>
+    }
+    return <div>this is http link</div>
+  },
 }
