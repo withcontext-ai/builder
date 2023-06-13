@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
@@ -120,10 +120,6 @@ const Upload = (props: UploadProps) => {
         parsedFile = result as File
       }
     }
-
-    // if (transformFile) {
-    //   parsedFile = await transformFile(parsedFile as any)
-    // }
 
     return parsedFile as RcFile
   }
@@ -252,8 +248,7 @@ const Upload = (props: UploadProps) => {
         }
 
         const removedFileList = removeFileItem(file, mergedFileList)
-
-        if (removedFileList) {
+        if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {
             const matchKey = currentFile.uid !== undefined ? 'uid' : 'name'
@@ -266,10 +261,15 @@ const Upload = (props: UploadProps) => {
           })
           upload.current?.abort(currentFile as RcFile)
           onInternalChange(currentFile, removedFileList)
+        } else {
+          // 解决上传单张图片移除后展示removed状态的图片问题
+          flushSync(() => {
+            setMergedFileList([])
+          })
         }
       })
     },
-    [mergedFileList, onInternalChange, onRemove]
+    [mergedFileList, onInternalChange, onRemove, setMergedFileList]
   )
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -363,19 +363,23 @@ const Upload = (props: UploadProps) => {
     return selectDefaultButton()
   }, [selectDefaultButton, type])
 
-  const showUploadIcon = useCallback(() => {
-    const notShow = listType === 'image' && mergedFileList?.length !== 0
+  const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
-    return notShow ? (
+    const showUpload = listType === 'image' && mergedFileList?.length === 0
+    return !showUpload ? (
       <ImageFile
+        key={file?.url || file?.uid}
         file={file}
-        // @ts-ignore
-        onRemove={handleRemove}
-        className="h-16 w-16"
+        onRemove={() => handleRemove(file)}
+        className={`h-16 w-16 `}
         showUploadList={showUploadList}
       />
     ) : (
-      <RcUpload {...rcUploadProps} ref={upload}>
+      <RcUpload
+        {...rcUploadProps}
+        ref={upload}
+        // className={`${notShow ? 'hidden' : 'block'}`}
+      >
         {props?.children || defaultButton()}
       </RcUpload>
     )
@@ -388,11 +392,10 @@ const Upload = (props: UploadProps) => {
     defaultButton,
     showUploadList,
   ])
-
   return (
     <div className="upload-wraper p-8">
       <div className={` flex flex-col gap-4`} onClick={onFileDrop}>
-        {showUploadIcon()}
+        {showUploadIcon}
         <div
           className={`
           flex gap-2 ${
@@ -403,8 +406,7 @@ const Upload = (props: UploadProps) => {
         >
           {listType !== 'image' &&
             mergedFileList?.map((file: UploadFile) => {
-              const type = checkType(file)
-              return type === 'isPDF' ? (
+              return listType === 'pdf' ? (
                 <PDFFile
                   file={file}
                   onDownload={donwload}
@@ -412,15 +414,16 @@ const Upload = (props: UploadProps) => {
                   onRemove={handleRemove}
                   showUploadList={showUploadList}
                   {...props}
-                  key={file?.uid || file?.url}
+                  key={file?.uid}
                 />
               ) : (
                 <ImageFile
                   file={file}
-                  {...props}
-                  showUploadList={showUploadList}
-                  key={file?.uid || file?.url}
+                  // @ts-ignore
                   onRemove={handleRemove}
+                  showUploadList={showUploadList}
+                  key={file?.uid}
+                  {...props}
                 />
               )
             })}

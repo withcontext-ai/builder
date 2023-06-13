@@ -173,13 +173,13 @@ export const ImageFile = (props: FileItemProps) => {
   return (
     <>
       <div
-        className={`relative h-20 w-20 rounded-lg border p-2 ${className} ${
+        className={`relative z-20 h-20 w-20 rounded-lg border  p-2 ${className} ${
           file?.status === 'error' ? 'border-[#ff4d4f]' : ''
         } ${file?.status === 'uploading' ? 'bg-gray-50' : ''}`}
-        key={file?.uid}
+        key={file?.uid || file?.url}
       >
         <div className={`relative z-10 flex h-full w-full items-center`}>
-          {file?.status == 'uploading' ? (
+          {file?.status == 'uploading' && !file?.url ? (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1">
               {props?.locale?.uploading || 'uploading'}
               {props?.progress || (
@@ -187,18 +187,24 @@ export const ImageFile = (props: FileItemProps) => {
               )}
             </div>
           ) : (
-            <Image
-              src={file?.url || ''}
-              width={72}
-              height={72}
-              alt={file?.name}
-              onClick={(event) => previw(event)}
-            />
+            file?.url && (
+              <img
+                src={file?.url}
+                width={72}
+                height={72}
+                alt={file?.name}
+                onClick={(event) => previw(event)}
+              />
+            )
           )}
         </div>
         {showUploadList !== false && (
           <Toggle
-            onClick={() => onRemove!(file)}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              onRemove!(file)
+            }}
             className={`z-20 h-6 w-6 rounded-full border  p-1 ${
               file?.status === 'uploading' ? 'bg-white' : 'bg-sky-50'
             } absolute right-1 top-1`}
@@ -215,7 +221,7 @@ export const ImageFile = (props: FileItemProps) => {
       )}
       <Dialog open={open} onOpenChange={() => setOpen(false)}>
         <DialogContent className="sm:max-w-[425px]">
-          <Image
+          <img
             src={file?.url || ''}
             sizes="(max-width: 500px)"
             width={500}

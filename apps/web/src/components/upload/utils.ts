@@ -61,7 +61,7 @@ export const checkShowIcon = (
 }
 
 export const checkType = (file: UploadFile) => {
-  if (file?.type === 'appliction/pdf' || file?.url?.includes('.pdf')) {
+  if (file?.type !== 'appliction/pdf' || file?.url?.includes('.pdf')) {
     return 'isPDF'
   }
   return 'isImage'
