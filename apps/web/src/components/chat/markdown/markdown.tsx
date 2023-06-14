@@ -9,7 +9,7 @@ import Typography from '@/components/ui/typography'
 import { MarkdownProps } from './type'
 
 export const MarkDown = (props: MarkdownProps) => {
-  const { className, showCustomeCard, ...others } = props
+  const { className, showCustomeCard: showCustomerCard, ...others } = props
   return (
     <div className={`${className}`}>
       {/* @ts-ignore */}
@@ -22,12 +22,12 @@ export const MarkDown = (props: MarkdownProps) => {
         ]}
         {...others}
       />
-      {showCustomeCard && <CustomeCard />}
+      {showCustomerCard && <CustomerCard />}
     </div>
   )
 }
 
-export const CustomeCard = () => {
+export const CustomerCard = () => {
   return (
     <div className="">
       <div>Context summary title</div>
@@ -44,7 +44,9 @@ const markdownComponent = {
   h4: ({ ...props }) => <Typography variant="h4" {...props} />,
   h5: ({ ...props }) => <Typography variant="h5" {...props} />,
   h6: ({ ...props }) => <Typography variant="h6" {...props} />,
-  p: ({ ...props }) => <Typography variant="body2" {...props} />,
+  p: ({ ...props }) => (
+    <Typography variant="body2" {...props} className="break-words" />
+  ),
   img: ({ ...props }) => (
     <img
       style={{ display: 'inline-block', marginBottom: -3 }}

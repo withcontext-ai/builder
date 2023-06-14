@@ -1,4 +1,4 @@
-import ChatItem from '@/components/chat/page'
+import Chat from '@/components/chat/page'
 
 interface IProps {
   params: { chat_id: string }
@@ -10,7 +10,7 @@ export default function ChatPage({ params }: IProps) {
   // and use chat_id to fetch chat data
   return (
     <div className="h-full w-full overflow-hidden">
-      <ChatItem />
+      <Chat />
     </div>
   )
 }

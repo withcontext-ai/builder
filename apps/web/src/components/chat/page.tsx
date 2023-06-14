@@ -1,16 +1,16 @@
-import ChatCard from './chat-card'
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
+import ChatList from './chat-list'
 
-const ChatItem = () => {
+const Chat = () => {
   const data = { id: '1' }
   return (
     <div className="flex h-full w-full flex-col">
       <ChatHeader />
-      <ChatCard />
+      <ChatList />
       <ChatInput />
     </div>
   )
 }
 
-export default ChatItem
+export default Chat
