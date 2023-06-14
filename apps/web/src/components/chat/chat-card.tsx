@@ -11,8 +11,8 @@ interface IProps {
 export interface IMessage {
   role?: 'user' | 'ai'
   name?: string
-  time?: string
-  text?: string
+  date?: string
+  content?: string
   img?: string
 }
 
@@ -39,7 +39,7 @@ const ChatCard = (props: IProps) => {
           >
             <Typography variant="body2">{message?.name}</Typography>
             <div className="text-xs	font-medium	text-gray-500">
-              {message?.time}
+              {message?.date}
             </div>
           </div>
 
@@ -48,7 +48,7 @@ const ChatCard = (props: IProps) => {
               isUser ? 'bg-primary text-white' : 'bg-gray-100'
             } sm:max-w-full md:max-w-full lg:max-w-screen-sm	xl:max-w-screen-sm`}
           >
-            <MarkDown>{message?.text || ''}</MarkDown>
+            <MarkDown>{message?.content || ''}</MarkDown>
           </div>
         </div>
         {isUser && (

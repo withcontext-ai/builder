@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useChatStore } from '@/store/chat'
 
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -12,30 +13,28 @@ interface InputProps {
 }
 
 const ChatInput = (props: InputProps) => {
-  const { loading = false, onSend, conversationId = '' } = props
+  const { loading = false, conversationId = '' } = props
   const [message, setMessage] = useState('')
-
+  const chatStore = useChatStore()
   const checkMsg = (msg: string) => {
     const value = new Set(msg.split('')) //判断空格和多个回车
-    console.log(value.size, '--value', message)
     if (value.size === 1 && (value.has('\n') || value.has(''))) return false
     return true
   }
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && !loading && message && onSend) {
-      onSend?.({ conversationId, message })
+    if (event.key === 'Enter' && !loading && message) {
+      chatStore.sendMessage(message)
     }
-    // setMessage('')
+    setMessage('')
   }
 
   const handleClick = () => {
-    if (message && onSend) {
-      onSend({ conversationId, message })
+    if (message) {
+      chatStore.sendMessage(message)
     }
-    // setMessage('')
+    setMessage('')
   }
-  console.log(!message, '----loading', message)
   return (
     <div className="flex justify-between gap-2 px-6 py-4">
       <Input
@@ -48,7 +47,7 @@ const ChatInput = (props: InputProps) => {
           }
         }}
       />
-      <Button disabled={!message || loading} onClick={handleClick}>
+      <Button disabled={!message || loading} onClick={() => handleClick()}>
         send
       </Button>
     </div>
