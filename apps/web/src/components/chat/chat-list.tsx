@@ -10,7 +10,6 @@ const ChatList = () => {
   const user_avatar = 'https://github.com/withcontext-ai.png'
   const chatStore = useChatStore()
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom()
-
   return (
     <div
       className="flex flex-1 flex-col gap-12 overflow-auto p-6"

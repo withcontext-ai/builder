@@ -5,14 +5,14 @@ export interface ChatMessage {
   date?: string
   loading?: boolean
   content?: string
-  id?: string
+  globalId?: string
   role?: 'user' | 'ai'
   isError?: boolean
   name?: string
 }
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
-    id: `${Date.now()}`,
+    globalId: `${Date.now()}`,
     date: new Date().toLocaleString(),
     role: 'user',
     name: '',
@@ -23,67 +23,126 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
 export interface ChatStore {
   enabledAuth?: boolean
   convocationId: string
+  globalId?: number
+  sessions?: ChatSession[]
+  currentSessionIndex: number
   messages?: ChatMessage[]
+  clearSessions?: () => void
+  updateCurrentSession: (updater: (session: ChatSession) => void) => void
   sendMessage: (msg: string) => void
+  onNewMessage: (message: ChatMessage) => void
   // onUserInput: (msg: string) => void
   getMessageWithMessage: (id: string) => ChatMessage[]
 }
 
-const mockMessage = [
-  {
-    role: 'ai',
-    name: 'AI IInterview',
-    date: '9:26AM',
-    content: 'hello what can i do for you',
-  },
-  {
-    role: 'user',
-    name: 'ME',
-    date: '9:50AM',
-    content: 'could you please tell me how to prepare for an interview',
-  },
-  {
-    role: 'ai',
-    name: 'ME',
-    date: '10:50AM',
-    content:
-      'The Context Company Employee Handbook outlines rules and regulations for employees, emphasizing the importance of integrating into the company and maintaining a positive attitude. The company values integrity, respect, and transparency, and provides a fair and equitable work environment. The recruitment process involves applying to HR, submitting documents, and undergoing training, with a six-month trial period and closely monitored attendance.',
-  },
-]
+export interface ChatSession {
+  id: number
+  topic?: string
+  memoryPrompt: string
+  messages: ChatMessage[]
+  stat: ChatStat
+  lastUpdate: number
+  lastSummarizeIndex: number
+  clearContextIndex?: number
+  // mask: Mask;
+}
+
+export interface ChatStat {
+  tokenCount: number
+  wordCount: number
+  charCount: number
+}
+
+function createEmptySession(): ChatSession {
+  return {
+    id: Date.now() + Math.random(),
+    // topic: DEFAULT_TOPIC, 暂时不开启不主题切换
+    memoryPrompt: '',
+    messages: [],
+    stat: {
+      tokenCount: 0,
+      wordCount: 0,
+      charCount: 0,
+    },
+    lastUpdate: Date.now(),
+    lastSummarizeIndex: 0,
+  }
+}
 
 export const useChatStore = create<ChatStore>()(
   persist(
     (set, get) => ({
+      currentSessionIndex: 0,
       convocationId: '1',
       enabledAuth: false,
+      globalId: 0,
       messages: [],
+      sessions: [],
       sendMessage(content: string) {
         const userMessage: ChatMessage = createMessage({
           role: 'user',
           content,
         })
 
-        console.log(content, '---content')
-
         const botMessage: ChatMessage = createMessage({
           role: 'ai',
-          id: userMessage.id! + 1,
+          globalId: userMessage.globalId! + 1,
           content: 'this is bot mock content',
         })
 
         const current = get().getMessageWithMessage('1')
         const newMsg = current?.concat([userMessage, botMessage])
         set({ messages: newMsg })
+
+        // make request
       },
-      // @ts-ignore
       getMessageWithMessage(id: string) {
         console.log(id, '---id')
-        return mockMessage
+        return []
+      },
+      clearSessions() {
+        set(() => ({
+          sessions: [createEmptySession()],
+          currentSessionIndex: 0,
+        }))
+      },
+      onNewMessage(message) {
+        get().updateCurrentSession((session) => {
+          session.lastUpdate = Date.now()
+        })
+        get().updateStat(message)
+        get().summarizeSession()
+      },
+      updateCurrentSession(updater) {
+        const sessions = get().sessions
+        const index = get().currentSessionIndex
+        sessions?.length && updater(sessions[index])
+        set(() => ({ sessions }))
       },
     }),
     {
       name: 'chat',
       version: 2,
+      migrate(persistedState, version) {
+        const state = persistedState as any
+        const newState = JSON.parse(JSON.stringify(state)) as ChatStore
+
+        if (version < 2) {
+          newState.globalId = 0
+          newState.sessions = []
+
+          const oldSessions = state.sessions
+          for (const oldSession of oldSessions) {
+            const newSession = createEmptySession()
+            newSession.topic = oldSession.topic
+            newSession.messages = [...oldSession.messages]
+            newState.sessions.push(newSession)
+          }
+        }
+        console.log(newState, '---newState')
+
+        return newState
+      },
     }
   )
 )
