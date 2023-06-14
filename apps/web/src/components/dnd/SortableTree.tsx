@@ -27,7 +27,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { createPortal } from 'react-dom'
 
 import { SortableTreeItem } from './SortableTreeItem'
-import type { FlattenedMenuItem, MenuItem } from './types'
+import type { FlattenedItem, TreeItem } from './types'
 // import { MENU_LENGTH_MAX_NUMBER } from '@/constants/editor';
 // import { useModel } from 'umi';
 // import { useMenuManagerContext } from './context';
@@ -81,11 +81,11 @@ const adjustTranslate: Modifier = ({ transform }) => {
 
 interface Props {
   collapsible?: boolean
-  value?: MenuItem[]
+  value?: TreeItem[]
   indentationWidth?: number
   indicator?: boolean
   removable?: boolean
-  onChange?: (items: MenuItem[]) => void
+  onChange?: (items: TreeItem[]) => void
 }
 
 export function SortableTree({
@@ -108,7 +108,7 @@ export function SortableTree({
 
   const flattenedItems = useMemo(() => {
     const flattenedTree = flattenTree(items)
-    const collapsedItems = flattenedTree.reduce<string[]>(
+    const collapsedItems = flattenedTree.reduce<UniqueIdentifier[]>(
       (acc, { children, collapsed, id }) =>
         collapsed && children.length ? [...acc, id] : acc,
       []
@@ -168,7 +168,7 @@ export function SortableTree({
 
     if (isDragValid && projected && over) {
       const { depth, parentId } = projected
-      const clonedItems: FlattenedMenuItem[] = JSON.parse(
+      const clonedItems: FlattenedItem[] = JSON.parse(
         JSON.stringify(flattenTree(items))
       )
       const overIndex = clonedItems.findIndex(({ id }) => id === over.id)
@@ -235,19 +235,19 @@ export function SortableTree({
         {flattenedItems.map(
           ({
             id,
-            name,
+            // name,
             children,
-            hidden = false,
+            // hidden = false,
             collapsed,
             depth,
-            type,
-            value,
+            // type,
+            // value,
           }) => (
             <SortableTreeItem
               key={id}
               id={id}
-              value={name}
-              hidden={hidden}
+              value={`${id}`}
+              // hidden={hidden}
               depth={id === activeId && projected ? projected.depth : depth}
               indentationWidth={indentationWidth}
               indicator={indicator}

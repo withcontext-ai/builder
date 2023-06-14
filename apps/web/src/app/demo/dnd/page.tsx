@@ -1,28 +1,19 @@
-import { MenuItem } from '@/components/dnd/types'
+import { TreeItem } from '@/components/dnd/types'
 
 import WorkflowTree from './workflow-tree'
 
-const ITEMS_VALUE: MenuItem[] = [
+const ITEMS_VALUE: TreeItem[] = [
   {
     id: 'a',
-    name: 'aaa',
-    type: 'page',
-    value: 'https://www.baidu.com',
     children: [
       {
         id: 'b',
-        name: 'bbb',
-        type: 'page',
-        value: 'https://www.baidu.com',
         children: [],
       },
     ],
   },
   {
     id: 'c',
-    name: 'ccc',
-    type: 'page',
-    value: 'https://www.baidu.com',
     children: [],
   },
 ]

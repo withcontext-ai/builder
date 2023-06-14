@@ -1,14 +1,14 @@
 'use client'
 
 import { SortableTree } from '@/components/dnd/SortableTree'
-import { MenuItem } from '@/components/dnd/types'
+import { TreeItem } from '@/components/dnd/types'
 
 interface IProps {
-  defaultValue?: MenuItem[]
+  defaultValue?: TreeItem[]
 }
 
 export default function WorkflowTree({ defaultValue }: IProps) {
-  function handleChange(items: MenuItem[]) {
+  function handleChange(items: TreeItem[]) {
     console.log('items:', items)
   }
 

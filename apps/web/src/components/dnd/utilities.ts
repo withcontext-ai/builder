@@ -4,8 +4,8 @@ import { cloneDeep } from 'lodash'
 
 import type {
   FlattenedItem,
-  FlattenedMenuItem,
-  MenuItem,
+  // FlattenedMenuItem,
+  // TreeItem,
   TreeItem,
   TreeItems,
 } from './types'
@@ -82,11 +82,11 @@ function getMinDepth({ nextItem }: { nextItem: FlattenedItem }) {
 }
 
 function flatten(
-  items: MenuItem[],
-  parentId: string | null = null,
+  items: TreeItem[],
+  parentId: UniqueIdentifier | null = null,
   depth = 0
-): FlattenedMenuItem[] {
-  return items.reduce<FlattenedMenuItem[]>((acc, item, index) => {
+): FlattenedItem[] {
+  return items.reduce<FlattenedItem[]>((acc, item, index) => {
     return [
       ...acc,
       { ...item, parentId, depth, index },
@@ -95,16 +95,13 @@ function flatten(
   }, [])
 }
 
-export function flattenTree(items: MenuItem[]): FlattenedMenuItem[] {
+export function flattenTree(items: TreeItem[]): FlattenedItem[] {
   return flatten(items)
 }
 
-export function buildTree(flattenedItems: FlattenedMenuItem[]): MenuItem[] {
-  const root: MenuItem = {
+export function buildTree(flattenedItems: FlattenedItem[]): TreeItem[] {
+  const root: TreeItem = {
     id: 'root',
-    name: 'root',
-    type: 'page',
-    value: '',
     children: [],
   }
   const nodes: Record<string, TreeItem> = { [root.id]: root }
@@ -149,7 +146,7 @@ export function findItemDeep(
   return undefined
 }
 
-export function removeItem(items: MenuItem[], id: UniqueIdentifier) {
+export function removeItem(items: TreeItem[], id: UniqueIdentifier) {
   const newItems = []
   const clonedItems = cloneDeep(items)
 
@@ -168,11 +165,11 @@ export function removeItem(items: MenuItem[], id: UniqueIdentifier) {
   return newItems
 }
 
-export function setProperty<T extends keyof MenuItem>(
-  items: MenuItem[],
+export function setProperty<T extends keyof TreeItem>(
+  items: TreeItem[],
   id: UniqueIdentifier,
   property: T,
-  setter: (value: MenuItem[T]) => MenuItem[T]
+  setter: (value: TreeItem[T]) => TreeItem[T]
 ) {
   for (const item of items) {
     if (item.id === id) {
@@ -205,7 +202,7 @@ export function getChildCount(items: TreeItems, id: UniqueIdentifier) {
 }
 
 export function removeChildrenOf(
-  items: FlattenedMenuItem[],
+  items: FlattenedItem[],
   ids: UniqueIdentifier[]
 ) {
   const excludeParentIds = [...ids]

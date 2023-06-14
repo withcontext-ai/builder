@@ -1,7 +1,8 @@
 'use client'
 
 import type { CSSProperties } from 'react'
-import type { UniqueIdentifier } from '@dnd-kit/core'
+import { UniqueIdentifier } from '@dnd-kit/core'
+// import type { UniqueIdentifier } from '@dnd-kit/core'
 import type { AnimateLayoutChanges } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
