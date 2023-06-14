@@ -1,13 +1,10 @@
 'use client'
 
-// import type { ActionProps } from 'fbm-ui';
-// import { Actions, DragIndicatorIcon } from 'fbm-ui';
 import type { HTMLAttributes } from 'react'
 import React, { forwardRef } from 'react'
-import clsx from 'clsx'
 import { GripVerticalIcon } from 'lucide-react'
 
-// import styles from './TreeItem.less';
+import { cn } from '@/lib/utils'
 
 export interface Props extends Omit<HTMLAttributes<HTMLLIElement>, 'id'> {
   childCount?: number
@@ -26,7 +23,6 @@ export interface Props extends Omit<HTMLAttributes<HTMLLIElement>, 'id'> {
   onRemove?: () => void
   wrapperRef?: (node: HTMLLIElement) => void
   isDragValid?: boolean
-  // actions?: ActionProps[];
 }
 
 export const TreeItem = forwardRef<HTMLDivElement, Props>(
@@ -59,15 +55,15 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
 
     return (
       <li
-        // className={clsx(
-        //   styles.Wrapper,
-        //   clone && styles.clone,
-        //   ghost && styles.ghost,
-        //   indicator && styles.indicator,
-        //   disableSelection && styles.disableSelection,
-        //   disableInteraction && styles.disableInteraction,
-        //   !isDragValid && styles.invalid,
-        // )}
+        className={cn(
+          'mb-[-1px] box-border list-none pl-[var(--spacing)]',
+          clone && 'pointer-events-none inline-block p-0 pl-2.5 pt-1.5',
+          ghost && 'opacity-50',
+          indicator && 'z-1 relative mb-[-1px] opacity-100'
+          // disableSelection && styles.disableSelection,
+          // disableInteraction && styles.disableInteraction,
+          // !isDragValid && styles.invalid
+        )}
         ref={wrapperRef}
         style={
           {
@@ -78,23 +74,34 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* <div className={styles.TreeItem} ref={ref} style={style}> */}
-        <div ref={ref} style={style}>
-          {/* <div className={styles.DragIcon}> */}
+        <div
+          className="relative box-border flex items-center border border-gray-300 bg-white px-2.5 py-[var(--vertical-padding)] text-gray-900"
+          ref={ref}
+          style={style}
+        >
           <div>
             <GripVerticalIcon
               sx={{ cursor: 'grab', '&:focus': { outline: 'none' } }}
               {...handleProps}
             />
           </div>
-          {/* <span className={clsx(styles.Text, hidden && styles.Hidden)}>{value}</span> */}
-          {!children && !!value ? <span>{value}</span> : null}
+          {!children && !!value ? (
+            <span
+              className={cn(
+                'grow overflow-hidden text-ellipsis whitespace-nowrap pl-2 text-gray-700',
+                hidden && 'text-gray-200'
+              )}
+            >
+              {value}
+            </span>
+          ) : null}
           {children ? children : null}
           {/* {!clone && onRemove && <CloseIcon onClick={onRemove} sx={{ cursor: 'pointer' }} />} */}
           {/* {isHovered && !clone && actions && <Actions actions={actions} />} */}
           {clone && childCount && childCount > 1 ? (
-            // <span className={styles.Count}>{childCount}</span>
-            <span>{childCount}</span>
+            <span className="absolute right-[-10px] top-[-10px] flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+              {childCount}
+            </span>
           ) : null}
         </div>
       </li>
