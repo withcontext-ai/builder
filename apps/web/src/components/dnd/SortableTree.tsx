@@ -26,6 +26,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { createPortal } from 'react-dom'
 
+import { useIsMounted } from '@/hooks/useIsMounted'
+
 import { SortableTreeItem } from './SortableTreeItem'
 import type { FlattenedItem, TreeItem } from './types'
 // import { MENU_LENGTH_MAX_NUMBER } from '@/constants/editor';
@@ -221,6 +223,8 @@ export function SortableTree({
     setItems(value)
   }, [value])
 
+  const isMounted = useIsMounted()
+
   return (
     <DndContext
       collisionDetection={closestCenter}
@@ -296,24 +300,25 @@ export function SortableTree({
             />
           )
         )}
-        {/* {createPortal(
-          <DragOverlay
-            dropAnimation={dropAnimationConfig}
-            modifiers={indicator ? [adjustTranslate] : undefined}
-          >
-            {activeId && activeItem ? (
-              <SortableTreeItem
-                id={activeId}
-                depth={activeItem.depth}
-                clone
-                childCount={getChildCount(items, activeId) + 1}
-                value={activeItem.name}
-                indentationWidth={indentationWidth}
-              />
-            ) : null}
-          </DragOverlay>,
-          document.body
-        )} */}
+        {isMounted() &&
+          createPortal(
+            <DragOverlay
+              dropAnimation={dropAnimationConfig}
+              modifiers={indicator ? [adjustTranslate] : undefined}
+            >
+              {activeId && activeItem ? (
+                <SortableTreeItem
+                  id={activeId}
+                  depth={activeItem.depth}
+                  clone
+                  childCount={getChildCount(items, activeId) + 1}
+                  value={`${activeItem.id}`}
+                  indentationWidth={indentationWidth}
+                />
+              ) : null}
+            </DragOverlay>,
+            document.body
+          )}
       </SortableContext>
     </DndContext>
   )
