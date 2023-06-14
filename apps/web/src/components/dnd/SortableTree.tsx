@@ -88,6 +88,7 @@ interface Props {
   indicator?: boolean
   removable?: boolean
   onChange?: (items: TreeItem[]) => void
+  children?: React.ReactNode | ((id: UniqueIdentifier) => React.ReactNode)
 }
 
 export function SortableTree({
@@ -97,6 +98,7 @@ export function SortableTree({
   indentationWidth = 24,
   removable,
   onChange,
+  children: childrenComponent,
 }: Props) {
   // const { toggleMenuDialog } = useMenuManagerContext();
   // const { toggleMenuItem } = useModel('useEditPageModel', (model) => ({
@@ -297,7 +299,11 @@ export function SortableTree({
               //     ],
               //   },
               // ]}
-            />
+            >
+              {typeof childrenComponent === 'function'
+                ? childrenComponent(id)
+                : childrenComponent}
+            </SortableTreeItem>
           )
         )}
         {isMounted() &&
@@ -314,7 +320,11 @@ export function SortableTree({
                   childCount={getChildCount(items, activeId) + 1}
                   value={`${activeItem.id}`}
                   indentationWidth={indentationWidth}
-                />
+                >
+                  {typeof childrenComponent === 'function'
+                    ? childrenComponent(activeId)
+                    : childrenComponent}
+                </SortableTreeItem>
               ) : null}
             </DragOverlay>,
             document.body

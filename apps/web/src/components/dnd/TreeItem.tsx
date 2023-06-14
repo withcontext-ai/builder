@@ -20,7 +20,8 @@ export interface Props extends Omit<HTMLAttributes<HTMLLIElement>, 'id'> {
   handleProps?: any
   indicator?: boolean
   indentationWidth: number
-  value: string
+  value?: string
+  children?: React.ReactNode
   onCollapse?: () => void
   onRemove?: () => void
   wrapperRef?: (node: HTMLLIElement) => void
@@ -46,6 +47,7 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
       onRemove,
       style,
       value,
+      children,
       wrapperRef,
       isDragValid = false,
       // actions,
@@ -86,7 +88,8 @@ export const TreeItem = forwardRef<HTMLDivElement, Props>(
             />
           </div>
           {/* <span className={clsx(styles.Text, hidden && styles.Hidden)}>{value}</span> */}
-          <span>{value}</span>
+          {!children && !!value ? <span>{value}</span> : null}
+          {children ? children : null}
           {/* {!clone && onRemove && <CloseIcon onClick={onRemove} sx={{ cursor: 'pointer' }} />} */}
           {/* {isHovered && !clone && actions && <Actions actions={actions} />} */}
           {clone && childCount && childCount > 1 ? (

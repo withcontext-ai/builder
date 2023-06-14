@@ -1,5 +1,7 @@
 'use client'
 
+import { UniqueIdentifier } from '@dnd-kit/core'
+
 import { SortableTree } from '@/components/dnd/SortableTree'
 import { TreeItem } from '@/components/dnd/types'
 
@@ -18,6 +20,8 @@ export default function WorkflowTree({ defaultValue }: IProps) {
       onChange={handleChange}
       indicator
       removable
-    />
+    >
+      {(id: UniqueIdentifier) => <div>id: {id}</div>}
+    </SortableTree>
   )
 }
