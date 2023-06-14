@@ -1,6 +1,5 @@
 'use client'
 
-// import { DeleteIcon, EditIcon, InvisibleIcon, Message, OverflowIcon, PreviewIcon } from 'fbm-ui';
 import { useEffect, useMemo, useState } from 'react'
 import type {
   DragEndEvent,
@@ -265,40 +264,6 @@ export function SortableTree({
               }
               onRemove={removable ? () => handleRemove(id) : undefined}
               isDragValid={isDragValid}
-              // actions={[
-              //   {
-              //     buttonType: 'IconButton',
-              //     icon: <OverflowIcon />,
-              //     variant: 'outlined',
-              //     actions: [
-              //       {
-              //         text: '编辑',
-              //         icon: <EditIcon />,
-              //         variant: 'outlined',
-              //         onClick: () => {
-              //           const menu = { id, name, type, value };
-              //           toggleMenuDialog('edit', menu);
-              //         },
-              //       },
-              //       {
-              //         text: hidden ? '显示' : '隐藏',
-              //         icon: hidden ? <PreviewIcon /> : <InvisibleIcon />,
-              //         variant: 'outlined',
-              //         onClick: () => {
-              //           toggleMenuItem(id);
-              //         },
-              //       },
-              //       {
-              //         text: '删除',
-              //         icon: <DeleteIcon />,
-              //         variant: 'outlined',
-              //         onClick: () => {
-              //           if (id) handleRemove(id);
-              //         },
-              //       },
-              //     ],
-              //   },
-              // ]}
             >
               {typeof childrenComponent === 'function'
                 ? childrenComponent(id)
