@@ -169,7 +169,8 @@ export function SortableTree({
   function handleDragEnd({ active, over }: DragEndEvent) {
     resetState()
 
-    if (isDragValid && projected && over) {
+    // if (isDragValid && projected && over) {
+    if (projected && over) {
       const { depth, parentId } = projected
       const clonedItems: FlattenedItem[] = JSON.parse(
         JSON.stringify(flattenTree(items))
