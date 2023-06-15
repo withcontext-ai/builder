@@ -1,8 +1,7 @@
 'use client'
 
 import type { CSSProperties } from 'react'
-import { UniqueIdentifier } from '@dnd-kit/core'
-// import type { UniqueIdentifier } from '@dnd-kit/core'
+import type { UniqueIdentifier } from '@dnd-kit/core'
 import type { AnimateLayoutChanges } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -42,6 +41,7 @@ export function SortableTreeItem({ id, depth, ...props }: Props) {
     <TreeItem
       ref={setDraggableNodeRef}
       wrapperRef={setDroppableNodeRef}
+      itemId={id}
       style={style}
       depth={depth}
       ghost={isDragging}

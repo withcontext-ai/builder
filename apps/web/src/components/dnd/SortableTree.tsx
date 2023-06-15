@@ -28,10 +28,7 @@ import { createPortal } from 'react-dom'
 import { useIsMounted } from '@/hooks/useIsMounted'
 
 import { SortableTreeItem } from './SortableTreeItem'
-import type { FlattenedItem, TreeItem } from './types'
-// import { MENU_LENGTH_MAX_NUMBER } from '@/constants/editor';
-// import { useModel } from 'umi';
-// import { useMenuManagerContext } from './context';
+import type { FlattenedItem, ITreeItemChildren, TreeItem } from './types'
 import {
   buildTree,
   flattenTree,
@@ -87,7 +84,7 @@ interface Props {
   indicator?: boolean
   removable?: boolean
   onChange?: (items: TreeItem[]) => void
-  children?: React.ReactNode | ((id: UniqueIdentifier) => React.ReactNode)
+  children?: ITreeItemChildren
 }
 
 export function SortableTree({
@@ -99,11 +96,6 @@ export function SortableTree({
   onChange,
   children: childrenComponent,
 }: Props) {
-  // const { toggleMenuDialog } = useMenuManagerContext();
-  // const { toggleMenuItem } = useModel('useEditPageModel', (model) => ({
-  //   toggleMenuItem: model.toggleMenuItem,
-  // }));
-
   const [items, setItems] = useState(() => value)
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null)
@@ -266,9 +258,7 @@ export function SortableTree({
               onRemove={removable ? () => handleRemove(id) : undefined}
               isDragValid={isDragValid}
             >
-              {typeof childrenComponent === 'function'
-                ? childrenComponent(id)
-                : childrenComponent}
+              {childrenComponent}
             </SortableTreeItem>
           )
         )}
@@ -287,9 +277,7 @@ export function SortableTree({
                   value={`${activeItem.id}`}
                   indentationWidth={indentationWidth}
                 >
-                  {typeof childrenComponent === 'function'
-                    ? childrenComponent(activeId)
-                    : childrenComponent}
+                  {childrenComponent}
                 </SortableTreeItem>
               ) : null}
             </DragOverlay>,

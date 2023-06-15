@@ -20,20 +20,6 @@ export type SensorContext = MutableRefObject<{
   offset: number
 }>
 
-// export interface MenuItem {
-//   id: string
-//   name: string
-//   type: 'page' | 'url'
-//   value: string // page_id | url
-//   pageValue?: string
-//   urlValue?: string
-//   hidden?: boolean
-//   collapsed?: boolean
-//   children: MenuItem[]
-// }
-
-// export interface FlattenedMenuItem extends MenuItem {
-//   parentId: string | number | null
-//   depth: number
-//   index: number
-// }
+export type ITreeItemChildren =
+  | React.ReactNode
+  | ((props: any) => React.ReactNode)
