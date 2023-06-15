@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 export interface ChatMessage {
   date?: string
-  loading?: boolean
+  streaming?: boolean
   content?: string
   globalId?: string
   role?: 'user' | 'ai'
@@ -87,14 +87,21 @@ export const useChatStore = create<ChatStore>()(
         const botMessage: ChatMessage = createMessage({
           role: 'ai',
           globalId: userMessage.globalId! + 1,
-          content: 'this is bot mock content',
+          streaming: true,
         })
 
-        const current = get().getMessageWithMessage('1')
+        const current = get().messages
         const newMsg = current?.concat([userMessage, botMessage])
         set({ messages: newMsg })
-
+        console.log(get().messages?.length, '--------message')
         // make request
+
+        setTimeout(() => {
+          botMessage.content = 'this is mock response'
+          botMessage.streaming = false
+          newMsg?.splice(newMsg?.length - 1, 0, botMessage)
+          set({ messages: newMsg })
+        }, 500)
       },
       getMessageWithMessage(id: string) {
         console.log(id, '---id')
@@ -110,8 +117,8 @@ export const useChatStore = create<ChatStore>()(
         get().updateCurrentSession((session) => {
           session.lastUpdate = Date.now()
         })
-        get().updateStat(message)
-        get().summarizeSession()
+        // get().updateStat(message)
+        // get().summarizeSession()
       },
       updateCurrentSession(updater) {
         const sessions = get().sessions

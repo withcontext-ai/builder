@@ -2,9 +2,9 @@
 
 import { Ref, useState } from 'react'
 import { useChatStore } from '@/store/chat'
+import { Loader2 } from 'lucide-react'
 
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 
 interface InputProps {
@@ -34,6 +34,7 @@ const ChatInput = (props: InputProps) => {
   }
 
   const handleClick = async () => {
+    // 重新询问
     if (message) {
       await chatStore.sendMessage(message)
       setMessage('')
@@ -55,6 +56,7 @@ const ChatInput = (props: InputProps) => {
         }}
       />
       <Button disabled={!message || loading} onClick={() => handleClick()}>
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         send
       </Button>
     </div>

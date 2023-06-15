@@ -2,13 +2,14 @@
 
 import { ChatMessage, useChatStore } from '@/store/chat'
 
-import ChatCard, { IMessage } from './chat-card'
+import ChatCard from './chat-card'
 import { useScrollToBottom } from './utils'
 
 const ChatList = () => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/withcontext-ai.png'
   const chatStore = useChatStore()
+  const { messages } = chatStore
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom()
   return (
     <div
@@ -18,13 +19,15 @@ const ChatList = () => {
         setAutoScroll(false)
       }}
     >
-      {chatStore?.messages?.map((message: ChatMessage) => {
+      {messages?.map((message: ChatMessage, index: number) => {
+        const isEnd = messages?.length - 1 === index
         return (
           <ChatCard
             message={message}
             key={message?.content}
             model_avatar={model_avatar}
             user_avatar={user_avatar}
+            isEnd={isEnd}
           />
         )
       })}
