@@ -25,11 +25,11 @@ const CHAT_LIST_DATA = [
 ]
 
 interface IProps {
-  botId: string
+  appId: string
 }
 
-export default function ChatList({ botId }: IProps) {
-  // TODO: use botId to fetch chat list data
+export default function ChatList({ appId }: IProps) {
+  // TODO: use appId to fetch chat list data
 
   return (
     <nav className="flex flex-1 flex-col" aria-label="ChatList">

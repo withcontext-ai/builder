@@ -12,9 +12,9 @@ interface IChatItem {
 
 export default function ChatListItem({ token, title }: IChatItem) {
   const params = useParams()
-  const botId = params.bot_id
+  const appId = params.app_id
   const chatId = params.chat_id
-  const href = `/bot/${botId}/chat/${token}`
+  const href = `/app/${appId}/chat/${token}`
   const isSelected = chatId == token
 
   return (
