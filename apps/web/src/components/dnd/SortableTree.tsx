@@ -16,6 +16,10 @@ import {
   DndContext,
   DragOverlay,
   MeasuringStrategy,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -40,6 +44,12 @@ import {
 } from './utilities'
 
 const MENU_LENGTH_MAX_NUMBER = 100
+
+const activationConstraint = {
+  delay: 300,
+  tolerance: 10,
+  // distance: 8,
+}
 
 const measuring = {
   droppable: {
@@ -219,8 +229,17 @@ export function SortableTree({
 
   const isMounted = useIsMounted()
 
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint,
+  })
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint,
+  })
+  const sensors = useSensors(mouseSensor, touchSensor)
+
   return (
     <DndContext
+      sensors={sensors}
       collisionDetection={closestCenter}
       measuring={measuring}
       onDragStart={handleDragStart}
