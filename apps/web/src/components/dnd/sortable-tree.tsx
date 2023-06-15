@@ -46,7 +46,7 @@ import {
 const MENU_LENGTH_MAX_NUMBER = 100
 
 const activationConstraint = {
-  delay: 300,
+  delay: 200,
   tolerance: 10,
   // distance: 8,
 }
