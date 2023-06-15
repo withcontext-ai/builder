@@ -1,6 +1,6 @@
 'use client'
 
-import { SortableTree } from '@/components/dnd/SortableTree'
+import { SortableTree } from '@/components/dnd/sortable-tree'
 import { TreeItem } from '@/components/dnd/types'
 
 import WorkflowTreeItem from './workflow-tree-item'

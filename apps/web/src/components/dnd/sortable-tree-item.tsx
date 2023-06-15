@@ -6,8 +6,8 @@ import type { AnimateLayoutChanges } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import type { Props as TreeItemProps } from './TreeItem'
-import { TreeItem } from './TreeItem'
+import type { Props as TreeItemProps } from './tree-item'
+import { TreeItem } from './tree-item'
 
 interface Props extends TreeItemProps {
   id: UniqueIdentifier

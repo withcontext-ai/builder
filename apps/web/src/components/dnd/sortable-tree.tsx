@@ -31,7 +31,7 @@ import { createPortal } from 'react-dom'
 
 import { useIsMounted } from '@/hooks/useIsMounted'
 
-import { SortableTreeItem } from './SortableTreeItem'
+import { SortableTreeItem } from './sortable-tree-item'
 import type { FlattenedItem, ITreeItemChildren, TreeItem } from './types'
 import {
   buildTree,
