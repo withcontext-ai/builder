@@ -5,12 +5,13 @@ import { useChatStore } from '@/store/chat'
 
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { Textarea } from '../ui/textarea'
 
 interface InputProps {
   onSend?: (data: Record<string, string>) => void
   conversationId?: string
   loading?: boolean
-  inputRef?: Ref<HTMLInputElement>
+  inputRef?: Ref<HTMLTextAreaElement>
 }
 
 const ChatInput = (props: InputProps) => {
@@ -23,7 +24,9 @@ const ChatInput = (props: InputProps) => {
     return true
   }
 
-  const handleKeyUp = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyUp = async (
+    event: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
     if (event.key === 'Enter' && !loading && message) {
       await chatStore.sendMessage(message)
       setMessage('')
@@ -38,13 +41,14 @@ const ChatInput = (props: InputProps) => {
   }
   return (
     <div className="flex justify-between gap-2 px-6 py-4">
-      <Input
+      <Textarea
         ref={inputRef}
-        type="textarea"
         placeholder="Type a message"
         onKeyUp={handleKeyUp}
         value={message}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        minRows={1}
+        maxRows={3}
+        onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
           if (checkMsg(event?.target?.value)) {
             setMessage(event?.target?.value)
           }
