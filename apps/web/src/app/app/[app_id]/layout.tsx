@@ -4,7 +4,7 @@ import AppSidebar from './sidebar'
 
 interface IProps {
   children: React.ReactNode
-  params: { app_id: string; chat_id: string }
+  params: { app_id: string; session_id: string }
 }
 
 export default function AppLayout({ children, params }: IProps) {

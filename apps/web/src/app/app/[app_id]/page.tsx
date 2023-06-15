@@ -6,8 +6,8 @@ interface IProps {
 
 export default function AppPage({ params }: IProps) {
   const { app_id } = params
-  // TODO: use app_id to fetch the latest chat id
-  // if no chat id found, create one
+  // TODO: use app_id to fetch the latest session id
+  // if no session id found, create one
 
-  redirect(`/app/${app_id}/chat/c1`)
+  redirect(`/app/${app_id}/session/s1`)
 }

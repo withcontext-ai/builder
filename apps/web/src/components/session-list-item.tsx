@@ -5,17 +5,17 @@ import { useParams } from 'next/navigation'
 import clsx from 'clsx'
 import { MessageCircleIcon, TrashIcon } from 'lucide-react'
 
-interface IChatItem {
+interface ISessionItem {
   token: string
   title: string
 }
 
-export default function ChatListItem({ token, title }: IChatItem) {
+export default function SessionListItem({ token, title }: ISessionItem) {
   const params = useParams()
   const appId = params.app_id
-  const chatId = params.chat_id
-  const href = `/app/${appId}/chat/${token}`
-  const isSelected = chatId == token
+  const sessionId = params.session_id
+  const href = `/app/${appId}/session/${token}`
+  const isSelected = sessionId == token
 
   return (
     <li>
