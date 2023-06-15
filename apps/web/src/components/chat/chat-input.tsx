@@ -34,7 +34,6 @@ const ChatInput = (props: InputProps) => {
   }
 
   const handleClick = async () => {
-    // 重新询问
     if (message) {
       await chatStore.sendMessage(message)
       setMessage('')

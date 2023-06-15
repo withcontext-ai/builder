@@ -28,6 +28,7 @@ export interface ChatStore {
   currentSessionIndex: number
   messages?: ChatMessage[]
   clearSessions?: () => void
+  updateMessage: (msg: ChatMessage[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
   sendMessage: (msg: string) => void
   onNewMessage: (message: ChatMessage) => void
@@ -107,6 +108,9 @@ export const useChatStore = create<ChatStore>()(
         console.log(id, '---id')
         return []
       },
+      updateMessage(newMsg: ChatMessage[]) {
+        set({ messages: newMsg })
+      },
       clearSessions() {
         set(() => ({
           sessions: [createEmptySession()],
@@ -146,8 +150,6 @@ export const useChatStore = create<ChatStore>()(
             newState.sessions.push(newSession)
           }
         }
-        console.log(newState, '---newState')
-
         return newState
       },
     }

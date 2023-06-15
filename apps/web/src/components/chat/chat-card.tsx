@@ -21,10 +21,14 @@ const ChatCard = (props: IProps) => {
   const { message, model_avatar, user_avatar, isEnd } = props
   const isUser = message?.role === 'user'
   const chatStore = useChatStore()
-  const { messages, sendMessage } = chatStore
+  const { messages, sendMessage, updateMessage } = chatStore
+
   const handleClick = () => {
+    // 先删除掉上一次的回复记录，再重新调request接口
+    const lens = messages?.length || 0
     const question = messages?.slice(-2, -1)
-    console.log(question, '-----question')
+    messages?.splice(lens - 2, 2)
+    updateMessage(messages || [])
     sendMessage(question?.[0]?.content || '')
   }
   return (
@@ -65,7 +69,7 @@ const ChatCard = (props: IProps) => {
                 </div>
               )}
             </div>
-            {isEnd && (
+            {isEnd && !isUser && (
               <Toggle className="h-6 w-6 p-1" onClick={handleClick}>
                 <RefreshCw size={20} />
               </Toggle>
