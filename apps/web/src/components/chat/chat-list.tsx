@@ -7,7 +7,7 @@ import { useScrollToBottom } from './utils'
 
 const ChatList = () => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
-  const user_avatar = 'https://github.com/withcontext-ai.png'
+  const user_avatar = 'https://github.com/shadcn.png'
   const chatStore = useChatStore()
   const { messages } = chatStore
   const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom()
