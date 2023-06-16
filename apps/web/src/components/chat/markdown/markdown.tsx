@@ -1,15 +1,20 @@
+import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeHighlight from 'rehype-highlight'
 // markdown plugins
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import Typography from '@/components/ui/typography'
+import { PdfImage, PreviewPdf } from '@/components/upload/component'
 
 import { MarkdownProps } from './type'
 
 export const MarkDown = (props: MarkdownProps) => {
-  const { className, showCustomeCard: showCustomerCard, ...others } = props
+  const { className, showCustomerCard: showCustomerCard, ...others } = props
   return (
     <div className={`${className}`}>
       {/* @ts-ignore */}
@@ -22,17 +27,89 @@ export const MarkDown = (props: MarkdownProps) => {
         ]}
         {...others}
       />
-      {showCustomerCard && <CustomerCard />}
     </div>
   )
 }
 
 export const CustomerCard = () => {
+  const [showMore, setShowMore] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false)
+  const sources = [
+    {
+      uid: '',
+      name: '3.pdf',
+      url: '111',
+    },
+  ]
   return (
     <div className="">
-      <div>Context summary title</div>
-      <div>summary content area</div>
-      <div>button action area</div>
+      <div className="rounded-t-lg bg-primary p-3 text-white	">
+        <Typography variant="h6" className="text-white">
+          Context summary
+        </Typography>
+      </div>
+      <div className="p-3">
+        <Typography variant="body2" className="mb-3">
+          this is summary
+        </Typography>
+        <Typography variant="body2">source:</Typography>
+        <div className="flex flex-wrap gap-2	">
+          {sources?.map((file, index) => {
+            return (
+              <>
+                <Badge variant="outline" key={index} className="gap-1">
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback>
+                      <PdfImage height="20" width="12" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <Typography variant="body2" className="line-clamp-1	max-w-xs">
+                    {file?.name}
+                  </Typography>
+                </Badge>
+                <PreviewPdf file={file} open={open} setOpen={setOpen} />
+              </>
+            )
+          })}
+        </div>
+        <ExampleQuestion />
+        <div className={`flex ${sources?.length < 6 ? 'hidden' : 'block'}`}>
+          <Button
+            variant="link"
+            onClick={() => setShowMore(!showMore)}
+            className="text-slate-900"
+          >
+            {!showMore ? 'Show More' : 'Show Less'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const ExampleQuestion = () => {
+  const questions = [
+    'What types of organizations are covered by the law?\n',
+    'When did the "Provisional Regulations on Wage Payment" come into effect?\n',
+    "What are the labor rights that employees are entitled to under the Labor Law of the People's Republic of China?\n",
+  ]
+  return (
+    <div className="mt-4">
+      <Typography variant="body2">Example Questions:</Typography>
+      <div className="flex flex-col gap-1">
+        {questions?.map((item) => {
+          console.log(item)
+          return (
+            <Typography
+              variant="body2"
+              className="cursor-pointer hover:text-slate-900	"
+              key={item}
+            >
+              {item}
+            </Typography>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '../ui/button'
 import { Toggle } from '../ui/toggle'
 import Typography from '../ui/typography'
-import { MarkDown } from './markdown/markdown'
+import { CustomerCard, MarkDown } from './markdown/markdown'
 
 interface IProps {
   message?: ChatMessage
@@ -22,7 +22,7 @@ const ChatCard = (props: IProps) => {
   const isUser = message?.role === 'user'
   const chatStore = useChatStore()
   const { messages, sendMessage, updateMessage } = chatStore
-
+  const showCustomerCard = true
   const handleClick = () => {
     // 先删除掉上一次的回复记录，再重新调request接口
     const lens = messages?.length || 0
@@ -60,11 +60,14 @@ const ChatCard = (props: IProps) => {
             }`}
           >
             <div
-              className={`rounded-lg p-4	text-sm ${
+              className={`rounded-lg ${
+                showCustomerCard ? 'p-0' : 'p-4'
+              }	text-sm ${
                 isUser ? 'bg-primary text-white' : 'bg-gray-100'
               } sm:max-w-full md:max-w-full lg:max-w-screen-sm	xl:max-w-screen-sm`}
             >
-              <MarkDown>{message?.content || ''}</MarkDown>
+              {/* <MarkDown>{message?.content || ''}</MarkDown> */}
+              {showCustomerCard && <CustomerCard />}
               {message?.streaming && (
                 <div className="flex">
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
