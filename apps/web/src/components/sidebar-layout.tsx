@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils'
+
 interface IProps {
   sidebar: React.ReactNode
   children: React.ReactNode
@@ -14,7 +16,7 @@ export default function SidebarLayout({
       <aside className="flex w-60 flex-col border-r border-gray-200">
         {sidebar}
       </aside>
-      <main className={`flex-1 overflow-y-auto px-8 py-6 ${mainClassName} `}>
+      <main className={cn('flex-1 overflow-y-auto px-8 py-6 ', mainClassName)}>
         {children}
       </main>
     </div>

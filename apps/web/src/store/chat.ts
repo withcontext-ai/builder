@@ -27,7 +27,7 @@ export interface ChatStore {
   sessions?: ChatSession[]
   currentSessionIndex: number
   messages?: ChatMessage[]
-  clearSessions?: () => void
+  clearSessions: () => void
   updateMessage: (msg: ChatMessage[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
   sendMessage: (msg: string) => void
@@ -57,7 +57,6 @@ export interface ChatStat {
 function createEmptySession(): ChatSession {
   return {
     id: Date.now() + Math.random(),
-    // topic: DEFAULT_TOPIC, 暂时不开启不主题切换
     memoryPrompt: '',
     messages: [],
     stat: {
@@ -94,13 +93,13 @@ export const useChatStore = create<ChatStore>()(
         const current = get().messages
         const newMsg = current?.concat([userMessage, botMessage])
         set({ messages: newMsg })
-        console.log(get().messages?.length, '--------message')
         // make request
 
         setTimeout(() => {
           botMessage.content = 'this is mock response'
           botMessage.streaming = false
-          newMsg?.splice(newMsg?.length - 1, 0, botMessage)
+          newMsg?.splice(newMsg?.length - 1, 1, botMessage)
+          console.log(newMsg, '---------newMsg')
           set({ messages: newMsg })
         }, 500)
       },
@@ -115,6 +114,7 @@ export const useChatStore = create<ChatStore>()(
         set(() => ({
           sessions: [createEmptySession()],
           currentSessionIndex: 0,
+          messages: [],
         }))
       },
       onNewMessage(message) {

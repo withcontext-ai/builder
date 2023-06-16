@@ -20,7 +20,7 @@ export const IconBox = (props: IconBoxProps) => (
 
 const ChatHeader = () => {
   return (
-    <div className=" w-full border-b border-[#F1F5F9] ">
+    <div className=" w-full border-b border-slate-100 ">
       <div className="flex w-full items-center justify-between px-8 py-3">
         <div className="flex">chat 1</div>
         <div className="flex">

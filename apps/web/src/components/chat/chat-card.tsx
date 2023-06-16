@@ -54,7 +54,11 @@ const ChatCard = (props: IProps) => {
               {message?.date}
             </div>
           </div>
-          <div className="flex items-end gap-2">
+          <div
+            className={`flex items-end gap-2 ${
+              isUser ? 'justify-end' : 'justify-start'
+            }`}
+          >
             <div
               className={`rounded-lg p-4	text-sm ${
                 isUser ? 'bg-primary text-white' : 'bg-gray-100'
@@ -70,9 +74,13 @@ const ChatCard = (props: IProps) => {
               )}
             </div>
             {isEnd && !isUser && (
-              <Toggle className="h-6 w-6 p-1" onClick={handleClick}>
+              <Button
+                className="h-6 w-6 rounded-full border-0 p-0"
+                onClick={handleClick}
+                variant="outline"
+              >
                 <RefreshCw size={20} />
-              </Toggle>
+              </Button>
             )}
           </div>
         </div>
