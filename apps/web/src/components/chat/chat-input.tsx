@@ -2,14 +2,8 @@
 
 import { Ref, useState } from 'react'
 import { useChatStore } from '@/store/chat'
-import { Loader2, XSquare } from 'lucide-react'
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { findLast, findLastIndex } from 'lodash'
+import { Loader2, RefreshCw, XSquare } from 'lucide-react'
 
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
@@ -25,12 +19,25 @@ const ChatInput = (props: InputProps) => {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState<boolean>(false)
   const chatStore = useChatStore()
+  const [session] = useChatStore((state) => [state.currentSession()])
   const checkMsg = (msg: string) => {
     const value = new Set(msg.split('')) //判断空格和多个回车
     if (value.size === 1 && (value.has('\n') || value.has(''))) return false
     return true
   }
-
+  const findIndex = () => {
+    const messages = session?.messages
+    const hasResponse = messages?.filter(
+      (item) => item?.role === 'assistant' && item?.content
+    )
+    if (hasResponse?.length) {
+      const index =
+        findLastIndex(messages, (item) => item?.role === 'user') || -1
+      return index
+    }
+    return -1
+  }
+  const index = findIndex()
   const handleKeyUp = async (
     event: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
@@ -48,29 +55,34 @@ const ChatInput = (props: InputProps) => {
       setMessage('')
     }
   }
+  const deleteMessage = (index: number) => {
+    chatStore.updateCurrentSession((session: any) =>
+      session.messages.splice(index, 2)
+    )
+  }
 
-  const Actions = () => (
-    <div className="flex ">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" className="h-8 w-8 rounded-full p-0">
-              <XSquare className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <Button variant="outline" onClick={() => chatStore.clearAllData()}>
-              <p>clean all ChatMessage</p>
-            </Button>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </div>
-  )
+  const handleResend = () => {
+    const index = findIndex() || -1
+    if (index === -1) return
+    const content = session.messages[index].content
+    deleteMessage(index)
+    chatStore.onUserInput(content).then(() => {})
+  }
 
   return (
-    <div className="flex w-full flex-col gap-2 border-t border-slate-100 px-6 py-4	">
-      <Actions />
+    <div className="flex w-full flex-col gap-4">
+      {index !== -1 && (
+        <div className="flex w-full items-center justify-center	">
+          <Button
+            className="w-[200px] gap-1"
+            onClick={handleResend}
+            variant="outline"
+          >
+            <RefreshCw size={20} />
+            Regenerate response
+          </Button>
+        </div>
+      )}
       <div className="flex justify-between gap-2">
         <Textarea
           ref={inputRef}

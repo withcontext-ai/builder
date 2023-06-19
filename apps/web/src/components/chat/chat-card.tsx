@@ -19,27 +19,8 @@ interface IProps {
 const ChatCard = (props: IProps) => {
   const { message, model_avatar, user_avatar, isEnd } = props
   const isUser = message?.role === 'user'
-  const chatStore = useChatStore()
-  const [session] = useChatStore((state) => [state.currentSession()])
   const showCustomerCard = false
 
-  const deleteMessage = (index: number) => {
-    chatStore.updateCurrentSession((session: any) =>
-      session.messages.splice(index, 2)
-    )
-  }
-
-  const findLastIndex = (id: number) => {
-    return session?.messages?.findIndex((item) => item?.id === id) - 1
-  }
-
-  const handleClick = () => {
-    const index = findLastIndex(message?.id || 0)
-    if (index === -1) return
-    const content = session.messages[index].content
-    deleteMessage(index)
-    chatStore.onUserInput(content).then(() => {})
-  }
   return (
     <div
       className={`flex flex-col ${isUser ? 'justify-end' : 'justify-start'}`}
@@ -85,23 +66,8 @@ const ChatCard = (props: IProps) => {
                 </div>
               )}
             </div>
-            {isEnd && !isUser && (
-              <Button
-                className="h-6 w-6 rounded-full border-0 p-0"
-                onClick={handleClick}
-                variant="outline"
-              >
-                <RefreshCw size={20} />
-              </Button>
-            )}
           </div>
         </div>
-        {isUser && (
-          <Avatar>
-            <AvatarImage src={user_avatar || ''} alt="@shadcn" />
-            <AvatarFallback>AI</AvatarFallback>
-          </Avatar>
-        )}
       </div>
     </div>
   )

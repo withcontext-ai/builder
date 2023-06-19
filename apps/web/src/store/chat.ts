@@ -1,3 +1,4 @@
+import { formatDistanceToNowStrict } from 'date-fns'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -5,14 +6,14 @@ export type ChatMessage = {
   date: string
   streaming?: boolean
   isError?: boolean
-  id?: number
+  id?: string
   role?: 'user' | 'assistant' | 'system'
   content: string
 }
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
-    id: Date.now(),
+    id: `${Date.now()}`,
     date: new Date().toLocaleString(),
     role: 'user',
     content: '',
@@ -112,7 +113,9 @@ export const useChatStore = create<ChatStore>()(
 
       onNewMessage(message) {
         get().updateCurrentSession((session) => {
-          session.lastUpdate = Date.now()
+          session.lastUpdate = formatDistanceToNowStrict(Date.now(), {
+            addSuffix: true,
+          })
         })
       },
 
