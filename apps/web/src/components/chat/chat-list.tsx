@@ -9,7 +9,7 @@ const ChatList = () => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/shadcn.png'
   const [session] = useChatStore((state) => [state?.currentSession()])
-  const { scrollRef, setAutoScroll, scrollToBottom } = useScrollToBottom()
+  const { scrollRef, setAutoScroll, _ } = useScrollToBottom()
   return (
     <div
       className="flex flex-1 flex-col gap-12 overflow-auto p-6"
