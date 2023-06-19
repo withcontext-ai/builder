@@ -20,15 +20,25 @@ const ChatCard = (props: IProps) => {
   const { message, model_avatar, user_avatar, isEnd } = props
   const isUser = message?.role === 'user'
   const chatStore = useChatStore()
-  const { messages, sendMessage, updateMessage } = chatStore
+  const [session] = useChatStore((state) => [state.currentSession()])
   const showCustomerCard = false
+
+  const deleteMessage = (index: number) => {
+    chatStore.updateCurrentSession((session: any) =>
+      session.messages.splice(index, 2)
+    )
+  }
+
+  const findLastIndex = (id: number) => {
+    return session?.messages?.findIndex((item) => item?.id === id) - 1
+  }
+
   const handleClick = () => {
-    // 先删除掉上一次的回复记录，再重新调request接口
-    const lens = messages?.length || 0
-    const question = messages?.slice(-2, -1)
-    messages?.splice(lens - 2, 2)
-    updateMessage(messages || [])
-    sendMessage(question?.[0]?.content || '')
+    const index = findLastIndex(message?.id || 0)
+    if (index === -1) return
+    const content = session.messages[index].content
+    deleteMessage(index)
+    chatStore.onUserInput(content).then(() => {})
   }
   return (
     <div
@@ -48,7 +58,7 @@ const ChatCard = (props: IProps) => {
               isUser ? 'justify-end' : 'justify-start'
             }`}
           >
-            <Typography variant="body2">{message?.name}</Typography>
+            <Typography variant="body2">{'ai'}</Typography>
             <div className="text-xs	font-medium	text-gray-500">
               {message?.date}
             </div>
@@ -63,7 +73,7 @@ const ChatCard = (props: IProps) => {
                 showCustomerCard ? 'p-0' : 'p-4'
               }	text-sm ${
                 isUser ? 'bg-primary text-white' : 'bg-gray-100'
-              } sm:max-w-full md:max-w-full lg:max-w-screen-sm	xl:max-w-screen-sm`}
+              } sm:max-w-full md:max-w-screen-sm lg:max-w-screen-sm	xl:max-w-screen-sm`}
             >
               <MarkDown>{message?.content || ''}</MarkDown>
               {/* {showCustomerCard && <CustomerCard />} */}

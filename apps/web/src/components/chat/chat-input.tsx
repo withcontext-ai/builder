@@ -17,13 +17,13 @@ import { Textarea } from '../ui/textarea'
 interface InputProps {
   onSend?: (data: Record<string, string>) => void
   conversationId?: string
-  loading?: boolean
   inputRef?: Ref<HTMLTextAreaElement>
 }
 
 const ChatInput = (props: InputProps) => {
-  const { loading = false, conversationId = '', inputRef } = props
+  const { conversationId = '', inputRef } = props
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState<boolean>(false)
   const chatStore = useChatStore()
   const checkMsg = (msg: string) => {
     const value = new Set(msg.split('')) //判断空格和多个回车
@@ -35,14 +35,16 @@ const ChatInput = (props: InputProps) => {
     event: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
     if (event.key === 'Enter' && !loading && message) {
-      await chatStore.sendMessage(message)
+      setLoading(true)
+      await chatStore.onUserInput(message).then(() => setLoading(false))
       setMessage('')
     }
   }
 
   const handleClick = async () => {
     if (message) {
-      await chatStore.sendMessage(message)
+      setLoading(true)
+      await chatStore.onUserInput(message).then(() => setLoading(false))
       setMessage('')
     }
   }

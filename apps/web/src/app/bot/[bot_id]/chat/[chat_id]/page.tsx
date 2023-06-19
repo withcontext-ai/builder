@@ -10,7 +10,7 @@ export default function ChatPage({ params }: IProps) {
   // and use chat_id to fetch chat data
   return (
     <div className="h-full w-full overflow-hidden">
-      <Chat />
+      <Chat chat_id={chat_id} />
     </div>
   )
 }
