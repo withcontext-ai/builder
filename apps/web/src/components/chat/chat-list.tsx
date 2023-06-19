@@ -5,7 +5,7 @@ import { ChatMessage, useChatStore } from '@/store/chat'
 import ChatCard from './chat-card'
 import { useScrollToBottom } from './utils'
 
-const ChatList = ({ chat_id }: { chat_id: string }) => {
+const ChatList = () => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/shadcn.png'
   const [session] = useChatStore((state) => [state?.currentSession()])
