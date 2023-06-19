@@ -59,7 +59,7 @@ const ChatInput = (props: InputProps) => {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <Button variant="outline" onClick={() => chatStore.clearSessions()}>
+            <Button variant="outline" onClick={() => chatStore.clearAllData()}>
               <p>clean all ChatMessage</p>
             </Button>
           </TooltipContent>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useChatStore } from '@/store/chat'
 import clsx from 'clsx'
 import { MessageCircleIcon, TrashIcon } from 'lucide-react'
 
@@ -16,7 +17,7 @@ export default function SessionListItem({ token, title }: ISessionItem) {
   const sessionId = params.session_id
   const href = `/app/${appId}/session/${token}`
   const isSelected = sessionId == token
-
+  const chatStore = useChatStore()
   return (
     <li>
       <Link
@@ -32,6 +33,7 @@ export default function SessionListItem({ token, title }: ISessionItem) {
           <span
             className="absolute right-2 rounded-full bg-slate-100 p-1 text-center hover:bg-white"
             aria-hidden="true"
+            onClick={() => chatStore?.deleteSession(sessionId)}
           >
             <TrashIcon className="h-4 w-4 shrink-0" />
           </span>
