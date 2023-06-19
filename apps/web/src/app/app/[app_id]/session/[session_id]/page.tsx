@@ -11,7 +11,7 @@ export default function SessionPage({ params }: IProps) {
   // and use session_id to fetch session data
   return (
     <div className="h-full w-full overflow-hidden">
-      <Chat chat_id={session_id} />
+      <Chat sessionId={session_id} />
     </div>
   )
 }

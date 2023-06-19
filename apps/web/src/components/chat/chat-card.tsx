@@ -8,9 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '../ui/button'
 import Typography from '../ui/typography'
 import { MarkDown } from './markdown/markdown'
+import { Message } from './type'
 
 interface IProps {
-  message?: ChatMessage
+  // message?: ChatMessage
+  message?: Message
   model_avatar?: string
   user_avatar?: string
   isEnd?: boolean
@@ -41,7 +43,9 @@ const ChatCard = (props: IProps) => {
           >
             <Typography variant="body2">{'ai'}</Typography>
             <div className="text-xs	font-medium	text-gray-500">
-              {message?.date}
+              {/* {message?.date} */}
+              {message?.createdAt &&
+                new Date(message?.createdAt).toLocaleTimeString('en-US')}
             </div>
           </div>
           <div
@@ -58,13 +62,13 @@ const ChatCard = (props: IProps) => {
             >
               <MarkDown>{message?.content || ''}</MarkDown>
               {/* {showCustomerCard && <CustomerCard />} */}
-              {message?.streaming && (
+              {/* {message?.streaming && (
                 <div className="flex">
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
