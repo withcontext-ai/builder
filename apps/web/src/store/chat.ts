@@ -1,19 +1,19 @@
 import { formatDistanceToNowStrict } from 'date-fns'
+import { nanoid } from 'nanoid'
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 export type ChatMessage = {
   date: string
   streaming?: boolean
   isError?: boolean
   id?: string
-  role?: 'user' | 'assistant' | 'system'
+  role?: 'user' | 'assistant'
   content: string
 }
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
-    id: `${Date.now()}`,
+    id: nanoid(),
     date: new Date().toLocaleString(),
     role: 'user',
     content: '',
@@ -66,136 +66,110 @@ interface ChatStore {
   clearAllData: () => void
 }
 
-export const useChatStore = create<ChatStore>()(
-  persist(
-    (set, get) => ({
-      currentChatId: '',
-      sessions: [],
-      currentSessionIndex: 0,
-      setChatId(chat_id: string) {
-        set({
-          currentChatId: chat_id,
-        })
-      },
-      addNewSession(chat_id) {
-        const isNew = get().isNewSession()
-        if (isNew) {
-          const session = createEmptySession(chat_id)
-          const sessions = [...get().sessions, session]
-          set({ sessions })
-        }
-      },
-      selectSession(index: number) {
-        set({
-          currentSessionIndex: index,
-        })
-      },
-      isNewSession() {
-        const id = get().currentChatId
-        const index = get().sessions.findIndex((item) => item?.chat_id === id)
-        return index === -1
-      },
-      deleteSession(chat_id) {
-        const sessions = get().sessions
-        const index = sessions.findIndex((item) => item?.chat_id === chat_id)
-        sessions.splice(index, 1)
-        set(() => ({
-          currentSessionIndex: index,
-          sessions,
-        }))
-      },
-      currentSession() {
-        const id = get().currentChatId
-        const sessions = get().sessions
-        const session = sessions?.find((item) => item?.chat_id === id)
-        return session || createEmptySession(id)
-      },
-
-      onNewMessage(message) {
-        get().updateCurrentSession((session) => {
-          session.lastUpdate = formatDistanceToNowStrict(Date.now(), {
-            addSuffix: true,
-          })
-        })
-      },
-
-      async onUserInput(content) {
-        // const modelConfig = session.mask.modelConfig;
-
-        const userMessage: ChatMessage = createMessage({
-          role: 'user',
-          content,
-        })
-
-        const botMessage: ChatMessage = createMessage({
-          role: 'assistant',
-          streaming: true,
-          id: userMessage.id! + 1,
-          // model: modelConfig.model,
-        })
-
-        const current = get().currentSession()
-        // save user's and bot's message
-        get().updateCurrentSession((session) => {
-          current.messages.push(userMessage)
-          current.messages.push(botMessage)
-        })
-
-        // make request
-        setTimeout(() => {
-          botMessage.streaming = false
-          botMessage.content = 'this is mock response.please wait a minute'
-          get().onNewMessage(botMessage)
-        }, 500)
-      },
-
-      getMessagesWithMemory() {
-        // 获取初始值
-        return []
-      },
-
-      updateMessage(
-        sessionIndex: number,
-        messageIndex: number,
-        updater: (message?: ChatMessage) => void
-      ) {
-        const sessions = get().sessions
-        const session = sessions.at(sessionIndex)
-        const messages = session?.messages
-        updater(messages?.at(messageIndex))
-        set(() => ({ sessions }))
-      },
-
-      updateCurrentSession(updater) {
-        const sessions = get().sessions
-        const index = get().currentSessionIndex
-        updater(sessions[index])
-        set(() => ({ sessions }))
-      },
-      clearAllData() {
-        localStorage.clear()
-        location.reload()
-      },
-    }),
-    {
-      name: 'chat-next-web-store',
-      version: 2,
-      migrate(persistedState, version) {
-        const state = persistedState as any
-        const newState = JSON.parse(JSON.stringify(state)) as ChatStore
-
-        if (version < 2) {
-          newState.sessions = []
-
-          const oldSessions = state.sessions
-          for (const oldSession of oldSessions) {
-            const newSession = createEmptySession('')
-            newSession.messages = [...oldSession.messages]
-            newState.sessions.push(newSession)
-          }
-        }
-        return newState
-      },
+export const useChatStore = create<ChatStore>()((set, get) => ({
+  currentChatId: '',
+  sessions: [],
+  currentSessionIndex: 0,
+  setChatId(chat_id: string) {
+    set({
+      currentChatId: chat_id,
+    })
+  },
+  addNewSession(chat_id) {
+    const isNew = get().isNewSession()
+    if (isNew) {
+      const session = createEmptySession(chat_id)
+      const sessions = [...get().sessions, session]
+      set({ sessions })
     }
-  )
-)
+  },
+  selectSession(index: number) {
+    set({
+      currentSessionIndex: index,
+    })
+  },
+  isNewSession() {
+    const id = get().currentChatId
+    const index = get().sessions.findIndex((item) => item?.chat_id === id)
+    return index === -1
+  },
+  deleteSession(chat_id) {
+    const sessions = get().sessions
+    const index = sessions.findIndex((item) => item?.chat_id === chat_id)
+    sessions.splice(index, 1)
+    set(() => ({
+      currentSessionIndex: index,
+      sessions,
+    }))
+  },
+  currentSession() {
+    const id = get().currentChatId
+    const sessions = get().sessions
+    const session = sessions?.find((item) => item?.chat_id === id)
+    return session || createEmptySession(id)
+  },
+
+  onNewMessage(message) {
+    get().updateCurrentSession((session) => {
+      session.lastUpdate = Date.now()
+    })
+  },
+
+  async onUserInput(content) {
+    // const modelConfig = session.mask.modelConfig;
+
+    const userMessage: ChatMessage = createMessage({
+      role: 'user',
+      content,
+    })
+
+    const botMessage: ChatMessage = createMessage({
+      role: 'assistant',
+      streaming: true,
+      id: userMessage.id! + 1,
+      // model: modelConfig.model,
+    })
+
+    const current = get().currentSession()
+    // save user's and bot's message
+    get().updateCurrentSession((session) => {
+      current.messages.push(userMessage)
+      current.messages.push(botMessage)
+    })
+
+    // make request
+    setTimeout(() => {
+      botMessage.streaming = false
+      botMessage.content = 'this is mock response.please wait a minute'
+      get().onNewMessage(botMessage)
+    }, 500)
+  },
+
+  getMessagesWithMemory() {
+    // 获取初始值
+    return []
+  },
+
+  updateMessage(
+    sessionIndex: number,
+    messageIndex: number,
+    updater: (message?: ChatMessage) => void
+  ) {
+    const sessions = get().sessions
+    const session = sessions.at(sessionIndex)
+    const messages = session?.messages
+    updater(messages?.at(messageIndex))
+    set(() => ({ sessions }))
+  },
+
+  updateCurrentSession(updater) {
+    const sessions = get().sessions
+    const index = get().currentSessionIndex
+    updater(sessions[index])
+    set(() => ({ sessions }))
+  },
+  clearAllData() {
+    localStorage.clear()
+    location.reload()
+  },
+}))

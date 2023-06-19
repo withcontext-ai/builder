@@ -2,8 +2,8 @@
 
 import { Ref, useState } from 'react'
 import { useChatStore } from '@/store/chat'
-import { findLast, findLastIndex } from 'lodash'
-import { Loader2, RefreshCw, XSquare } from 'lucide-react'
+import { findLastIndex } from 'lodash'
+import { Loader2, RefreshCw } from 'lucide-react'
 
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
@@ -90,7 +90,7 @@ const ChatInput = (props: InputProps) => {
           onKeyUp={handleKeyUp}
           value={message}
           minRows={1}
-          maxRows={3}
+          maxRows={8}
           onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
             if (checkMsg(event?.target?.value)) {
               setMessage(event?.target?.value)

@@ -2,8 +2,9 @@
 
 import { ChatMessage, useChatStore } from '@/store/chat'
 
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
+
 import ChatCard from './chat-card'
-import { useScrollToBottom } from './utils'
 
 const ChatList = () => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
