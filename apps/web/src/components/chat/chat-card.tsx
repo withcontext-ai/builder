@@ -36,10 +36,10 @@ const ChatCard = (props: IProps) => {
             <Typography variant="body2">
               {isUser ? 'Me' : 'AI Assistant'}
             </Typography>
-            {/* <div className="text-xs font-medium	text-gray-500">
+            <div className="text-xs font-medium	text-gray-500">
               {message?.createdAt &&
                 new Date(message?.createdAt).toLocaleTimeString('en-US')}
-            </div> */}
+            </div>
           </div>
           <div className="flex items-end gap-2">
             <div

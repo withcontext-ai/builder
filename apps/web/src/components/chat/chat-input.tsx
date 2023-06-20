@@ -39,7 +39,7 @@ const ChatInput = (props: InputProps) => {
     }
   }
   return (
-    <div className="relative flex w-full flex-col gap-4 px-6 pb-6">
+    <div className="relative flex w-full flex-col gap-4 px-6 pb-4">
       <div className="absolute top-[-60px] flex w-full	items-center justify-center">
         {showResend && !isLoading && (
           <Button
