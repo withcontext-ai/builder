@@ -16,7 +16,6 @@ const ChatCard = (props: IProps) => {
   const { message, model_avatar, user_avatar } = props
   const isUser = message?.role === 'user'
   const showCustomerCard = false
-
   return (
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
