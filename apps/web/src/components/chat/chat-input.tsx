@@ -17,7 +17,8 @@ interface InputProps {
   input: string
   handleInputChange: (e: any) => void
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void
-  handleResend: () => void
+  reload: () => void
+  stop: () => void
 }
 
 const ChatInput = (props: InputProps) => {
@@ -27,7 +28,8 @@ const ChatInput = (props: InputProps) => {
     handleInputChange,
     handleSubmit,
     isLoading,
-    handleResend,
+    reload,
+    stop,
     showResend,
   } = props
   const chatStore = useChatStore()
@@ -51,18 +53,23 @@ const ChatInput = (props: InputProps) => {
         </div>
       )}
 
-      {showResend && (
-        <div className="flex w-full items-center justify-center	">
+      <div className="flex w-full items-center justify-center	">
+        {showResend && !isLoading && (
           <Button
             className="w-[200px] gap-1"
-            onClick={handleResend}
+            onClick={reload}
             variant="outline"
           >
             <RefreshCw size={20} />
             Regenerate response
           </Button>
-        </div>
-      )}
+        )}
+        {isLoading && (
+          <Button className="w-[200px] gap-1" onClick={stop} variant="outline">
+            Stop generating
+          </Button>
+        )}
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-between gap-2">
           <Textarea
@@ -74,17 +81,7 @@ const ChatInput = (props: InputProps) => {
             maxRows={8}
             onChange={handleInputChange}
           />
-          <Button
-            type="submit"
-            disabled={!input || isLoading}
-            // @ts-ignore
-            // onClick={(e) => {
-            //   console.log(e, '---e')
-
-            //   // @ts-ignore
-            //   handleSubmit(e)
-            // }}
-          >
+          <Button type="submit" disabled={!input || isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Send
           </Button>

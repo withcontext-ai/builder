@@ -1,6 +1,5 @@
 'use client'
 
-import { FormEvent, useEffect } from 'react'
 import { useChatStore } from '@/store/chat'
 import { useChat } from 'ai/react'
 import { findLastIndex } from 'lodash'
@@ -20,7 +19,8 @@ const Chat = ({ sessionId }: IProps) => {
     handleInputChange,
     handleSubmit,
     isLoading,
-    setMessages,
+    reload,
+    stop,
   } = useChat({
     id: sessionId,
   })
@@ -36,17 +36,6 @@ const Chat = ({ sessionId }: IProps) => {
     return -1
   }
 
-  const deleteMessage = (index: number) => {
-    const data = messages?.splice(index, 1)
-    setMessages(data)
-  }
-  const handleResend = () => {
-    const index = findIndex()
-    const content = messages[index].content
-    deleteMessage(index)
-    console.log(messages, '---message', index, content)
-  }
-
   const showResend = findIndex() !== -1
   return (
     <div className="flex h-full w-full flex-col">
@@ -58,7 +47,8 @@ const Chat = ({ sessionId }: IProps) => {
         handleSubmit={handleSubmit}
         isLoading={isLoading}
         showResend={showResend}
-        handleResend={handleResend}
+        reload={reload}
+        stop={stop}
       />
     </div>
   )

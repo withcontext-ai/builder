@@ -24,18 +24,6 @@ const ChatList = ({ messages }: IProps) => {
         setAutoScroll(false)
       }}
     >
-      {/* {session?.messages?.map((message: ChatMessage, index: number) => {
-        const isEnd = session?.messages?.length - 1 === index
-        return (
-          <ChatCard
-            message={message}
-            key={message?.id}
-            model_avatar={model_avatar}
-            user_avatar={user_avatar}
-            isEnd={isEnd}
-          />
-        )
-      })} */}
       {messages?.map((message: Message, index: number) => {
         const isEnd = messages?.length - 1 === index
         return (

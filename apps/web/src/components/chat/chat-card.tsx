@@ -52,7 +52,6 @@ const ChatCard = (props: IProps) => {
               } sm:max-w-full md:max-w-2xl lg:max-w-3xl	xl:max-w-3xl`}
             >
               <MarkDown>{message?.content || ''}</MarkDown>
-              {/* {showCustomerCard && <CustomerCard />} */}
             </div>
           </div>
         </div>

@@ -21,11 +21,7 @@ const ChatHeader = () => {
     <div className=" w-full border-b border-slate-100 ">
       <div className="flex w-full items-center justify-between px-8 py-3">
         <div className="flex">chat 1</div>
-        <div className="flex">
-          {/* <IconBox>
-            <Zap />
-          </IconBox> */}
-        </div>
+        <div className="flex"></div>
       </div>
     </div>
   )
