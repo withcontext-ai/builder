@@ -1,6 +1,5 @@
 'use client'
 
-import { useChatStore } from '@/store/chat'
 import { useChat } from 'ai/react'
 import { findLastIndex } from 'lodash'
 

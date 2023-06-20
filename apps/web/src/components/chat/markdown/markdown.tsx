@@ -43,7 +43,7 @@ export const CustomerCard = () => {
   ]
   return (
     <div className="prose">
-      <div className="rounded-t-lg bg-primary p-3 text-white	">
+      <div className="rounded-t-lg bg-primary p-3 text-white">
         <h6 className="prose text-white">Context summary</h6>
       </div>
       <div className="p-3">
