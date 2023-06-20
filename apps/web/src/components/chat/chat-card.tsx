@@ -1,8 +1,5 @@
 'use client'
 
-import { ChatMessage } from '@/store/chat'
-import { Loader2 } from 'lucide-react'
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Typography from '../ui/typography'
@@ -10,11 +7,9 @@ import { MarkDown } from './markdown/markdown'
 import { Message } from './type'
 
 interface IProps {
-  // message?: ChatMessage
   message?: Message
   model_avatar?: string
   user_avatar?: string
-  isEnd?: boolean
 }
 
 const ChatCard = (props: IProps) => {

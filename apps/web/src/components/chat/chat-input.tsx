@@ -1,10 +1,7 @@
 'use client'
 
-import { FormEvent, Ref, useState } from 'react'
-import { useChatStore } from '@/store/chat'
-import { Message } from 'ai'
-import { findLastIndex } from 'lodash'
-import { Loader2, RefreshCw } from 'lucide-react'
+import { FormEvent, Ref } from 'react'
+import { Loader2, RefreshCw, StopCircle } from 'lucide-react'
 
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
@@ -32,8 +29,6 @@ const ChatInput = (props: InputProps) => {
     stop,
     showResend,
   } = props
-  const chatStore = useChatStore()
-  const [session] = useChatStore((state) => [state.currentSession()])
 
   const handleKeyUp = async (
     event: React.KeyboardEvent<HTMLTextAreaElement>
@@ -66,6 +61,7 @@ const ChatInput = (props: InputProps) => {
         )}
         {isLoading && (
           <Button className="w-[200px] gap-1" onClick={stop} variant="outline">
+            <StopCircle size={20} />
             Stop generating
           </Button>
         )}

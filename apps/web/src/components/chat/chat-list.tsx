@@ -1,7 +1,5 @@
 'use client'
 
-import { ChatMessage, useChatStore } from '@/store/chat'
-
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
 import ChatCard from './chat-card'
@@ -14,7 +12,6 @@ interface IProps {
 const ChatList = ({ messages }: IProps) => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/shadcn.png'
-  // const [session] = useChatStore((state) => [state?.currentSession()])
   const { scrollRef, setAutoScroll } = useScrollToBottom()
   return (
     <div
@@ -32,7 +29,6 @@ const ChatList = ({ messages }: IProps) => {
             key={message?.id}
             model_avatar={model_avatar}
             user_avatar={user_avatar}
-            isEnd={isEnd}
           />
         )
       })}
