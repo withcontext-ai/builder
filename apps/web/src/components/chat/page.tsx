@@ -39,7 +39,7 @@ const Chat = ({ sessionId }: IProps) => {
   return (
     <div className="flex h-full w-full flex-col">
       <ChatHeader />
-      <ChatList messages={messages} />
+      <ChatList messages={messages} isLoading={isLoading} />
       <ChatInput
         input={input}
         handleInputChange={handleInputChange}

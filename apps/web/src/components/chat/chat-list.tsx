@@ -7,9 +7,10 @@ import { Message } from './type'
 
 interface IProps {
   messages: Message[]
+  isLoading: boolean
 }
 
-const ChatList = ({ messages }: IProps) => {
+const ChatList = ({ messages, isLoading }: IProps) => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/shadcn.png'
   const { scrollRef, setAutoScroll } = useScrollToBottom()
@@ -29,6 +30,8 @@ const ChatList = ({ messages }: IProps) => {
             key={message?.id}
             model_avatar={model_avatar}
             user_avatar={user_avatar}
+            isEnd={isEnd}
+            isLoading={isLoading}
           />
         )
       })}

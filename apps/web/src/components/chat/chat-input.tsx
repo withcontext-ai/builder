@@ -39,29 +39,25 @@ const ChatInput = (props: InputProps) => {
     }
   }
   return (
-    <div className="flex w-full flex-col gap-4 px-6 pb-6">
-      {isLoading && (
-        <div className="flex">
-          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-        </div>
-      )}
-
-      <div className="flex w-full items-center justify-center	">
+    <div className="relative flex w-full flex-col gap-4 px-6 pb-6">
+      <div className="absolute top-[-60px] flex w-full	items-center justify-center">
         {showResend && !isLoading && (
           <Button
-            className="w-[200px] gap-1"
+            className="w-[200px] bg-white"
             onClick={reload}
             variant="outline"
           >
-            <RefreshCw size={20} />
+            <RefreshCw size={16} className="mr-2" />
             Regenerate response
           </Button>
         )}
         {isLoading && (
-          <Button className="w-[200px] gap-1" onClick={stop} variant="outline">
-            <StopCircle size={20} />
+          <Button
+            className="w-[200px] bg-white"
+            onClick={stop}
+            variant="outline"
+          >
+            <StopCircle size={16} className="mr-2" />
             Stop generating
           </Button>
         )}

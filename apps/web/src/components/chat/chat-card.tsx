@@ -1,5 +1,7 @@
 'use client'
 
+import { Loader2 } from 'lucide-react'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Typography from '../ui/typography'
@@ -10,10 +12,12 @@ interface IProps {
   message?: Message
   model_avatar?: string
   user_avatar?: string
+  isEnd?: boolean
+  isLoading: boolean
 }
 
 const ChatCard = (props: IProps) => {
-  const { message, model_avatar, user_avatar } = props
+  const { message, model_avatar, user_avatar, isEnd, isLoading } = props
   const isUser = message?.role === 'user'
   const showCustomerCard = false
   return (
@@ -32,10 +36,10 @@ const ChatCard = (props: IProps) => {
             <Typography variant="body2">
               {isUser ? 'Me' : 'AI Assistant'}
             </Typography>
-            <p className="prose	text-xs font-medium	text-gray-500">
+            {/* <div className="text-xs font-medium	text-gray-500">
               {message?.createdAt &&
                 new Date(message?.createdAt).toLocaleTimeString('en-US')}
-            </p>
+            </div> */}
           </div>
           <div className="flex items-end gap-2">
             <div
@@ -48,6 +52,9 @@ const ChatCard = (props: IProps) => {
               <MarkDown className={`${isUser ? 'text-white' : 'text-black	'}`}>
                 {message?.content || ''}
               </MarkDown>
+              {isEnd && isLoading && (
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+              )}
             </div>
           </div>
         </div>
