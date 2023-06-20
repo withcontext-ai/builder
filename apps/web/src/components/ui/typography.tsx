@@ -68,7 +68,7 @@ const Typography = ({ variant, children, className }: IProps) => {
     }
     if (variant === 'h6') {
       return (
-        <h6 className={cn(`text-lg font-bold text-gray-800	${className}`)}>
+        <h6 className={cn(`prose text-lg font-bold	text-black ${className}`)}>
           {children}
         </h6>
       )
@@ -77,7 +77,7 @@ const Typography = ({ variant, children, className }: IProps) => {
       return (
         <p
           className={cn(
-            `font-semibold ${
+            `prose font-semibold text-black ${
               variant === 'subtitle1' ? 'text-base' : 'text-sm'
             } ${className}`
           )}
@@ -90,7 +90,7 @@ const Typography = ({ variant, children, className }: IProps) => {
       return (
         <p
           className={cn(
-            `font-normal ${
+            `prose font-normal text-black  ${
               variant === 'body1' ? 'text-base' : 'text-sm'
             } ${className}`
           )}

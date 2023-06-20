@@ -16,7 +16,7 @@ import { MarkdownProps } from './type'
 export const MarkDown = (props: MarkdownProps) => {
   const { className, showCustomerCard: showCustomerCard, ...others } = props
   return (
-    <div className={`${className}`}>
+    <article className={`${className} prose`}>
       {/* @ts-ignore */}
       <ReactMarkdown
         components={markdownComponent}
@@ -27,7 +27,7 @@ export const MarkDown = (props: MarkdownProps) => {
         ]}
         {...others}
       />
-    </div>
+    </article>
   )
 }
 
@@ -42,17 +42,13 @@ export const CustomerCard = () => {
     },
   ]
   return (
-    <div className="">
-      <div className="rounded-t-lg bg-primary p-3 text-white	">
-        <Typography variant="h6" className="text-white">
-          Context summary
-        </Typography>
+    <div className="prose">
+      <div className="bg-primary rounded-t-lg p-3 text-white	">
+        <h6 className="prose text-white">Context summary</h6>
       </div>
       <div className="p-3">
-        <Typography variant="body2" className="mb-3">
-          this is summary
-        </Typography>
-        <Typography variant="body2">source:</Typography>
+        <h6 className="mb-3">this is summary</h6>
+        <p className="prose-sm">source:</p>
         <div className="flex flex-wrap gap-2	">
           {sources?.map((file, index) => {
             return (
@@ -115,17 +111,16 @@ export const ExampleQuestion = () => {
 }
 
 const markdownComponent = {
-  h1: ({ ...props }) => <Typography variant="h1" {...props} />,
-  h2: ({ ...props }) => <Typography variant="h2" {...props} />,
-  h3: ({ ...props }) => <Typography variant="h3" {...props} />,
-  h4: ({ ...props }) => <Typography variant="h4" {...props} />,
-  h5: ({ ...props }) => <Typography variant="h5" {...props} />,
-  h6: ({ ...props }) => <Typography variant="h6" {...props} />,
-  p: ({ ...props }) => (
-    <Typography variant="body2" {...props} className="break-words" />
-  ),
+  h1: ({ ...props }) => <h1 {...props} />,
+  h2: ({ ...props }) => <h2 {...props} />,
+  h3: ({ ...props }) => <h3 {...props} />,
+  h4: ({ ...props }) => <h4 {...props} />,
+  h5: ({ ...props }) => <h5 {...props} />,
+  h6: ({ ...props }) => <h6 {...props} />,
+  p: ({ ...props }) => <p {...props} className="prose-sm font-normal" />,
   img: ({ ...props }) => (
     <img
+      className="prose-img:rounded-xl "
       style={{ display: 'inline-block', marginBottom: -3 }}
       alt={props.alt}
       src={props.src}

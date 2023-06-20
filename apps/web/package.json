@@ -38,7 +38,6 @@
     "axios": "^1.4.0",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
-    "date-fns": "^2.30.0",
     "drizzle-orm": "^0.26.5",
     "encoding": "^0.1.13",
     "eslint": "8.42.0",
@@ -72,6 +71,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.35.0",
+    "@tailwindcss/typography": "^0.5.9",
     "@testing-library/react": "^14.0.0",
     "@types/lodash": "^4.14.195",
     "@vitejs/plugin-react": "^4.0.0",
