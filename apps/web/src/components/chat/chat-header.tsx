@@ -1,5 +1,3 @@
-import { Zap } from 'lucide-react'
-
 import { Button } from '../ui/button'
 
 interface IconBoxProps {
@@ -24,9 +22,9 @@ const ChatHeader = () => {
       <div className="flex w-full items-center justify-between px-8 py-3">
         <div className="flex">chat 1</div>
         <div className="flex">
-          <IconBox>
+          {/* <IconBox>
             <Zap />
-          </IconBox>
+          </IconBox> */}
         </div>
       </div>
     </div>

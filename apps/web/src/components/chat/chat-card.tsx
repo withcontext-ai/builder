@@ -39,7 +39,6 @@ const ChatCard = (props: IProps) => {
               {isUser ? 'Me' : 'AI Assistant'}
             </Typography>
             <div className="text-xs	font-medium	text-gray-500">
-              {/* {message?.date} */}
               {message?.createdAt &&
                 new Date(message?.createdAt).toLocaleTimeString('en-US')}
             </div>
@@ -54,13 +53,6 @@ const ChatCard = (props: IProps) => {
             >
               <MarkDown>{message?.content || ''}</MarkDown>
               {/* {showCustomerCard && <CustomerCard />} */}
-              {/* {message?.streaming && (
-                <div className="flex">
-                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                </div>
-              )} */}
             </div>
           </div>
         </div>

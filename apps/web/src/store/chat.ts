@@ -1,9 +1,10 @@
+import { Message } from 'ai/react/dist'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 
 export type ChatMessage = {
-  createdAt: string
+  createdAt?: string
   streaming?: boolean
   isError?: boolean
   id?: string
@@ -14,7 +15,6 @@ export type ChatMessage = {
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
   return {
     id: nanoid(),
-    date: new Date().toLocaleString(),
     role: 'user',
     content: '',
     ...override,
@@ -23,7 +23,7 @@ export function createMessage(override: Partial<ChatMessage>): ChatMessage {
 
 export interface ChatSession {
   chat_id: string
-  messages: ChatMessage[]
+  messages: Message[]
   lastUpdate: number
   lastSummarizeIndex: number
   clearContextIndex?: number
@@ -38,7 +38,7 @@ export const BOT_HELLO: ChatMessage = createMessage({
 function createEmptySession(chat_id: string): ChatSession {
   return {
     chat_id,
-    messages: [BOT_HELLO],
+    messages: [],
     lastUpdate: Date.now(),
     lastSummarizeIndex: 0,
   }
@@ -51,18 +51,18 @@ interface ChatStore {
   selectSession: (index: number) => void
   isNewSession: () => boolean
   setChatId: (chat_id: string) => void
-  addNewSession: (chat_id: string) => void
+  addNewSession: (chat_id: string, messages: Message[]) => void
   deleteSession: (chat_id: string) => void
   currentSession: () => ChatSession
-  onNewMessage: (message: ChatMessage) => void
+  onNewMessage: (message: Message) => void
   onUserInput: (content: string) => Promise<void>
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
   updateMessage: (
     sessionIndex: number,
     messageIndex: number,
-    updater: (message?: ChatMessage) => void
+    updater: (message?: Message) => void
   ) => void
-  getMessagesWithMemory: () => ChatMessage[]
+  getMessagesWithMemory: () => Message[]
   clearAllData: () => void
 }
 
@@ -75,10 +75,11 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       currentChatId: chat_id,
     })
   },
-  addNewSession(chat_id) {
+  addNewSession(chat_id, messages) {
     const isNew = get().isNewSession()
     if (isNew) {
       const session = createEmptySession(chat_id)
+      session['messages'] = messages
       const sessions = [...get().sessions, session]
       set({ sessions })
     }
@@ -127,7 +128,6 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       role: 'assistant',
       streaming: true,
       id: userMessage.id! + 1,
-      // model: modelConfig.model,
     })
 
     const current = get().currentSession()
