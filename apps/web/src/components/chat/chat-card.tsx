@@ -7,16 +7,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Typography from '../ui/typography'
 import { MarkDown } from './markdown/markdown'
+import { Message } from './type'
 
 interface IProps {
-  message?: ChatMessage
+  // message?: ChatMessage
+  message?: Message
   model_avatar?: string
   user_avatar?: string
   isEnd?: boolean
 }
 
 const ChatCard = (props: IProps) => {
-  const { message, model_avatar, user_avatar, isEnd } = props
+  const { message, model_avatar, user_avatar } = props
   const isUser = message?.role === 'user'
   const showCustomerCard = false
 
@@ -37,7 +39,9 @@ const ChatCard = (props: IProps) => {
               {isUser ? 'Me' : 'AI Assistant'}
             </Typography>
             <div className="text-xs	font-medium	text-gray-500">
-              {message?.date}
+              {/* {message?.date} */}
+              {message?.createdAt &&
+                new Date(message?.createdAt).toLocaleTimeString('en-US')}
             </div>
           </div>
           <div className="flex items-end gap-2">
@@ -49,13 +53,14 @@ const ChatCard = (props: IProps) => {
               } sm:max-w-full md:max-w-2xl lg:max-w-3xl	xl:max-w-3xl`}
             >
               <MarkDown>{message?.content || ''}</MarkDown>
-              {message?.streaming && (
+              {/* {showCustomerCard && <CustomerCard />} */}
+              {/* {message?.streaming && (
                 <div className="flex">
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>

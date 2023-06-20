@@ -1,3 +1,10 @@
+export type Message = {
+  id: string
+  createdAt?: Date
+  content: string
+  role: 'system' | 'user' | 'assistant'
+}
+
 export type IChatAttachment = {
   name: string
   size: number

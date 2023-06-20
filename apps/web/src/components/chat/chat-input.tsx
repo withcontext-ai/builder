@@ -1,6 +1,6 @@
 'use client'
 
-import { Ref, useState } from 'react'
+import { FormEvent, Ref, useState } from 'react'
 import { useChatStore } from '@/store/chat'
 import { findLastIndex } from 'lodash'
 import { Loader2, RefreshCw } from 'lucide-react'
@@ -12,10 +12,20 @@ interface InputProps {
   onSend?: (data: Record<string, string>) => void
   conversationId?: string
   inputRef?: Ref<HTMLTextAreaElement>
+
+  input: string
+  handleInputChange: (e: any) => void
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => void
 }
 
 const ChatInput = (props: InputProps) => {
-  const { conversationId = '', inputRef } = props
+  const {
+    conversationId = '',
+    inputRef,
+    input,
+    handleInputChange,
+    handleSubmit,
+  } = props
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState<boolean>(false)
   const chatStore = useChatStore()
@@ -83,25 +93,30 @@ const ChatInput = (props: InputProps) => {
           </Button>
         </div>
       )}
-      <div className="flex justify-between gap-2">
-        <Textarea
-          ref={inputRef}
-          placeholder="Type a message"
-          onKeyUp={handleKeyUp}
-          value={message}
-          minRows={1}
-          maxRows={8}
-          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
-            if (checkMsg(event?.target?.value)) {
-              setMessage(event?.target?.value)
-            }
-          }}
-        />
-        <Button disabled={!message || loading} onClick={() => handleClick()}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          send
-        </Button>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="flex justify-between gap-2">
+          <Textarea
+            ref={inputRef}
+            placeholder="Type a message"
+            onKeyUp={handleKeyUp}
+            // value={message}
+            value={input}
+            minRows={1}
+            maxRows={3}
+            // onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
+            //   if (checkMsg(event?.target?.value)) {
+            //     setMessage(event?.target?.value)
+            //   }
+            // }}
+            onChange={handleInputChange}
+          />
+          {/* <Button disabled={!message || loading} onClick={() => handleClick()}> */}
+          <Button type="submit">
+            {/* {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} */}
+            Send
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 
 export type ChatMessage = {
-  date: string
+  createdAt: string
   streaming?: boolean
   isError?: boolean
   id?: string
