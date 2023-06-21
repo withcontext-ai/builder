@@ -77,7 +77,7 @@ const Typography = ({ variant, children, className }: IProps) => {
       return (
         <p
           className={cn(
-            `prose font-semibold text-black ${
+            ` font-semibold text-black ${
               variant === 'subtitle1' ? 'text-base' : 'text-sm'
             } ${className}`
           )}
@@ -90,7 +90,7 @@ const Typography = ({ variant, children, className }: IProps) => {
       return (
         <p
           className={cn(
-            `prose font-normal text-black  ${
+            `font-normal text-black  ${
               variant === 'body1' ? 'text-base' : 'text-sm'
             } ${className}`
           )}
