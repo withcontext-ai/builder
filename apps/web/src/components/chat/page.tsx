@@ -16,6 +16,7 @@ interface IProps {
 }
 
 const Chat = ({ sessionId }: IProps) => {
+  // waiting useChat api onResponse
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, autoScroll, setAutoScroll } = useScrollToBottom()
 

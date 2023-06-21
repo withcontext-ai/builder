@@ -54,7 +54,13 @@ const ChatInput = (props: InputProps) => {
           </Button>
         )}
       </div>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e) => {
+          if (input) {
+            handleSubmit(e)
+          }
+        }}
+      >
         <div className="flex justify-between gap-2">
           <Textarea
             ref={inputRef}
