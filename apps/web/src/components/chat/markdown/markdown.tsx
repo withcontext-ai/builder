@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import Typography from '@/components/ui/typography'
+import Text from '@/components/ui/text'
 import { PdfImage, PreviewPdf } from '@/components/upload/component'
 
 import { MarkdownProps } from './type'
@@ -61,9 +61,9 @@ export const CustomerCard = () => {
                       <PdfImage height="20" width="12" />
                     </AvatarFallback>
                   </Avatar>
-                  <Typography variant="body2" className="line-clamp-1	max-w-xs">
+                  <Text variant="body2" className="line-clamp-1	max-w-xs">
                     {file?.name}
-                  </Typography>
+                  </Text>
                 </Badge>
                 <PreviewPdf file={file} open={open} setOpen={setOpen} />
               </>
@@ -93,18 +93,18 @@ export const ExampleQuestion = () => {
   ]
   return (
     <div className="mt-4">
-      <Typography variant="body2">Example Questions:</Typography>
+      <Text variant="body2">Example Questions:</Text>
       <div className="flex flex-col gap-1">
         {questions?.map((item) => {
           console.log(item)
           return (
-            <Typography
+            <Text
               variant="body2"
               className="cursor-pointer hover:text-slate-900	"
               key={item}
             >
               {item}
-            </Typography>
+            </Text>
           )
         })}
       </div>

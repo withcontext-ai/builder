@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-import Typography from '../ui/typography'
+import Text from '../ui/text'
 import { Markdown } from './markdown/markdown'
 
 interface IProps {
@@ -32,15 +32,13 @@ const ChatCard = (props: IProps) => {
 
         <div className={`flex flex-col `}>
           <div className="mb-5 flex items-center gap-1">
-            <Typography variant="body2">
-              {isUser ? 'Me' : 'AI Assistant'}
-            </Typography>
-            <div className="text-xs font-medium	text-gray-500">
+            <Text variant="body2">{isUser ? 'Me' : 'AI Assistant'}</Text>
+            <Text variant="caption">
               {message?.createdAt &&
                 formatDistanceToNowStrict(message.createdAt, {
                   addSuffix: true,
                 })}
-            </div>
+            </Text>
           </div>
           <div className="flex items-end gap-2">
             <div
