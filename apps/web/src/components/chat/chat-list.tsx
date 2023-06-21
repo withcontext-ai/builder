@@ -3,8 +3,6 @@
 import { Ref } from 'react'
 import { Message } from 'ai'
 
-import { useScrollToBottom } from '@/hooks/useScrollToBottom'
-
 import ChatCard from './chat-card'
 
 interface IProps {

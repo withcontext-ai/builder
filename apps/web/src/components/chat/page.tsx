@@ -6,7 +6,6 @@ import { findLastIndex } from 'lodash'
 
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
-import ChatCard from './chat-card'
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'

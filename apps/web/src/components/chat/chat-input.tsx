@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, Ref } from 'react'
+import { FormEvent } from 'react'
 import { Loader2, RefreshCw, StopCircle } from 'lucide-react'
 
 import { Button } from '../ui/button'
