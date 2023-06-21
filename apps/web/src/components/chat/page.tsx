@@ -20,27 +20,22 @@ const Chat = ({ sessionId }: IProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, autoScroll, setAutoScroll } = useScrollToBottom()
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    reload,
-    stop,
-  } = useChat({
-    id: sessionId,
-    onResponse: (res) => {
-      setWaiting(false)
-    },
-  })
+  const { messages, input, setInput, handleSubmit, isLoading, reload, stop } =
+    useChat({
+      id: sessionId,
+      onResponse: (res) => {
+        setWaiting(false)
+      },
+    })
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
-    if (!autoScroll) {
-      setAutoScroll(true)
+    if (input && !isLoading) {
+      if (!autoScroll) {
+        setAutoScroll(true)
+      }
+      setWaiting(true)
+      handleSubmit(event)
     }
-    setWaiting(true)
-    handleSubmit(event)
   }
 
   const handelReload = () => {
@@ -50,6 +45,7 @@ const Chat = ({ sessionId }: IProps) => {
     reload()
     setWaiting(true)
   }
+
   const showResend = useMemo(() => {
     const hasResponse = messages?.filter(
       (item) => item?.role === 'assistant' && item?.content
@@ -71,7 +67,7 @@ const Chat = ({ sessionId }: IProps) => {
       />
       <ChatInput
         input={input}
-        handleInputChange={handleInputChange}
+        setInput={setInput}
         handleSubmit={submit}
         isLoading={isLoading}
         showResend={showResend}

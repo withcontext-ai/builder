@@ -17,7 +17,9 @@ import { MarkdownProps } from './type'
 export const Markdown = (props: MarkdownProps) => {
   const { className, showCustomerCard: showCustomerCard, ...others } = props
   return (
-    <article className={cn('prose-p:leading-relaxed prose-pre:p-0', className)}>
+    <article
+      className={cn('prose prose-p:leading-relaxed prose-pre:p-0', className)}
+    >
       <ReactMarkdown
         components={markdownComponent}
         rehypePlugins={[
