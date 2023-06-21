@@ -33,7 +33,10 @@ const ChatCard = (props: IProps) => {
         <div className={`flex flex-col `}>
           <div className="mb-5 flex items-center gap-1">
             <Text variant="body2">{isUser ? 'Me' : 'AI Assistant'}</Text>
-            <Text variant="caption">
+            <Text
+              variant="caption"
+              // className="text-xs font-medium	text-gray-500"
+            >
               {message?.createdAt &&
                 formatDistanceToNowStrict(message.createdAt, {
                   addSuffix: true,

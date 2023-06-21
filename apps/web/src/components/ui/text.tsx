@@ -32,8 +32,7 @@ export interface TextProps
 }
 
 const Text = ({ variant, children, className }: TextProps) => {
-  // @ts-ignore
-  return <p className={cn(textVariant(variant), className)}>{children}</p>
+  return <p className={cn(textVariant({ variant }), className)}>{children}</p>
 }
 
 export default Text
