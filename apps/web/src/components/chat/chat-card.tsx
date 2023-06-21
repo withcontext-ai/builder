@@ -16,12 +16,12 @@ interface IProps {
   user_avatar?: string
 }
 
-const ChatCard = (props: IProps) => {
-  const { message, model_avatar, user_avatar } = props
+const ChatCard = ({ message, model_avatar, user_avatar }: IProps) => {
   const isUser = message?.role === 'user'
+
   return (
-    <div className="flex flex-col ">
-      <div className="flex gap-2 ">
+    <div className="flex flex-col">
+      <div className="flex space-x-6">
         <Avatar className="h-12 w-12">
           <AvatarImage
             src={!isUser ? model_avatar : user_avatar}
@@ -30,20 +30,17 @@ const ChatCard = (props: IProps) => {
           <AvatarFallback>AI</AvatarFallback>
         </Avatar>
 
-        <div className={`flex flex-col `}>
-          <div className="mb-5 flex items-center gap-1">
+        <div className="flex flex-col">
+          <div className="mb-5 flex items-center space-x-3">
             <Text variant="body2">{isUser ? 'Me' : 'AI Assistant'}</Text>
-            <Text
-              variant="caption"
-              // className="text-xs font-medium	text-gray-500"
-            >
+            <Text variant="caption">
               {message?.createdAt &&
                 formatDistanceToNowStrict(message.createdAt, {
                   addSuffix: true,
                 })}
             </Text>
           </div>
-          <div className="flex items-end gap-2">
+          <div className="flex items-end">
             <div
               className={cn(
                 'rounded-lg p-4 text-sm sm:max-w-full md:max-w-full lg:max-w-3xl	xl:max-w-3xl',
@@ -55,7 +52,7 @@ const ChatCard = (props: IProps) => {
                   {message?.content}
                 </Markdown>
               ) : (
-                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                <Loader2 className="h-3 w-3 animate-spin" />
               )}
             </div>
           </div>

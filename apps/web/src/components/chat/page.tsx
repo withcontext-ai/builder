@@ -1,8 +1,7 @@
 'use client'
 
-import { FormEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useChat } from 'ai/react'
-import { findLastIndex } from 'lodash'
 
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
@@ -15,46 +14,25 @@ interface IProps {
 }
 
 const Chat = ({ sessionId }: IProps) => {
-  // waiting useChat api onResponse
   const [waiting, setWaiting] = useState<boolean>(false)
-  const { scrollRef, autoScroll, setAutoScroll } = useScrollToBottom()
+  const { scrollRef, setAutoScroll } = useScrollToBottom()
 
-  const { messages, input, setInput, handleSubmit, isLoading, reload, stop } =
+  const { messages, input, setInput, isLoading, reload, stop, append } =
     useChat({
       id: sessionId,
-      onResponse: (res) => {
+      onResponse: () => {
         setWaiting(false)
       },
     })
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    if (input && !isLoading) {
-      if (!autoScroll) {
-        setAutoScroll(true)
-      }
-      setWaiting(true)
-      handleSubmit(event)
-    }
-  }
-
   const handelReload = () => {
-    if (!autoScroll) {
-      setAutoScroll(true)
-    }
+    setAutoScroll(true)
     reload()
     setWaiting(true)
   }
 
-  const showResend = useMemo(() => {
-    const hasResponse = messages?.filter(
-      (item) => item?.role === 'assistant' && item?.content
-    )
-    let index = -1
-    if (hasResponse?.length) {
-      index = findLastIndex(messages, (item) => item?.role === 'user')
-    }
-    return index !== -1
-  }, [messages])
+  const showResend = useMemo(() => messages?.length > 0, [messages])
+
   return (
     <div className="flex h-full w-full flex-col">
       <ChatHeader />
@@ -67,7 +45,15 @@ const Chat = ({ sessionId }: IProps) => {
       <ChatInput
         input={input}
         setInput={setInput}
-        handleSubmit={submit}
+        onSubmit={async (value) => {
+          setAutoScroll(true)
+          setWaiting(true)
+          await append({
+            id: sessionId,
+            content: value,
+            role: 'user',
+          })
+        }}
         isLoading={isLoading}
         showResend={showResend}
         reload={handelReload}
