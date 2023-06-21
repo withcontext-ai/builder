@@ -33,7 +33,7 @@ const ChatInput = (props: InputProps) => {
   const handleKeyUp = async (
     event: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
-    if (event.key === 'Enter' && input) {
+    if (event.key === 'Enter' && input && !isLoading) {
       // @ts-ignore
       handleSubmit(event)
     }
@@ -42,21 +42,13 @@ const ChatInput = (props: InputProps) => {
     <div className="relative flex w-full flex-col gap-4 px-6 pb-4">
       <div className="absolute top-[-60px] flex w-full	items-center justify-center">
         {showResend && !isLoading && (
-          <Button
-            className="w-[200px] bg-white"
-            onClick={reload}
-            variant="outline"
-          >
+          <Button className=" bg-white" onClick={reload} variant="outline">
             <RefreshCw size={16} className="mr-2" />
             Regenerate response
           </Button>
         )}
         {isLoading && (
-          <Button
-            className="w-[200px] bg-white"
-            onClick={stop}
-            variant="outline"
-          >
+          <Button className=" bg-white" onClick={stop} variant="outline">
             <StopCircle size={16} className="mr-2" />
             Stop generating
           </Button>

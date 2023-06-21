@@ -1,40 +1,41 @@
 'use client'
 
+import { Ref } from 'react'
+import { Message } from 'ai'
+
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
 import ChatCard from './chat-card'
-import { Message } from './type'
 
 interface IProps {
   messages: Message[]
-  isLoading: boolean
+  waiting: boolean
+  scrollRef: Ref<HTMLDivElement>
+  setAutoScroll: (s: boolean) => void
 }
 
-const ChatList = ({ messages, isLoading }: IProps) => {
+const ChatList = ({ messages, waiting, scrollRef, setAutoScroll }: IProps) => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/shadcn.png'
-  const { scrollRef, setAutoScroll } = useScrollToBottom()
   return (
     <div
-      className="flex flex-1 flex-col gap-12 overflow-auto p-6"
+      className="flex flex-1 flex-col gap-12 overflow-auto px-6 pb-24 pt-6"
       ref={scrollRef}
-      onTouchStart={() => {
-        setAutoScroll(false)
-      }}
+      onWheel={() => setAutoScroll(false)}
     >
       {messages?.map((message: Message, index: number) => {
-        const isEnd = messages?.length - 1 === index
         return (
           <ChatCard
             message={message}
             key={message?.id}
             model_avatar={model_avatar}
             user_avatar={user_avatar}
-            isEnd={isEnd}
-            isLoading={isLoading}
           />
         )
       })}
+      {waiting && (
+        <ChatCard message={{ id: '', content: '', role: 'assistant' }} />
+      )}
     </div>
   )
 }

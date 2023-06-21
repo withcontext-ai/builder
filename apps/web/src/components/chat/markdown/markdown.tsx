@@ -5,6 +5,7 @@ import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 
+import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,11 +14,10 @@ import { PdfImage, PreviewPdf } from '@/components/upload/component'
 
 import { MarkdownProps } from './type'
 
-export const MarkDown = (props: MarkdownProps) => {
+export const Markdown = (props: MarkdownProps) => {
   const { className, showCustomerCard: showCustomerCard, ...others } = props
   return (
-    <article className={`${className} prose`}>
-      {/* @ts-ignore */}
+    <article className={cn('prose-p:leading-relaxed prose-pre:p-0', className)}>
       <ReactMarkdown
         components={markdownComponent}
         rehypePlugins={[

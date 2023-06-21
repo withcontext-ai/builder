@@ -23,7 +23,7 @@ type Variant =
   | 'button'
   | 'overline'
 
-const Typography = ({ variant, children, className }: IProps) => {
+const Text = ({ variant, children, className }: IProps) => {
   const subtile = ['subtitle1', 'subtitle2']
   const body = ['body1', 'body2']
   const content = () => {
@@ -112,4 +112,4 @@ const Typography = ({ variant, children, className }: IProps) => {
   return <>{content()}</>
 }
 
-export default Typography
+export default Text
