@@ -7,7 +7,16 @@ import WorkflowTree from './workflow-tree'
 export default function TaskList() {
   const workflowTree = useSettingsStore((state) => state.workflowTree)
   const setWorkflowTree = useSettingsStore((state) => state.setWorkflowTree)
-  console.log('workflowTree:', workflowTree)
+  const workflowData = useSettingsStore((state) => state.workflowData)
 
-  return <WorkflowTree defaultValue={workflowTree} onChange={setWorkflowTree} />
+  console.log('workflowTree:', workflowTree)
+  console.log('workflowData:', workflowData)
+
+  return (
+    <WorkflowTree
+      value={workflowTree}
+      onChange={setWorkflowTree}
+      data={workflowData}
+    />
+  )
 }

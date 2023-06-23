@@ -6,7 +6,7 @@ import { TreeItem } from '@/components/dnd/types'
 
 export type WorkflowType = 'model' | 'tool' | 'agent' | string
 
-type WorkflowItem = {
+export type WorkflowItem = {
   id: string
   type: WorkflowType
   subType: string
