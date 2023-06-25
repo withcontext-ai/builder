@@ -31,6 +31,11 @@ const Chat = ({ sessionId }: IProps) => {
     setWaiting(true)
   }
 
+  const handelStop = () => {
+    setWaiting(false)
+    stop()
+  }
+
   const showResend = useMemo(() => messages?.length > 0, [messages])
 
   return (
@@ -53,14 +58,13 @@ const Chat = ({ sessionId }: IProps) => {
             id: sessionId,
             content: value,
             role: 'user',
-            // @ts-ignore
-            createdAt: Date.now().toString().valueOf(),
+            createdAt: new Date(),
           })
         }}
         isLoading={isLoading}
         showResend={showResend}
         reload={handelReload}
-        stop={stop}
+        stop={handelStop}
       />
     </div>
   )
