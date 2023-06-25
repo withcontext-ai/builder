@@ -7,12 +7,19 @@ import ChatCard from './chat-card'
 
 interface IProps {
   messages: Message[]
+  error?: string
   waiting: boolean
   scrollRef: Ref<HTMLDivElement>
   setAutoScroll: (s: boolean) => void
 }
 
-const ChatList = ({ messages, waiting, scrollRef, setAutoScroll }: IProps) => {
+const ChatList = ({
+  messages,
+  waiting,
+  scrollRef,
+  setAutoScroll,
+  error,
+}: IProps) => {
   const model_avatar = 'https://github.com/withcontext-ai.png'
   const user_avatar = 'https://github.com/shadcn.png'
   return (
@@ -28,6 +35,8 @@ const ChatList = ({ messages, waiting, scrollRef, setAutoScroll }: IProps) => {
             key={message?.id}
             model_avatar={model_avatar}
             user_avatar={user_avatar}
+            error={error}
+            isEnd={index === messages.length - 1}
           />
         )
       })}

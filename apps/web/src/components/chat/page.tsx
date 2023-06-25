@@ -19,13 +19,21 @@ const Chat = ({ sessionId }: IProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, autoScroll, setAutoScroll } = useScrollToBottom()
 
-  const { messages, input, setInput, handleSubmit, isLoading, reload, stop } =
-    useChat({
-      id: sessionId,
-      onResponse: (res) => {
-        setWaiting(false)
-      },
-    })
+  const {
+    messages,
+    input,
+    setInput,
+    handleSubmit,
+    isLoading,
+    reload,
+    stop,
+    error,
+  } = useChat({
+    id: sessionId,
+    onResponse: (res) => {
+      setWaiting(false)
+    },
+  })
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     if (input && !isLoading) {
@@ -62,6 +70,7 @@ const Chat = ({ sessionId }: IProps) => {
         messages={messages}
         waiting={waiting}
         scrollRef={scrollRef}
+        error={error?.message}
         setAutoScroll={setAutoScroll}
       />
       <ChatInput
