@@ -72,7 +72,6 @@ const ChatCard = (props: IProps) => {
   const { message, model_avatar, user_avatar, error = '', isEnd } = props
   const isUser = message?.role === 'user'
   const showError = isEnd && error && !isUser
-  const date = new Date(2023, 5, 24, 13, 20, 10)
   return (
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
@@ -96,7 +95,7 @@ const ChatCard = (props: IProps) => {
               {message?.createdAt && formatTime(Number(message?.createdAt))}
             </Text>
           </div>
-          <div className="flex items-end gap-2">
+          <div className="flex items-end">
             <div
               className={cn(
                 'rounded-lg p-4 text-sm sm:max-w-full md:max-w-full lg:max-w-3xl	xl:max-w-3xl',
@@ -109,7 +108,7 @@ const ChatCard = (props: IProps) => {
                   {message?.content}
                 </Markdown>
               ) : (
-                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                <Loader2 className="h-3 w-3 animate-spin" />
               )}
             </div>
           </div>

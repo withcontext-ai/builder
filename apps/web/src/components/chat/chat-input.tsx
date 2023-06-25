@@ -1,38 +1,38 @@
 'use client'
 
-import { FormEvent } from 'react'
+import * as React from 'react'
 import { Loader2, RefreshCw, StopCircle } from 'lucide-react'
+
+import { useEnterSubmit } from '@/hooks/use-enter-submit'
 
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 
 interface InputProps {
-  showResend?: boolean
-  isLoading: boolean
   input: string
   setInput: (e: string) => void
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => void
+  onSubmit: (value: string) => void
+  isLoading: boolean
   reload: () => void
   stop: () => void
+  showResend?: boolean
 }
 
-const ChatInput = (props: InputProps) => {
-  const { input, setInput, handleSubmit, isLoading, reload, stop, showResend } =
-    props
-  const handleKeyUp = async (
-    event: React.KeyboardEvent<HTMLTextAreaElement>
-  ) => {
-    if (event.key === 'Enter' && !event.altKey) {
-      // @ts-ignore
-      handleSubmit(event)
-    }
-  }
+const ChatInput = ({
+  input,
+  setInput,
+  onSubmit,
+  isLoading,
+  reload,
+  stop,
+  showResend,
+}: InputProps) => {
+  const inputRef = React.useRef<HTMLTextAreaElement>(null)
 
-  const checkValue = (msg: string) => {
-    const value = new Set(msg.split(''))
-    if (value.size === 1 && (value.has('\n') || value.has(''))) return false
-    return true
-  }
+  const { formRef, onKeyDown } = useEnterSubmit()
+
+  const isDisabled = !input || input.trim() === '' || isLoading
+
   return (
     <div className="relative flex w-full flex-col gap-4 px-6 pb-4">
       <div className="absolute top-[-60px] flex w-full	items-center justify-center">
@@ -49,22 +49,29 @@ const ChatInput = (props: InputProps) => {
           </Button>
         )}
       </div>
-      <form onSubmit={handleSubmit}>
-        <div className="flex justify-between gap-2">
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault()
+          if (isDisabled) {
+            return
+          }
+          setInput('')
+          await onSubmit(input)
+        }}
+        ref={formRef}
+      >
+        <div className="flex justify-between space-x-2">
           <Textarea
+            ref={inputRef}
+            className="min-h-[40px]"
             placeholder="Type a message"
-            onKeyUp={handleKeyUp}
             value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
             minRows={1}
             maxRows={8}
-            onChange={(e) => {
-              const value = e.target.value
-              if (checkValue(value)) {
-                setInput(e?.target.value)
-              }
-            }}
           />
-          <Button type="submit" disabled={!input || isLoading}>
+          <Button type="submit" disabled={isDisabled}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Send
           </Button>
