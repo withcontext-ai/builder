@@ -7,11 +7,12 @@ import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
+import CreateAppDialog from './create-app-dialog'
+
 export default function AppSidebar() {
   const pathname = usePathname()
   const params = useParams()
   const { app_id: appId } = params
-
   return (
     <>
       <div className="group relative mt-6 flex shrink-0 items-center justify-center">
@@ -34,7 +35,7 @@ export default function AppSidebar() {
         />
       </div>
       <div className="m-auto mt-6 h-px w-14 bg-slate-200" />
-      <nav className="flex-1 overflow-y-auto py-6 scrollbar-none">
+      <nav className="scrollbar-none flex-1 overflow-y-auto py-6">
         <ul role="list" className="flex flex-col space-y-4">
           {[...Array(10)].map((_, i) => (
             <li key={i} className="group relative flex justify-center">
@@ -56,13 +57,17 @@ export default function AppSidebar() {
               />
             </li>
           ))}
-          <li className="flex justify-center">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className=" bg-white">
-                <Plus />
-              </AvatarFallback>
-            </Avatar>
-          </li>
+          <CreateAppDialog
+            dialogTrigger={
+              <li className="flex cursor-pointer justify-center">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className=" bg-white">
+                    <Plus />
+                  </AvatarFallback>
+                </Avatar>
+              </li>
+            }
+          />
         </ul>
       </nav>
     </>
