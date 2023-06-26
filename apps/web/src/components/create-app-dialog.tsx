@@ -1,5 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Camera } from 'lucide-react'
+import { nanoid } from 'nanoid'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -22,6 +24,10 @@ import {
   FormMessage,
 } from './ui/form'
 import { Input } from './ui/input'
+import { Textarea } from './ui/textarea'
+import { UploadChangeParam, UploadFile } from './upload/type'
+import Upload from './upload/upload'
+import { uploadFile } from './upload/utils'
 
 interface IProps {
   dialogTrigger?: ReactNode
@@ -61,18 +67,36 @@ const CreateAppDialog = (props: IProps) => {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  const { reset, watch, setValue } = form
+
+  const stringToFile = () => {
+    if (watch().image) {
+      return [
+        { uid: nanoid(), url: watch().image, name: '', status: 'success' },
+      ]
+    }
+    return []
+  }
+  // @ts-ignore
+  const [image, setImage] = useState<UploadFile[]>(stringToFile())
+
   const onSubmit = (data: FormValuesProps) => {
     console.log(data, '----------data')
     setOpen(false)
   }
-  const { reset } = form
-
-  const onCancel = () => {
-    setOpen(false)
+  const onCancel = (open: boolean) => {
+    setOpen(open)
     reset()
+    setImage([])
   }
+
+  const handleFiles = (file: UploadFile) => {
+    setImage([file])
+    setValue('image', file?.url || '')
+  }
+
   return (
-    <Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+    <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[488px]">
         <DialogHeader>
@@ -102,7 +126,8 @@ const CreateAppDialog = (props: IProps) => {
                 <FormItem>
                   <FormLabel>Short Description</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
+                      minRows={3}
                       placeholder="Type your description here"
                       {...field}
                     />
@@ -114,21 +139,35 @@ const CreateAppDialog = (props: IProps) => {
             <FormField
               control={form.control}
               name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Type your description here"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Image</FormLabel>
+                    <FormControl>
+                      <Upload
+                        onRemove={() => setImage([])}
+                        listType="image"
+                        fileList={image}
+                        onChange={(e: UploadChangeParam) => {
+                          uploadFile({
+                            file: e?.file,
+                            fileList: e?.fileList,
+                            handleFiles,
+                          })
+                        }}
+                        customRequest={() => {}}
+                        className=" h-16 w-16 rounded-lg border border-slate-300 bg-slate-50	"
+                      >
+                        <Camera size={28} />
+                      </Upload>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={onCancel}>
+              <Button variant="outline" onClick={() => onCancel(false)}>
                 Cancel
               </Button>
               <Button type="submit">Create</Button>

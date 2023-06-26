@@ -5,6 +5,8 @@ import type { UploadProps as RcUploadProps } from 'rc-upload'
 import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
+import { cn } from '@/lib/utils'
+
 import { Button } from '../ui/button'
 import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
@@ -39,7 +41,6 @@ const Upload = (props: UploadProps) => {
       postState: (list: UploadFile[]) => list ?? [],
     }
   )
-
   const [_, setDragState] = React.useState<string>('drop')
   const upload = React.useRef<RcUpload>(null)
 
@@ -361,12 +362,13 @@ const Upload = (props: UploadProps) => {
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showImage = listType === 'image' && mergedFileList?.length !== 0
+    console.log(file, '00000000uploadIcon', mergedFileList)
     return showImage ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
         onRemove={() => handleRemove(file)}
-        className={`h-16 w-16 ${className}`}
+        className={cn('h-16 w-16', className)}
         showUploadList={showUploadList}
       />
     ) : (
@@ -385,16 +387,22 @@ const Upload = (props: UploadProps) => {
     handleRemove,
   ])
   return (
-    <div className={`p-8 ${className}`}>
-      <div className={` flex flex-col gap-4`} onClick={onFileDrop}>
+    <div className={` ${className}`}>
+      <div
+        className={cn(
+          'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
+          listType === 'image' ? 'gap-0' : 'gap-2'
+        )}
+        onClick={onFileDrop}
+      >
         {showUploadIcon}
         <div
-          className={`
-          flex gap-2 ${
+          className={cn(
+            'flex gap-2',
             listType === 'images-list'
               ? ' w-full flex-row flex-wrap'
               : 'flex-col'
-          }`}
+          )}
         >
           {listType !== 'image' &&
             mergedFileList?.map((file: UploadFile) => {

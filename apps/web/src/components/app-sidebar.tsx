@@ -35,7 +35,7 @@ export default function AppSidebar() {
         />
       </div>
       <div className="m-auto mt-6 h-px w-14 bg-slate-200" />
-      <nav className="scrollbar-none flex-1 overflow-y-auto py-6">
+      <nav className="flex-1 overflow-y-auto py-6 scrollbar-none">
         <ul role="list" className="flex flex-col space-y-4">
           {[...Array(10)].map((_, i) => (
             <li key={i} className="group relative flex justify-center">

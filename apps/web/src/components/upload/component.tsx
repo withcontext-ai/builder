@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useState } from 'react'
-import { Download, Eye, X } from 'lucide-react'
+import { Download, Eye, Loader2, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import {
@@ -176,18 +176,19 @@ export const ImageFile = (props: FileItemProps) => {
   return (
     <>
       <div
-        className={`relative z-20 h-20 w-20 rounded-lg border  p-2 ${className} ${
-          file?.status === 'error' ? 'border-[#ff4d4f]' : ''
-        } ${file?.status === 'uploading' ? 'bg-gray-50' : ''}`}
+        className={cn(
+          'relative z-20 h-20 w-20 rounded-lg border  p-2',
+          className,
+          file?.status === 'error' ? 'border-[#ff4d4f]' : '',
+          file?.status === 'uploading' ? 'bg-gray-50' : ''
+        )}
         key={file?.uid || file?.url}
       >
         <div className={`relative z-10 flex h-full w-full items-center`}>
           {file?.status == 'uploading' && !file?.url ? (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1">
-              {props?.locale?.uploading || 'uploading'}
-              {props?.progress || (
-                <Progress value={file?.percent || 0} className="h-1" />
-              )}
+              {props?.locale?.uploading}
+              <Loader2 className="h-3 w-3 animate-spin" />
             </div>
           ) : (
             file?.url && (
