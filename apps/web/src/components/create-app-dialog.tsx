@@ -76,17 +76,20 @@ const CreateAppDialog = (props: IProps) => {
   }
   const onCancel = (open: boolean) => {
     setOpen(open)
+    controller.abort()
     reset()
     setImage([])
   }
 
   const handleFiles = (file: UploadFile<any>[]) => {
     setImage(file)
+    controller.abort()
     setValue('image', file[0]?.url || '')
   }
 
   // when file uploading disabled submit
   const disabled = image[0]?.status === 'uploading'
+  const controller = new AbortController()
   return (
     <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
@@ -139,12 +142,14 @@ const CreateAppDialog = (props: IProps) => {
                       <Upload
                         onRemove={() => setImage([])}
                         listType="image"
+                        controller={controller}
                         fileList={image}
                         onChange={(e: UploadChangeParam) => {
                           uploadFile({
                             file: e?.file,
                             fileList: e?.fileList,
                             handleFiles,
+                            controller,
                           })
                         }}
                         className=" h-16 w-16 rounded-lg border border-slate-300 bg-slate-50	"

@@ -33,6 +33,7 @@ const Upload = (props: UploadProps) => {
     className,
     disabled: mergedDisabled,
     customRequest,
+    controller,
   } = props
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
@@ -244,6 +245,7 @@ const Upload = (props: UploadProps) => {
         }
 
         const removedFileList = removeFileItem(file, mergedFileList)
+        controller?.abort()
         if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {

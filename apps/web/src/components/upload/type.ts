@@ -74,6 +74,7 @@ export interface UploadChangeParam<T = UploadFile> {
 
 export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   name?: string
+  controller?: AbortController
   defaultFileList?: Array<UploadFile<T>>
   fileList?: Array<UploadFile<T>>
   type?: 'drag' | 'select'

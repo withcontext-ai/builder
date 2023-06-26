@@ -94,12 +94,12 @@ const changeCurrentFile = async (
 export const uploadFile = async ({
   file,
   fileList,
-  isCancel: isCancel,
+  controller,
   handleFiles,
 }: {
   file: UploadFile
   fileList: UploadFile[]
-  isCancel?: boolean
+  controller?: AbortController
   handleFiles?: (files: UploadFile<any>[]) => void
 }) => {
   file.status = 'uploading'
@@ -129,17 +129,9 @@ export const uploadFile = async ({
       formData.append(key, value)
     }
   )
-
-  const request = axios.post(upload_url, formData, {
-    onUploadProgress: async (progressEvent) => {
-      file.status = 'uploading'
-      const { progress = 0 } = progressEvent
-      file.percent = progress * 100
-      await changeCurrentFile(file, fileList, handleFiles)
-    },
-  })
   axios
     .post(upload_url, formData, {
+      signal: controller?.signal,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
         const { progress = 0 } = progressEvent

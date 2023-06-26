@@ -12,15 +12,19 @@ const TestUpload = (props: UploadProps) => {
   const handleRemove = (file: UploadFile) => {
     const data = files?.filter((item) => item?.uid !== file?.uid)
     setFiles(data)
+    controller.abort()
   }
+  const controller = new AbortController()
   return (
     <Upload
       fileList={files}
+      controller={controller}
       onChange={(e: UploadChangeParam) => {
         uploadFile({
           file: e?.file,
           fileList: e?.fileList,
           handleFiles: (files) => setFiles([...files]),
+          controller,
         })
       }}
       onRemove={handleRemove}
