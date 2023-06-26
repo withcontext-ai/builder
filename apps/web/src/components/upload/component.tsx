@@ -21,7 +21,7 @@ import { checkShowIcon } from './utils'
 interface IconBoxProps {
   children: ReactNode
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.SyntheticEvent) => void
 }
 
 interface PreviewProps {
@@ -94,7 +94,7 @@ export const PdfImage = ({
 )
 
 export const PDFFile = (props: FileItemProps) => {
-  const { file, showUploadList, fileNameStyle, onDownload, onRemove } = props
+  const { file, showUploadList, fileNameStyle, onRemove } = props
   const showIcon = checkShowIcon(showUploadList || false)
   const [open, setOpen] = useState<boolean>(false)
   const preview = (file: UploadFile) => {
@@ -132,7 +132,7 @@ export const PDFFile = (props: FileItemProps) => {
               {(file?.status === 'success' || file?.status === 'done') &&
                 file?.url && (
                   <>
-                    <IconBox onClick={() => onDownload!(file)}>
+                    <IconBox onClick={() => props?.onDownload!(file)}>
                       {showIcon?.downloadIcon || (
                         <Download size={16} strokeWidth={3} color="#000" />
                       )}
@@ -144,7 +144,14 @@ export const PDFFile = (props: FileItemProps) => {
                     </IconBox>
                   </>
                 )}
-              <IconBox onClick={() => onRemove!(file)}>
+              <IconBox
+                onClick={(e: React.SyntheticEvent) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  console.log(onRemove, '---------pdf---delete')
+                  onRemove?.(file)
+                }}
+              >
                 {showIcon?.removeIcon || <X size={16} strokeWidth={3} />}
               </IconBox>
             </div>

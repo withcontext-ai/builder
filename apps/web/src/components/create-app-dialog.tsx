@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -35,17 +34,17 @@ interface IProps {
 }
 
 interface FormValuesProps {
-  username: string
+  name: string
   desc?: string
   image?: string
 }
 const formSchema = z.object({
-  username: z
+  name: z
     .string()
     .min(2, {
       message: 'App name is required.',
     })
-    .max(50, { message: 'App name  must be less than 50 characters.' }),
+    .max(50, { message: 'App name must be less than 50 characters.' }),
   desc: z
     .string()
     .max(120, {
@@ -67,18 +66,9 @@ const CreateAppDialog = (props: IProps) => {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
-  const { reset, watch, setValue } = form
+  const { reset, setValue } = form
 
-  const stringToFile = () => {
-    if (watch().image) {
-      return [
-        { uid: nanoid(), url: watch().image, name: '', status: 'success' },
-      ]
-    }
-    return []
-  }
-  // @ts-ignore
-  const [image, setImage] = useState<UploadFile[]>(stringToFile())
+  const [image, setImage] = useState<UploadFile[]>([])
 
   const onSubmit = (data: FormValuesProps) => {
     console.log(data, '----------data')
@@ -90,11 +80,13 @@ const CreateAppDialog = (props: IProps) => {
     setImage([])
   }
 
-  const handleFiles = (file: UploadFile) => {
-    setImage([file])
-    setValue('image', file?.url || '')
+  const handleFiles = (file: UploadFile<any>[]) => {
+    setImage(file)
+    setValue('image', file[0]?.url || '')
   }
 
+  // when file uploading disabled submit
+  const disabled = image[0]?.status === 'uploading'
   return (
     <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
@@ -106,7 +98,7 @@ const CreateAppDialog = (props: IProps) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex">
@@ -169,7 +161,9 @@ const CreateAppDialog = (props: IProps) => {
               <Button variant="outline" onClick={() => onCancel(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={disabled}>
+                Create
+              </Button>
             </div>
           </form>
         </Form>

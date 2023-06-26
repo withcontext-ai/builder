@@ -366,7 +366,7 @@ const Upload = (props: UploadProps) => {
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
-        onRemove={() => handleRemove(file)}
+        onRemove={handleRemove}
         className={cn('h-16 w-16', className)}
         showUploadList={showUploadList}
       />
@@ -407,20 +407,20 @@ const Upload = (props: UploadProps) => {
             mergedFileList?.map((file: UploadFile) => {
               return listType === 'pdf' ? (
                 <PDFFile
+                  {...props}
                   file={file}
                   onDownload={handleDownload}
                   onRemove={handleRemove}
                   showUploadList={showUploadList}
-                  {...props}
                   key={file?.uid}
                 />
               ) : (
                 <ImageFile
+                  {...props}
                   file={file}
                   onRemove={handleRemove}
                   showUploadList={showUploadList}
                   key={file?.uid}
-                  {...props}
                 />
               )
             })}
