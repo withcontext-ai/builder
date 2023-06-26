@@ -1,43 +1,63 @@
+'use client'
+
+import * as React from 'react'
+import { useRouter } from 'next/navigation'
+import { Session } from '@/db/schema/sessions'
+import { Loader2Icon, PlusIcon } from 'lucide-react'
+
 import SessionListItem from './session-list-item'
 
-const SESSION_LIST_DATA = [
-  {
-    token: 's1',
-    title: 'Session 1',
-  },
-  {
-    token: 's2',
-    title: 'Session 2',
-  },
-  {
-    token: 's3',
-    title: 'Meeting Notes and Action Items',
-  },
-  {
-    token: 's4',
-    title: 'Adding up Dollar Amounts in Excel',
-  },
-  {
-    token: 's5',
-    title:
-      'Unit Testing React Components with Vitest and @testing-library/react',
-  },
-]
-
 interface IProps {
+  value: Session[]
   appId: string
 }
 
-export default function SessionList({ appId }: IProps) {
-  // TODO: use appId to fetch session list data
+export default function SessionList({ value, appId }: IProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  async function handleAdd() {
+    try {
+      setIsLoading(true)
+      const result = await fetch('/api/app/sessions', {
+        method: 'POST',
+        body: JSON.stringify({ app_id: appId }),
+      })
+      const json = await result.json()
+      console.log('handleAdd json:', json)
+      router.push(`/app/${appId}/session/${json.data.sessionId}`)
+      router.refresh()
+    } catch (error) {
+      console.log('handleAdd error:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <nav className="flex flex-1 flex-col" aria-label="SessionList">
-      <ul role="list" className="-mx-2 space-y-1">
-        {SESSION_LIST_DATA.map(({ token, title }) => (
-          <SessionListItem key={token} token={token} title={title} />
-        ))}
-      </ul>
-    </nav>
+    <div>
+      <div className="-mx-2 flex h-9 items-center justify-between p-2">
+        <div className="text-sm text-slate-900">New Chat</div>
+        <button
+          className="rounded-full p-1 hover:bg-slate-100"
+          aria-hidden="true"
+          onClick={handleAdd}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2Icon className="h-4 w-4 animate-spin" />
+          ) : (
+            <PlusIcon className="h-4 w-4 shrink-0" />
+          )}
+        </button>
+      </div>
+      <nav className="mt-1 flex flex-1 flex-col" aria-label="SessionList">
+        <ul role="list" className="-mx-2 space-y-1">
+          {value.map(({ short_id, name }) => (
+            <SessionListItem key={short_id} id={short_id} name={name} />
+          ))}
+        </ul>
+      </nav>
+    </div>
   )
 }

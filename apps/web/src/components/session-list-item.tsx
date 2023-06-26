@@ -6,16 +6,17 @@ import clsx from 'clsx'
 import { MessageCircleIcon, TrashIcon } from 'lucide-react'
 
 interface ISessionItem {
-  token: string
-  title: string
+  id: string
+  name: string
 }
 
-export default function SessionListItem({ token, title }: ISessionItem) {
+export default function SessionListItem({ id, name }: ISessionItem) {
   const params = useParams()
   const appId = params.app_id
   const sessionId = params.session_id
-  const href = `/app/${appId}/session/${token}`
-  const isSelected = sessionId == token
+  const href = `/app/${appId}/session/${id}`
+  const isSelected = sessionId == id
+
   return (
     <li>
       <Link
@@ -26,7 +27,7 @@ export default function SessionListItem({ token, title }: ISessionItem) {
         )}
       >
         <MessageCircleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-        <span className="truncate">{title}</span>
+        <span className="truncate">{name}</span>
         {isSelected && (
           <span
             className="absolute right-2 rounded-full bg-slate-100 p-1 text-center hover:bg-white"

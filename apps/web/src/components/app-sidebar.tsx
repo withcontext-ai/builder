@@ -19,8 +19,6 @@ export default function AppSidebar({ appList }: IProps) {
   const params = useParams()
   const { app_id: appId } = params
 
-  console.log('appList:', appList)
-
   async function handleAdd() {
     try {
       const result = await fetch('/api/me/apps', {
