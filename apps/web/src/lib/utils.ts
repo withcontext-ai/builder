@@ -22,3 +22,14 @@ export const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   7
 ) // 7-character random string
+
+export const getFirstLetter = (str: string) => str.charAt(0).toUpperCase()
+
+export const BASE_URL =
+  process.env.VERCEL_URL || process.env.VERCEL_BRANCH_URL
+    ? `https://${
+      process.env.VERCEL_ENV === 'production'
+        ? process.env.VERCEL_URL
+        : process.env.VERCEL_BRANCH_URL
+    }`
+    : 'http://localhost:3000'

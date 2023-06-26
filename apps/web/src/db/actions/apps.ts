@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { desc, eq } from 'drizzle-orm'
+
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { nanoid } from '@/lib/utils'
@@ -25,4 +27,15 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     .returning()
 
   return { appId: newApp[0]?.short_id, sessionId: newSession[0]?.short_id }
+}
+
+export async function getApps() {
+  const { userId } = auth()
+  if (!userId) return Promise.resolve([])
+
+  return db
+    .select()
+    .from(AppsTable)
+    .orderBy(desc(AppsTable.created_at))
+    .where(eq(AppsTable.created_by, userId))
 }
