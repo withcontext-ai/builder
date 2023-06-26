@@ -155,7 +155,6 @@ const CreateAppDialog = (props: IProps) => {
                             handleFiles,
                           })
                         }}
-                        customRequest={() => {}}
                         className=" h-16 w-16 rounded-lg border border-slate-300 bg-slate-50	"
                       >
                         <Camera size={28} />
