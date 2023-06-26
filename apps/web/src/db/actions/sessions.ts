@@ -45,3 +45,26 @@ export async function getSessions(appId: string) {
     .orderBy(desc(SessionsTable.created_at))
     .where(eq(SessionsTable.app_id, appId))
 }
+
+export async function removeSession(appId: string, sessionId: string) {
+  const { userId } = auth()
+  if (!userId) return null
+
+  const foundSession = await db
+    .select()
+    .from(SessionsTable)
+    .where(eq(SessionsTable.short_id, sessionId))
+  if (!foundSession?.[0]) return null
+  if (foundSession[0].app_id !== appId) return null
+
+  const foundApp = await db
+    .select()
+    .from(AppsTable)
+    .where(eq(AppsTable.short_id, foundSession[0].app_id))
+  if (!foundApp?.[0]) return null
+  if (foundApp[0].created_by !== userId) return null
+
+  await db.delete(SessionsTable).where(eq(SessionsTable.short_id, sessionId))
+
+  return { deletedId: sessionId }
+}

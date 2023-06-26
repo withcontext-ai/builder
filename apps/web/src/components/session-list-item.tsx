@@ -1,9 +1,10 @@
 'use client'
 
+import * as React from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import clsx from 'clsx'
-import { MessageCircleIcon, TrashIcon } from 'lucide-react'
+import { Loader2Icon, MessageCircleIcon, TrashIcon } from 'lucide-react'
 
 interface ISessionItem {
   id: string
@@ -11,11 +12,31 @@ interface ISessionItem {
 }
 
 export default function SessionListItem({ id, name }: ISessionItem) {
+  const router = useRouter()
   const params = useParams()
   const appId = params.app_id
   const sessionId = params.session_id
   const href = `/app/${appId}/session/${id}`
   const isSelected = sessionId == id
+
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  async function handleRemove() {
+    try {
+      setIsLoading(true)
+      const result = await fetch(`/api/apps/${appId}/sessions/${sessionId}`, {
+        method: 'DELETE',
+      })
+      const json = await result.json()
+      console.log('handleRemove json:', json)
+      router.push(`/app/${appId}`)
+      router.refresh()
+    } catch (error) {
+      console.log('handleRemove error:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <li>
@@ -29,13 +50,18 @@ export default function SessionListItem({ id, name }: ISessionItem) {
         <MessageCircleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
         <span className="truncate">{name}</span>
         {isSelected && (
-          <span
+          <button
             className="absolute right-2 rounded-full bg-slate-100 p-1 text-center hover:bg-white"
             aria-hidden="true"
-            // onClick={() => chatStore?.deleteSession(sessionId)}
+            onClick={handleRemove}
+            disabled={isLoading}
           >
-            <TrashIcon className="h-4 w-4 shrink-0" />
-          </span>
+            {isLoading ? (
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+            ) : (
+              <TrashIcon className="h-4 w-4 shrink-0" />
+            )}
+          </button>
         )}
       </Link>
     </li>

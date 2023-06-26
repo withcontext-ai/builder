@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { addSession, getSessions } from '@/db/actions/sessions'
 import { NewSession } from '@/db/schema/sessions'
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const appId = searchParams.get('appId')
   if (!appId) {
