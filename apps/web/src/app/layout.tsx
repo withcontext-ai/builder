@@ -2,7 +2,6 @@ import './globals.css'
 
 import { getApps } from '@/db/actions/apps'
 import { ClerkProvider } from '@clerk/nextjs'
-import clsx from 'clsx'
 
 import { auth } from '@/lib/auth'
 import { flags } from '@/lib/flags'
@@ -48,7 +47,7 @@ export default async function RootLayout({
     return (
       <ClerkProvider>
         <html lang="en" className="h-full">
-          <body className={clsx('h-full')}>
+          <body className="h-full">
             <AppLayout
               sidebar={userId ? <AppSidebar appList={appList} /> : null}
             >

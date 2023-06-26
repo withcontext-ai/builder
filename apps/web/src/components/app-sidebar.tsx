@@ -1,13 +1,24 @@
 'use client'
 
-import * as React from 'react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { App } from '@/db/schema/apps'
 import { Plus } from 'lucide-react'
+import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
 
-import { cn, getFirstLetter } from '@/lib/utils'
+import { cn, fetcher, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
+function addApp(
+  url: string,
+  { arg }: { arg: { name: string; description: string; icon: string } }
+) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
+}
 
 interface IProps {
   appList?: App[]
@@ -19,20 +30,30 @@ export default function AppSidebar({ appList }: IProps) {
   const params = useParams()
   const { app_id: appId } = params
 
+  const {
+    isLoading,
+    data: appListData,
+    error,
+    mutate,
+  } = useSWR<App[]>('/api/me/apps', fetcher, {
+    fallbackData: appList,
+  })
+  console.log('isLoading:', isLoading)
+  console.log('data:', appListData)
+  // console.log('error:', error)
+
+  const { trigger, isMutating } = useSWRMutation('/api/me/apps', addApp)
+  console.log('isMutating:', isMutating)
+
   async function handleAdd() {
     try {
-      const result = await fetch('/api/me/apps', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
-          description: 'New App Description',
-          icon: '',
-        }),
+      const json = await trigger({
+        name: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+        description: 'New App Description',
+        icon: '',
       })
-      const json = await result.json()
       console.log('handleAdd json:', json)
-      router.push(`/app/${json.data.appId}/session/${json.data.sessionId}`)
-      router.refresh()
+      router.push(`/app/${json.appId}/session/${json.sessionId}`)
     } catch (error) {
       console.log('handleAdd error:', error)
     }
@@ -62,7 +83,7 @@ export default function AppSidebar({ appList }: IProps) {
       <div className="m-auto mt-6 h-px w-14 bg-slate-200" />
       <nav className="flex-1 overflow-y-auto py-6 scrollbar-none">
         <ul role="list" className="flex flex-col space-y-4">
-          {appList?.map((appItem) => {
+          {appListData?.map((appItem) => {
             const isSelected = appId === appItem.short_id
             return (
               <li
