@@ -16,7 +16,7 @@ export async function seed() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE INDEX user_id_index ON apps (created_by);
+    CREATE INDEX IF NOT EXISTS user_id_index ON apps (created_by);
   `)
   console.log(`Created "apps" table`)
 
