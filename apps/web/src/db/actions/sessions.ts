@@ -68,3 +68,21 @@ export async function removeSession(appId: string, sessionId: string) {
 
   return { deletedId: sessionId }
 }
+
+export async function getLatestSessionId(appId: string) {
+  const foundApp = await db
+    .select()
+    .from(AppsTable)
+    .where(eq(AppsTable.short_id, appId))
+  if (!foundApp?.[0]) return null
+
+  const foundSession = await db
+    .select()
+    .from(SessionsTable)
+    .orderBy(desc(SessionsTable.created_at))
+    .where(eq(SessionsTable.app_id, appId))
+    .limit(1)
+  if (!foundSession?.[0]) return null
+
+  return foundSession[0].short_id
+}
