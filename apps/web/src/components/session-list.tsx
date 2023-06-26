@@ -19,9 +19,8 @@ export default function SessionList({ value, appId }: IProps) {
   async function handleAdd() {
     try {
       setIsLoading(true)
-      const result = await fetch('/api/app/sessions', {
+      const result = await fetch(`/api/apps/${appId}/sessions`, {
         method: 'POST',
-        body: JSON.stringify({ app_id: appId }),
       })
       const json = await result.json()
       console.log('handleAdd json:', json)
