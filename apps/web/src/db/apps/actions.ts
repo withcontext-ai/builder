@@ -41,6 +41,14 @@ export async function getApps() {
     .where(eq(AppsTable.archived, false))
 }
 
+export async function getApp(appId: string) {
+  const items = await db
+    .select()
+    .from(AppsTable)
+    .where(eq(AppsTable.short_id, appId))
+  return Promise.resolve(items[0])
+}
+
 export async function removeApp(id: string) {
   return db
     .update(AppsTable)
