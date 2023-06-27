@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { removeSession } from '@/db/actions/sessions'
+import { removeSession } from '@/db/sessions/actions'
 
 // Get a session
 export async function GET(

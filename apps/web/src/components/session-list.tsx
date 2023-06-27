@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { Session } from '@/db/schema/sessions'
+import { Session } from '@/db/sessions/schema'
 import { Loader2Icon, PlusIcon } from 'lucide-react'
 
 import SessionListItem from './session-list-item'

@@ -7,7 +7,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
-import { AppsTable } from './apps'
+import { AppsTable } from '../apps/schema'
 
 export const SessionsTable = pgTable(
   'sessions',

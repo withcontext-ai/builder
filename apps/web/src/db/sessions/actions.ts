@@ -6,8 +6,8 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { nanoid } from '@/lib/utils'
 
-import { AppsTable } from '../schema/apps'
-import { SessionsTable } from '../schema/sessions'
+import { AppsTable } from '../apps/schema'
+import { SessionsTable } from './schema'
 
 export async function addSession(appId: string) {
   const { userId } = auth()

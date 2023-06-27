@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getLatestSessionId } from '@/db/actions/sessions'
+import { getLatestSessionId } from '@/db/sessions/actions'
 
 interface IProps {
   params: { app_id: string }

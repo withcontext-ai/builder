@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { addSession, getSessions } from '@/db/actions/sessions'
+import { addSession, getSessions } from '@/db/sessions/actions'
 
 // List sessions for an app
 export async function GET(

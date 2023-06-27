@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import { App } from '@/db/schema/apps'
+import { App } from '@/db/apps/schema'
 import { Plus } from 'lucide-react'
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'

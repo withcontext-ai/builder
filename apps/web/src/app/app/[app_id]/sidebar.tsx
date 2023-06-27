@@ -1,4 +1,4 @@
-import { getSessions } from '@/db/actions/sessions'
+import { getSessions } from '@/db/sessions/actions'
 
 import AuthButton from '@/components/auth-button'
 import SessionList from '@/components/session-list'

@@ -6,8 +6,8 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { nanoid } from '@/lib/utils'
 
-import { AppsTable, NewApp } from '../schema/apps'
-import { SessionsTable } from '../schema/sessions'
+import { SessionsTable } from '../sessions/schema'
+import { AppsTable, NewApp } from './schema'
 
 export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
   const { userId } = auth()

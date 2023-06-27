@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { addApp, getApps } from '@/db/actions/apps'
-import { NewApp } from '@/db/schema/apps'
+import { addApp, getApps } from '@/db/apps/actions'
+import { NewApp } from '@/db/apps/schema'
 
 // List apps for the authenticated user
 export async function GET() {
