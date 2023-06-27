@@ -14,7 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/altert-dialog'
+} from '@/components/ui/alert-dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,21 +33,26 @@ const AppSettingDialog = ({ appId }: IProps) => {
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false)
   const menus = [
     {
-      icon: <Settings size={16} />,
+      id: 'settings',
       name: 'App Setting',
+      icon: <Settings size={16} />,
       link: `/app/${appId}/settings`,
     },
     {
-      icon: <Share size={16} />,
+      id: 'share',
       name: 'Share',
+      icon: <Share size={16} />,
       link: ` /app/${appId}/share`,
     },
     {
-      icon: <Trash2 size={16} color="#EF4444" />,
+      id: 'delete',
       name: 'Delete App',
+      icon: <Trash2 size={16} />,
       link: '',
+      danger: true,
     },
   ]
+
   return (
     <>
       <DropdownMenu open={open} onOpenChange={(open) => setOpen(open)}>
@@ -60,15 +65,15 @@ const AppSettingDialog = ({ appId }: IProps) => {
             {!open ? <ChevronDown /> : <ChevronUp />}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="h-[112px] w-[220px]" align="end">
-          {menus?.map((item, index) => {
+        <DropdownMenuContent className="w-[220px]" align="end">
+          {menus?.map((item) => {
             return (
               <DropdownMenuItem
-                key={item?.name}
+                key={item.id}
                 className="cursor-pointer"
                 onClick={() => {
                   setOpen(false)
-                  if (index === 2) {
+                  if (item.id === 'delete') {
                     setDeleteDialog(true)
                   }
                 }}
@@ -76,8 +81,8 @@ const AppSettingDialog = ({ appId }: IProps) => {
                 <Link
                   href={item?.link}
                   className={cn(
-                    'flex w-full	gap-2	text-sm font-medium',
-                    index === 2
+                    'flex w-full items-center gap-2	text-sm font-medium',
+                    item.danger
                       ? 'text-red-500 hover:text-red-500'
                       : 'text-slate-700'
                   )}
