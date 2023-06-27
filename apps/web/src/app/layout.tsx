@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { auth } from '@/lib/auth'
 import { flags } from '@/lib/flags'
 import { getApps } from '@/db/apps/actions'
+import { Toaster } from '@/components/ui/toaster'
 import AppLayout from '@/components/app-layout'
 import AppSidebar from '@/components/app-sidebar'
 
@@ -31,6 +32,7 @@ export default async function RootLayout({
             >
               {children}
             </AppLayout>
+            <Toaster />
           </body>
         </html>
       </ClerkProvider>
@@ -41,6 +43,7 @@ export default async function RootLayout({
     <html lang="en" className="h-full">
       <body className="h-full">
         <AppLayout sidebar={<AppSidebar />}>{children}</AppLayout>
+        <Toaster />
       </body>
     </html>
   )
