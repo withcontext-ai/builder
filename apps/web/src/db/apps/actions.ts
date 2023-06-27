@@ -39,3 +39,10 @@ export async function getApps() {
     .orderBy(desc(AppsTable.created_at))
     .where(eq(AppsTable.created_by, userId))
 }
+
+export async function removeApp(id: string) {
+  return db
+    .update(AppsTable)
+    .set({ archived: true, updated_at: new Date() })
+    .where(eq(AppsTable.short_id, id))
+}

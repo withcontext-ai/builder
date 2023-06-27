@@ -1,5 +1,6 @@
 import { InferModel } from 'drizzle-orm'
 import {
+  boolean,
   pgTable,
   serial,
   text,
@@ -19,6 +20,8 @@ export const SessionsTable = pgTable(
       .references(() => AppsTable.short_id)
       .notNull(),
     created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+    archived: boolean('archived').default(false).notNull(),
   },
   (sessions) => {
     return {

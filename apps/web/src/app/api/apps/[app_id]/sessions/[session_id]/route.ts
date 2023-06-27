@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { removeSession } from '@/db/sessions/actions'
 
 // Get a session

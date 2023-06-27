@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { removeApp } from '@/db/apps/actions'
+
 // Get an app
 export async function GET(
   req: NextRequest,
@@ -19,11 +21,12 @@ export async function PATCH(
   return NextResponse.json({ success: true, data: { app_id, body } })
 }
 
-// TODO: Delete an app
+// Delete an app
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { app_id: string; session_id: string } }
+  { params }: { params: { app_id: string } }
 ) {
   const { app_id } = params
+  await removeApp(app_id)
   return NextResponse.json({ success: true, data: { app_id } })
 }

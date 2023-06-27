@@ -1,10 +1,10 @@
 import './globals.css'
 
-import { getApps } from '@/db/apps/actions'
 import { ClerkProvider } from '@clerk/nextjs'
 
 import { auth } from '@/lib/auth'
 import { flags } from '@/lib/flags'
+import { getApps } from '@/db/apps/actions'
 import AppLayout from '@/components/app-layout'
 import AppSidebar from '@/components/app-sidebar'
 

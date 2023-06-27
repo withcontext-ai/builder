@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { addSession, getSessions } from '@/db/sessions/actions'
 
 // List sessions for an app

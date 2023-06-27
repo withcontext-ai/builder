@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+
 import { addApp, getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
 

@@ -1,5 +1,6 @@
 import { InferModel } from 'drizzle-orm'
 import {
+  boolean,
   index,
   pgTable,
   serial,
@@ -18,6 +19,8 @@ export const AppsTable = pgTable(
     icon: text('icon').notNull(),
     created_by: text('created_by').notNull(),
     created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+    archived: boolean('archived').default(false).notNull(),
   },
   (apps) => {
     return {
