@@ -43,11 +43,8 @@ const Upload = (props: UploadProps) => {
     handleFiles,
     // controller,
   } = props
+  const upload = React.useRef<RcUpload>(null)
 
-  // cancel axios request when uploading
-  const controller = useMemo(() => new AbortController(), [])
-  const CancelToken = axios.CancelToken
-  const source = CancelToken.source()
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
     {
@@ -56,7 +53,12 @@ const Upload = (props: UploadProps) => {
     }
   )
   const [_, setDragState] = React.useState<string>('drop')
-  const upload = React.useRef<RcUpload>(null)
+  const [cancelCount, setCancelCount] = React.useState(0)
+
+  // cancel axios request when uploading
+  const controller = useMemo(() => new AbortController(), [cancelCount])
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source()
 
   React.useMemo(() => {
     const timestamp = Date.now()
@@ -263,6 +265,7 @@ const Upload = (props: UploadProps) => {
         }
         source.cancel()
         controller.abort()
+        setCancelCount((c) => c + 1)
 
         const removedFileList = removeFileItem(file, mergedFileList)
         if (removedFileList?.length) {
