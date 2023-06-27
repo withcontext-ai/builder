@@ -144,6 +144,7 @@ const CreateAppDialog = (props: IProps) => {
                           setDisabled(false)
                         }}
                         listType="image"
+                        accept=".png, .jpeg,.webp,.jpg"
                         fileList={image}
                         handleFiles={handleFiles}
                         customRequest={() => {}}
