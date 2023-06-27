@@ -76,7 +76,7 @@ const AppSettingDialog = ({ appId }: IProps) => {
                 <Link
                   href={item?.link}
                   className={cn(
-                    'flex gap-2	text-sm	font-medium',
+                    'flex w-full	gap-2	text-sm font-medium',
                     index === 2
                       ? 'text-red-500 hover:text-red-500'
                       : 'text-slate-700'

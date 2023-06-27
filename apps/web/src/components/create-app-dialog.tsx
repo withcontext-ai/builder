@@ -1,7 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera } from 'lucide-react'
-import { nanoid } from 'nanoid'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -9,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -25,9 +23,8 @@ import {
 } from './ui/form'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
-import { UploadChangeParam, UploadFile } from './upload/type'
+import { UploadFile } from './upload/type'
 import Upload from './upload/upload'
-import { uploadFile } from './upload/utils'
 
 interface IProps {
   dialogTrigger?: ReactNode
@@ -35,17 +32,17 @@ interface IProps {
 }
 
 interface FormValuesProps {
-  username: string
+  name: string
   desc?: string
   image?: string
 }
 const formSchema = z.object({
-  username: z
+  name: z
     .string()
     .min(2, {
       message: 'App name is required.',
     })
-    .max(50, { message: 'App name  must be less than 50 characters.' }),
+    .max(50, { message: 'App name must be less than 50 characters.' }),
   desc: z
     .string()
     .max(120, {
@@ -63,22 +60,14 @@ const defaultValues = {
 const CreateAppDialog = (props: IProps) => {
   const { dialogTrigger } = props
   const [open, setOpen] = useState<boolean>(false)
+  const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
-  const { reset, watch, setValue } = form
+  const { reset, setValue } = form
 
-  const stringToFile = () => {
-    if (watch().image) {
-      return [
-        { uid: nanoid(), url: watch().image, name: '', status: 'success' },
-      ]
-    }
-    return []
-  }
-  // @ts-ignore
-  const [image, setImage] = useState<UploadFile[]>(stringToFile())
+  const [image, setImage] = useState<UploadFile[]>([])
 
   const onSubmit = (data: FormValuesProps) => {
     console.log(data, '----------data')
@@ -90,9 +79,14 @@ const CreateAppDialog = (props: IProps) => {
     setImage([])
   }
 
-  const handleFiles = (file: UploadFile) => {
-    setImage([file])
-    setValue('image', file?.url || '')
+  const handleFiles = (file: UploadFile<any>[]) => {
+    if (file[0]?.status === 'uploading') {
+      setDisabled(true)
+    } else {
+      setDisabled(false)
+    }
+    setImage(file)
+    setValue('image', file[0]?.url || '')
   }
 
   return (
@@ -106,7 +100,7 @@ const CreateAppDialog = (props: IProps) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="username"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex">
@@ -145,20 +139,19 @@ const CreateAppDialog = (props: IProps) => {
                     <FormLabel>Image</FormLabel>
                     <FormControl>
                       <Upload
-                        onRemove={() => setImage([])}
+                        onRemove={() => {
+                          setImage([])
+                          setDisabled(false)
+                        }}
                         listType="image"
                         fileList={image}
-                        accept=".jpeg,.png,jpg,.webp"
-                        onChange={(e: UploadChangeParam) => {
-                          uploadFile({
-                            file: e?.file,
-                            fileList: e?.fileList,
-                            handleFiles,
-                          })
-                        }}
+                        handleFiles={handleFiles}
+                        customRequest={() => {}}
                         className=" h-16 w-16 rounded-lg border border-slate-300 bg-slate-50	"
                       >
-                        <Camera size={28} />
+                        <div className="flex h-16 w-16 items-center justify-center border-none bg-slate-50">
+                          <Camera size={28} />
+                        </div>
                       </Upload>
                     </FormControl>
                     <FormMessage />
@@ -170,7 +163,9 @@ const CreateAppDialog = (props: IProps) => {
               <Button variant="outline" onClick={() => onCancel(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={disabled}>
+                Create
+              </Button>
             </div>
           </form>
         </Form>

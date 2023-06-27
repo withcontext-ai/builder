@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { CancelTokenSource } from 'axios'
 
 import type { InternalUploadFile, RcFile, UploadFile } from './type'
 import { ShowUploadListInterface } from './type'
@@ -75,7 +75,11 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   reader.readAsDataURL(img)
 }
 
-const changeCurrentFile = async (file: UploadFile, fileList: UploadFile[]) => {
+const changeCurrentFile = async (
+  file: UploadFile,
+  fileList: UploadFile[],
+  handleFiles?: (files: UploadFile<any>[]) => void
+) => {
   const index = fileList?.indexOf(
     // @ts-ignore
     (item: { uid: any }) => item?.uid === file?.uid
@@ -83,28 +87,32 @@ const changeCurrentFile = async (file: UploadFile, fileList: UploadFile[]) => {
   if (index !== -1) {
     fileList[index] = file
   }
-  return fileList
+  handleFiles?.(fileList)
 }
 
 export const uploadFile = async ({
   file,
   fileList,
+  controller,
   handleFiles,
+  source,
 }: {
   file: UploadFile
   fileList: UploadFile[]
-  handleFiles?: (file: UploadFile) => void
+  source?: CancelTokenSource
+  controller?: AbortController
+  handleFiles?: (files: UploadFile<any>[]) => void
 }) => {
+  if (!file) return
   file.status = 'uploading'
   file.percent = 0
-  handleFiles?.(file)
-  if (!file) return
+  await changeCurrentFile(file, fileList, handleFiles)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
   if (!success) {
     file.status = 'error'
-    handleFiles?.(file)
+    await changeCurrentFile(file, fileList, handleFiles)
   }
 
   const { upload_url, upload_fields, file_url } = data as {
@@ -121,23 +129,26 @@ export const uploadFile = async ({
       formData.append(key, value)
     }
   )
-
   axios
     .post(upload_url, formData, {
+      signal: controller?.signal,
+      cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
-        console.log('progressEvent:', progressEvent)
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
-        handleFiles?.(file)
+        await changeCurrentFile(file, fileList, handleFiles)
       },
     })
     .then(async () => {
       file.status = 'success'
       file.url = file_url
-      handleFiles?.(file)
+      await changeCurrentFile(file, fileList, handleFiles)
     })
     .catch((error) => {
+      if (axios.isCancel(error)) {
+        console.log('Request canceled', error.message)
+      }
       file.status = 'error'
       console.error(error)
     })
