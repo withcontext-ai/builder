@@ -62,6 +62,7 @@ const defaultValues = {
 const CreateAppDialog = (props: IProps) => {
   const { dialogTrigger } = props
   const [open, setOpen] = useState<boolean>(false)
+  const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -81,12 +82,15 @@ const CreateAppDialog = (props: IProps) => {
   }
 
   const handleFiles = (file: UploadFile<any>[]) => {
+    if (file[0]?.status === 'uploading') {
+      setDisabled(true)
+    } else {
+      setDisabled(false)
+    }
     setImage(file)
     setValue('image', file[0]?.url || '')
   }
 
-  // when file uploading disabled submit
-  const disabled = image[0]?.status === 'uploading'
   return (
     <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
