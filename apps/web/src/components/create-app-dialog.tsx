@@ -76,8 +76,6 @@ const CreateAppDialog = (props: IProps) => {
   }
   const onCancel = (open: boolean) => {
     setOpen(open)
-    source.cancel()
-    controller.abort()
     reset()
     setImage([])
   }
@@ -89,9 +87,6 @@ const CreateAppDialog = (props: IProps) => {
 
   // when file uploading disabled submit
   const disabled = image[0]?.status === 'uploading'
-  const controller = new AbortController()
-  const CancelToken = axios.CancelToken
-  const source = CancelToken.source()
   return (
     <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
@@ -143,21 +138,12 @@ const CreateAppDialog = (props: IProps) => {
                     <FormControl>
                       <Upload
                         onRemove={() => {
-                          controller.abort()
                           setImage([])
                         }}
                         listType="image"
-                        controller={controller}
                         fileList={image}
-                        onChange={(e: UploadChangeParam) => {
-                          uploadFile({
-                            file: e?.file,
-                            fileList: e?.fileList,
-                            handleFiles,
-                            controller,
-                            source,
-                          })
-                        }}
+                        handleFiles={handleFiles}
+                        customRequest={() => {}}
                         className=" h-16 w-16 rounded-lg border border-slate-300 bg-slate-50	"
                       >
                         <div className="flex h-16 w-16 items-center justify-center border-none bg-slate-50">

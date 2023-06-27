@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { CancelTokenSource } from 'axios'
 
 import type { InternalUploadFile, RcFile, UploadFile } from './type'
 import { ShowUploadListInterface } from './type'
@@ -99,7 +99,7 @@ export const uploadFile = async ({
 }: {
   file: UploadFile
   fileList: UploadFile[]
-  source?: any
+  source?: CancelTokenSource
   controller?: AbortController
   handleFiles?: (files: UploadFile<any>[]) => void
 }) => {

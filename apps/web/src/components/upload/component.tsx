@@ -148,7 +148,6 @@ export const PDFFile = (props: FileItemProps) => {
                 onClick={(e: React.SyntheticEvent) => {
                   e.stopPropagation()
                   e.preventDefault()
-                  console.log(onRemove, '---------pdf---delete')
                   onRemove?.(file)
                 }}
               >

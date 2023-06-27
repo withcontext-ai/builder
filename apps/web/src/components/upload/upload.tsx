@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
@@ -40,11 +40,14 @@ const Upload = (props: UploadProps) => {
     className,
     disabled: mergedDisabled,
     customRequest,
-    controller,
+    handleFiles,
+    // controller,
   } = props
 
   // cancel axios request when uploading
-
+  const controller = useMemo(() => new AbortController(), [])
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source()
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
     {
@@ -96,10 +99,15 @@ const Upload = (props: UploadProps) => {
       }
 
       flushSync(() => {
-        onChange?.(changeInfo)
+        if (onChange) {
+          onChange?.(changeInfo)
+        } else {
+          // google api for upload
+          uploadFile({ source, controller, ...changeInfo, handleFiles })
+        }
       })
     },
-    [maxCount, onChange, setMergedFileList]
+    [controller, handleFiles, maxCount, onChange, setMergedFileList, source]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
@@ -253,10 +261,10 @@ const Upload = (props: UploadProps) => {
         if (ret === false) {
           return
         }
+        source.cancel()
+        controller.abort()
 
         const removedFileList = removeFileItem(file, mergedFileList)
-        controller?.abort()
-        console.log(removedFileList, mergedFileList, '---handleRemove')
         if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {
@@ -275,11 +283,17 @@ const Upload = (props: UploadProps) => {
           flushSync(() => {
             setMergedFileList([])
           })
-          onInternalChange(currentFile, [])
         }
       })
     },
-    [controller, mergedFileList, onInternalChange, onRemove, setMergedFileList]
+    [
+      controller,
+      mergedFileList,
+      onInternalChange,
+      onRemove,
+      setMergedFileList,
+      source,
+    ]
   )
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
