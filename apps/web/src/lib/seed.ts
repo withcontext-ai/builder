@@ -13,8 +13,8 @@ export async function seed() {
       description VARCHAR(255) NOT NULL,
       icon VARCHAR(255) NOT NULL,
       created_by VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      updated_at TIMESTAMP WITH TIME ZONE
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE,
       archived BOOLEAN DEFAULT FALSE
     );
 
@@ -28,9 +28,9 @@ export async function seed() {
       short_id VARCHAR(255) UNIQUE NOT NULL,
       name VARCHAR(255) NOT NULL,
       app_id VARCHAR(255) NOT NULL,
-      FOREIGN KEY (app_id) REFERENCES apps(short_id)
+      FOREIGN KEY (app_id) REFERENCES apps(short_id),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP WITH TIME ZONE
+      updated_at TIMESTAMP WITH TIME ZONE,
       archived BOOLEAN DEFAULT FALSE
     );
   `)
