@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
 import { Camera } from 'lucide-react'
-import { nanoid } from 'nanoid'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -76,6 +76,7 @@ const CreateAppDialog = (props: IProps) => {
   }
   const onCancel = (open: boolean) => {
     setOpen(open)
+    source.cancel()
     controller.abort()
     reset()
     setImage([])
@@ -83,13 +84,14 @@ const CreateAppDialog = (props: IProps) => {
 
   const handleFiles = (file: UploadFile<any>[]) => {
     setImage(file)
-    controller.abort()
     setValue('image', file[0]?.url || '')
   }
 
   // when file uploading disabled submit
   const disabled = image[0]?.status === 'uploading'
   const controller = new AbortController()
+  const CancelToken = axios.CancelToken
+  const source = CancelToken.source()
   return (
     <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
@@ -140,7 +142,10 @@ const CreateAppDialog = (props: IProps) => {
                     <FormLabel>Image</FormLabel>
                     <FormControl>
                       <Upload
-                        onRemove={() => setImage([])}
+                        onRemove={() => {
+                          controller.abort()
+                          setImage([])
+                        }}
                         listType="image"
                         controller={controller}
                         fileList={image}
@@ -150,11 +155,14 @@ const CreateAppDialog = (props: IProps) => {
                             fileList: e?.fileList,
                             handleFiles,
                             controller,
+                            source,
                           })
                         }}
                         className=" h-16 w-16 rounded-lg border border-slate-300 bg-slate-50	"
                       >
-                        <Camera size={28} />
+                        <div className="flex h-16 w-16 items-center justify-center border-none bg-slate-50">
+                          <Camera size={28} />
+                        </div>
                       </Upload>
                     </FormControl>
                     <FormMessage />

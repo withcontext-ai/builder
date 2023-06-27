@@ -214,7 +214,7 @@ export const ImageFile = (props: FileItemProps) => {
             onClick={(e: React.SyntheticEvent) => {
               e.stopPropagation()
               e.preventDefault()
-              onRemove!(file)
+              onRemove?.(file)
             }}
             className={`z-20 h-6 w-6 rounded-full border  p-1 ${
               file?.status === 'uploading' ? 'bg-white' : 'bg-sky-50'

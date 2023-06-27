@@ -87,7 +87,6 @@ const changeCurrentFile = async (
   if (index !== -1) {
     fileList[index] = file
   }
-  console.log(fileList, 'changeCurrentFile', file?.percent)
   handleFiles?.(fileList)
 }
 
@@ -96,17 +95,18 @@ export const uploadFile = async ({
   fileList,
   controller,
   handleFiles,
+  source,
 }: {
   file: UploadFile
   fileList: UploadFile[]
+  source?: any
   controller?: AbortController
   handleFiles?: (files: UploadFile<any>[]) => void
 }) => {
+  if (!file) return
   file.status = 'uploading'
   file.percent = 0
-  console.log(fileList, 'uploadFile')
   await changeCurrentFile(file, fileList, handleFiles)
-  if (!file) return
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
@@ -132,6 +132,7 @@ export const uploadFile = async ({
   axios
     .post(upload_url, formData, {
       signal: controller?.signal,
+      cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
@@ -145,6 +146,9 @@ export const uploadFile = async ({
       await changeCurrentFile(file, fileList, handleFiles)
     })
     .catch((error) => {
+      if (axios.isCancel(error)) {
+        console.log('Request canceled', error.message)
+      }
       file.status = 'error'
       console.error(error)
     })

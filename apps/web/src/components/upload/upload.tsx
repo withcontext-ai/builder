@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react'
+import axios from 'axios'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
@@ -11,7 +12,13 @@ import { Button } from '../ui/button'
 import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
 import { RcFile, UploadChangeParam, UploadFile, UploadProps } from './type'
-import { file2Obj, getFileItem, removeFileItem, updateFileList } from './utils'
+import {
+  file2Obj,
+  getFileItem,
+  removeFileItem,
+  updateFileList,
+  uploadFile,
+} from './utils'
 
 export const LIST_IGNORE = `__LIST_IGNORE_${Date.now()}__`
 
@@ -35,6 +42,9 @@ const Upload = (props: UploadProps) => {
     customRequest,
     controller,
   } = props
+
+  // cancel axios request when uploading
+
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
     {
@@ -246,6 +256,7 @@ const Upload = (props: UploadProps) => {
 
         const removedFileList = removeFileItem(file, mergedFileList)
         controller?.abort()
+        console.log(removedFileList, mergedFileList, '---handleRemove')
         if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {
@@ -264,10 +275,11 @@ const Upload = (props: UploadProps) => {
           flushSync(() => {
             setMergedFileList([])
           })
+          onInternalChange(currentFile, [])
         }
       })
     },
-    [mergedFileList, onInternalChange, onRemove, setMergedFileList]
+    [controller, mergedFileList, onInternalChange, onRemove, setMergedFileList]
   )
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
