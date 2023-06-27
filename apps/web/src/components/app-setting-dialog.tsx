@@ -50,7 +50,7 @@ const AppSettingDialog = ({ appId }: IProps) => {
   ]
   return (
     <>
-      <DropdownMenu open={open}>
+      <DropdownMenu open={open} onOpenChange={(open) => setOpen(open)}>
         <DropdownMenuTrigger asChild>
           <Button
             onClick={() => setOpen(true)}
@@ -89,10 +89,7 @@ const AppSettingDialog = ({ appId }: IProps) => {
           })}
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertDialog
-        open={deleteDialog}
-        onOpenChange={(open: boolean) => setDeleteDialog(open)}
-      >
+      <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
