@@ -19,7 +19,7 @@ export default async function AppSidebar({ appId }: { appId: string }) {
   return (
     <>
       <div className="relative h-[139px] w-60 text-lg font-semibold leading-7">
-        <div className=" absolute inset-x-4 top-[10px] z-10 text-white">
+        <div className=" absolute inset-x-4 top-[10px] z-10 flex justify-between text-white">
           App: {appId}
           <AppSettingDialog appId={appId} />
         </div>

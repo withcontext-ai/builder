@@ -22,6 +22,7 @@
     "@google-cloud/storage": "^6.11.0",
     "@hookform/resolvers": "^3.1.0",
     "@neondatabase/serverless": "^0.4.14",
+    "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-aspect-ratio": "^1.0.3",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",

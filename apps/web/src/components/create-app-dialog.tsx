@@ -148,6 +148,7 @@ const CreateAppDialog = (props: IProps) => {
                         onRemove={() => setImage([])}
                         listType="image"
                         fileList={image}
+                        accept=".jpeg,.png,jpg,.webp"
                         onChange={(e: UploadChangeParam) => {
                           uploadFile({
                             file: e?.file,
