@@ -33,9 +33,10 @@ function removeApp(url: string) {
 
 interface IProps {
   appId: string
+  name: string
 }
 
-const AppSettingDialog = ({ appId }: IProps) => {
+const AppSettingDialog = ({ appId, name }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false)
   const menus = [
@@ -122,12 +123,10 @@ const AppSettingDialog = ({ appId }: IProps) => {
       <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete &quot;AI Interview&quot; App?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Delete &quot;{name}&quot; App?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete “AI Interview” App? This action
-              cannot be undone.
+              Are you sure you want to delete &quot;{name}&quot; App? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
