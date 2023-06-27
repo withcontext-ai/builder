@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
@@ -43,7 +43,9 @@ export async function getSessions(appId: string) {
     .select()
     .from(SessionsTable)
     .orderBy(desc(SessionsTable.created_at))
-    .where(eq(SessionsTable.app_id, appId))
+    .where(
+      and(eq(SessionsTable.app_id, appId), eq(SessionsTable.archived, false))
+    )
 }
 
 export async function removeSession(appId: string, sessionId: string) {
@@ -64,7 +66,11 @@ export async function removeSession(appId: string, sessionId: string) {
   if (!foundApp?.[0]) return null
   if (foundApp[0].created_by !== userId) return null
 
-  await db.delete(SessionsTable).where(eq(SessionsTable.short_id, sessionId))
+  // await db.delete(SessionsTable).where(eq(SessionsTable.short_id, sessionId))
+  await db
+    .update(SessionsTable)
+    .set({ archived: true, updated_at: new Date() })
+    .where(eq(SessionsTable.short_id, sessionId))
 
   return { deletedId: sessionId }
 }
@@ -79,8 +85,10 @@ export async function getLatestSessionId(appId: string) {
   const foundSession = await db
     .select()
     .from(SessionsTable)
+    .where(
+      and(eq(SessionsTable.app_id, appId), eq(SessionsTable.archived, false))
+    )
     .orderBy(desc(SessionsTable.created_at))
-    .where(eq(SessionsTable.app_id, appId))
     .limit(1)
   if (!foundSession?.[0]) return null
 

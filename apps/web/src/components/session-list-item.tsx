@@ -5,6 +5,14 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import clsx from 'clsx'
 import { Loader2Icon, MessageCircleIcon, TrashIcon } from 'lucide-react'
+import { useSWRConfig } from 'swr'
+import useSWRMutation from 'swr/mutation'
+
+import { fetcher } from '@/lib/utils'
+
+function removeSession(url: string) {
+  return fetcher(url, { method: 'DELETE' })
+}
 
 interface ISessionItem {
   id: string
@@ -19,22 +27,20 @@ export default function SessionListItem({ id, name }: ISessionItem) {
   const href = `/app/${appId}/session/${id}`
   const isSelected = sessionId == id
 
-  const [isLoading, setIsLoading] = React.useState(false)
+  const { mutate } = useSWRConfig()
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/apps/${appId}/sessions/${sessionId}`,
+    removeSession
+  )
 
   async function handleRemove() {
     try {
-      setIsLoading(true)
-      const result = await fetch(`/api/apps/${appId}/sessions/${sessionId}`, {
-        method: 'DELETE',
-      })
-      const json = await result.json()
-      console.log('handleRemove json:', json)
+      const json = await trigger()
+      console.log('SessionListItem handleRemove json:', json)
+      mutate(`/api/apps/${appId}/sessions`)
       router.push(`/app/${appId}`)
-      router.refresh()
     } catch (error) {
-      console.log('handleRemove error:', error)
-    } finally {
-      setIsLoading(false)
+      console.log('SessionListItem handleRemove error:', error)
     }
   }
 
@@ -54,9 +60,9 @@ export default function SessionListItem({ id, name }: ISessionItem) {
             className="absolute right-2 rounded-full bg-slate-100 p-1 text-center hover:bg-white"
             aria-hidden="true"
             onClick={handleRemove}
-            disabled={isLoading}
+            disabled={isMutating}
           >
-            {isLoading ? (
+            {isMutating ? (
               <Loader2Icon className="h-4 w-4 animate-spin" />
             ) : (
               <TrashIcon className="h-4 w-4 shrink-0" />

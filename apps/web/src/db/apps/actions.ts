@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { desc, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
@@ -37,8 +37,7 @@ export async function getApps() {
     .select()
     .from(AppsTable)
     .orderBy(desc(AppsTable.created_at))
-    .where(eq(AppsTable.created_by, userId))
-    .where(eq(AppsTable.archived, false))
+    .where(and(eq(AppsTable.created_by, userId), eq(AppsTable.archived, false)))
 }
 
 export async function getApp(appId: string) {
