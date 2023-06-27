@@ -59,7 +59,7 @@ const AppSettingDialog = ({ appId }: IProps) => {
         <DropdownMenuTrigger asChild>
           <Button
             onClick={() => setOpen(true)}
-            className="h-8 w-8 bg-white p-0 text-black"
+            className="h-8 w-8 shrink-0 bg-white p-0 text-black"
             variant="outline"
           >
             {!open ? <ChevronDown /> : <ChevronUp />}
