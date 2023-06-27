@@ -12,8 +12,13 @@ import { FacingIcon, InsIcon, NotionIcon, VersionIcon, WebIcon } from './icons'
 
 const ShareApp = () => {
   const { app_id } = useParams()
-  const [link, setLink] = useState<string>(`app/${app_id}/session`)
   const { copy } = useCopyToClipboard()
+  const host = window.location.host
+  const header = document.location.protocol
+  const [link, setLink] = useState<string>(
+    `${header}://${host}/app/${app_id}/session/s1`
+  )
+
   const handleClick = () => {
     copy(link)
     console.log('------copied')
