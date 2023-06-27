@@ -38,6 +38,7 @@ export async function getApps() {
     .from(AppsTable)
     .orderBy(desc(AppsTable.created_at))
     .where(eq(AppsTable.created_by, userId))
+    .where(eq(AppsTable.archived, false))
 }
 
 export async function removeApp(id: string) {
