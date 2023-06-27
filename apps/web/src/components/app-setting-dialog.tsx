@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChevronDown, ChevronUp, Settings, Share, Trash2 } from 'lucide-react'
+import { useSWRConfig } from 'swr'
+import useSWRMutation from 'swr/mutation'
 
-import { cn } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +26,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { Button } from './ui/button'
+
+function removeApp(url: string) {
+  return fetcher(url, { method: 'DELETE' })
+}
 
 interface IProps {
   appId: string
@@ -52,6 +59,24 @@ const AppSettingDialog = ({ appId }: IProps) => {
       danger: true,
     },
   ]
+
+  const router = useRouter()
+  const { mutate } = useSWRConfig()
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/apps/${appId}`,
+    removeApp
+  )
+
+  async function handleRemove() {
+    try {
+      const json = await trigger()
+      console.log('json:', json)
+      mutate('/api/me/apps')
+      router.push('/explore')
+    } catch (error) {
+      console.log('AppSettingDialog handleRemove error:', error)
+    }
+  }
 
   return (
     <>
@@ -107,9 +132,13 @@ const AppSettingDialog = ({ appId }: IProps) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500 text-white">
-              Delete App
-            </AlertDialogAction>
+            <Button
+              variant="destructive"
+              onClick={handleRemove}
+              disabled={isMutating}
+            >
+              {isMutating ? 'Deleting...' : 'Delete App'}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
