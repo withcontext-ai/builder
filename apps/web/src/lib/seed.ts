@@ -14,6 +14,8 @@ export async function seed() {
       icon VARCHAR(255) NOT NULL,
       created_by VARCHAR(255) NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      updated_at TIMESTAMP WITH TIME ZONE
+      archived BOOLEAN DEFAULT FALSE
     );
 
     CREATE INDEX IF NOT EXISTS user_id_index ON apps (created_by);
@@ -26,8 +28,10 @@ export async function seed() {
       short_id VARCHAR(255) UNIQUE NOT NULL,
       name VARCHAR(255) NOT NULL,
       app_id VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (app_id) REFERENCES apps(short_id)
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE
+      archived BOOLEAN DEFAULT FALSE
     );
   `)
   console.log(`Created "sessions" table`)
