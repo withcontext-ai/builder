@@ -94,3 +94,11 @@ export async function getLatestSessionId(appId: string) {
 
   return foundSession[0].short_id
 }
+
+export async function getSession(sessionId: string) {
+  const items = await db
+    .select()
+    .from(SessionsTable)
+    .where(eq(SessionsTable.short_id, sessionId))
+  return Promise.resolve(items[0])
+}
