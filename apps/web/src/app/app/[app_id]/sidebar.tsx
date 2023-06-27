@@ -1,15 +1,4 @@
-import { ChevronDown, ChevronUp, Settings, Share, Trash2 } from 'lucide-react'
-
 import { AspectRatio } from '@/components/ui/aspect-ratio'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import Text from '@/components/ui/text'
 import AppSettingDialog from '@/components/app-setting-dialog'
 import AuthButton from '@/components/auth-button'

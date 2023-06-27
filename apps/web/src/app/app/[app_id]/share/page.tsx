@@ -1,38 +1,23 @@
+'use client'
+
+import { useState } from 'react'
+import { useParams } from 'next/navigation'
+
+import useCopyToClipboard from '@/hooks/useCopyToClipboard'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import Text from '@/components/ui/text'
 
-interface IProps {
-  appId: string
-}
+import { FacingIcon, InsIcon, NotionIcon, VersionIcon, WebIcon } from './icons'
 
-const WebIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    // xmlns:xlink="http://www.w3.org/1999/xlink"
-  >
-    <rect width="24" height="23.6448" fill="url(#pattern0)" />
-    <defs>
-      <pattern
-        id="pattern0"
-        patternContentUnits="objectBoundingBox"
-        width="1"
-        height="1"
-      >
-        <use
-          href="#image0_365_6278"
-          transform="scale(0.000925069 0.000938967)"
-        />
-      </pattern>
-      <image id="image0_365_6278" width="1081" height="1065" />
-    </defs>
-  </svg>
-)
-
-const ShareApp = ({ appId }: IProps) => {
+const ShareApp = () => {
+  const { app_id } = useParams()
+  const [link, setLink] = useState<string>(`app/${app_id}/session`)
+  const { copy } = useCopyToClipboard()
+  const handleClick = () => {
+    copy(link)
+    console.log('------copied')
+  }
   return (
     <div className="flex flex-col">
       <div className="flex gap-10 px-6 py-3">
@@ -43,12 +28,35 @@ const ShareApp = ({ appId }: IProps) => {
       </div>
       <div className="m-full h-px bg-slate-100" />
       <div className="pl-[155px] pt-[100px]">
-        <div>
+        <div className="mb-6 gap-2">
           <Text>embed this App in</Text>
-          <div className="flex gap-4">
+          <div className="flex w-full gap-4 ">
             <Button variant="outline" className="h-12 w-12 rounded-full p-0">
               <WebIcon />
             </Button>
+            <Button variant="outline" className="h-12 w-12 rounded-full p-0">
+              <VersionIcon />
+            </Button>
+            <Button variant="outline" className="h-12 w-12 rounded-full p-0">
+              <NotionIcon />
+            </Button>
+            <Button variant="outline" className="h-12 w-12 rounded-full p-0">
+              <FacingIcon />
+            </Button>
+            <Button variant="outline" className="h-12 w-12 rounded-full p-0">
+              <InsIcon />
+            </Button>
+          </div>
+        </div>
+        <div className="gap-2">
+          <Text>Or copy link</Text>
+          <div className="flex gap-1">
+            <Input
+              className="w-[324px]"
+              value={link}
+              onChange={(e) => setLink(e?.target?.value)}
+            />
+            <Button onClick={handleClick}>Copy</Button>
           </div>
         </div>
       </div>
