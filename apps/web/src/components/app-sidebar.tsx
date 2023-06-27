@@ -1,10 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import useSWR from 'swr'
-import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher, getFirstLetter } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
@@ -12,22 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import CreateAppDialog from './create-app-dialog'
 
-function addApp(
-  url: string,
-  { arg }: { arg: { name: string; description: string; icon: string } }
-) {
-  return fetcher(url, {
-    method: 'POST',
-    body: JSON.stringify(arg),
-  })
-}
-
 interface IProps {
   appList?: App[]
 }
 
 export default function AppSidebar({ appList }: IProps) {
-  const router = useRouter()
   const pathname = usePathname()
   const params = useParams()
   const { app_id: appId } = params
@@ -43,23 +31,6 @@ export default function AppSidebar({ appList }: IProps) {
   console.log('isLoading:', isLoading)
   console.log('data:', appListData)
   // console.log('error:', error)
-
-  const { trigger, isMutating } = useSWRMutation('/api/me/apps', addApp)
-  console.log('isMutating:', isMutating)
-
-  async function handleAdd() {
-    try {
-      const json = await trigger({
-        name: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
-        description: 'New App Description',
-        icon: '',
-      })
-      console.log('handleAdd json:', json)
-      router.push(`/app/${json.appId}/session/${json.sessionId}`)
-    } catch (error) {
-      console.log('handleAdd error:', error)
-    }
-  }
 
   return (
     <>
