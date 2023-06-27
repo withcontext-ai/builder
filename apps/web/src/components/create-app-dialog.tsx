@@ -164,8 +164,10 @@ const CreateAppDialog = (props: IProps) => {
                       <Upload
                         onRemove={() => {
                           setImage([])
+                          setDisabled(false)
                         }}
                         listType="image"
+                        accept=".png, .jpeg,.webp,.jpg"
                         fileList={image}
                         handleFiles={handleFiles}
                         customRequest={() => {}}
