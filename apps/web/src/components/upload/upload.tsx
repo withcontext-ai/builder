@@ -110,15 +110,24 @@ const Upload = (props: UploadProps) => {
             actionsType?.onlyUpload &&
             changeInfo?.fileList[0]?.status == 'success'
           ) {
-            handleRemove(changeInfo?.fileList[0])
-            console.log('-----handle--remove', mergedFileList)
+            console.log(fileList, '00000000000filelist')
+            handleFiles?.([])
           }
           // google api for upload
           uploadFile({ source, controller, ...changeInfo, handleFiles })
         }
       })
     },
-    [controller, handleFiles, maxCount, onChange, setMergedFileList, source]
+    [
+      actionsType?.onlyUpload,
+      controller,
+      fileList,
+      handleFiles,
+      maxCount,
+      onChange,
+      setMergedFileList,
+      source,
+    ]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {

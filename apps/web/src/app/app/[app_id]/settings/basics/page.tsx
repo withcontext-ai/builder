@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -69,7 +69,7 @@ const BasicsSetting = () => {
     }
   }
   const { watch, setError } = form
-  console.log(image, '-------image')
+
   return (
     <div className="mx-6 mt-16 w-[530px]">
       <h6 className="mb-6	text-2xl	font-semibold leading-8">Basics</h6>
@@ -147,30 +147,48 @@ const BasicsSetting = () => {
               <img src={image[0]?.url} alt="image" />
             </div>
           )}
-          <Upload
-            listType="image"
-            accept=".png,.jpeg,.webp,.jpg"
-            fileList={image}
-            handleFiles={(file) => handleFiles(file)}
-            customRequest={() => {}}
-            showUploadList={{}}
-            showFileList={false}
-            actionsType={{ onlyUpload: true }}
-            disabled={disabled}
-            className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"
-          >
-            <Button
-              className="h-6 w-6 rounded-full border"
-              variant="outline"
-              size="icon"
+          {image[0]?.status !== 'success' ? (
+            <Upload
+              listType="image"
+              accept=".png,.jpeg,.webp,.jpg"
+              fileList={image}
+              handleFiles={(file) => handleFiles(file)}
+              customRequest={() => {}}
+              showFileList={false}
+              onRemove={() => setImage([])}
+              actionsType={{ onlyUpload: true }}
+              disabled={disabled}
+              className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"
             >
-              {image[0]?.status === 'uploading' ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <Camera size={16} strokeWidth={2} />
-              )}
-            </Button>
-          </Upload>
+              <Button
+                className="h-6 w-6 rounded-full border"
+                variant="outline"
+                size="icon"
+              >
+                {image[0]?.status === 'uploading' ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Camera size={16} strokeWidth={2} />
+                )}
+              </Button>
+            </Upload>
+          ) : (
+            <div className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black">
+              <Button
+                className="h-6 w-6 rounded-full border"
+                variant="outline"
+                size="icon"
+              >
+                <Camera
+                  size={16}
+                  strokeWidth={2}
+                  onClick={() => {
+                    setImage([])
+                  }}
+                />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
