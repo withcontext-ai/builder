@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Camera } from 'lucide-react'
+import { Camera, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -21,11 +21,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
-interface FormValuesProps {
-  name: string
-  desc?: string
-  image?: string
-}
 const formSchema = z.object({
   name: z
     .string()
@@ -40,25 +35,24 @@ const formSchema = z.object({
       message: 'Short description must be less than 120 characters.',
     })
     .min(0),
-  image: z.string().min(0),
 })
 
 const defaultValues = {
   name: '',
   desc: '',
-  image: '',
 }
 
 const BasicsSetting = () => {
   const [image, setImage] = useState<UploadFile[]>([])
-  const [disabled, setDisabled] = useState<boolean>()
+  const currentImage = useRef({ url: '' })
+  const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
     mode: 'all',
   })
   const onSubmit = () => {
-    console.log('-----onSubmit', watch())
+    console.log('-----onSubmit', watch(), 'image is:', currentImage.current.url)
   }
   const handleFiles = (file: UploadFile[]) => {
     setImage([])
@@ -68,10 +62,13 @@ const BasicsSetting = () => {
       setDisabled(false)
     }
     setImage(file)
-    setValue('image', file[0]?.url || '')
+    if (file[0]?.url) {
+      currentImage.current.url = file[0]?.url
+      console.log('-----image upload success', currentImage.current.url)
+      onSubmit()
+    }
   }
-  const { reset, setValue, watch } = form
-
+  const { watch } = form
   return (
     <div className="mx-6 mt-16 w-[530px]">
       <h6 className="mb-6	text-2xl	font-semibold leading-8">Basics</h6>
@@ -90,8 +87,6 @@ const BasicsSetting = () => {
                     placeholder="Give your App a name"
                     {...field}
                     onBlur={(e) => {
-                      // onSubmit()
-                      const name = watch('name')
                       onSubmit()
                     }}
                   />
@@ -120,43 +115,57 @@ const BasicsSetting = () => {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="image"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>Image</FormLabel>
-                  <FormControl>
-                    <div className="relative h-16 w-16 rounded-lg border bg-orange-600">
-                      A
-                      <Upload
-                        listType="image"
-                        accept=".png, .jpeg,.webp,.jpg"
-                        fileList={image}
-                        handleFiles={handleFiles}
-                        customRequest={() => {}}
-                        showUploadList={false}
-                        disabled={disabled}
-                        className="absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"
-                      >
-                        <Button
-                          className="h-6 w-6 rounded-full border bg-white text-black"
-                          variant="outline"
-                          size="icon"
-                        >
-                          <Camera size={16} strokeWidth={2} />
-                        </Button>
-                      </Upload>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )
-            }}
-          />
         </form>
       </Form>
+      <div className="mt-6">
+        <div className="mb-2">Image</div>
+        <div
+          className={cn(
+            'relative flex h-16 w-16 items-center justify-center rounded-lg border-0 bg-orange-600',
+            image[0]?.status === 'error' ? 'border-[#ff4d4f]' : '',
+            image[0]?.status === 'uploading' ? 'bg-gray-50' : '',
+            image[0]?.status === 'success'
+              ? 'border border-gray-100 bg-white'
+              : ''
+          )}
+        >
+          {image?.length === 0 ? (
+            'A'
+          ) : image[0]?.status === 'uploading' ? (
+            <div className="bg-slate-100">
+              <Loader2 className="h-3 w-3 animate-spin" />
+            </div>
+          ) : (
+            <div>
+              <img src={image[0]?.url} alt="image" />
+            </div>
+          )}
+          <Upload
+            listType="image"
+            accept=".png,.jpeg,.webp,.jpg"
+            fileList={image}
+            handleFiles={(file) => handleFiles(file)}
+            customRequest={() => {}}
+            showUploadList={{}}
+            showFileList={false}
+            actionsType={{ onlyUpload: true }}
+            disabled={disabled}
+            className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"
+          >
+            <Button
+              className="h-6 w-6 rounded-full border"
+              variant="outline"
+              size="icon"
+            >
+              {image[0]?.status === 'uploading' ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Camera size={16} strokeWidth={2} />
+              )}
+            </Button>
+          </Upload>
+        </div>
+      </div>
     </div>
   )
 }
