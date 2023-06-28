@@ -277,7 +277,6 @@ const Upload = (props: UploadProps) => {
         setCancelCount((c) => c + 1)
 
         const removedFileList = removeFileItem(file, mergedFileList)
-        console.log(removedFileList, '-------removedFileList')
         if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {

@@ -68,7 +68,8 @@ const BasicsSetting = () => {
       onSubmit()
     }
   }
-  const { watch } = form
+  const { watch, setError } = form
+  console.log(image, '-------image')
   return (
     <div className="mx-6 mt-16 w-[530px]">
       <h6 className="mb-6	text-2xl	font-semibold leading-8">Basics</h6>
@@ -87,6 +88,12 @@ const BasicsSetting = () => {
                     placeholder="Give your App a name"
                     {...field}
                     onBlur={(e) => {
+                      if (watch().name?.length < 2) {
+                        setError('name', {
+                          type: 'string',
+                          message: 'App name at least 2 characters.',
+                        })
+                      }
                       onSubmit()
                     }}
                   />
