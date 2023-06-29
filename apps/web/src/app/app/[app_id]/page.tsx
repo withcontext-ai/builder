@@ -7,6 +7,7 @@ interface IProps {
 }
 
 export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
 
 export default async function AppPage({ params }: IProps) {
   const { app_id } = params
