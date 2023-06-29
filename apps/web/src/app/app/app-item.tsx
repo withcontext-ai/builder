@@ -10,22 +10,22 @@ export interface AppItemProps {
 const AppItem = ({ appName, desc, creator, image }: AppItemProps) => {
   return (
     <div className="h-[278px] cursor-pointer">
-      <Card className="h-[278px] p-3">
+      <Card className="h-[278px]">
         <CardHeader className="p-0">
-          <div className="flex flex-col">
+          <div className="flex flex-col py-3">
             <div className="relative">
               <img
                 src={image}
                 alt="image"
                 width="100px"
                 height="100px"
-                className="absolute top-0 z-[1] rounded-lg"
+                className="absolute top-0 z-[1] mx-3 rounded-lg"
               />
               <div className="absolute top-[50px] z-0 h-[1px] w-full bg-slate-100 " />
             </div>
           </div>
         </CardHeader>
-        <CardContent className="mt-[104px] p-0">
+        <CardContent className="mt-[84px] p-3">
           <div className="text-sm font-normal leading-5 text-slate-500">
             {creator}
           </div>
