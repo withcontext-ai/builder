@@ -5,7 +5,7 @@ import { useParams, usePathname } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import useSWR from 'swr'
 
-import { cn, fetcher, getFirstLetter } from '@/lib/utils'
+import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -64,6 +64,7 @@ export default function AppSidebar({ appList }: IProps) {
         <ul role="list" className="flex flex-col space-y-4">
           {appListData?.map((appItem) => {
             const isSelected = appId === appItem.short_id
+            const color = getAvatarBgColor(appItem.short_id)
             return (
               <li
                 key={appItem.short_id}
@@ -75,11 +76,12 @@ export default function AppSidebar({ appList }: IProps) {
                       <Avatar
                         className={cn(
                           'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-                          isSelected && 'rounded-2xl'
+                          isSelected && 'rounded-2xl',
+                          `bg-${color}-600`
                         )}
                       >
                         <AvatarImage src={appItem.icon} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-transparent text-white">
                           {getFirstLetter(appItem.name)}
                         </AvatarFallback>
                       </Avatar>

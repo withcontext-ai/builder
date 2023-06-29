@@ -27,7 +27,7 @@ export default function SessionList({ appId, sessionList }: IProps) {
   // console.log('error:', error)
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 pb-2">
+    <div className="px-4 pb-2">
       <nav className="mt-1" aria-label="SessionList">
         <ul role="list" className="-mx-2 space-y-1">
           {sessionListData?.map(({ short_id, name }) => (

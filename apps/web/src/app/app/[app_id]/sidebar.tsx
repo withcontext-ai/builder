@@ -13,18 +13,20 @@ export default async function AppSidebar({ appId }: { appId: string }) {
 
   return (
     <>
-      <Header
-        appId={appId}
-        name={appDetail.name}
-        desc={appDetail.description}
-        icon={appDetail.icon}
-      />
-      <div className="m-full h-px bg-slate-100" />
-      <Menu />
-      <div className="m-full h-px bg-slate-100" />
-      <SessionListHeader appId={appId} />
-      <SessionList appId={appId} sessionList={sessionList} />
-      <div className="m-full h-px bg-slate-100" />
+      <div className="flex-1 overflow-y-auto">
+        <Header
+          appId={appId}
+          name={appDetail.name}
+          desc={appDetail.description}
+          icon={appDetail.icon}
+        />
+        <div className="m-full h-px bg-slate-100" />
+        <Menu />
+        <div className="m-full h-px bg-slate-100" />
+        <SessionListHeader appId={appId} />
+        <SessionList appId={appId} sessionList={sessionList} />
+        <div className="m-full h-px bg-slate-100" />
+      </div>
       <AuthButton />
     </>
   )

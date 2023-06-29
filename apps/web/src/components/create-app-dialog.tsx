@@ -145,6 +145,7 @@ const CreateAppDialog = (props: IProps) => {
                   <FormControl>
                     <Textarea
                       minRows={3}
+                      maxRows={8}
                       placeholder="Type your description here"
                       {...field}
                     />
