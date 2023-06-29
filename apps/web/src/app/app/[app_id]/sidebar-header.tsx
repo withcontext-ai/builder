@@ -11,7 +11,7 @@ interface IProps {
 }
 
 export default function Header({ appId, name, desc, icon }: IProps) {
-  const color = React.useMemo(() => getAvatarBgColor(appId), [name])
+  const color = React.useMemo(() => getAvatarBgColor(appId), [appId])
 
   return (
     <div>
