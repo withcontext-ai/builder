@@ -19,7 +19,16 @@ export async function GET(request: Request) {
     const filename = searchParams.get('filename') || ''
     const ext = filename.split('.').pop()
 
-    const storage = new Storage()
+    const credentials = JSON.parse(
+      Buffer.from(
+        process.env.GOOGLE_APPLICATION_CREDENTIALS!,
+        'base64'
+      ).toString()
+    )
+    const storage = new Storage({
+      projectId: credentials.project_id,
+      credentials,
+    })
     const bucket = storage.bucket(BUCKET_NAME)
     const path = `${UPLOAD_FOLDER}/${id}${ext ? `.${ext}` : ''}`
     const file = bucket.file(path)
