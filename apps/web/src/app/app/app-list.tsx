@@ -6,6 +6,7 @@ const data = [
     appName: 'app1',
     desc: 'It includes activities that allow new employees to complete an initial new-hire orientation process, as well as learn about the organization and its structure, culture, vision, mission and values.',
     creator: 'tom',
+    isDelete: false,
     image:
       '	https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg',
   },
@@ -14,6 +15,7 @@ const data = [
     appName: 'app2',
     desc: 'It includes activities that allow new employees to complete an initial new-hire orientation process, as well as learn about the organization and its structure, culture, vision, mission and values.',
     creator: 'jeanne',
+    isDelete: true,
     image:
       '	https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg',
   },
