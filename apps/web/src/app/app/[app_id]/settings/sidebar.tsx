@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { redirect, useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { ArrowLeftIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -13,7 +12,7 @@ const commonStyle =
 
 export default function Sidebar() {
   const { app_id: appId } = useParams()
-  const [select, setSelected] = useState<number>(2)
+  const url = usePathname() || ''
   return (
     <div>
       <div className="flex items-center space-x-2 px-4 py-3">
@@ -28,11 +27,11 @@ export default function Sidebar() {
           App Settings
         </div>
         <Link
-          className={cn(commonStyle, select === 1 ? 'bg-slate-100' : '')}
+          className={cn(
+            commonStyle,
+            url?.includes('basics') ? 'bg-slate-100' : ''
+          )}
           href={`/app/${appId}/settings/basics`}
-          onClick={() => {
-            setSelected(1)
-          }}
         >
           <div className="text-sm font-medium">Basics</div>
           <div className="text-sm text-slate-500">
@@ -40,8 +39,10 @@ export default function Sidebar() {
           </div>
         </Link>
         <Link
-          className={cn(commonStyle, select === 2 ? 'bg-slate-100' : '')}
-          onClick={() => setSelected(2)}
+          className={cn(
+            commonStyle,
+            url?.includes('workflow') ? 'bg-slate-100' : ''
+          )}
           replace
           href={`/app/${appId}/settings/workflow`}
         >
@@ -51,9 +52,11 @@ export default function Sidebar() {
           </div>
         </Link>
         <Link
-          className={cn(commonStyle, select === 3 ? 'bg-slate-100' : '')}
+          className={cn(
+            commonStyle,
+            url?.includes('context') ? 'bg-slate-100' : ''
+          )}
           href={''}
-          onClick={() => setSelected(3)}
         >
           <div className="text-sm font-medium">Context</div>
           <div className="text-sm text-slate-500">
