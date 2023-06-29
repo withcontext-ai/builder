@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useExploreStore } from '@/store/explore'
 
 import List from '@/components/list'
 
 interface IProps {
-  defaultValue: { id: string; title: string }[]
+  defaultValue: { id: string; title: string; icon: ReactNode }[]
 }
 
 export default function FeaturedList({ defaultValue }: IProps) {
