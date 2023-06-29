@@ -6,6 +6,8 @@ import { nanoid } from '@/lib/utils'
 const UPLOAD_FOLDER = 'public-tmp'
 const BUCKET_NAME = process.env.GCP_STORAGE_BUCKET_NAME
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     if (!BUCKET_NAME)
