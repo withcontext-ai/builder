@@ -70,6 +70,7 @@ export default function AppSidebar({ appList }: IProps) {
                       isSelected && 'rounded-2xl'
                     )}
                   >
+                    <AvatarImage src={appItem.icon} />
                     <AvatarFallback>
                       {getFirstLetter(appItem.name)}
                     </AvatarFallback>

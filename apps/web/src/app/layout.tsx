@@ -1,13 +1,11 @@
 import './globals.css'
 
-import { ClerkProvider } from '@clerk/nextjs'
-
 import { auth } from '@/lib/auth'
-import { flags } from '@/lib/flags'
 import { getApps } from '@/db/apps/actions'
 import { Toaster } from '@/components/ui/toaster'
 import AppLayout from '@/components/app-layout'
 import AppSidebar from '@/components/app-sidebar'
+import Provider from '@/components/provider'
 
 export const metadata = {
   title: 'Context Builder',
@@ -22,29 +20,16 @@ export default async function RootLayout({
   const { userId } = auth()
   const appList = await getApps()
 
-  if (flags.enabledAuth) {
-    return (
-      <ClerkProvider>
-        <html lang="en" className="h-full">
-          <body className="h-full">
-            <AppLayout
-              sidebar={userId ? <AppSidebar appList={appList} /> : null}
-            >
-              {children}
-            </AppLayout>
-            <Toaster />
-          </body>
-        </html>
-      </ClerkProvider>
-    )
-  }
-
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full">
-        <AppLayout sidebar={<AppSidebar />}>{children}</AppLayout>
-        <Toaster />
-      </body>
-    </html>
+    <Provider>
+      <html lang="en" className="h-full">
+        <body className="h-full">
+          <AppLayout sidebar={userId ? <AppSidebar appList={appList} /> : null}>
+            {children}
+          </AppLayout>
+          <Toaster />
+        </body>
+      </html>
+    </Provider>
   )
 }
