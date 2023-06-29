@@ -10,6 +10,7 @@ import { App } from '@/db/apps/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import CreateAppDialog from './create-app-dialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
 interface IProps {
   appList?: App[]
@@ -35,17 +36,22 @@ export default function AppSidebar({ appList }: IProps) {
   return (
     <>
       <div className="group relative mt-6 flex shrink-0 items-center justify-center">
-        <Link href="/">
-          <Avatar
-            className={cn(
-              'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-              pathname === '/explore' && 'rounded-2xl'
-            )}
-          >
-            <AvatarImage src="https://github.com/withcontext-ai.png" />
-            <AvatarFallback>CO</AvatarFallback>
-          </Avatar>
-        </Link>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link href="/">
+              <Avatar
+                className={cn(
+                  'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
+                  pathname === '/explore' && 'rounded-2xl'
+                )}
+              >
+                <AvatarImage src="https://github.com/withcontext-ai.png" />
+                <AvatarFallback>CO</AvatarFallback>
+              </Avatar>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Explore</TooltipContent>
+        </Tooltip>
         <div
           className={cn(
             'absolute left-0 top-1/2 h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
@@ -63,19 +69,24 @@ export default function AppSidebar({ appList }: IProps) {
                 key={appItem.short_id}
                 className="group relative flex justify-center"
               >
-                <Link href={`/app/${appItem.short_id}`}>
-                  <Avatar
-                    className={cn(
-                      'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-                      isSelected && 'rounded-2xl'
-                    )}
-                  >
-                    <AvatarImage src={appItem.icon} />
-                    <AvatarFallback>
-                      {getFirstLetter(appItem.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href={`/app/${appItem.short_id}`}>
+                      <Avatar
+                        className={cn(
+                          'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
+                          isSelected && 'rounded-2xl'
+                        )}
+                      >
+                        <AvatarImage src={appItem.icon} />
+                        <AvatarFallback>
+                          {getFirstLetter(appItem.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{appItem.name}</TooltipContent>
+                </Tooltip>
                 <div
                   className={cn(
                     'absolute left-0 top-1/2 h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
