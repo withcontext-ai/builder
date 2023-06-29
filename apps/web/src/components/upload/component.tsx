@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode, useState } from 'react'
-import { Download, Eye, X } from 'lucide-react'
+import { Download, Eye, Loader2, X } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import {
@@ -21,7 +21,7 @@ import { checkShowIcon } from './utils'
 interface IconBoxProps {
   children: ReactNode
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.SyntheticEvent) => void
 }
 
 interface PreviewProps {
@@ -48,7 +48,7 @@ export const PreviewPdf = (props: PreviewProps) => {
   return (
     <div>
       <Sheet open={props?.open} onOpenChange={() => props?.setOpen(false)}>
-        <SheetContent className=" sm:w-full md:w-[960px]">
+        <SheetContent className="sm:w-full md:w-[960px]">
           <SheetHeader>
             <SheetTitle>Preview</SheetTitle>
           </SheetHeader>
@@ -59,10 +59,16 @@ export const PreviewPdf = (props: PreviewProps) => {
   )
 }
 
-export const PdfImage = () => (
+export const PdfImage = ({
+  width,
+  height,
+}: {
+  width?: string
+  height?: string
+}) => (
   <svg
-    width="25"
-    height="32"
+    width={width || '25'}
+    height={height || '32'}
     viewBox="0 0 25 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +94,7 @@ export const PdfImage = () => (
 )
 
 export const PDFFile = (props: FileItemProps) => {
-  const { file, showUploadList, fileNameStyle, onDownload, onRemove } = props
+  const { file, showUploadList, fileNameStyle, onRemove } = props
   const showIcon = checkShowIcon(showUploadList || false)
   const [open, setOpen] = useState<boolean>(false)
   const preview = (file: UploadFile) => {
@@ -126,7 +132,7 @@ export const PDFFile = (props: FileItemProps) => {
               {(file?.status === 'success' || file?.status === 'done') &&
                 file?.url && (
                   <>
-                    <IconBox onClick={() => onDownload!(file)}>
+                    <IconBox onClick={() => props?.onDownload!(file)}>
                       {showIcon?.downloadIcon || (
                         <Download size={16} strokeWidth={3} color="#000" />
                       )}
@@ -138,7 +144,13 @@ export const PDFFile = (props: FileItemProps) => {
                     </IconBox>
                   </>
                 )}
-              <IconBox onClick={() => onRemove!(file)}>
+              <IconBox
+                onClick={(e: React.SyntheticEvent) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  onRemove?.(file)
+                }}
+              >
                 {showIcon?.removeIcon || <X size={16} strokeWidth={3} />}
               </IconBox>
             </div>
@@ -170,18 +182,19 @@ export const ImageFile = (props: FileItemProps) => {
   return (
     <>
       <div
-        className={`relative z-20 h-20 w-20 rounded-lg border  p-2 ${className} ${
-          file?.status === 'error' ? 'border-[#ff4d4f]' : ''
-        } ${file?.status === 'uploading' ? 'bg-gray-50' : ''}`}
+        className={cn(
+          'relative z-20 h-20 w-20 rounded-lg border  p-2',
+          className,
+          file?.status === 'error' ? 'border-[#ff4d4f]' : '',
+          file?.status === 'uploading' ? 'bg-gray-50' : ''
+        )}
         key={file?.uid || file?.url}
       >
         <div className={`relative z-10 flex h-full w-full items-center`}>
           {file?.status == 'uploading' && !file?.url ? (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1">
-              {props?.locale?.uploading || 'uploading'}
-              {props?.progress || (
-                <Progress value={file?.percent || 0} className="h-1" />
-              )}
+              {props?.locale?.uploading}
+              <Loader2 className="h-3 w-3 animate-spin" />
             </div>
           ) : (
             file?.url && (
@@ -200,7 +213,7 @@ export const ImageFile = (props: FileItemProps) => {
             onClick={(e: React.SyntheticEvent) => {
               e.stopPropagation()
               e.preventDefault()
-              onRemove!(file)
+              onRemove?.(file)
             }}
             className={`z-20 h-6 w-6 rounded-full border  p-1 ${
               file?.status === 'uploading' ? 'bg-white' : 'bg-sky-50'

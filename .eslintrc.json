@@ -10,16 +10,17 @@
   "plugins": ["tailwindcss"],
   "rules": {
     "@next/next/no-html-link-for-pages": "off",
+    "@next/next/no-img-element": "off",
     "tailwindcss/no-custom-classname": "off",
     "tailwindcss/classnames-order": "error"
   },
   "settings": {
     "tailwindcss": {
-      "callees": ["cn"],
+      "callees": ["cn", "cva"],
       "config": "tailwind.config.cjs"
     },
     "next": {
-      "rootDir": ["apps/web"]
+      "rootDir": ["apps/*/"]
     }
   },
   "overrides": [
