@@ -6,9 +6,6 @@ interface IProps {
   params: { app_id: string }
 }
 
-export const dynamic = 'force-dynamic'
-export const fetchCache = 'force-no-store'
-
 export default async function AppPage({ params }: IProps) {
   const { app_id } = params
   const session_id = await getLatestSessionId(app_id)
