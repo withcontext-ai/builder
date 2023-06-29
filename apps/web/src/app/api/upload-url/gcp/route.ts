@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { Storage } from '@google-cloud/storage'
 
 import { nanoid } from '@/lib/utils'
@@ -6,7 +6,7 @@ import { nanoid } from '@/lib/utils'
 const UPLOAD_FOLDER = 'public-tmp'
 const BUCKET_NAME = process.env.GCP_STORAGE_BUCKET_NAME
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     if (!BUCKET_NAME)
       return NextResponse.json({
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
         error: 'env GCP_STORAGE_BUCKET_NAME is not found',
       })
 
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = request.nextUrl
     const id = nanoid()
     const filename = searchParams.get('filename') || ''
     const ext = filename.split('.').pop()
