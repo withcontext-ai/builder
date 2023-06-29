@@ -10,7 +10,7 @@ const data = [
       '	https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg',
   },
   {
-    appId: 's1',
+    appId: 's2',
     appName: 'app2',
     desc: 'It includes activities that allow new employees to complete an initial new-hire orientation process, as well as learn about the organization and its structure, culture, vision, mission and values.',
     creator: 'jeanne',

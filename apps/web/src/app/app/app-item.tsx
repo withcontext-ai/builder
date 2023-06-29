@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export interface AppItemProps {
@@ -7,9 +9,9 @@ export interface AppItemProps {
   creator?: string
   image?: string
 }
-const AppItem = ({ appName, desc, creator, image }: AppItemProps) => {
+const AppItem = ({ appName, desc, creator, image, appId }: AppItemProps) => {
   return (
-    <div className="h-[278px] cursor-pointer">
+    <Link className="h-[278px] cursor-pointer" href={`/app/${appId}`}>
       <Card className="h-[278px]">
         <CardHeader className="p-0">
           <div className="flex flex-col py-3">
@@ -35,7 +37,7 @@ const AppItem = ({ appName, desc, creator, image }: AppItemProps) => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </Link>
   )
 }
 

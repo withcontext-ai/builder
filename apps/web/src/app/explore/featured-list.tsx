@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useExploreStore } from '@/store/explore'
 
 import { cn } from '@/lib/utils'
@@ -29,11 +29,7 @@ const FEATURED_LIST_DATA = [
   },
 ]
 
-interface IProps {
-  defaultValue?: { id: string; title: string; icon: ReactNode }[]
-}
-
-export default function FeaturedList({ defaultValue }: IProps) {
+export default function FeaturedList() {
   const selectedCategoryId = useExploreStore(
     (state) => state.selectedCategoryId
   )
@@ -43,8 +39,6 @@ export default function FeaturedList({ defaultValue }: IProps) {
   const resetState = useExploreStore((state) => state.resetState)
 
   const handleClickBuilder = (id: string) => {
-    // e.preventDefault()
-    console.log(id, '---click')
     id && setSelectedCategoryId(id)
   }
 
