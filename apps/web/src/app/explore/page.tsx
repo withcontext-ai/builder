@@ -1,21 +1,23 @@
 import SidebarLayout from '@/components/sidebar-layout'
 
-import ExploreSidebar from '../../components/sidebar-categories'
+import CategoriesSidebar from '../../components/sidebar-categories'
 import AppLists from '../app/app-list'
 import FeaturedList from './featured-list'
 
 export default async function ExplorePage() {
   return (
-    <SidebarLayout sidebar={<ExploreSidebar />}>
+    <SidebarLayout sidebar={<CategoriesSidebar />}>
       <div className="flex flex-col">
-        <div>
-          <div className="px-6 py-3 text-base	font-medium leading-6	">
+        <div className="flex flex-col">
+          <div className="flex flex-col px-6 text-base font-medium leading-[48px]">
             Explore
           </div>
           <div className="h-[1px] w-full bg-slate-100 " />
           <FeaturedList />
         </div>
-        <AppLists />
+        <div className="flex flex-1 overflow-y-auto">
+          <AppLists />
+        </div>
       </div>
     </SidebarLayout>
   )

@@ -27,7 +27,7 @@ const CateGories = [
 const CategoriesList = () => {
   const selected = usePathname()
   return (
-    <div className="flex-1 overflow-y-auto px-1 py-3">
+    <div className="flex-1 space-y-1 overflow-y-auto p-1">
       {CateGories?.map((item) => {
         return (
           <Link
