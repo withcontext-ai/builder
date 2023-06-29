@@ -52,6 +52,9 @@ const BasicsSetting = () => {
     mode: 'all',
   })
   const onSubmit = () => {
+    if (watch().name) {
+      console.log('---------edit api')
+    }
     console.log('-----onSubmit', watch(), 'image is:', currentImage.current.url)
   }
   const handleFiles = (file: UploadFile<any>[]) => {
