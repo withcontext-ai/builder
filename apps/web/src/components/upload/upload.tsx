@@ -30,7 +30,6 @@ const Upload = (props: UploadProps) => {
     onChange,
     onRemove,
     onDrop,
-    actionsType = { both: true },
     accept,
     action = '',
     multiple = true,
@@ -105,29 +104,12 @@ const Upload = (props: UploadProps) => {
         if (onChange) {
           onChange?.(changeInfo)
         } else {
-          // only upload icon need to delete the last one and then to upload a new
-          if (
-            actionsType?.onlyUpload &&
-            changeInfo?.fileList[0]?.status == 'success'
-          ) {
-            console.log(fileList, '00000000000filelist')
-            handleFiles?.([])
-          }
           // google api for upload
           uploadFile({ source, controller, ...changeInfo, handleFiles })
         }
       })
     },
-    [
-      actionsType?.onlyUpload,
-      controller,
-      fileList,
-      handleFiles,
-      maxCount,
-      onChange,
-      setMergedFileList,
-      source,
-    ]
+    [controller, handleFiles, maxCount, onChange, setMergedFileList, source]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {

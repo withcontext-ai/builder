@@ -43,7 +43,7 @@ const defaultValues = {
 }
 
 const BasicsSetting = () => {
-  const [image, setImage] = useState<UploadFile[]>([])
+  const [image, setImage] = useState<UploadFile<any>[]>([])
   const currentImage = useRef({ url: '' })
   const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,17 +54,15 @@ const BasicsSetting = () => {
   const onSubmit = () => {
     console.log('-----onSubmit', watch(), 'image is:', currentImage.current.url)
   }
-  const handleFiles = (file: UploadFile[]) => {
-    setImage([])
-    if (file[0]?.status === 'uploading') {
+  const handleFiles = (file: UploadFile<any>[]) => {
+    const lens = file?.length
+    if (file[lens - 1]?.status === 'uploading') {
       setDisabled(true)
-    } else {
-      setDisabled(false)
     }
-    setImage(file)
-    if (file[0]?.url) {
-      currentImage.current.url = file[0]?.url
-      console.log('-----image upload success', currentImage.current.url)
+    setImage([file[lens - 1]])
+    if (file[lens - 1]?.url) {
+      currentImage.current.url = file[lens - 1]?.url || ''
+      setDisabled(false)
       onSubmit()
     }
   }
@@ -147,48 +145,26 @@ const BasicsSetting = () => {
               <img src={image[0]?.url} alt="image" />
             </div>
           )}
-          {image[0]?.status !== 'success' ? (
-            <Upload
-              listType="image"
-              accept=".png,.jpeg,.webp,.jpg"
-              fileList={image}
-              handleFiles={(file) => handleFiles(file)}
-              customRequest={() => {}}
-              showFileList={false}
-              onRemove={() => setImage([])}
-              actionsType={{ onlyUpload: true }}
+          <Upload
+            listType="image"
+            accept=".png,.jpeg,.webp,.jpg"
+            fileList={image}
+            handleFiles={(file) => handleFiles(file)}
+            customRequest={() => {}}
+            showFileList={false}
+            onRemove={() => setImage([])}
+            disabled={disabled}
+            className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"
+          >
+            <Button
+              className="h-6 w-6 rounded-full border"
+              variant="outline"
+              size="icon"
               disabled={disabled}
-              className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"
             >
-              <Button
-                className="h-6 w-6 rounded-full border"
-                variant="outline"
-                size="icon"
-              >
-                {image[0]?.status === 'uploading' ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Camera size={16} strokeWidth={2} />
-                )}
-              </Button>
-            </Upload>
-          ) : (
-            <div className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black">
-              <Button
-                className="h-6 w-6 rounded-full border"
-                variant="outline"
-                size="icon"
-              >
-                <Camera
-                  size={16}
-                  strokeWidth={2}
-                  onClick={() => {
-                    setImage([])
-                  }}
-                />
-              </Button>
-            </div>
-          )}
+              <Camera size={16} strokeWidth={2} />
+            </Button>
+          </Upload>
         </div>
       </div>
     </div>
