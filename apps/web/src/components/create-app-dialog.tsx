@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
@@ -74,6 +75,7 @@ function addApp(
 const CreateAppDialog = (props: IProps) => {
   const { dialogTrigger } = props
   const router = useRouter()
+  const { mutate } = useSWRConfig()
   const [open, setOpen] = useState<boolean>(false)
   const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
@@ -91,6 +93,7 @@ const CreateAppDialog = (props: IProps) => {
       const json = await trigger(data)
       console.log('CreateAppDialog onSubmit json:', json)
       setOpen(false)
+      mutate('/api/me/workspace')
       router.push(`/app/${json.appId}/session/${json.sessionId}`)
     } catch (error) {
       console.log('CreateAppDialog onSubmit error:', error)

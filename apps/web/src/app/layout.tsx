@@ -1,7 +1,7 @@
 import './globals.css'
 
 import { auth } from '@/lib/auth'
-import { getApps } from '@/db/apps/actions'
+import { getWorkspace } from '@/db/workspace/actions'
 import { Toaster } from '@/components/ui/toaster'
 import AppLayout from '@/components/app-layout'
 import AppSidebar from '@/components/app-sidebar'
@@ -18,7 +18,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const { userId } = auth()
-  const appList = await getApps()
+  const appList = await getWorkspace()
 
   return (
     <Provider>

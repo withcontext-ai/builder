@@ -38,6 +38,7 @@ export default function SessionListItem({ id, name }: ISessionItem) {
       const json = await trigger()
       console.log('SessionListItem handleRemove json:', json)
       mutate(`/api/apps/${appId}/sessions`)
+      mutate('/api/me/workspace')
       router.push(`/app/${appId}`)
     } catch (error) {
       console.log('SessionListItem handleRemove error:', error)

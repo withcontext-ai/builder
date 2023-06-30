@@ -22,13 +22,16 @@ export async function addSession(appId: string) {
   const allSessions = await db
     .select({ count: sql<number>`count(*)` })
     .from(SessionsTable)
-    .where(eq(SessionsTable.app_id, appId))
+    .where(
+      and(eq(SessionsTable.app_id, appId), eq(SessionsTable.created_by, userId))
+    )
   const sessionCount = Number(allSessions[0]?.count) || 0
 
   const sessionVal = {
     short_id: nanoid(),
     name: `Chat ${sessionCount + 1}`,
     app_id: appId,
+    created_by: userId,
   }
   const newSession = await db
     .insert(SessionsTable)

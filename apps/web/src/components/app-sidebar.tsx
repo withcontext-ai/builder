@@ -6,14 +6,20 @@ import { Plus } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
-import { App } from '@/db/apps/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import CreateAppDialog from './create-app-dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
+interface WorkspaceItem {
+  app_id: string | null
+  app_name: string | null
+  app_icon: string | null
+  session_id: string | null
+}
+
 interface IProps {
-  appList?: App[]
+  appList?: WorkspaceItem[]
 }
 
 export default function AppSidebar({ appList }: IProps) {
@@ -26,11 +32,11 @@ export default function AppSidebar({ appList }: IProps) {
     data: appListData,
     error,
     mutate,
-  } = useSWR<App[]>('/api/me/apps', fetcher, {
+  } = useSWR<WorkspaceItem[]>('/api/me/workspace', fetcher, {
     fallbackData: appList,
   })
-  console.log('isLoading:', isLoading)
-  console.log('data:', appListData)
+  // console.log('isLoading:', isLoading)
+  // console.log('data:', appListData)
   // console.log('error:', error)
 
   return (
@@ -63,16 +69,18 @@ export default function AppSidebar({ appList }: IProps) {
       <nav className="flex-1 overflow-y-auto py-6 scrollbar-none">
         <ul role="list" className="flex flex-col space-y-4">
           {appListData?.map((appItem) => {
-            const isSelected = appId === appItem.short_id
-            const color = getAvatarBgColor(appItem.short_id)
+            const isSelected = appId === appItem.app_id
+            const color = getAvatarBgColor(appItem.app_id || '')
             return (
               <li
-                key={appItem.short_id}
+                key={appItem.app_id}
                 className="group relative flex justify-center"
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link href={`/app/${appItem.short_id}`}>
+                    <Link
+                      href={`/app/${appItem.app_id}/session/${appItem.session_id}`}
+                    >
                       <Avatar
                         className={cn(
                           'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
@@ -80,14 +88,18 @@ export default function AppSidebar({ appList }: IProps) {
                           `bg-${color}-600`
                         )}
                       >
-                        <AvatarImage src={appItem.icon} />
+                        {appItem.app_icon && (
+                          <AvatarImage src={appItem.app_icon} />
+                        )}
                         <AvatarFallback className="bg-transparent text-white">
-                          {getFirstLetter(appItem.name)}
+                          {getFirstLetter(appItem.app_name || '')}
                         </AvatarFallback>
                       </Avatar>
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right">{appItem.name}</TooltipContent>
+                  <TooltipContent side="right">
+                    {appItem.app_name}
+                  </TooltipContent>
                 </Tooltip>
                 <div
                   className={cn(

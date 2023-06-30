@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2Icon, PlusIcon } from 'lucide-react'
+import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
@@ -17,6 +18,7 @@ interface IProps {
 
 export default function SessionListHeader({ appId }: IProps) {
   const router = useRouter()
+  const { mutate } = useSWRConfig()
   const { trigger, isMutating } = useSWRMutation(
     `/api/apps/${appId}/sessions`,
     addSession
@@ -26,6 +28,7 @@ export default function SessionListHeader({ appId }: IProps) {
     try {
       const json = await trigger()
       console.log('SessionListHeader handleAdd json:', json)
+      mutate('/api/me/workspace')
       router.push(`/app/${appId}/session/${json.sessionId}`)
     } catch (error) {
       console.log('SessionListHeader handleAdd error:', error)

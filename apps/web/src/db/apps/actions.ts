@@ -7,6 +7,7 @@ import { db } from '@/lib/drizzle'
 import { nanoid } from '@/lib/utils'
 
 import { SessionsTable } from '../sessions/schema'
+import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
 export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
@@ -16,17 +17,22 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
   const appVal = { ...app, short_id: nanoid(), created_by: userId }
   const newApp = await db.insert(AppsTable).values(appVal).returning()
 
+  const appId = newApp[0]?.short_id
+
   const sessionVal = {
     short_id: nanoid(),
     name: 'Chat 1',
-    app_id: newApp[0]?.short_id,
+    app_id: appId,
+    created_by: userId,
   }
   const newSession = await db
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
 
-  return { appId: newApp[0]?.short_id, sessionId: newSession[0]?.short_id }
+  await addToWorkspace(appId)
+
+  return { appId, sessionId: newSession[0]?.short_id }
 }
 
 export async function getApps() {
