@@ -39,7 +39,7 @@ export default function SessionListItem({ id, name }: ISessionItem) {
       console.log('SessionListItem handleRemove json:', json)
       mutate(`/api/apps/${appId}/sessions`)
       mutate('/api/me/workspace')
-      router.push(`/app/${appId}`)
+      router.push(`/app/${appId}/sessions/${json?.latestId}`)
     } catch (error) {
       console.log('SessionListItem handleRemove error:', error)
     }

@@ -75,7 +75,16 @@ export async function removeSession(appId: string, sessionId: string) {
     .set({ archived: true, updated_at: new Date() })
     .where(eq(SessionsTable.short_id, sessionId))
 
-  return { deletedId: sessionId }
+  const latestSession = await db
+    .select()
+    .from(SessionsTable)
+    .where(
+      and(eq(SessionsTable.created_by, userId), eq(SessionsTable.app_id, appId))
+    )
+    .orderBy(desc(SessionsTable.created_at))
+    .limit(1)
+
+  return { deletedId: sessionId, latestId: latestSession[0]?.short_id }
 }
 
 export async function getLatestSessionId(appId: string) {
