@@ -73,7 +73,7 @@ const BasicsSetting = () => {
 
   return (
     <div className="mx-6 mt-16 w-[530px]">
-      <h6 className="mb-6	text-2xl	font-semibold leading-8">Basics</h6>
+      <h6 className="mb-6	text-2xl font-semibold leading-8">Basics</h6>
       <Form {...form}>
         <form className="space-y-8">
           <FormField
