@@ -1,14 +1,7 @@
 import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import CategoriesSidebar from '@/components/sidebar-categories'
 import SidebarLayout from '@/components/sidebar-layout'
 
