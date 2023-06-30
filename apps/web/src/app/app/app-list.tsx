@@ -24,7 +24,19 @@ interface AppListProps {
   apps?: AppItemProps[]
 }
 const AppLists = ({ apps = data }: AppListProps) => {
-  apps = [...data, ...data, ...data, ...data]
+  apps = [
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+  ]
   return (
     <div className="xs:grid-cols-1 grid max-w-[1200px] gap-2 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {apps?.map((app) => {
