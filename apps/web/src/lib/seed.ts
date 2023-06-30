@@ -29,6 +29,7 @@ export async function seed() {
       name VARCHAR(255) NOT NULL,
       app_id VARCHAR(255) NOT NULL,
       FOREIGN KEY (app_id) REFERENCES apps(short_id),
+      created_by VARCHAR(255) NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE,
       archived BOOLEAN DEFAULT FALSE
