@@ -56,7 +56,7 @@ const formSchema = z.object({
 })
 
 const defaultValues = {
-  username: '',
+  name: '',
   description: '',
   icon: '',
 }
