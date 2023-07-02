@@ -116,5 +116,6 @@ export async function getSession(sessionId: string) {
     .select()
     .from(SessionsTable)
     .where(eq(SessionsTable.short_id, sessionId))
+    .leftJoin(AppsTable, eq(SessionsTable.app_id, AppsTable.short_id))
   return Promise.resolve(items[0])
 }
