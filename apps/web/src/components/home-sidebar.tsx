@@ -8,7 +8,9 @@ import MineList from './mine-list'
 export default async function HomeSidebar() {
   return (
     <>
-      <h1 className="px-4 py-2 text-lg font-semibold">Context AI</h1>
+      <h1 className="flex h-12 items-center px-4 text-lg font-semibold">
+        Context AI
+      </h1>
       <div className="m-full h-px bg-slate-100" />
       <div className="flex-1 px-1 py-3">
         <div className="space-y-6">
