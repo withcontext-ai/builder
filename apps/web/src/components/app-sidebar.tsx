@@ -51,7 +51,7 @@ export default function AppSidebar({ appList }: IProps) {
                   pathname === '/explore' && 'rounded-2xl'
                 )}
               >
-                <AvatarImage src="https://github.com/withcontext-ai.png" />
+                <AvatarImage src="/logo.png" />
                 <AvatarFallback>CO</AvatarFallback>
               </Avatar>
             </Link>
