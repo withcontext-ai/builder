@@ -60,7 +60,7 @@ export default function AppSidebar({ appList }: IProps) {
               </Avatar>
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="right">My Apps</TooltipContent>
+          <TooltipContent side="right">Explore</TooltipContent>
         </Tooltip>
         <div
           className={cn(
