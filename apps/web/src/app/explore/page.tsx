@@ -4,40 +4,40 @@ import SidebarLayout from '@/components/sidebar-layout'
 
 const LIST = [
   {
-    id: 'a1',
+    id: 'CbfWtV8',
     title: 'App 1, App 1, App 1, App 1, App 1',
     description:
       'App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description,',
     icon: '',
   },
   {
-    id: 'a2',
+    id: 'Utxx7ga',
     title: 'App 2',
     description: 'App 2 Description',
     icon: 'https://via.placeholder.com/100',
   },
   {
-    id: 'a3',
+    id: 'GI6hAFE',
     title: 'App 3',
     description: 'App 3 Description',
     icon: 'https://via.placeholder.com/100',
   },
   {
-    id: 'a4',
+    id: 'WMZeCI3',
     title: 'App 4',
     description: 'App 4 Description',
     icon: 'https://via.placeholder.com/100',
   },
   {
-    id: 'a5',
-    title: 'App 4',
-    description: 'App 4 Description',
+    id: 'gRBqVWJ',
+    title: 'App 5',
+    description: 'App 5 Description',
     icon: 'https://via.placeholder.com/100',
   },
   {
-    id: 'a6',
-    title: 'App 4',
-    description: 'App 4 Description',
+    id: 'Zq2go3j',
+    title: 'App 6',
+    description: 'App 6 Description',
     icon: 'https://via.placeholder.com/100',
   },
 ]
