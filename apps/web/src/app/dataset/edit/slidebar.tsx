@@ -1,19 +1,29 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { ArrowLeftIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
+import { SectionType } from './page'
+
 interface IProps {
   selected?: string
+  sections?: SectionType[]
+  setSelected?: (s: string) => void
 }
 
-const SlideBar = ({ selected = 'loaders' }: IProps) => {
+const SlideBar = ({ selected = '#loaders', setSelected, sections }: IProps) => {
+  const router = useRouter()
+
   const handleGoBack = () => {
-    // router.back()
-    console.log('---goBack')
+    router.back()
   }
+  const handleClick = (name: string) => {
+    setSelected?.(name)
+  }
+
   return (
     <div>
       <div className="flex items-center space-x-2 px-4 py-3">
@@ -31,51 +41,20 @@ const SlideBar = ({ selected = 'loaders' }: IProps) => {
           DATASETS
         </div>
         <div className="flex flex-col gap-1	text-sm	font-medium">
-          <a
-            href="#loaders"
-            className={cn(
-              'p-3 hover:rounded-md hover:bg-slate-200',
-              selected === 'loaders' ? 'rounded-md bg-slate-200' : ''
-            )}
-          >
-            Document Loaders
-          </a>
-          <a
-            href="#splitters"
-            className={cn(
-              'p-3 hover:rounded-md hover:bg-slate-200',
-              selected === 'splitters' ? 'rounded-md bg-slate-200' : ''
-            )}
-          >
-            Text Splitters
-          </a>
-          <a
-            href="#models"
-            className={cn(
-              'p-3 hover:rounded-md hover:bg-slate-200',
-              selected === 'models' ? 'rounded-md bg-slate-200' : ''
-            )}
-          >
-            Text Embedding Models
-          </a>
-          <a
-            href="#stores"
-            className={cn(
-              'p-3 hover:rounded-md hover:bg-slate-200',
-              selected === 'stores' ? 'rounded-md bg-slate-200' : ''
-            )}
-          >
-            Vector Stores
-          </a>
-          <a
-            href="#retrievers"
-            className={cn(
-              'p-3 hover:rounded-md hover:bg-slate-200',
-              selected === 'retrievers' ? 'rounded-md bg-slate-200' : ''
-            )}
-          >
-            Retrievers
-          </a>
+          {sections?.map((item: SectionType) => (
+            <a
+              key={item?.title}
+              href={item?.name}
+              ref={item?.ref}
+              onClick={() => handleClick(item?.name)}
+              className={cn(
+                'p-3 hover:rounded-md hover:bg-slate-200',
+                selected === item?.name ? 'rounded-md bg-slate-200' : ''
+              )}
+            >
+              {item?.title}
+            </a>
+          ))}
         </div>
       </div>
     </div>

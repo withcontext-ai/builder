@@ -1,6 +1,31 @@
-const DatasetContent = () => {
+import { useRef } from 'react'
+
+import { SectionType } from './page'
+
+interface IProps {
+  selected?: string
+  setSelected?: (s: string) => void
+  sections?: SectionType[]
+}
+
+const DatasetContent = ({ setSelected, sections }: IProps) => {
+  const mainRef = useRef<HTMLDivElement>(null)
+  const listener = () => {
+    console.log('--scroll')
+  }
+
+  // Get all sections that have an ID defined
+
+  // Add an event listener listening for scroll
+
   return (
-    <div className="h-full w-full">
+    <div
+      ref={mainRef}
+      className="relative h-full w-full overflow-y-auto"
+      onScroll={() => {
+        listener()
+      }}
+    >
       <section id="loaders" className="h-[200px]">
         <h1>loaders</h1>
       </section>
