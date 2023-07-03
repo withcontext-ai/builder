@@ -3,17 +3,7 @@ import { GlobeIcon, User2Icon, UserIcon } from 'lucide-react'
 import AuthButton from '@/components/auth-button'
 
 import FeaturedList from './featured-list'
-
-const MINE_DATA = [
-  {
-    id: 'apps',
-    title: 'Apps',
-  },
-  {
-    id: 'datasets',
-    title: 'Datasets',
-  },
-]
+import MineList from './mine-list'
 
 const FEATURED_LIST_DATA = [
   {
@@ -50,7 +40,7 @@ export default async function HomeSidebar() {
               <User2Icon size={20} />
               <span>Mine</span>
             </h2>
-            <FeaturedList defaultValue={MINE_DATA} />
+            <MineList />
           </div>
           <div className="space-y-3">
             <h2 className="flex items-center space-x-2 px-3">
