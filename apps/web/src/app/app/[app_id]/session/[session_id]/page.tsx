@@ -1,17 +1,28 @@
+import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
 
+import AddAppToWorkspace from './add-app-to-workspace'
+
 interface IProps {
-  params: { session_id: string }
+  params: { app_id: string; session_id: string }
 }
 
-export default function SessionPage({ params }: IProps) {
-  const { session_id } = params
+export default async function SessionPage({ params }: IProps) {
+  const { app_id, session_id } = params
+  const { sessions, apps } = await getSession(session_id)
 
-  // TODO: put <Chat id={session_id} /> component into this page
-  // and use session_id to fetch session data
   return (
-    <div className="h-full w-full overflow-hidden">
-      <Chat sessionId={session_id} />
-    </div>
+    <>
+      <div className="h-full w-full overflow-hidden">
+        <Chat
+          sessionId={session_id}
+          sessionName={sessions.name}
+          appId={apps?.short_id || ''}
+          appName={apps?.name || ''}
+          appIcon={apps?.icon || ''}
+        />
+      </div>
+      <AddAppToWorkspace appId={app_id} />
+    </>
   )
 }

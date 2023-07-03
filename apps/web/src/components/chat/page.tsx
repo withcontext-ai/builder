@@ -11,9 +11,13 @@ import ChatList from './chat-list'
 
 interface IProps {
   sessionId: string
+  sessionName: string
+  appId: string
+  appName: string
+  appIcon: string
 }
 
-const Chat = ({ sessionId }: IProps) => {
+const Chat = ({ sessionId, sessionName, appName, appIcon, appId }: IProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
@@ -40,13 +44,16 @@ const Chat = ({ sessionId }: IProps) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ChatHeader />
+      <ChatHeader name={sessionName} />
       <ChatList
         messages={messages}
         waiting={waiting}
         scrollRef={scrollRef}
         error={error?.message}
         setAutoScroll={setAutoScroll}
+        appId={appId}
+        appName={appName}
+        appIcon={appIcon}
       />
       <ChatInput
         input={input}
