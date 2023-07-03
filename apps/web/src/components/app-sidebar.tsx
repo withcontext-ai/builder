@@ -39,7 +39,9 @@ export default function AppSidebar({ appList }: IProps) {
   // console.log('data:', appListData)
   // console.log('error:', error)
 
-  const isHome = ['/', '/datasets', '/explore'].includes(pathname)
+  const isHome =
+    ['/', '/datasets', '/explore'].includes(pathname) ||
+    pathname.includes('/explore/')
 
   return (
     <>

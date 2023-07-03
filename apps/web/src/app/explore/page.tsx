@@ -1,11 +1,10 @@
+import HomeSidebar from '@/components/home-sidebar'
 import SidebarLayout from '@/components/sidebar-layout'
 
-import ExploreSidebar from './sidebar'
-
-export default async function ExplorePage() {
+export default async function Page() {
   return (
-    <SidebarLayout sidebar={<ExploreSidebar />}>
-      <div className="p-2">TODO</div>
+    <SidebarLayout sidebar={<HomeSidebar />}>
+      <div className="p-2">TODO: explore</div>
     </SidebarLayout>
   )
 }

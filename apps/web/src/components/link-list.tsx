@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import LinkListItem from './link-list-item'
 
 interface IProps extends React.ComponentPropsWithoutRef<'ul'> {
-  value: { id: string; title: string; href: string }[]
+  value: { href: string; title: string }[]
 }
 
 const LinkList = React.forwardRef<React.ElementRef<'ul'>, IProps>(
@@ -16,8 +16,8 @@ const LinkList = React.forwardRef<React.ElementRef<'ul'>, IProps>(
         className={cn('flex flex-col space-y-1', className)}
         {...props}
       >
-        {value.map(({ id, title, href }) => {
-          return <LinkListItem key={id} title={title} href={href} />
+        {value.map(({ href, title }) => {
+          return <LinkListItem key={href} title={title} href={href} />
         })}
       </ul>
     )

@@ -4,8 +4,8 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/apps',
-        destination: '/',
+        source: '/',
+        destination: '/explore',
         permanent: true,
       },
     ]

@@ -2,14 +2,12 @@ import LinkList from './link-list'
 
 const DEFAULT_VALUE = [
   {
-    id: 'apps',
+    href: '/apps',
     title: 'Apps',
-    href: '/',
   },
   {
-    id: 'datasets',
-    title: 'Datasets',
     href: '/datasets',
+    title: 'Datasets',
   },
 ]
 
