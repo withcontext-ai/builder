@@ -16,7 +16,9 @@ import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
 import { SectionType } from './page'
+import TextEmbedding from './text-embedding'
 import TextSplits from './text-spliter'
+import VectorStores from './vector-stores'
 
 interface IProps {
   selected?: string
@@ -34,11 +36,15 @@ const FormSchema = z.object({
     .string()
     .trim()
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
-  loaderType: z.string().trim(),
-  splitType: z.string().trim(),
+  loaderType: z.string(),
+  splitType: z.string(),
+  embeddingTyp: z.string(),
   files: z.array(z.string()).optional(),
   chunkSize: z.number(),
   chunkOverlap: z.number(),
+  storeType: z.string(),
+  collectionName: z.string().optional(),
+  chromaUrl: z.string().optional(),
 })
 
 const observerOptions = {
@@ -56,6 +62,10 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     files: [],
     chunkSize: 1000,
     chunkOverlap: 1000,
+    embeddingType: 'openAI embedding',
+    storeType: 'pinecone',
+    collectionName: '',
+    chromaUrl: '',
   }
 
   const listener = () => {
@@ -124,12 +134,8 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
             </section>
             <DocumentLoader ref={sections?.[1]?.ref} form={form} />
             <TextSplits ref={sections?.[2]?.ref} form={form} />
-            <section id="models" className="h-[400px]" ref={sections?.[2]?.ref}>
-              <h1>models</h1>
-            </section>
-            <section id="stores" className="h-[400px]" ref={sections?.[3]?.ref}>
-              <h1>stores</h1>
-            </section>
+            <TextEmbedding ref={sections?.[3]?.ref} form={form} />
+            <VectorStores ref={sections?.[4]?.ref} form={form} />
             <section
               id="retrievers"
               className="h-[400px]"

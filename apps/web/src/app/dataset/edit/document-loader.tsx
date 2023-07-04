@@ -19,9 +19,9 @@ import { SessionProps } from './text-spliter'
 const types = [
   { label: 'Pdf loader', value: 'pdf loader' },
   { label: 'Comming soon...', value: 'comming soon' },
-] as const
+]
 
-const DocumentLoader = ({ ref, form }: SectionProps) => {
+const DocumentLoader = ({ ref, form }: SessionProps) => {
   const [data, setData] = useState<UploadFile[]>([])
   const [files, setFiles] = useState<string[]>([])
   const handleFiles = (values: UploadFile[]) => {

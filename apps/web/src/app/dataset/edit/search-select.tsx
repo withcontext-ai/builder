@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { CheckIcon, ChevronsUpDown } from 'lucide-react'
-import { FormProps, UseFormReturn } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -31,7 +31,7 @@ interface OptionsProps {
   label: string
 }
 interface IProps {
-  form: UseFormReturn
+  form: UseFormReturn<any>
   values: OptionsProps[]
   name: string
   title?: string

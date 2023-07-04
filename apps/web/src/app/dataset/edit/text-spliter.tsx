@@ -2,7 +2,6 @@ import { RefObject } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -14,7 +13,21 @@ import { Input } from '@/components/ui/input'
 import SearchSelect from './search-select'
 
 export interface SessionProps {
-  form: UseFormReturn
+  form: UseFormReturn<
+    {
+      name: string
+      loaderType: string
+      splitType: string
+      chunkSize: number
+      chunkOverlap: number
+      files?: string[] | undefined
+      chromaUrl?: string
+      collectionName?: string
+      embeddingType: string
+    },
+    any,
+    undefined
+  >
   ref?: RefObject<HTMLElement>
 }
 const types = [
