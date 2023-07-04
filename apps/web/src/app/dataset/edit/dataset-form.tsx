@@ -33,6 +33,7 @@ const FormSchema = z.object({
     .string()
     .trim()
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
+  type: z.string().trim(),
 })
 
 const observerOptions = {
