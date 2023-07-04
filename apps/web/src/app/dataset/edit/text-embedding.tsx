@@ -1,3 +1,7 @@
+'use client'
+
+import { useRef } from 'react'
+
 import {
   FormControl,
   FormField,
@@ -15,7 +19,8 @@ const types = [
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const TextEmbedding = ({ form, ref }: SessionProps) => {
+const TextEmbedding = ({ form }: SessionProps) => {
+  const ref = useRef<HTMLAnchorElement>(null)
   return (
     <section id="models" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">

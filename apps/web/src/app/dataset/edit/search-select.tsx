@@ -74,7 +74,7 @@ const SearchSelect = ({
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-[308px] p-0">
               <Command>
                 <CommandInput placeholder={`Search ${title}`} className="h-9" />
                 <CommandEmpty>{`No ${title} found.`}</CommandEmpty>

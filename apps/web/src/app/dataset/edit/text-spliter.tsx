@@ -1,4 +1,6 @@
-import { RefObject } from 'react'
+'use client'
+
+import { RefObject, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 import {
@@ -18,20 +20,21 @@ export interface SessionProps {
       name: string
       loaderType: string
       splitType: string
+      embeddingType: string
+      files?: string[] | undefined
       chunkSize: number
       chunkOverlap: number
-      files?: string[] | undefined
+      storeType?: string | undefined
       chromaUrl?: string
-      collectionName?: string
-      embeddingType: string
-      apiKey?: string
-      instanceName?: string
-      developmentName?: string
-      apiVersion?: string
-      retrieversType?: string
-      promptName?: string
-      promptDesc?: string
-      promptMsg?: string
+      collectionName?: string | undefined
+      apiKey?: string | undefined
+      instanceName?: string | undefined
+      developmentName?: string | undefined
+      apiVersion?: string | undefined
+      retrieversType?: string | undefined
+      promptName?: string | undefined
+      promptDesc?: string | undefined
+      promptMsg?: string | undefined
     },
     any,
     undefined
@@ -43,7 +46,9 @@ const types = [
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const TextSplits = ({ form, ref }: SessionProps) => {
+const TextSplits = ({ form }: SessionProps) => {
+  const ref = useRef<HTMLAnchorElement>(null)
+
   return (
     <section id="splitters" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">

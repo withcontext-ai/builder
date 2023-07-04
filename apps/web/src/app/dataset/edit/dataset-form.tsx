@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { C } from 'drizzle-orm/db.d-cf0abe10'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -64,6 +65,8 @@ const observerOptions = {
 
 const DatasetForm = ({ setSelected, sections }: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
+
+  const nameRef = useRef<HTMLElement>(null)
   const defaultValues = {
     name: '',
     loaderType: 'pdf loader',
@@ -83,6 +86,10 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     promptName: '',
     promptDesc: '',
     promptMsg: '',
+  }
+
+  const handelCancle = () => {
+    console.log('---cancel')
   }
 
   const listener = () => {
@@ -121,6 +128,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     console.log(data, '---data')
   }
+  console.log(form, '----form')
   return (
     <div className="relative h-full w-full overflow-auto px-6 pb-[100px]	pt-18">
       <div className="max-w-[600px]">
@@ -129,7 +137,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-16"
           >
-            <section id="dataset-name">
+            <section id="dataset-name" ref={nameRef}>
               <div className="mb-6 text-2xl font-semibold leading-8">
                 DataSet Name
               </div>
@@ -149,16 +157,18 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
                 )}
               />
             </section>
-            <DocumentLoader ref={sections?.[1]?.ref} form={form} />
-            <TextSplits ref={sections?.[2]?.ref} form={form} />
-            <TextEmbedding ref={sections?.[3]?.ref} form={form} />
-            <VectorStores ref={sections?.[4]?.ref} form={form} />
-            <Retrievers ref={sections?.[5]?.ref} form={form} />
+            <DocumentLoader form={form} />
+            <TextSplits form={form} />
+            <TextEmbedding form={form} />
+            <VectorStores form={form} />
+            <Retrievers form={form} />
           </form>
         </Form>
       </div>
       <div className="fixed bottom-6 flex w-[600px] justify-end gap-2 rounded-lg border bg-white px-4	py-2">
-        <Button variant="outline">Submit</Button>
+        <Button type="reset" onClick={handelCancle} variant="outline">
+          Cancel
+        </Button>
         <Button type="submit">Submit</Button>
       </div>
     </div>
