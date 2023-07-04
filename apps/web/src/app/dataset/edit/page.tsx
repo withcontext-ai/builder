@@ -2,11 +2,11 @@
 
 import { RefObject, useRef, useState } from 'react'
 
-import DatasetContent from './content'
+import DatasetForm from './dataset-form'
 import SlideBar from './slidebar'
 
 export interface SectionType {
-  ref?: RefObject<HTMLAnchorElement>
+  ref?: RefObject<HTMLElement>
   title: string
   name: string
 }
@@ -56,11 +56,13 @@ const DatasetSetting = () => {
   return (
     <div className="fixed inset-0 flex h-full w-full bg-white">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
-        <SlideBar selected={selected} setSelected={setSelected} />
+        <SlideBar
+          selected={selected}
+          setSelected={setSelected}
+          sections={sections}
+        />
       </div>
-      <div className="flex-1">
-        <DatasetContent sections={sections} />
-      </div>
+      <DatasetForm sections={sections} />
     </div>
   )
 }

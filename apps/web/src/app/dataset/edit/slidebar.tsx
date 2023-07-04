@@ -10,6 +10,7 @@ import { SectionType } from './page'
 
 interface IProps {
   selected?: string
+  sections?: SectionType[]
   setSelected?: (s: string) => void
 }
 
