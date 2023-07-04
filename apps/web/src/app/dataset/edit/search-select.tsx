@@ -35,9 +35,16 @@ interface IProps {
   values: OptionsProps[]
   name: string
   title?: string
+  isRequired?: boolean
 }
 
-const SearchSelect = ({ form, values, name, title }: IProps) => {
+const SearchSelect = ({
+  form,
+  values,
+  name,
+  title,
+  isRequired = false,
+}: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   return (
     <FormField
@@ -46,7 +53,7 @@ const SearchSelect = ({ form, values, name, title }: IProps) => {
       render={({ field }) => (
         <FormItem className="mb-6 flex flex-col">
           <FormLabel className="flex">
-            Type <div className="text-red-500">*</div>
+            Type {isRequired && <div className="text-red-500">*</div>}
           </FormLabel>
           <Popover open={open} onOpenChange={(open) => setOpen(open)}>
             <PopoverTrigger asChild>

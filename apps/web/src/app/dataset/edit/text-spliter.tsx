@@ -1,18 +1,28 @@
 import { RefObject } from 'react'
-import { FormProps, UseFormReturn } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 import SearchSelect from './search-select'
 
-interface IProps {
+export interface SessionProps {
   form: UseFormReturn
   ref?: RefObject<HTMLElement>
 }
 const types = [
   { label: 'Character TextSplitter', value: 'character textsplitter' },
   { label: 'Comming soon...', value: 'comming soon' },
-] as const
+]
 
-const TextSplits = ({ form, ref }: IProps) => {
+const TextSplits = ({ form, ref }: SessionProps) => {
   return (
     <section id="splitters" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">
@@ -30,8 +40,33 @@ const TextSplits = ({ form, ref }: IProps) => {
         form={form}
         name="splitType"
         values={types}
-        title="Text Splitters
-"
+        title="Text Splitters"
+      />
+      <FormField
+        control={form.control}
+        name="chunkSize"
+        render={({ field }) => (
+          <FormItem className="my-6">
+            <FormLabel className="flex">Chunk size</FormLabel>
+            <FormControl>
+              <Input placeholder="Input your chunk size" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="chunkOverlap"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex">Chunk overlap</FormLabel>
+            <FormControl>
+              <Input placeholder="Input your chunk overlap" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
     </section>
   )

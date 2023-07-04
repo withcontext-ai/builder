@@ -37,6 +37,8 @@ const FormSchema = z.object({
   loaderType: z.string().trim(),
   splitType: z.string().trim(),
   files: z.array(z.string()).optional(),
+  chunkSize: z.number(),
+  chunkOverlap: z.number(),
 })
 
 const observerOptions = {
@@ -52,6 +54,8 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     loaderType: 'pdf loader',
     splitType: 'character textsplitter',
     files: [],
+    chunkSize: 1000,
+    chunkOverlap: 1000,
   }
 
   const listener = () => {

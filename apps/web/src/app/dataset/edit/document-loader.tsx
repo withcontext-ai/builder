@@ -14,17 +14,14 @@ import { UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
 import SearchSelect from './search-select'
+import { SessionProps } from './text-spliter'
 
-interface IProps {
-  ref?: RefObject<HTMLElement>
-  form: UseFormReturn
-}
 const types = [
   { label: 'Pdf loader', value: 'pdf loader' },
   { label: 'Comming soon...', value: 'comming soon' },
 ] as const
 
-const DocumentLoader = ({ ref, form }: IProps) => {
+const DocumentLoader = ({ ref, form }: SectionProps) => {
   const [data, setData] = useState<UploadFile[]>([])
   const [files, setFiles] = useState<string[]>([])
   const handleFiles = (values: UploadFile[]) => {
@@ -60,6 +57,7 @@ const DocumentLoader = ({ ref, form }: IProps) => {
         values={types}
         name="loaderType"
         title="Document Loader"
+        isRequired={true}
       />
       <FormField
         control={form.control}
