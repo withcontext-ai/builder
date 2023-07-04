@@ -34,6 +34,7 @@ const FormSchema = z.object({
     .trim()
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
   type: z.string().trim(),
+  files: z.array(z.string()).optional(),
 })
 
 const observerOptions = {
@@ -44,6 +45,12 @@ const observerOptions = {
 
 const DatasetForm = ({ setSelected, sections }: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
+  const defaultValues = {
+    name: '',
+    type: 'pdf loader',
+    files: [],
+  }
+
   const listener = () => {
     observerRef.current = new IntersectionObserver(
       observerCallback,
@@ -74,13 +81,14 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues,
   })
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     console.log(data, '---data')
   }
   return (
-    <div className="relative h-full w-full overscroll-y-auto px-6 pt-18	">
+    <div className="relative h-full w-full overflow-auto px-6 pt-18	">
       <div className="max-w-[600px]">
         <Form {...form}>
           <form

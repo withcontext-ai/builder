@@ -418,48 +418,45 @@ const Upload = (props: UploadProps) => {
     showFileList,
   ])
   return (
-    <div className={` ${className}`}>
-      <div
-        className={cn(
-          'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
-          listType === 'image' ? 'gap-0' : 'gap-2'
-        )}
-        onClick={onFileDrop}
-      >
-        {showUploadIcon}
-        {showFileList && (
-          <div
-            className={cn(
-              'flex gap-2',
-              listType === 'images-list'
-                ? ' w-full flex-row flex-wrap'
-                : 'flex-col'
-            )}
-          >
-            {listType !== 'image' &&
-              mergedFileList?.map((file: UploadFile) => {
-                return listType === 'pdf' ? (
-                  <PDFFile
-                    {...props}
-                    file={file}
-                    onDownload={handleDownload}
-                    onRemove={handleRemove}
-                    showUploadList={showUploadList}
-                    key={file?.uid}
-                  />
-                ) : (
-                  <ImageFile
-                    {...props}
-                    file={file}
-                    onRemove={handleRemove}
-                    showUploadList={showUploadList}
-                    key={file?.uid}
-                  />
-                )
-              })}
-          </div>
-        )}
-      </div>
+    <div
+      className={cn(
+        'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
+        listType === 'image' ? 'gap-0' : 'gap-2',
+        className
+      )}
+      onClick={onFileDrop}
+    >
+      {showUploadIcon}
+      {showFileList && (
+        <div
+          className={cn(
+            'flex w-full gap-2',
+            listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
+          )}
+        >
+          {listType !== 'image' &&
+            mergedFileList?.map((file: UploadFile) => {
+              return listType === 'pdf' ? (
+                <PDFFile
+                  {...props}
+                  file={file}
+                  onDownload={handleDownload}
+                  onRemove={handleRemove}
+                  showUploadList={showUploadList}
+                  key={file?.uid}
+                />
+              ) : (
+                <ImageFile
+                  {...props}
+                  file={file}
+                  onRemove={handleRemove}
+                  showUploadList={showUploadList}
+                  key={file?.uid}
+                />
+              )
+            })}
+        </div>
+      )}
     </div>
   )
 }
