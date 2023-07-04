@@ -1,3 +1,12 @@
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+
 import SearchSelect from './search-select'
 import { SessionProps } from './text-spliter'
 
@@ -23,6 +32,63 @@ const TextEmbedding = ({ form, ref }: SessionProps) => {
         name="embeddingType"
         values={types}
         title="Text Embedding Models"
+      />
+      <FormField
+        control={form.control}
+        name="apiKey"
+        render={({ field }) => (
+          <FormItem className="my-6">
+            <FormLabel className="flex">Azure OpenAI Api Key</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="instanceName"
+        render={({ field }) => (
+          <FormItem className="my-6">
+            <FormLabel className="flex">
+              Azure OpenAI Api Instance Name
+            </FormLabel>
+            <FormControl>
+              <Input placeholder="YOUR-INSTANCE-NAME" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="developmentName"
+        render={({ field }) => (
+          <FormItem className="my-6">
+            <FormLabel className="flex">
+              Azure OpenAI Api Deployment Name
+            </FormLabel>
+            <FormControl>
+              <Input placeholder="YOUR-DEPLOYMENT-NAME" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="apiVersion"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex">Azure OpenAI Api Version</FormLabel>
+            <FormControl>
+              <Input placeholder="YOUR-API-VERSION" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
     </section>
   )

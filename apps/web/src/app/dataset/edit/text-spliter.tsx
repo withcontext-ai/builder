@@ -24,6 +24,10 @@ export interface SessionProps {
       chromaUrl?: string
       collectionName?: string
       embeddingType: string
+      apiKey?: string
+      instanceName?: string
+      developmentName?: string
+      apiVersion?: string
     },
     any,
     undefined

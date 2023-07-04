@@ -45,6 +45,10 @@ const FormSchema = z.object({
   storeType: z.string(),
   collectionName: z.string().optional(),
   chromaUrl: z.string().optional(),
+  apiKey: z.string().optional(),
+  instanceName: z.string().optional(),
+  developmentName: z.string().optional(),
+  apiVersion: z.string().optional(),
 })
 
 const observerOptions = {
@@ -66,6 +70,10 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     storeType: 'pinecone',
     collectionName: '',
     chromaUrl: '',
+    apiKey: '',
+    instanceName: '',
+    developmentName: '',
+    apiVersion: '',
   }
 
   const listener = () => {
@@ -110,7 +118,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-9"
+            className="w-full space-y-16"
           >
             <section id="dataset-name">
               <div className="mb-6 text-2xl font-semibold leading-8">
