@@ -1,7 +1,7 @@
 'use client'
 
 import { RefObject, useState } from 'react'
-import { FormProps } from 'react-hook-form'
+import { FormProps, UseFormReturn } from 'react-hook-form'
 
 import {
   FormControl,
@@ -13,12 +13,17 @@ import {
 import { UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
-import LoaderSelect from './loader-select'
+import SearchSelect from './search-select'
 
 interface IProps {
   ref?: RefObject<HTMLElement>
-  form: FormProps<any>
+  form: UseFormReturn
 }
+const types = [
+  { label: 'Pdf loader', value: 'pdf loader' },
+  { label: 'Comming soon...', value: 'comming soon' },
+] as const
+
 const DocumentLoader = ({ ref, form }: IProps) => {
   const [data, setData] = useState<UploadFile[]>([])
   const [files, setFiles] = useState<string[]>([])
@@ -50,7 +55,12 @@ const DocumentLoader = ({ ref, form }: IProps) => {
         text contents of any web page, or even for loading a transcript of a
         YouTube video.
       </div>
-      <LoaderSelect form={form} />
+      <SearchSelect
+        form={form}
+        values={types}
+        name="loaderType"
+        title="Document Loader"
+      />
       <FormField
         control={form.control}
         name="files"

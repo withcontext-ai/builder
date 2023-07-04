@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useState } from 'react'
+import { useState } from 'react'
 import { CheckIcon, ChevronsUpDown } from 'lucide-react'
 import { FormProps, UseFormReturn } from 'react-hook-form'
 
@@ -26,21 +26,23 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 
+interface OptionsProps {
+  value: string
+  label: string
+}
 interface IProps {
-  form: FormProps<any>
+  form: UseFormReturn
+  values: OptionsProps[]
+  name: string
+  title?: string
 }
 
-const types = [
-  { label: 'Pdf loader', value: 'pdf loader' },
-  { label: 'Comming soon...', value: 'comming soon' },
-] as const
-
-const LoaderSelect = ({ form }: IProps) => {
+const SearchSelect = ({ form, values, name, title }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   return (
     <FormField
       control={form.control}
-      name="type"
+      name={name}
       render={({ field }) => (
         <FormItem className="mb-6 flex flex-col">
           <FormLabel className="flex">
@@ -59,21 +61,18 @@ const LoaderSelect = ({ form }: IProps) => {
                   )}
                 >
                   {field.value
-                    ? types.find((type) => type.value === field.value)?.label
-                    : 'Select Document Loader'}
+                    ? values.find((type) => type.value === field.value)?.label
+                    : `Select ${title}`}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
               <Command>
-                <CommandInput
-                  placeholder="Search Document Loader"
-                  className="h-9"
-                />
-                <CommandEmpty>No framework found.</CommandEmpty>
+                <CommandInput placeholder={`Search ${title}`} className="h-9" />
+                <CommandEmpty>{`No ${title} found.`}</CommandEmpty>
                 <CommandGroup>
-                  {types.map((type) => (
+                  {values.map((type) => (
                     <CommandItem
                       value={type.value}
                       key={type.value}
@@ -105,4 +104,4 @@ const LoaderSelect = ({ form }: IProps) => {
     />
   )
 }
-export default LoaderSelect
+export default SearchSelect

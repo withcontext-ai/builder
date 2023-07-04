@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
 import { SectionType } from './page'
+import TextSplits from './text-spliter'
 
 interface IProps {
   selected?: string
@@ -33,7 +34,8 @@ const FormSchema = z.object({
     .string()
     .trim()
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
-  type: z.string().trim(),
+  loaderType: z.string().trim(),
+  splitType: z.string().trim(),
   files: z.array(z.string()).optional(),
 })
 
@@ -47,7 +49,8 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
   const defaultValues = {
     name: '',
-    type: 'pdf loader',
+    loaderType: 'pdf loader',
+    splitType: 'character textsplitter',
     files: [],
   }
 
@@ -116,13 +119,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
               />
             </section>
             <DocumentLoader ref={sections?.[1]?.ref} form={form} />
-            <section
-              id="splitters"
-              className="h-[400px]"
-              ref={sections?.[1]?.ref}
-            >
-              <h1>splitters</h1>
-            </section>
+            <TextSplits ref={sections?.[2]?.ref} form={form} />
             <section id="models" className="h-[400px]" ref={sections?.[2]?.ref}>
               <h1>models</h1>
             </section>
