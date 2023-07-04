@@ -10,7 +10,6 @@ import { SectionType } from './page'
 
 interface IProps {
   selected?: string
-  sections?: SectionType[]
   setSelected?: (s: string) => void
 }
 
@@ -45,7 +44,6 @@ const SlideBar = ({ selected = '#loaders', setSelected, sections }: IProps) => {
             <a
               key={item?.title}
               href={item?.name}
-              ref={item?.ref}
               onClick={() => handleClick(item?.name)}
               className={cn(
                 'p-3 hover:rounded-md hover:bg-slate-200',
