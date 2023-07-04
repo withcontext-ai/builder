@@ -37,7 +37,7 @@ const TextEmbedding = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="apiKey"
         render={({ field }) => (
-          <FormItem className="my-6">
+          <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">Azure OpenAI Api Key</FormLabel>
             <FormControl>
               <Input {...field} />
@@ -50,7 +50,7 @@ const TextEmbedding = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="instanceName"
         render={({ field }) => (
-          <FormItem className="my-6">
+          <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">
               Azure OpenAI Api Instance Name
             </FormLabel>
@@ -61,12 +61,11 @@ const TextEmbedding = ({ form, ref }: SessionProps) => {
           </FormItem>
         )}
       />
-
       <FormField
         control={form.control}
         name="developmentName"
         render={({ field }) => (
-          <FormItem className="my-6">
+          <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">
               Azure OpenAI Api Deployment Name
             </FormLabel>
@@ -81,7 +80,7 @@ const TextEmbedding = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="apiVersion"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-[332px]">
             <FormLabel className="flex">Azure OpenAI Api Version</FormLabel>
             <FormControl>
               <Input placeholder="YOUR-API-VERSION" {...field} />

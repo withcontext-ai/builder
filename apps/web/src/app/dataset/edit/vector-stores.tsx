@@ -37,7 +37,7 @@ const VectorStores = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="collectionName"
         render={({ field }) => (
-          <FormItem className="my-6">
+          <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">Collection Name</FormLabel>
             <FormControl>
               <Input {...field} />
@@ -50,7 +50,7 @@ const VectorStores = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="chromaUrl"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-[332px]">
             <FormLabel className="flex">Chroma URL</FormLabel>
             <FormControl>
               <Input {...field} />

@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
 import { SectionType } from './page'
+import Retrievers from './retrievers'
 import TextEmbedding from './text-embedding'
 import TextSplits from './text-spliter'
 import VectorStores from './vector-stores'
@@ -49,6 +50,10 @@ const FormSchema = z.object({
   instanceName: z.string().optional(),
   developmentName: z.string().optional(),
   apiVersion: z.string().optional(),
+  retrieversType: z.string(),
+  promptName: z.string().optional(),
+  promptDesc: z.string().optional(),
+  promptMsg: z.string().optional(),
 })
 
 const observerOptions = {
@@ -74,6 +79,10 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     instanceName: '',
     developmentName: '',
     apiVersion: '',
+    retrieversType: 'vectorStoreRetriever',
+    promptName: '',
+    promptDesc: '',
+    promptMsg: '',
   }
 
   const listener = () => {
@@ -113,7 +122,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     console.log(data, '---data')
   }
   return (
-    <div className="relative h-full w-full overflow-auto px-6 pt-18	">
+    <div className="relative h-full w-full overflow-auto px-6 pb-[100px]	pt-18">
       <div className="max-w-[600px]">
         <Form {...form}>
           <form
@@ -128,7 +137,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="w-[332px]">
                     <FormLabel className="flex">
                       DataSet Name <div className="text-red-500">*</div>
                     </FormLabel>
@@ -144,13 +153,7 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
             <TextSplits ref={sections?.[2]?.ref} form={form} />
             <TextEmbedding ref={sections?.[3]?.ref} form={form} />
             <VectorStores ref={sections?.[4]?.ref} form={form} />
-            <section
-              id="retrievers"
-              className="h-[400px]"
-              ref={sections?.[4]?.ref}
-            >
-              <h1>retrievers</h1>
-            </section>
+            <Retrievers ref={sections?.[5]?.ref} form={form} />
           </form>
         </Form>
       </div>

@@ -28,6 +28,10 @@ export interface SessionProps {
       instanceName?: string
       developmentName?: string
       apiVersion?: string
+      retrieversType?: string
+      promptName?: string
+      promptDesc?: string
+      promptMsg?: string
     },
     any,
     undefined
@@ -63,7 +67,7 @@ const TextSplits = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="chunkSize"
         render={({ field }) => (
-          <FormItem className="my-6">
+          <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">Chunk size</FormLabel>
             <FormControl>
               <Input placeholder="Input your chunk size" {...field} />
@@ -76,7 +80,7 @@ const TextSplits = ({ form, ref }: SessionProps) => {
         control={form.control}
         name="chunkOverlap"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="w-[332px]">
             <FormLabel className="flex">Chunk overlap</FormLabel>
             <FormControl>
               <Input placeholder="Input your chunk overlap" {...field} />

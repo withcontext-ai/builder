@@ -1,7 +1,6 @@
 'use client'
 
-import { RefObject, useState } from 'react'
-import { FormProps, UseFormReturn } from 'react-hook-form'
+import { useState } from 'react'
 
 import {
   FormControl,
@@ -64,7 +63,7 @@ const DocumentLoader = ({ ref, form }: SessionProps) => {
         name="files"
         render={(field) => {
           return (
-            <FormItem>
+            <FormItem className="w-[332px]">
               <FormLabel>Files</FormLabel>
               <FormControl>
                 <Upload
