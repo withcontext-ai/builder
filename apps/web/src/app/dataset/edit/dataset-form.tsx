@@ -1,8 +1,12 @@
-import { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { defaultAnimateLayoutChanges } from '@dnd-kit/sortable'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Y } from 'drizzle-orm/query-promise.d-2e42fbc9'
+import { difference, update } from 'lodash'
+import { useForm, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -15,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
-import { SectionType } from './page'
+import { FormSchema, SectionType } from './page'
 import Retrievers from './retrievers'
 import TextEmbedding from './text-embedding'
 import TextSplits from './text-spliter'
@@ -27,6 +31,7 @@ interface IProps {
   error: string
   setError: (s: string) => void
   setSaved: (s: boolean) => void
+  form: UseFormReturn<any>
 }
 const thresholdArray = () => {
   const threshold = []
@@ -34,66 +39,21 @@ const thresholdArray = () => {
   return threshold
 }
 
-const FormSchema = z.object({
-  name: z
-    .string()
-    .nonempty('Dataset name is required.')
-    .max(50, { message: 'Dataset name must be less than 50 characters.' }),
-  loaderType: z.string().optional(),
-  splitType: z.string().optional(),
-  embeddingTyp: z.string().optional(),
-  files: z.array(z.string()).optional(),
-  chunkSize: z.number(),
-  chunkOverlap: z.number(),
-  storeType: z.string(),
-  collectionName: z.string().optional(),
-  chromaUrl: z.string().optional(),
-  apiKey: z.string().optional(),
-  instanceName: z.string().optional(),
-  developmentName: z.string().optional(),
-  apiVersion: z.string().optional(),
-  retrieversType: z.string(),
-  promptName: z.string().optional(),
-  promptDesc: z.string().optional(),
-  promptMsg: z.string().optional(),
-})
-
 const observerOptions = {
   root: null,
   rootMargin: '0px',
   threshold: thresholdArray() || 0.7,
 }
 
-const DatasetForm = ({ setSelected, error, setError }: IProps) => {
+const DatasetForm = ({ error, setError, setSaved, form }: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
   const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
 
   const nameRef = useRef<HTMLElement>(null)
-  const defaultValues = {
-    name: '',
-    loaderType: 'pdf loader',
-    splitType: 'character textsplitter',
-    files: [],
-    chunkSize: 1000,
-    chunkOverlap: 1000,
-    embeddingType: 'openAI embedding',
-    storeType: 'pinecone',
-    collectionName: '',
-    chromaUrl: '',
-    apiKey: '',
-    instanceName: '',
-    developmentName: '',
-    apiVersion: '',
-    retrieversType: 'vectorStoreRetriever',
-    promptName: '',
-    promptDesc: '',
-    promptMsg: '',
-  }
 
   const handelCancel = () => {
     setError('')
     form.reset()
-    console.log('---cancel')
   }
 
   const listener = () => {
@@ -112,6 +72,7 @@ const DatasetForm = ({ setSelected, error, setError }: IProps) => {
       }
     })
   }
+
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       observerCallback,
@@ -123,13 +84,9 @@ const DatasetForm = ({ setSelected, error, setError }: IProps) => {
     )
   }, [sectionsRef])
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues,
-  })
-
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log(data, '---data')
+    setSaved(true)
+    setError('')
   }
   return (
     <div className="relative h-full w-full overflow-auto px-6 pb-[100px]	pt-18">
@@ -164,11 +121,24 @@ const DatasetForm = ({ setSelected, error, setError }: IProps) => {
             <TextEmbedding form={form} sectionsRef={sectionsRef.current} />
             <VectorStores form={form} sectionsRef={sectionsRef.current} />
             <Retrievers form={form} sectionsRef={sectionsRef.current} />
-            <div className="fixed bottom-6 flex w-[600px] justify-end gap-2 rounded-lg border bg-white px-4	py-2">
-              <Button type="reset" onClick={handelCancel} variant="outline">
-                Cancel
-              </Button>
-              <Button type="submit">Submit</Button>
+            <div
+              className={cn(
+                'fixed bottom-6 flex w-[600px] items-center justify-between rounded-lg border	bg-white px-4 py-2',
+                error ? 'bg-red-500 text-slate-100' : ''
+              )}
+            >
+              <div className="max-w-[500px]"> {error}</div>
+              <div className="flex justify-end gap-2 ">
+                <Button
+                  type="reset"
+                  onClick={handelCancel}
+                  variant="outline"
+                  className={cn(error ? 'border-none bg-red-500' : '')}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Submit</Button>
+              </div>
             </div>
           </form>
         </Form>
