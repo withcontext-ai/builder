@@ -61,36 +61,35 @@ const DatasetForm = ({ error, setError, setSaved, form }: IProps) => {
       observerCallback,
       observerOptions
     )
-    // @ts-ignore
-    sections?.map((item) => observer.observe(item?.ref?.current))
-  }
-
-  function observerCallback(entries: any, observer: any) {
-    entries.forEach((entry: any) => {
-      if (entry.isIntersecting && entry?.intersectionRatio) {
-        // how to chose the active
-      }
-    })
-  }
-
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      observerCallback,
-      observerOptions
-    )
-    // @ts-ignore
     sectionsRef?.current?.map(
       (item) => item?.current && observerRef.current?.observe(item?.current)
     )
+  }
+
+  function observerCallback(entries: any, observer: any) {
+    // entries.forEach((entry: any) => {
+    //   if(entries?.isIntersecting&&entries.intersectionRatio>current.intersectionRatio)
+    //   current=entries
+    //   // use the boundingClientRect.top to active , the least top is active
+    //   // top最小的就是当前的active
+    // })
+  }
+
+  useEffect(() => {
+    return () => (observerRef.current = undefined)
   }, [sectionsRef])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     setSaved(true)
     setError('')
+    console.log('data', '---data')
   }
   return (
-    <div className="relative h-full w-full overflow-auto px-6 pb-[100px]	pt-18">
-      <div className="max-w-[600px]">
+    <div
+      className="relative h-full w-full overflow-auto px-6 pb-[100px] pt-18"
+      // onScroll={listener}
+    >
+      <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

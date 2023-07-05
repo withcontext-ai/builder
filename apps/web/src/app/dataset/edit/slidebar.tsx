@@ -1,8 +1,19 @@
 'use client'
 
-import { ArrowLeftIcon } from 'lucide-react'
+import { ArrowLeftIcon, Trash2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 
 import { SectionType } from './page'
@@ -72,6 +83,32 @@ const SlideBar = ({ handleGoBack, handleSelected, selected }: IProps) => {
           ))}
         </div>
       </div>
+      <div className="m-full h-px bg-slate-100" />
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <div className="w-full px-3 py-4">
+            <Button variant="ghost">
+              <Trash2 size={18} />
+              Delete this Dataset
+            </Button>
+          </div>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Dataset?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete “Customer Service Documentation”
+              Dataset? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-red-500 text-white hover:bg-red-500">
+              Delete Dataset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
