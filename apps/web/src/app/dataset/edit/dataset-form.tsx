@@ -1,9 +1,5 @@
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
-import { defaultAnimateLayoutChanges } from '@dnd-kit/sortable'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Y } from 'drizzle-orm/query-promise.d-2e42fbc9'
-import { difference, update } from 'lodash'
-import { useForm, UseFormReturn } from 'react-hook-form'
+import { RefObject, useEffect, useRef } from 'react'
+import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
@@ -19,10 +15,10 @@ import {
 import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
-import { FormSchema, SectionType } from './page'
+import { FormSchema } from './page'
 import Retrievers from './retrievers'
+import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
-import TextSplits from './text-spliter'
 import VectorStores from './vector-stores'
 
 interface IProps {

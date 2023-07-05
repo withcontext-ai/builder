@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
 import SearchSelect from './search-select'
-import { SessionProps } from './text-spliter'
+import { SessionProps } from './splitter'
 
 const types = [
   { label: 'VectorStoreRetriever', value: 'vectorStoreRetriever' },

@@ -13,11 +13,11 @@ import { UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
 import SearchSelect from './search-select'
-import { SessionProps } from './text-spliter'
+import { SessionProps } from './splitter'
 
 const types = [
   { label: 'Pdf loader', value: 'pdf loader' },
-  { label: 'Comming soon...', value: 'comming soon' },
+  { label: 'Comming soon...', value: 'coming soon' },
 ]
 
 const DocumentLoader = ({ sectionsRef, form }: SessionProps) => {

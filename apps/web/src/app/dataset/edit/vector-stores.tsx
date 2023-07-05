@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 import SearchSelect from './search-select'
-import { SessionProps } from './text-spliter'
+import { SessionProps } from './splitter'
 
 const types = [
   { label: 'Pinecone', value: 'pinecone' },
