@@ -1,7 +1,7 @@
 'use client'
 
 import { RefObject, useRef } from 'react'
-import { UseFormReturn } from 'react-hook-form'
+import { FieldValue, FormProps, UseFormReturn } from 'react-hook-form'
 
 import {
   FormControl,
@@ -15,30 +15,7 @@ import { Input } from '@/components/ui/input'
 import SearchSelect from './search-select'
 
 export interface SessionProps {
-  form: UseFormReturn<
-    {
-      name: string
-      loaderType: string
-      splitType: string
-      embeddingType: string
-      files?: string[] | undefined
-      chunkSize: number
-      chunkOverlap: number
-      storeType?: string | undefined
-      chromaUrl?: string
-      collectionName?: string | undefined
-      apiKey?: string | undefined
-      instanceName?: string | undefined
-      developmentName?: string | undefined
-      apiVersion?: string | undefined
-      retrieversType?: string | undefined
-      promptName?: string | undefined
-      promptDesc?: string | undefined
-      promptMsg?: string | undefined
-    },
-    any,
-    undefined
-  >
+  form: UseFormReturn<any>
   ref?: RefObject<HTMLElement>
 }
 const types = [
