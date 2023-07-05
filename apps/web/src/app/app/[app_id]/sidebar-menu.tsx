@@ -7,11 +7,11 @@ import { GitCommitIcon, ShareIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const MENU_ITEMS = [
-  // {
-  //   id: 'workflow',
-  //   name: 'Workflow',
-  //   Icon: GitCommitIcon,
-  // },
+  {
+    id: 'workflow',
+    name: 'Workflow',
+    Icon: GitCommitIcon,
+  },
   {
     id: 'share',
     name: 'Share',
@@ -33,7 +33,7 @@ function MenuItem({
       <li
         className={cn(
           'flex h-11 items-center px-2 hover:bg-slate-100',
-          isSelected && 'cursor-none bg-slate-100'
+          isSelected && 'bg-slate-100'
         )}
       >
         {children}
