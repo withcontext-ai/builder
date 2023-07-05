@@ -3,7 +3,7 @@ import LinkList from './link-list'
 const DEFAULT_VALUE = [
   {
     href: '/apps',
-    title: 'Apps',
+    title: 'My Apps',
   },
   {
     href: '/datasets',

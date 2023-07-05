@@ -1,4 +1,4 @@
-import { GlobeIcon, User2Icon } from 'lucide-react'
+import { BoxIcon, GlobeIcon, User2Icon } from 'lucide-react'
 
 import AuthButton from '@/components/auth-button'
 
@@ -23,8 +23,8 @@ export default async function HomeSidebar() {
           </div>
           <div className="space-y-3">
             <h2 className="flex items-center space-x-2 px-3">
-              <User2Icon size={20} />
-              <span>Mine</span>
+              <BoxIcon size={20} />
+              <span>My Apps</span>
             </h2>
             <MineList />
           </div>
