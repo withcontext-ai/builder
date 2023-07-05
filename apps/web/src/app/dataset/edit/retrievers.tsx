@@ -20,8 +20,9 @@ const types = [
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const Retrievers = ({ form }: SessionProps) => {
+const Retrievers = ({ form, sectionsRef }: SessionProps) => {
   const ref = useRef<HTMLAnchorElement>(null)
+  sectionsRef.push(ref)
 
   return (
     <section id="retrievers" className="w-full]" ref={ref}>

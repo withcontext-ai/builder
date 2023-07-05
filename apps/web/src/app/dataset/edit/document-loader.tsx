@@ -20,11 +20,11 @@ const types = [
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const DocumentLoader = ({ ref, form }: SessionProps) => {
+const DocumentLoader = ({ sectionsRef, form }: SessionProps) => {
   const [data, setData] = useState<UploadFile[]>([])
   const [files, setFiles] = useState<string[]>([])
-  const loadersRef = useRef<HTMLElement>(null)
-
+  const ref = useRef<HTMLElement>(null)
+  sectionsRef.push(ref)
   const handleFiles = (values: UploadFile[]) => {
     setData([...values])
     const success = values
@@ -42,7 +42,7 @@ const DocumentLoader = ({ ref, form }: SessionProps) => {
     setData([...newData])
   }
   return (
-    <section id="loaders" className="w-full" ref={loadersRef}>
+    <section id="loaders" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">
         Document Loaders
       </div>

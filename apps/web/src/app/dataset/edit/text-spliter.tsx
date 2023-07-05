@@ -16,16 +16,16 @@ import SearchSelect from './search-select'
 
 export interface SessionProps {
   form: UseFormReturn<any>
-  ref?: RefObject<HTMLElement>
+  sectionsRef: RefObject<HTMLElement>[]
 }
 const types = [
   { label: 'Character TextSplitter', value: 'character textsplitter' },
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const TextSplits = ({ form }: SessionProps) => {
+const TextSplits = ({ form, sectionsRef }: SessionProps) => {
   const ref = useRef<HTMLAnchorElement>(null)
-
+  sectionsRef.push(ref)
   return (
     <section id="splitters" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">

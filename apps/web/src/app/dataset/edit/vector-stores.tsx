@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+
 import {
   FormControl,
   FormField,
@@ -15,7 +17,9 @@ const types = [
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const VectorStores = ({ form, ref }: SessionProps) => {
+const VectorStores = ({ form, sectionsRef }: SessionProps) => {
+  const ref = useRef<HTMLElement>(null)
+  sectionsRef.push(ref)
   return (
     <section id="stores" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">Vector Stores</div>

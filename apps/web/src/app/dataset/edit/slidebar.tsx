@@ -9,21 +9,38 @@ import { Button } from '@/components/ui/button'
 import { SectionType } from './page'
 
 interface IProps {
-  selected?: string
-  sections?: SectionType[]
-  setSelected?: (s: string) => void
+  handleGoBack: () => void
+  selected: string
+  handleSelected: (s: string) => void
 }
+const sections: SectionType[] = [
+  {
+    title: 'Dataset Name',
+    name: '#dataset-name',
+  },
+  {
+    title: 'Document Loaders',
+    name: '#loaders',
+  },
+  {
+    title: 'Text Splitters',
+    name: '#splitters',
+  },
+  {
+    title: 'Text Embedding Models',
+    name: '#models',
+  },
+  {
+    title: ' Vector Stores',
+    name: '#stores',
+  },
+  {
+    title: 'Retrievers',
+    name: '#retrievers',
+  },
+]
 
-const SlideBar = ({ selected = '#loaders', setSelected, sections }: IProps) => {
-  const router = useRouter()
-
-  const handleGoBack = () => {
-    router.back()
-  }
-  const handleClick = (name: string) => {
-    setSelected?.(name)
-  }
-
+const SlideBar = ({ handleGoBack, handleSelected, selected }: IProps) => {
   return (
     <div>
       <div className="flex items-center space-x-2 px-4 py-3">
@@ -45,7 +62,7 @@ const SlideBar = ({ selected = '#loaders', setSelected, sections }: IProps) => {
             <a
               key={item?.title}
               href={item?.name}
-              onClick={() => handleClick(item?.name)}
+              onClick={() => handleSelected(item?.name)}
               className={cn(
                 'p-3 hover:rounded-md hover:bg-slate-200',
                 selected === item?.name ? 'rounded-md bg-slate-200' : ''

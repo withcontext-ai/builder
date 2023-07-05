@@ -19,8 +19,9 @@ const types = [
   { label: 'Comming soon...', value: 'comming soon' },
 ]
 
-const TextEmbedding = ({ form }: SessionProps) => {
+const TextEmbedding = ({ form, sectionsRef }: SessionProps) => {
   const ref = useRef<HTMLAnchorElement>(null)
+  sectionsRef.push(ref)
   return (
     <section id="models" className="w-full" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">

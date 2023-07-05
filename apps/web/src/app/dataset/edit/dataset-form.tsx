@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -23,8 +23,10 @@ import VectorStores from './vector-stores'
 
 interface IProps {
   selected?: string
-  setSelected?: (s: string) => void
-  sections?: SectionType[]
+  setSelected: (s: string) => void
+  error: string
+  setError: (s: string) => void
+  setSaved: (s: boolean) => void
 }
 const thresholdArray = () => {
   const threshold = []
@@ -35,11 +37,11 @@ const thresholdArray = () => {
 const FormSchema = z.object({
   name: z
     .string()
-    .trim()
+    .nonempty('Dataset name is required.')
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
-  loaderType: z.string(),
-  splitType: z.string(),
-  embeddingTyp: z.string(),
+  loaderType: z.string().optional(),
+  splitType: z.string().optional(),
+  embeddingTyp: z.string().optional(),
   files: z.array(z.string()).optional(),
   chunkSize: z.number(),
   chunkOverlap: z.number(),
@@ -62,8 +64,9 @@ const observerOptions = {
   threshold: thresholdArray() || 0.7,
 }
 
-const DatasetForm = ({ setSelected, sections }: IProps) => {
+const DatasetForm = ({ setSelected, error, setError }: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
+  const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
 
   const nameRef = useRef<HTMLElement>(null)
   const defaultValues = {
@@ -87,7 +90,9 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
     promptMsg: '',
   }
 
-  const handelCancle = () => {
+  const handelCancel = () => {
+    setError('')
+    form.reset()
     console.log('---cancel')
   }
 
@@ -113,11 +118,10 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
       observerOptions
     )
     // @ts-ignore
-    sections?.map(
-      (item) =>
-        item?.ref?.current && observerRef.current?.observe(item?.ref?.current)
+    sectionsRef?.current?.map(
+      (item) => item?.current && observerRef.current?.observe(item?.current)
     )
-  }, [sections])
+  }, [sectionsRef])
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -127,7 +131,6 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     console.log(data, '---data')
   }
-  console.log(form, '----form')
   return (
     <div className="relative h-full w-full overflow-auto px-6 pb-[100px]	pt-18">
       <div className="max-w-[600px]">
@@ -156,19 +159,19 @@ const DatasetForm = ({ setSelected, sections }: IProps) => {
                 )}
               />
             </section>
-            <DocumentLoader form={form} />
-            <TextSplits form={form} />
-            <TextEmbedding form={form} />
-            <VectorStores form={form} />
-            <Retrievers form={form} />
+            <DocumentLoader form={form} sectionsRef={sectionsRef.current} />
+            <TextSplits form={form} sectionsRef={sectionsRef.current} />
+            <TextEmbedding form={form} sectionsRef={sectionsRef.current} />
+            <VectorStores form={form} sectionsRef={sectionsRef.current} />
+            <Retrievers form={form} sectionsRef={sectionsRef.current} />
+            <div className="fixed bottom-6 flex w-[600px] justify-end gap-2 rounded-lg border bg-white px-4	py-2">
+              <Button type="reset" onClick={handelCancel} variant="outline">
+                Cancel
+              </Button>
+              <Button type="submit">Submit</Button>
+            </div>
           </form>
         </Form>
-      </div>
-      <div className="fixed bottom-6 flex w-[600px] justify-end gap-2 rounded-lg border bg-white px-4	py-2">
-        <Button type="reset" onClick={handelCancle} variant="outline">
-          Cancel
-        </Button>
-        <Button type="submit">Submit</Button>
       </div>
     </div>
   )
