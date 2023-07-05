@@ -11,6 +11,7 @@ export const FormSchema = z.object({
   model_name: z.string({
     required_error: 'Please select a model.',
   }),
+  model_temperature: z.array(z.number().min(0).max(1)),
   memory_key: z.string().optional(),
 })
 
@@ -23,6 +24,7 @@ export default function FormProvider({ children }: IProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       model_name: 'openai-gpt4',
+      model_temperature: [0.9],
     },
   })
 

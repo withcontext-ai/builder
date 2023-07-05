@@ -27,6 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { Slider } from '@/components/ui/slider'
 
 import { FormSchema } from './form-provider'
 
@@ -101,6 +102,24 @@ export default function TaskDetail() {
                   {/* <FormDescription>
                   This is the language that will be used in the dashboard.
                 </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="model_temperature"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Temperature</FormLabel>
+                  <Slider
+                    name={field.name}
+                    value={field.value}
+                    max={1}
+                    step={0.1}
+                    onValueChange={field.onChange}
+                    className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
