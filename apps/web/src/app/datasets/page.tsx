@@ -1,7 +1,7 @@
+import Link from 'next/link'
 import { PlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import CreateAppDialog from '@/components/create-app-dialog'
 import DatasetCard from '@/components/dataset-card'
 import HomeSidebar from '@/components/home-sidebar'
 import SidebarLayout from '@/components/sidebar-layout'
@@ -40,14 +40,12 @@ export default async function Page() {
       <div className="flex flex-col">
         <div className="flex h-12 items-center justify-between px-6">
           <h1 className="font-medium">My Datasets</h1>
-          <CreateAppDialog
-            dialogTrigger={
-              <Button size="sm">
-                <PlusIcon className="mr-2 h-4 w-4" />
-                Add Dataset
-              </Button>
-            }
-          />
+          <Link href="/datasets">
+            <Button size="sm">
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Add Dataset
+            </Button>
+          </Link>
         </div>
         <div className="m-full h-px bg-slate-100" />
         <div className="p-6">
