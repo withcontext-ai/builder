@@ -23,8 +23,12 @@ export default function TaskList() {
     null
   )
 
-  function handleSelect(taskId: UniqueIdentifier) {
+  function selectTask(taskId: UniqueIdentifier) {
     setSelectedId(taskId)
+  }
+
+  function closeTaskDetail() {
+    setSelectedId(null)
   }
 
   return (
@@ -36,7 +40,7 @@ export default function TaskList() {
               key={id}
               id={id}
               childItems={children}
-              onSelect={handleSelect}
+              onSelect={selectTask}
               selectedId={selectedId}
             />
           ))}
@@ -44,7 +48,7 @@ export default function TaskList() {
       </div>
       {selectedId && (
         <div className="w-96 border-l border-slate-100 p-6">
-          <TaskDetail />
+          <TaskDetail onClose={closeTaskDetail} />
         </div>
       )}
     </div>
