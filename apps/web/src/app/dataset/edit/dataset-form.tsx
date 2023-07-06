@@ -25,9 +25,11 @@ interface IProps {
   selected?: string
   setSelected: (s: string) => void
   error: string
+  showMore?: boolean
   setError: (s: string) => void
   setSaved: (s: boolean) => void
   form: UseFormReturn<any>
+  setShowMore?: (s: boolean) => void
 }
 
 const observerOptions = {
@@ -42,6 +44,8 @@ const DatasetForm = ({
   setSaved,
   form,
   setSelected,
+  setShowMore,
+  showMore,
 }: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
   const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
@@ -118,12 +122,27 @@ const DatasetForm = ({
               />
             </section>
             <DocumentLoader form={form} sectionsRef={sectionsRef.current} />
-            <TextSplits form={form} sectionsRef={sectionsRef.current} />
-            <TextEmbedding form={form} sectionsRef={sectionsRef.current} />
-            <VectorStores form={form} sectionsRef={sectionsRef.current} />
+            {showMore ? (
+              <>
+                <TextSplits form={form} sectionsRef={sectionsRef.current} />
+                <TextEmbedding form={form} sectionsRef={sectionsRef.current} />
+                <VectorStores form={form} sectionsRef={sectionsRef.current} />
+              </>
+            ) : (
+              <div className="flex w-full justify-center py-6">
+                <div
+                  className="cursor-pointer rounded-md border px-4 py-1	"
+                  onClick={() => {
+                    setShowMore?.(true)
+                  }}
+                >
+                  Show more options
+                </div>
+              </div>
+            )}
             <div
               className={cn(
-                'fixed bottom-6 flex w-[600px] items-center justify-between rounded-lg border	bg-white px-4 py-2',
+                'fixed bottom-6 flex w-[600px] items-center justify-between rounded-lg border bg-white	px-4 py-2 shadow-xl',
                 error ? 'bg-red-500 text-slate-100' : ''
               )}
             >

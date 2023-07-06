@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { ArrowLeftIcon, Trash2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -21,6 +22,7 @@ import { SectionType } from './page'
 interface IProps {
   handleGoBack: () => void
   selected: string
+  showMore?: boolean
   handleSelected: (s: string) => void
 }
 const sections: SectionType[] = [
@@ -32,6 +34,8 @@ const sections: SectionType[] = [
     title: 'Document Loaders',
     name: 'loaders',
   },
+]
+const moreSessions = [
   {
     title: 'Text Splitters',
     name: 'splitters',
@@ -46,7 +50,13 @@ const sections: SectionType[] = [
   },
 ]
 
-const SlideBar = ({ handleGoBack, handleSelected, selected }: IProps) => {
+const SlideBar = ({
+  handleGoBack,
+  handleSelected,
+  selected,
+  showMore,
+}: IProps) => {
+  const data = showMore ? [...sections, ...moreSessions] : sections
   return (
     <div>
       <div className="flex items-center space-x-2 px-4 py-3">
@@ -64,7 +74,7 @@ const SlideBar = ({ handleGoBack, handleSelected, selected }: IProps) => {
           DATASETS
         </div>
         <div className="flex flex-col gap-1	text-sm	font-medium">
-          {sections?.map((item: SectionType) => (
+          {data?.map((item: SectionType) => (
             <a
               key={item?.title}
               href={`#${item?.name}`}

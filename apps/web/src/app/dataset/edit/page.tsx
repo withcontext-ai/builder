@@ -34,10 +34,6 @@ export const FormSchema = z.object({
   instanceName: z.string().optional(),
   developmentName: z.string().optional(),
   apiVersion: z.string().optional(),
-  retrieversType: z.string(),
-  promptName: z.string().optional(),
-  promptDesc: z.string().optional(),
-  promptMsg: z.string().optional(),
 })
 
 const DatasetSetting = () => {
@@ -45,7 +41,7 @@ const DatasetSetting = () => {
   const [error, setError] = useState<string>('')
   const [saved, setSaved] = useState<boolean>(false)
   const router = useRouter()
-
+  const [showMore, setShowMore] = useState<boolean>(false)
   const defaultValues = useMemo(
     () => ({
       name: '',
@@ -62,10 +58,6 @@ const DatasetSetting = () => {
       instanceName: '',
       developmentName: '',
       apiVersion: '',
-      retrieversType: 'vectorStoreRetriever',
-      promptName: '',
-      promptDesc: '',
-      promptMsg: '',
     }),
     []
   )
@@ -108,14 +100,17 @@ const DatasetSetting = () => {
           handleGoBack={handleGoBack}
           handleSelected={handleSelected}
           selected={selected}
+          showMore={showMore}
         />
       </div>
       <DatasetForm
+        showMore={showMore}
         setSelected={setSelected}
         error={error}
         setError={setError}
         setSaved={setSaved}
         form={form}
+        setShowMore={setShowMore}
       />
     </div>
   )
