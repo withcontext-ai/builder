@@ -4,41 +4,25 @@ import SidebarLayout from '@/components/sidebar-layout'
 
 const LIST = [
   {
-    id: 'CbfWtV8',
-    title: 'App 1, App 1, App 1, App 1, App 1',
+    id: 'CQolMcS',
+    title: 'Employee Handbook',
     description:
-      'App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description, App 1 Description,',
-    icon: '',
+      "This is an employee handbook AI Bot. You can consult Context on company's vacation, benefits, corporate cultures, etc.",
+    icon: 'https://storage.googleapis.com/context-builder/public-tmp/yvz6XUK.jpeg',
   },
   {
-    id: 'Utxx7ga',
-    title: 'App 2',
-    description: 'App 2 Description',
-    icon: 'https://via.placeholder.com/100',
+    id: 'wV8w8mV',
+    title: 'Onboarding',
+    description:
+      'This AI Bot can help new employees quickly understand the schedules and goals of their first day and first month.',
+    icon: 'https://storage.googleapis.com/context-builder/public-tmp/n8fgLWX.jpeg',
   },
   {
-    id: 'GI6hAFE',
-    title: 'App 3',
-    description: 'App 3 Description',
-    icon: 'https://via.placeholder.com/100',
-  },
-  {
-    id: 'WMZeCI3',
-    title: 'App 4',
-    description: 'App 4 Description',
-    icon: 'https://via.placeholder.com/100',
-  },
-  {
-    id: 'gRBqVWJ',
-    title: 'App 5',
-    description: 'App 5 Description',
-    icon: 'https://via.placeholder.com/100',
-  },
-  {
-    id: 'Zq2go3j',
-    title: 'App 6',
-    description: 'App 6 Description',
-    icon: 'https://via.placeholder.com/100',
+    id: 'VtTNc8h',
+    title: 'TikTok User Guide',
+    description:
+      'This user guide AI Bot can help you quickly learn how to use TikTok.',
+    icon: 'https://storage.googleapis.com/context-builder/public-tmp/EVoNO2l.jpeg',
   },
 ]
 
