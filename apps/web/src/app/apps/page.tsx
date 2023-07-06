@@ -1,5 +1,6 @@
 import { PlusIcon } from 'lucide-react'
 
+import { getApps } from '@/db/apps/actions'
 import { Button } from '@/components/ui/button'
 import AppCard from '@/components/app-card'
 import CreateAppDialog from '@/components/create-app-dialog'
@@ -47,6 +48,8 @@ const LIST = [
 ]
 
 export default async function Page() {
+  const appList = await getApps()
+
   return (
     <SidebarLayout sidebar={<HomeSidebar />}>
       <div className="flex flex-col">
@@ -63,12 +66,12 @@ export default async function Page() {
         </div>
         <div className="m-full h-px bg-slate-100" />
         <div className="p-6">
-          <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {LIST.map(({ id, title, description, icon }) => (
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {appList.map(({ short_id, name, description, icon }) => (
               <AppCard
-                key={id}
-                id={id}
-                title={title}
+                key={short_id}
+                id={short_id}
+                name={name}
                 description={description}
                 icon={icon}
               />

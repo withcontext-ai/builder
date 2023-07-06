@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { cn, getAvatarBgColor } from '@/lib/utils'
+import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import {
   Card,
   CardDescription,
@@ -10,12 +10,12 @@ import {
 
 interface IProps {
   id: string
-  title: string
+  name: string
   description: string
   icon: string
 }
 
-export default function AppCard({ id, title, description, icon }: IProps) {
+export default function AppCard({ id, name, description, icon }: IProps) {
   const color = getAvatarBgColor(id || '')
 
   return (
@@ -31,10 +31,15 @@ export default function AppCard({ id, title, description, icon }: IProps) {
             />
           ) : (
             <div
-              className={cn('relative h-24 w-24 rounded-lg', `bg-${color}-600`)}
-            />
+              className={cn(
+                'relative flex h-24 w-24 items-center justify-center rounded-lg text-2xl text-background',
+                `bg-${color}-600`
+              )}
+            >
+              {getFirstLetter(name)}
+            </div>
           )}
-          <CardTitle className="truncate text-xl">{title}</CardTitle>
+          <CardTitle className="truncate text-xl">{name}</CardTitle>
           <CardDescription className="line-clamp-4 text-xs">
             {description}
           </CardDescription>
