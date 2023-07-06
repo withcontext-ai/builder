@@ -1,6 +1,6 @@
-import { RefObject, useCallback, useEffect, useRef } from 'react'
-import { find, maxBy, sortBy, throttle } from 'lodash'
+import { RefObject, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
+import ScrollSpy from 'react-ui-scrollspy'
 import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
@@ -25,17 +25,13 @@ interface IProps {
   selected?: string
   setSelected: (s: string) => void
   error: string
+  navRef: RefObject<HTMLDivElement>
+  scrollRef: RefObject<HTMLDivElement>
   showMore?: boolean
   setError: (s: string) => void
   setSaved: (s: boolean) => void
   form: UseFormReturn<any>
   setShowMore?: (s: boolean) => void
-}
-
-const observerOptions = {
-  root: null,
-  rootMargin: '0px',
-  threshold: 0.1,
 }
 
 const DatasetForm = ({
@@ -45,44 +41,21 @@ const DatasetForm = ({
   form,
   setSelected,
   setShowMore,
+  navRef,
   showMore,
+  scrollRef,
 }: IProps) => {
-  const observerRef = useRef<IntersectionObserver>()
   const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
-  const scrollRef = useRef<HTMLDivElement>(null)
+  // const scrollRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLElement>(null)
 
   const handelCancel = () => {
     setError('')
     form.reset()
   }
-
-  function observerCallback(entries: [], _observer: any) {
-    const len = entries?.length - 1
-    const all = sortBy(entries, ['intersectionRatio'])
-    let current = { target: { id: '' } }
-    if (all[len - 1]?.boundingClientRect?.top <= 0) {
-      current = all[len - 1]
-    } else {
-      current = all[len]
-    }
-    const target = current?.target
-    console.log('all', all, target)
-    setSelected(target?.id)
+  const scrollMenu = (id: string) => {
+    setSelected(id)
   }
-
-  useEffect(() => {
-    scrollRef?.current?.addEventListener('scroll', function () {
-      observerRef.current = new IntersectionObserver(
-        // @ts-ignore
-        observerCallback,
-        observerOptions
-      )
-      sectionsRef?.current?.map(
-        (item) => item?.current && observerRef.current?.observe(item?.current)
-      )
-    })
-  }, [sectionsRef, scrollRef, observerCallback])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     setSaved(true)
@@ -91,74 +64,88 @@ const DatasetForm = ({
   }
   return (
     <div
-      className="relative h-full w-full overflow-auto px-6 pb-[100px] pt-12"
+      className="h-full w-full overflow-auto px-6 pb-[100px] pt-12"
       ref={scrollRef}
     >
       <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
-            <section
-              id="dataset-name"
-              ref={nameRef}
-              className="border-b-[1px] py-6"
+            <ScrollSpy
+              activeClass="active"
+              onUpdateCallback={scrollMenu}
+              navContainerRef={navRef}
+              scrollThrottle={100}
+              parentScrollContainerRef={scrollRef}
             >
-              <div className="mb-6 text-2xl font-semibold leading-8">
-                DataSet Name
-              </div>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="w-[332px]">
-                    <FormLabel className="flex">
-                      DataSet Name <div className="text-red-500">*</div>
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Input your dataset name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <section
+                id="dataset-name"
+                ref={nameRef}
+                className="border-b-[1px] py-6"
+              >
+                <div className="mb-6 text-2xl font-semibold leading-8">
+                  DataSet Name
+                </div>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="w-[332px]">
+                      <FormLabel className="flex">
+                        DataSet Name <div className="text-red-500">*</div>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Input your dataset name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </section>
+              <DocumentLoader form={form} sectionsRef={sectionsRef.current} />
+              {showMore ? (
+                <>
+                  <TextSplits form={form} sectionsRef={sectionsRef.current} />
+                  <TextEmbedding
+                    form={form}
+                    sectionsRef={sectionsRef.current}
+                  />
+                  <VectorStores form={form} sectionsRef={sectionsRef.current} />
+                </>
+              ) : (
+                <div className="flex w-full justify-center py-6">
+                  <div
+                    className="cursor-pointer rounded-md border px-4 py-1	"
+                    onClick={() => {
+                      setShowMore?.(true)
+                    }}
+                  >
+                    Show more options
+                  </div>
+                </div>
+              )}
+              <div
+                className={cn(
+                  'fixed bottom-6 mt-2 flex w-[600px] items-center justify-between rounded-lg border bg-white	px-4 py-2 shadow-xl',
+                  error ? 'bg-red-500 text-slate-100' : ''
                 )}
-              />
-            </section>
-            <DocumentLoader form={form} sectionsRef={sectionsRef.current} />
-            {showMore ? (
-              <>
-                <TextSplits form={form} sectionsRef={sectionsRef.current} />
-                <TextEmbedding form={form} sectionsRef={sectionsRef.current} />
-                <VectorStores form={form} sectionsRef={sectionsRef.current} />
-              </>
-            ) : (
-              <div className="flex w-full justify-center py-6">
-                <div
-                  className="cursor-pointer rounded-md border px-4 py-1	"
-                  onClick={() => {
-                    setShowMore?.(true)
-                  }}
-                >
-                  Show more options
+              >
+                <div className="max-w-[500px]"> {error}</div>
+                <div className="flex justify-end gap-2 ">
+                  <Button
+                    type="reset"
+                    onClick={handelCancel}
+                    variant="outline"
+                    className={cn(error ? 'border-none bg-red-500' : '')}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">Submit</Button>
                 </div>
               </div>
-            )}
-            <div
-              className={cn(
-                'fixed bottom-6 flex w-[600px] items-center justify-between rounded-lg border bg-white	px-4 py-2 shadow-xl',
-                error ? 'bg-red-500 text-slate-100' : ''
-              )}
-            >
-              <div className="max-w-[500px]"> {error}</div>
-              <div className="flex justify-end gap-2 ">
-                <Button
-                  type="reset"
-                  onClick={handelCancel}
-                  variant="outline"
-                  className={cn(error ? 'border-none bg-red-500' : '')}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">Submit</Button>
-              </div>
-            </div>
+            </ScrollSpy>
           </form>
         </Form>
       </div>

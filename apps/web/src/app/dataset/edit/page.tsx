@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useMemo, useState } from 'react'
+import { RefObject, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { difference } from 'lodash'
@@ -38,6 +38,9 @@ export const FormSchema = z.object({
 
 const DatasetSetting = () => {
   const [selected, setSelected] = useState<string>('dataset-name')
+  const navRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
   const [error, setError] = useState<string>('')
   const [saved, setSaved] = useState<boolean>(false)
   const router = useRouter()
@@ -94,13 +97,15 @@ const DatasetSetting = () => {
     setSelected(cur)
   }
   return (
-    <div className="fixed inset-0 flex h-full w-full bg-white">
+    <div className="absolute inset-0 flex h-full w-full bg-white">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
         <SlideBar
           handleGoBack={handleGoBack}
-          handleSelected={handleSelected}
+          setSelect={setSelected}
           selected={selected}
           showMore={showMore}
+          navRef={navRef}
+          scrollRef={scrollRef}
         />
       </div>
       <DatasetForm
@@ -110,6 +115,8 @@ const DatasetSetting = () => {
         setError={setError}
         setSaved={setSaved}
         form={form}
+        navRef={navRef}
+        scrollRef={scrollRef}
         setShowMore={setShowMore}
       />
     </div>

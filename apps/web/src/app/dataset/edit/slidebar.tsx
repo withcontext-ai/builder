@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { RefObject } from 'react'
 import { ArrowLeftIcon, Trash2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -23,7 +23,9 @@ interface IProps {
   handleGoBack: () => void
   selected: string
   showMore?: boolean
-  handleSelected: (s: string) => void
+  scrollRef: RefObject<HTMLDivElement>
+  navRef?: RefObject<HTMLDivElement>
+  setSelect: (s: string) => void
 }
 const sections: SectionType[] = [
   {
@@ -52,11 +54,25 @@ const moreSessions = [
 
 const SlideBar = ({
   handleGoBack,
-  handleSelected,
+  setSelect,
   selected,
   showMore,
+  scrollRef,
+  navRef,
 }: IProps) => {
   const data = showMore ? [...sections, ...moreSessions] : sections
+  const handleClick = (name: string) => {
+    setSelect(name)
+
+    const element = document.getElementById(`${name}`)
+    if (element) {
+      scrollRef?.current?.scrollTo({
+        top: element.offsetTop,
+        left: 0,
+        behavior: 'smooth',
+      })
+    }
+  }
   return (
     <div>
       <div className="flex items-center space-x-2 px-4 py-3">
@@ -73,19 +89,23 @@ const SlideBar = ({
         <div className="text-sm font-medium uppercase text-slate-500">
           DATASETS
         </div>
-        <div className="flex flex-col gap-1	text-sm	font-medium">
-          {data?.map((item: SectionType) => (
-            <a
+        <div
+          className="flex flex-col gap-1	text-sm	font-medium"
+          id="horiz-menu"
+          ref={navRef}
+        >
+          {data?.map((item: SectionType, index: number) => (
+            <div
               key={item?.title}
-              href={`#${item?.name}`}
-              onClick={() => handleSelected(item?.name)}
+              data-to-scrollspy-id={item.name}
+              onClick={() => handleClick(item?.name)}
               className={cn(
                 'p-3 hover:rounded-md hover:bg-slate-200',
                 selected === item?.name ? 'rounded-md bg-slate-200' : ''
               )}
             >
               {item?.title}
-            </a>
+            </div>
           ))}
         </div>
       </div>
