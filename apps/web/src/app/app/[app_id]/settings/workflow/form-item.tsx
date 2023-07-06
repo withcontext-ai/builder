@@ -1,5 +1,5 @@
 import { Check, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react'
-import * as z from 'zod'
+import { ConditionalKeys } from 'type-fest'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/command'
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,7 +27,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
-import { FormSchema, useFormContext } from './form-provider'
+import { IFormSchema, useFormContext } from './form-provider'
 
 const labelFilterBuilder =
   (options: { label: string; value: string }[]) =>
@@ -38,35 +37,8 @@ const labelFilterBuilder =
     return 0
   }
 
-interface ITextareaItem {
-  name: keyof z.infer<typeof FormSchema>
-  label?: string
-  placeholder?: string
-}
-
-export function TextareaItem({ name, label, placeholder }: ITextareaItem) {
-  const form = useFormContext()
-
-  return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            {/* @ts-ignore */}
-            <Textarea placeholder={placeholder} minRows={3} {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  )
-}
-
 interface IInputItem {
-  name: keyof z.infer<typeof FormSchema>
+  name: ConditionalKeys<IFormSchema, string | undefined>
   label?: string
   placeholder?: string
 }
@@ -82,7 +54,6 @@ export function InputItem({ name, label, placeholder }: IInputItem) {
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            {/* @ts-ignore */}
             <Input placeholder={placeholder} {...field} />
           </FormControl>
           <FormMessage />
@@ -92,8 +63,34 @@ export function InputItem({ name, label, placeholder }: IInputItem) {
   )
 }
 
+interface ITextareaItem {
+  name: ConditionalKeys<IFormSchema, string | undefined>
+  label?: string
+  placeholder?: string
+}
+
+export function TextareaItem({ name, label, placeholder }: ITextareaItem) {
+  const form = useFormContext()
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <Textarea placeholder={placeholder} minRows={3} {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
+
 interface ISelectItem {
-  name: keyof z.infer<typeof FormSchema>
+  name: ConditionalKeys<IFormSchema, string | undefined>
   label?: string
   options: { label: string; value: string }[]
 }
@@ -164,7 +161,7 @@ export function SelectItem({ name, label, options }: ISelectItem) {
 }
 
 interface ISlideItem {
-  name: keyof z.infer<typeof FormSchema>
+  name: ConditionalKeys<IFormSchema, number[] | undefined>
   label?: string
   min?: number
   max?: number
@@ -224,7 +221,7 @@ export function SlideItem({ name, label, min, max, step }: ISlideItem) {
 }
 
 interface IListSelectItem {
-  name: keyof z.infer<typeof FormSchema>
+  name: ConditionalKeys<IFormSchema, string[] | undefined>
   label: string
   options: { label: string; value: string }[]
 }
@@ -259,12 +256,10 @@ export function ListSelectItem({ name, label, options }: IListSelectItem) {
                         key={item.value}
                         value={item.value}
                         onSelect={(value) => {
-                          // @ts-ignore
                           const newValue = [...(field.value || []), value]
                           form.setValue(name, newValue)
                         }}
                         data-disabled={
-                          // @ts-ignore
                           field.value?.includes(item.value) || undefined
                         }
                       >
@@ -279,7 +274,6 @@ export function ListSelectItem({ name, label, options }: IListSelectItem) {
           <FormMessage />
           {field.value &&
             field.value.length > 0 &&
-            // @ts-ignore
             field.value.map((value) => {
               const label = options.find((d) => d.value === value)?.label
               return (
@@ -293,7 +287,6 @@ export function ListSelectItem({ name, label, options }: IListSelectItem) {
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => {
-                      // @ts-ignore
                       const newValue = field.value?.filter((v) => v !== value)
                       form.setValue(name, newValue)
                     }}

@@ -17,8 +17,10 @@ export const FormSchema = z.object({
   data_datasets: z.array(z.string()).optional(),
 })
 
+export type IFormSchema = z.infer<typeof FormSchema>
+
 export function useFormContext() {
-  return useFormContextHook<z.infer<typeof FormSchema>>()
+  return useFormContextHook<IFormSchema>()
 }
 
 interface IProps {
@@ -26,7 +28,7 @@ interface IProps {
 }
 
 export default function FormProvider({ children }: IProps) {
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<IFormSchema>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       model_name: 'openai-gpt4',
@@ -35,7 +37,7 @@ export default function FormProvider({ children }: IProps) {
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  function onSubmit(data: IFormSchema) {
     toast({
       title: 'You submitted the following values:',
       description: (
