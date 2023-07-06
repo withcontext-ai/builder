@@ -16,7 +16,7 @@ export interface SectionType {
   name: string
 }
 
-export const FormSchema = z.object({
+const FormSchema = z.object({
   name: z
     .string()
     .nonempty('Dataset name is required.')

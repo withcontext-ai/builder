@@ -16,7 +16,6 @@ import {
 import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
-import { FormSchema } from './page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
@@ -57,10 +56,10 @@ const DatasetForm = ({
     setSelected(id)
   }
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+  const onSubmit = (data: any) => {
     setSaved(true)
     setError('')
-    console.log('data', '---data')
+    console.log(data, '---data')
   }
   return (
     <div
