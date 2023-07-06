@@ -29,7 +29,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
-import { SelectItem, SlideItem } from './form-item'
+import { InputItem, SelectItem, SlideItem } from './form-item'
 import { useFormContext } from './form-provider'
 
 const MODELS_OPTIONS = [
@@ -78,27 +78,15 @@ export default function TaskDetail() {
         <div className="space-y-4">
           <div className="text-sm font-medium text-slate-500">memory</div>
           <div className="space-y-8">
-            <FormField
-              control={form.control}
-              name="memory_key"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Memory Key</FormLabel>
-                  <FormControl>
-                    <Input placeholder="placeholder" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <InputItem name="memory_key" label="Memory Key" />
           </div>
         </div>
 
         <div className="-mx-6 h-px shrink-0 bg-slate-100" />
 
-        <div>
+        <div className="space-y-4">
           <div className="text-sm font-medium text-slate-500">prompt</div>
-          <div className="mt-4 space-y-8">
+          <div className="space-y-8">
             <FormField
               control={form.control}
               name="prompt_template"

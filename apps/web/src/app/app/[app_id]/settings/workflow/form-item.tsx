@@ -30,6 +30,32 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { FormSchema, useFormContext } from './form-provider'
 
+interface IInputItem {
+  name: keyof z.infer<typeof FormSchema>
+  label?: string
+}
+
+export function InputItem({ name, label }: IInputItem) {
+  const form = useFormContext()
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            {/* @ts-ignore */}
+            <Input placeholder="placeholder" {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
+
 interface ISelectItem {
   name: keyof z.infer<typeof FormSchema>
   label?: string
@@ -59,7 +85,7 @@ export function SelectItem({ name, label, options }: ISelectItem) {
                 >
                   {field.value
                     ? options.find((item) => item.value === field.value)?.label
-                    : 'Select Model'}
+                    : `Select ${label}`}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>
