@@ -42,7 +42,6 @@ const DatasetSetting = () => {
   const [selected, setSelected] = useState<string>('dataset-name')
   const navRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
 
   const [error, setError] = useState<string>('')
   const [saved, setSaved] = useState<boolean>(false)

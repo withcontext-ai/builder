@@ -28,9 +28,8 @@ const DocumentLoader = ({ form }: SessionProps) => {
     setData([...values])
     const success = values
       ?.filter((item) => item?.url && item?.status === 'success')
-      ?.reduce((m, file) => {
-        // @ts-ignore
-        m.push(file?.url || '')
+      ?.reduce((m: string[], file: UploadFile) => {
+        m?.push(file?.url || '')
         return m
       }, [])
     setFiles([...files, ...success])
