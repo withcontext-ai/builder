@@ -30,12 +30,21 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { FormSchema, useFormContext } from './form-provider'
 
-interface IInputItem {
+const labelFilterBuilder =
+  (options: { label: string; value: string }[]) =>
+  (value: string, search: string): number => {
+    const label = options.find((d) => d.value === value)?.label
+    if (label?.toLowerCase().includes(search.toLowerCase())) return 1
+    return 0
+  }
+
+interface ITextareaItem {
   name: keyof z.infer<typeof FormSchema>
   label?: string
+  placeholder?: string
 }
 
-export function InputItem({ name, label }: IInputItem) {
+export function TextareaItem({ name, label, placeholder }: ITextareaItem) {
   const form = useFormContext()
 
   return (
@@ -47,7 +56,34 @@ export function InputItem({ name, label }: IInputItem) {
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
             {/* @ts-ignore */}
-            <Input placeholder="placeholder" {...field} />
+            <Textarea placeholder={placeholder} minRows={3} {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  )
+}
+
+interface IInputItem {
+  name: keyof z.infer<typeof FormSchema>
+  label?: string
+  placeholder?: string
+}
+
+export function InputItem({ name, label, placeholder }: IInputItem) {
+  const form = useFormContext()
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            {/* @ts-ignore */}
+            <Input placeholder={placeholder} {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -184,5 +220,91 @@ export function SlideItem({ name, label, min, max, step }: ISlideItem) {
         )}
       />
     </div>
+  )
+}
+
+interface IListSelectItem {
+  name: keyof z.infer<typeof FormSchema>
+  label: string
+  options: { label: string; value: string }[]
+}
+
+export function ListSelectItem({ name, label, options }: IListSelectItem) {
+  const form = useFormContext()
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button>
+                  <PlusIcon className="mr-2 h-4 w-4" /> Add {label}
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" align="end">
+              <Command filter={labelFilterBuilder(options)}>
+                <CommandInput
+                  placeholder={`Search ${label.toLowerCase()}...`}
+                />
+                <CommandList>
+                  <CommandEmpty>No {label.toLowerCase()} found.</CommandEmpty>
+                  <CommandGroup>
+                    {options.map((item) => (
+                      <CommandItem
+                        key={item.value}
+                        value={item.value}
+                        onSelect={(value) => {
+                          // @ts-ignore
+                          const newValue = [...(field.value || []), value]
+                          form.setValue(name, newValue)
+                        }}
+                        data-disabled={
+                          // @ts-ignore
+                          field.value?.includes(item.value) || undefined
+                        }
+                      >
+                        {item.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <FormMessage />
+          {field.value &&
+            field.value.length > 0 &&
+            // @ts-ignore
+            field.value.map((value) => {
+              const label = options.find((d) => d.value === value)?.label
+              return (
+                <div
+                  key={value}
+                  className="flex h-12 items-center justify-between space-x-2 rounded-lg border border-slate-200 pl-3 pr-1"
+                >
+                  <div className="truncate text-sm font-normal">{label}</div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => {
+                      // @ts-ignore
+                      const newValue = field.value?.filter((v) => v !== value)
+                      form.setValue(name, newValue)
+                    }}
+                  >
+                    <TrashIcon size={16} />
+                  </Button>
+                </div>
+              )
+            })}
+        </FormItem>
+      )}
+    />
   )
 }

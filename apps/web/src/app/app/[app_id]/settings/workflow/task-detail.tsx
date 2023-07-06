@@ -29,7 +29,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
-import { InputItem, SelectItem, SlideItem } from './form-item'
+import { InputItem, SelectItem, SlideItem, TextareaItem } from './form-item'
 import { useFormContext } from './form-provider'
 
 const MODELS_OPTIONS = [
@@ -87,23 +87,7 @@ export default function TaskDetail() {
         <div className="space-y-4">
           <div className="text-sm font-medium text-slate-500">prompt</div>
           <div className="space-y-8">
-            <FormField
-              control={form.control}
-              name="prompt_template"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Template</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="placeholder"
-                      minRows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <TextareaItem name="prompt_template" label="Template" />
           </div>
         </div>
 
