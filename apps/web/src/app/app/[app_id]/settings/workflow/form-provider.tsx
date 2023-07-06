@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext as useFormContextHook } from 'react-hook-form'
 import * as z from 'zod'
 
 import { Form } from '@/components/ui/form'
@@ -17,6 +17,10 @@ export const FormSchema = z.object({
   data_datasets: z.array(z.string()).optional(),
 })
 
+export function useFormContext() {
+  return useFormContextHook<z.infer<typeof FormSchema>>()
+}
+
 interface IProps {
   children: React.ReactNode
 }
@@ -27,6 +31,7 @@ export default function FormProvider({ children }: IProps) {
     defaultValues: {
       model_name: 'openai-gpt4',
       model_temperature: [0.9],
+      prompt_template: '',
     },
   })
 
