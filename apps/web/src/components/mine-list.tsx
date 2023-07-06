@@ -3,12 +3,12 @@ import LinkList from './link-list'
 const DEFAULT_VALUE = [
   {
     href: '/apps',
-    title: 'My Apps',
+    title: 'Apps',
   },
-  {
-    href: '/datasets',
-    title: 'Datasets',
-  },
+  // {
+  //   href: '/datasets',
+  //   title: 'Datasets',
+  // },
 ]
 
 export default function MineList() {
