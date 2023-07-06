@@ -28,6 +28,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
+import { Textarea } from '@/components/ui/textarea'
 
 import { FormSchema } from './form-provider'
 
@@ -171,6 +172,31 @@ export default function TaskDetail() {
                   {/* <FormDescription>
                     This is your public display name.
                   </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+
+        <div>
+          <div className="text-sm font-medium text-slate-500">prompt</div>
+          <div className="mt-4 space-y-8">
+            <FormField
+              control={form.control}
+              name="prompt_template"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Template</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="placeholder"
+                      minRows={3}
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

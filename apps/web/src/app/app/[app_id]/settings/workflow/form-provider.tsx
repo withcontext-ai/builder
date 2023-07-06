@@ -13,6 +13,7 @@ export const FormSchema = z.object({
   }),
   model_temperature: z.array(z.number().min(0).max(1)),
   memory_key: z.string().optional(),
+  prompt_template: z.string().optional(),
 })
 
 interface IProps {
