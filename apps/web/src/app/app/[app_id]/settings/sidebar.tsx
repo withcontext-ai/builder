@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import DeleteAppButton from './delete-app-button'
 
 const commonStyle =
-  'flex cursor-pointer flex-col rounded-md p-3 hover:bg-slate-100'
+  'flex cursor-pointer flex-col rounded-md p-3 hover:bg-slate-200'
 
 export default function Sidebar() {
   const router = useRouter()
@@ -41,7 +41,7 @@ export default function Sidebar() {
         <Link
           className={cn(
             commonStyle,
-            url?.includes('basics') ? 'bg-slate-100' : ''
+            url?.includes('basics') ? 'bg-slate-200' : ''
           )}
           href={`/app/${appId}/settings/basics`}
         >
@@ -53,7 +53,7 @@ export default function Sidebar() {
         <Link
           className={cn(
             commonStyle,
-            url?.includes('workflow') ? 'bg-slate-100' : ''
+            url?.includes('workflow') ? 'bg-slate-200' : ''
           )}
           replace
           href={`/app/${appId}/settings/workflow`}
