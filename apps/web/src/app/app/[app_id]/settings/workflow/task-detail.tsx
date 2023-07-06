@@ -106,24 +106,51 @@ export default function TaskDetail() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="model_temperature"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Temperature</FormLabel>
-                  <Slider
-                    name={field.name}
-                    value={field.value}
-                    max={1}
-                    step={0.1}
-                    onValueChange={field.onChange}
-                    className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex space-x-5">
+              <FormField
+                control={form.control}
+                name="model_temperature"
+                render={({ field }) => (
+                  <FormItem className="flex flex-1 flex-col space-y-6">
+                    <FormLabel>Temperature</FormLabel>
+                    <Slider
+                      name={field.name}
+                      value={field.value}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={field.onChange}
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="model_temperature"
+                render={({ field }) => (
+                  <FormItem className="shrink-0 self-end">
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="placeholder"
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        {...field}
+                        value={field.value[0]}
+                        onChange={(e) => {
+                          const value = +e.target.value
+                          field.onChange([value])
+                        }}
+                        className="h-10 w-18"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
 
