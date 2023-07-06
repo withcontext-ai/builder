@@ -16,23 +16,14 @@ import SearchSelect from './search-select'
 
 export interface SessionProps {
   form: UseFormReturn<any>
-  sectionsRef: RefObject<HTMLElement>[]
 }
 const types = [
   { label: 'Character TextSplitter', value: 'character textsplitter' },
-  { label: 'Comming soon...', value: 'comming soon' },
+  { label: 'Coming soon...', value: 'coming soon' },
 ]
 
-const TextSplits = ({ form, sectionsRef }: SessionProps) => {
+const TextSplits = ({ form }: SessionProps) => {
   const ref = useRef<HTMLAnchorElement>(null)
-  useEffect(() => {
-    const data = sectionsRef?.find(
-      (item) => ref?.current?.id === item?.current?.id
-    )
-    if (!data) {
-      sectionsRef.push(ref)
-    }
-  }, [sectionsRef])
   return (
     <section id="splitters" className="w-full border-b-[1px] py-6" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">

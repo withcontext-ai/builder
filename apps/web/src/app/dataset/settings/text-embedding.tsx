@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 import {
   FormControl,
@@ -16,19 +16,11 @@ import { SessionProps } from './splitter'
 
 const types = [
   { label: 'OpenAI Embedding', value: 'openAI embedding' },
-  { label: 'Comming soon...', value: 'comming soon' },
+  { label: 'Coming soon...', value: 'coming soon' },
 ]
 
-const TextEmbedding = ({ form, sectionsRef }: SessionProps) => {
+const TextEmbedding = ({ form }: SessionProps) => {
   const ref = useRef<HTMLAnchorElement>(null)
-  useEffect(() => {
-    const data = sectionsRef?.find(
-      (item) => ref?.current?.id === item?.current?.id
-    )
-    if (!data) {
-      sectionsRef.push(ref)
-    }
-  }, [sectionsRef])
   return (
     <section id="models" className="w-full border-b-[1px] py-6" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">

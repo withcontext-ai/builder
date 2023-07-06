@@ -17,21 +17,13 @@ import { SessionProps } from './splitter'
 
 const types = [
   { label: 'Pdf loader', value: 'pdf loader' },
-  { label: 'Comming soon...', value: 'coming soon' },
+  { label: 'Coming soon...', value: 'coming soon' },
 ]
 
-const DocumentLoader = ({ sectionsRef, form }: SessionProps) => {
+const DocumentLoader = ({ form }: SessionProps) => {
   const [data, setData] = useState<UploadFile[]>([])
   const [files, setFiles] = useState<string[]>([])
   const ref = useRef<HTMLElement>(null)
-  useEffect(() => {
-    const data = sectionsRef?.find(
-      (item) => ref?.current?.id === item?.current?.id
-    )
-    if (!data) {
-      sectionsRef.push(ref)
-    }
-  }, [sectionsRef])
   const handleFiles = (values: UploadFile[]) => {
     setData([...values])
     const success = values

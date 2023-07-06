@@ -1,7 +1,6 @@
 import { RefObject, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import ScrollSpy from 'react-ui-scrollspy'
-import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -16,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
+import { SchameProps } from './page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
@@ -26,6 +26,7 @@ interface IProps {
   error: string
   navRef: RefObject<HTMLDivElement>
   scrollRef: RefObject<HTMLDivElement>
+  // sectionsRef: RefObject<HTMLDivElement>[]
   showMore?: boolean
   setError: (s: string) => void
   setSaved: (s: boolean) => void
@@ -44,8 +45,6 @@ const DatasetForm = ({
   showMore,
   scrollRef,
 }: IProps) => {
-  const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
-  // const scrollRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLElement>(null)
 
   const handelCancel = () => {
@@ -56,7 +55,7 @@ const DatasetForm = ({
     setSelected(id)
   }
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: SchameProps) => {
     setSaved(true)
     setError('')
     console.log(data, '---data')
@@ -103,15 +102,12 @@ const DatasetForm = ({
                   )}
                 />
               </section>
-              <DocumentLoader form={form} sectionsRef={sectionsRef.current} />
+              <DocumentLoader form={form} />
               {showMore ? (
                 <>
-                  <TextSplits form={form} sectionsRef={sectionsRef.current} />
-                  <TextEmbedding
-                    form={form}
-                    sectionsRef={sectionsRef.current}
-                  />
-                  <VectorStores form={form} sectionsRef={sectionsRef.current} />
+                  <TextSplits form={form} />
+                  <TextEmbedding form={form} />
+                  <VectorStores form={form} />
                 </>
               ) : (
                 <div className="flex w-full justify-center py-6">

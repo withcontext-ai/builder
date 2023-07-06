@@ -36,10 +36,13 @@ const FormSchema = z.object({
   apiVersion: z.string().optional(),
 })
 
+export type SchameProps = z.infer<typeof FormSchema>
+
 const DatasetSetting = () => {
   const [selected, setSelected] = useState<string>('dataset-name')
   const navRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
 
   const [error, setError] = useState<string>('')
   const [saved, setSaved] = useState<boolean>(false)
@@ -93,9 +96,6 @@ const DatasetSetting = () => {
     }
   }
 
-  const handleSelected = (cur: string) => {
-    setSelected(cur)
-  }
   return (
     <div className="absolute inset-0 flex h-full w-full bg-white">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
