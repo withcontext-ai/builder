@@ -26,27 +26,23 @@ interface IProps {
 const sections: SectionType[] = [
   {
     title: 'Dataset Name',
-    name: '#dataset-name',
+    name: 'dataset-name',
   },
   {
     title: 'Document Loaders',
-    name: '#loaders',
+    name: 'loaders',
   },
   {
     title: 'Text Splitters',
-    name: '#splitters',
+    name: 'splitters',
   },
   {
     title: 'Text Embedding Models',
-    name: '#models',
+    name: 'models',
   },
   {
     title: ' Vector Stores',
-    name: '#stores',
-  },
-  {
-    title: 'Retrievers',
-    name: '#retrievers',
+    name: 'stores',
   },
 ]
 
@@ -71,7 +67,7 @@ const SlideBar = ({ handleGoBack, handleSelected, selected }: IProps) => {
           {sections?.map((item: SectionType) => (
             <a
               key={item?.title}
-              href={item?.name}
+              href={`#${item?.name}`}
               onClick={() => handleSelected(item?.name)}
               className={cn(
                 'p-3 hover:rounded-md hover:bg-slate-200',

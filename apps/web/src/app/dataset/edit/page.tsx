@@ -41,7 +41,7 @@ export const FormSchema = z.object({
 })
 
 const DatasetSetting = () => {
-  const [selected, setSelected] = useState<string>('#dataset-name')
+  const [selected, setSelected] = useState<string>('dataset-name')
   const [error, setError] = useState<string>('')
   const [saved, setSaved] = useState<boolean>(false)
   const router = useRouter()
@@ -91,7 +91,6 @@ const DatasetSetting = () => {
 
   const handleGoBack = () => {
     const update = checkIsUpdate()
-    console.log(update, '---update')
     if (!saved && update) {
       setError('Your changes have not been published yet!')
     } else {

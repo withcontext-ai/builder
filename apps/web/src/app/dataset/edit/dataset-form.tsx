@@ -1,4 +1,5 @@
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject, useCallback, useEffect, useRef } from 'react'
+import { find, maxBy, sortBy, throttle } from 'lodash'
 import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -16,7 +17,6 @@ import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
 import { FormSchema } from './page'
-import Retrievers from './retrievers'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
@@ -29,22 +29,23 @@ interface IProps {
   setSaved: (s: boolean) => void
   form: UseFormReturn<any>
 }
-const thresholdArray = () => {
-  const threshold = []
-  for (let i = 0; i <= 1; i += 0.01) threshold.push(i)
-  return threshold
-}
 
 const observerOptions = {
   root: null,
   rootMargin: '0px',
-  threshold: thresholdArray() || 0.7,
+  threshold: 0.1,
 }
 
-const DatasetForm = ({ error, setError, setSaved, form }: IProps) => {
+const DatasetForm = ({
+  error,
+  setError,
+  setSaved,
+  form,
+  setSelected,
+}: IProps) => {
   const observerRef = useRef<IntersectionObserver>()
   const sectionsRef = useRef<RefObject<HTMLElement>[]>([])
-
+  const scrollRef = useRef<HTMLDivElement>(null)
   const nameRef = useRef<HTMLElement>(null)
 
   const handelCancel = () => {
@@ -52,28 +53,32 @@ const DatasetForm = ({ error, setError, setSaved, form }: IProps) => {
     form.reset()
   }
 
-  const listener = () => {
-    observerRef.current = new IntersectionObserver(
-      observerCallback,
-      observerOptions
-    )
-    sectionsRef?.current?.map(
-      (item) => item?.current && observerRef.current?.observe(item?.current)
-    )
-  }
-
-  function observerCallback(entries: any, observer: any) {
-    // entries.forEach((entry: any) => {
-    //   if(entries?.isIntersecting&&entries.intersectionRatio>current.intersectionRatio)
-    //   current=entries
-    //   // use the boundingClientRect.top to active , the least top is active
-    //   // top最小的就是当前的active
-    // })
+  function observerCallback(entries: [], _observer: any) {
+    const len = entries?.length - 1
+    const all = sortBy(entries, ['intersectionRatio'])
+    let current = { target: { id: '' } }
+    if (all[len - 1]?.boundingClientRect?.top <= 0) {
+      current = all[len - 1]
+    } else {
+      current = all[len]
+    }
+    const target = current?.target
+    console.log('all', all, target)
+    setSelected(target?.id)
   }
 
   useEffect(() => {
-    return () => (observerRef.current = undefined)
-  }, [sectionsRef])
+    scrollRef?.current?.addEventListener('scroll', function () {
+      observerRef.current = new IntersectionObserver(
+        // @ts-ignore
+        observerCallback,
+        observerOptions
+      )
+      sectionsRef?.current?.map(
+        (item) => item?.current && observerRef.current?.observe(item?.current)
+      )
+    })
+  }, [sectionsRef, scrollRef, observerCallback])
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     setSaved(true)
@@ -82,16 +87,17 @@ const DatasetForm = ({ error, setError, setSaved, form }: IProps) => {
   }
   return (
     <div
-      className="relative h-full w-full overflow-auto px-6 pb-[100px] pt-18"
-      // onScroll={listener}
+      className="relative h-full w-full overflow-auto px-6 pb-[100px] pt-12"
+      ref={scrollRef}
     >
       <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-16"
-          >
-            <section id="dataset-name" ref={nameRef}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+            <section
+              id="dataset-name"
+              ref={nameRef}
+              className="border-b-[1px] py-6"
+            >
               <div className="mb-6 text-2xl font-semibold leading-8">
                 DataSet Name
               </div>
@@ -115,7 +121,6 @@ const DatasetForm = ({ error, setError, setSaved, form }: IProps) => {
             <TextSplits form={form} sectionsRef={sectionsRef.current} />
             <TextEmbedding form={form} sectionsRef={sectionsRef.current} />
             <VectorStores form={form} sectionsRef={sectionsRef.current} />
-            <Retrievers form={form} sectionsRef={sectionsRef.current} />
             <div
               className={cn(
                 'fixed bottom-6 flex w-[600px] items-center justify-between rounded-lg border	bg-white px-4 py-2',

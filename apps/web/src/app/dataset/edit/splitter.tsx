@@ -1,7 +1,7 @@
 'use client'
 
-import { RefObject, useRef } from 'react'
-import { FieldValue, FormProps, UseFormReturn } from 'react-hook-form'
+import { RefObject, useEffect, useRef } from 'react'
+import { UseFormReturn } from 'react-hook-form'
 
 import {
   FormControl,
@@ -25,9 +25,16 @@ const types = [
 
 const TextSplits = ({ form, sectionsRef }: SessionProps) => {
   const ref = useRef<HTMLAnchorElement>(null)
-  sectionsRef.push(ref)
+  useEffect(() => {
+    const data = sectionsRef?.find(
+      (item) => ref?.current?.id === item?.current?.id
+    )
+    if (!data) {
+      sectionsRef.push(ref)
+    }
+  }, [sectionsRef])
   return (
-    <section id="splitters" className="w-full" ref={ref}>
+    <section id="splitters" className="w-full border-b-[1px] py-6" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">
         Text Splitters
       </div>

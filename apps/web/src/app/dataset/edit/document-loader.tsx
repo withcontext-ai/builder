@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   FormControl,
@@ -24,7 +24,14 @@ const DocumentLoader = ({ sectionsRef, form }: SessionProps) => {
   const [data, setData] = useState<UploadFile[]>([])
   const [files, setFiles] = useState<string[]>([])
   const ref = useRef<HTMLElement>(null)
-  sectionsRef.push(ref)
+  useEffect(() => {
+    const data = sectionsRef?.find(
+      (item) => ref?.current?.id === item?.current?.id
+    )
+    if (!data) {
+      sectionsRef.push(ref)
+    }
+  }, [sectionsRef])
   const handleFiles = (values: UploadFile[]) => {
     setData([...values])
     const success = values
@@ -42,7 +49,7 @@ const DocumentLoader = ({ sectionsRef, form }: SessionProps) => {
     setData([...newData])
   }
   return (
-    <section id="loaders" className="w-full" ref={ref}>
+    <section id="loaders" className="w-full border-b-[1px] py-6" ref={ref}>
       <div className="mb-6 text-2xl font-semibold leading-8">
         Document Loaders
       </div>
