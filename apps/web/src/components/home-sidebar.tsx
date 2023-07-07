@@ -24,7 +24,7 @@ export default async function HomeSidebar() {
           <div className="space-y-3">
             <h2 className="flex items-center space-x-2 px-3">
               <BoxIcon size={20} />
-              <span>Mine</span>
+              <span>My space</span>
             </h2>
             <MineList />
           </div>
