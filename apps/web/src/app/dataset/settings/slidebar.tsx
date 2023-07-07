@@ -95,17 +95,17 @@ const SlideBar = ({
           ref={navRef}
         >
           {data?.map((item: SectionType, index: number) => (
-            <div
+            <button
               key={item?.title}
               data-to-scrollspy-id={item.name}
               onClick={() => handleClick(item?.name)}
               className={cn(
-                'p-3 hover:rounded-md hover:bg-slate-200',
+                'p-3 text-start hover:rounded-md hover:bg-slate-200',
                 selected === item?.name ? 'rounded-md bg-slate-200' : ''
               )}
             >
               {item?.title}
-            </div>
+            </button>
           ))}
         </div>
       </div>

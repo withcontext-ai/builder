@@ -63,6 +63,7 @@ const DatasetForm = ({
   return (
     <div
       className="h-full w-full overflow-auto px-6 pb-[100px] pt-12"
+      key={`showMore::${showMore}`}
       ref={scrollRef}
     >
       <div className="sm:w-full md:max-w-[600px]">
