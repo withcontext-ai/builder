@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera, Loader2 } from 'lucide-react'
+import { nanoid } from 'nanoid'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
@@ -20,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
-import { UploadFile } from '@/components/upload/type'
+import { UploadFile, UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
 function editApp(
@@ -62,8 +63,17 @@ interface IProps {
 export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   const { trigger } = useSWRMutation(`/api/apps/${appId}`, editApp)
   const { toast } = useToast()
-
-  const [image, setImage] = useState<UploadFile<any>[]>([])
+  const stringUrlToFile = () => {
+    const icon = defaultValues?.icon
+    const status: UploadFileStatus = 'success'
+    return {
+      url: icon,
+      name: '',
+      uid: nanoid(),
+      status,
+    }
+  }
+  const [image, setImage] = useState<UploadFile<any>[]>([stringUrlToFile()])
   const currentImage = useRef({ url: '' })
   const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,6 +81,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
     defaultValues,
     mode: 'all',
   })
+
   const onSubmit = async () => {
     if (!form.formState.isValid) return
 
