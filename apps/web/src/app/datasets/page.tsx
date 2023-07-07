@@ -40,7 +40,7 @@ export default async function Page() {
       <div className="flex flex-col">
         <div className="flex h-12 items-center justify-between px-6">
           <h1 className="font-medium">My Datasets</h1>
-          <Link href="/datasets">
+          <Link href="/dataset/new">
             <Button size="sm">
               <PlusIcon className="mr-2 h-4 w-4" />
               Add Dataset

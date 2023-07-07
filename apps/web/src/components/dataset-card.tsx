@@ -14,7 +14,7 @@ interface IProps {
 
 export default function DatasetCard({ id, title }: IProps) {
   return (
-    <Link href={`/datasets`}>
+    <Link href={`/dataset/${id}`}>
       <Card className="h-full hover:shadow-md">
         <CardHeader>
           <CardTitle className="line-clamp-3 text-lg">{title}</CardTitle>
