@@ -38,7 +38,7 @@ const FormSchema = z.object({
 
 export type SchameProps = z.infer<typeof FormSchema>
 
-export type SettingType = {
+type SettingType = {
   defaultValue?: SchameProps
 }
 
