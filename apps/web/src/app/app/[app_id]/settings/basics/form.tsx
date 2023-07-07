@@ -66,14 +66,18 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   const stringUrlToFile = () => {
     const icon = defaultValues?.icon
     const status: UploadFileStatus = 'success'
-    return {
-      url: icon,
-      name: '',
-      uid: nanoid(),
-      status,
-    }
+    return icon
+      ? [
+          {
+            url: icon,
+            name: '',
+            uid: nanoid(),
+            status,
+          },
+        ]
+      : []
   }
-  const [image, setImage] = useState<UploadFile<any>[]>([stringUrlToFile()])
+  const [image, setImage] = useState<UploadFile<any>[]>(stringUrlToFile())
   const currentImage = useRef({ url: '' })
   const [disabled, setDisabled] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
