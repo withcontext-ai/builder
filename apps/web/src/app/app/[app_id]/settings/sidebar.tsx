@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useParams, usePathname, useRouter } from 'next/navigation'
-import { ArrowLeftIcon, TrashIcon } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { ArrowLeftIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -12,9 +12,13 @@ import DeleteAppButton from './delete-app-button'
 const commonStyle =
   'flex cursor-pointer flex-col rounded-md p-3 hover:bg-slate-200'
 
-export default function Sidebar() {
+interface IProps {
+  appId: string
+  appName: string
+}
+
+export default function Sidebar({ appId, appName }: IProps) {
   const router = useRouter()
-  const { app_id: appId } = useParams()
   const url = usePathname() || ''
 
   function handleGoBack() {
@@ -68,7 +72,7 @@ export default function Sidebar() {
       <div className="my-2 h-px shrink-0 px-3" />
 
       <div className="px-3">
-        <DeleteAppButton id="a1" name="App 1" />
+        <DeleteAppButton id={appId} name={appName} />
       </div>
     </div>
   )
