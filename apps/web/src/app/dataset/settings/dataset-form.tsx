@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
-import { SchemeProps } from './setting-page'
+import { SchemaProps } from './setting-page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
@@ -45,7 +45,7 @@ const DatasetForm = ({
     form.reset()
   }
 
-  const onSubmit = (data: SchemeProps) => {
+  const onSubmit = (data: SchemaProps) => {
     setSaved(true)
     setError('')
     console.log(data, '---data')

@@ -38,9 +38,9 @@ const FormSchema = z.object({
   apiVersion: z.string().optional(),
 })
 
-export type SchemeProps = z.infer<typeof FormSchema>
+export type SchemaProps = z.infer<typeof FormSchema>
 
-const DatasetSetting = ({ defaultValue }: { defaultValue?: SchemeProps }) => {
+const DatasetSetting = ({ defaultValue }: { defaultValue?: SchemaProps }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = [
     useRef(null),
