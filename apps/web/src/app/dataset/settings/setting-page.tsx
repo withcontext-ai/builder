@@ -10,7 +10,7 @@ import { z } from 'zod'
 import useScrollSpy from '@/hooks/use-scroll-spy'
 
 import DatasetForm from './dataset-form'
-import SlideBar from './slidebar'
+import SlideBar from './sidebar'
 
 export interface SectionType {
   ref?: RefObject<HTMLElement>
@@ -38,9 +38,9 @@ const FormSchema = z.object({
   apiVersion: z.string().optional(),
 })
 
-export type SchameProps = z.infer<typeof FormSchema>
+export type SchemeProps = z.infer<typeof FormSchema>
 
-const DatasetSetting = ({ defaultValue }: { defaultValue?: SchameProps }) => {
+const DatasetSetting = ({ defaultValue }: { defaultValue?: SchemeProps }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = [
     useRef(null),
