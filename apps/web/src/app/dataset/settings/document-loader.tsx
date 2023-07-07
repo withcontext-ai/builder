@@ -22,22 +22,26 @@ const types = [
 
 const DocumentLoader = ({ form }: SessionProps) => {
   const [data, setData] = useState<UploadFile[]>([])
-  const [files, setFiles] = useState<string[]>([])
   const ref = useRef<HTMLElement>(null)
-  const handleFiles = (values: UploadFile[]) => {
-    setData([...values])
+
+  const getSuccessFile = (values: UploadFile[]) => {
     const success = values
       ?.filter((item) => item?.url && item?.status === 'success')
       ?.reduce((m: string[], file: UploadFile) => {
         m?.push(file?.url || '')
         return m
       }, [])
-    setFiles([...files, ...success])
+    form.setValue('files', [...success])
+  }
+  const handleFiles = (values: UploadFile[]) => {
+    setData([...values])
+    getSuccessFile(values)
   }
 
   const handleRemove = (file: UploadFile) => {
     const newData = data?.filter((item) => item?.uid !== file?.uid)
     setData([...newData])
+    getSuccessFile(newData)
   }
   return (
     <section id="loaders" className="w-full border-b-[1px] py-6" ref={ref}>
