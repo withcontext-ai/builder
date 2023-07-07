@@ -38,7 +38,11 @@ const FormSchema = z.object({
 
 export type SchameProps = z.infer<typeof FormSchema>
 
-const DatasetSetting = () => {
+export type SettingType = {
+  defaultValue?: SchameProps
+}
+
+const DatasetSetting = ({ defaultValue }: SettingType) => {
   const [selected, setSelected] = useState<string>('dataset-name')
   const navRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -48,27 +52,29 @@ const DatasetSetting = () => {
   const router = useRouter()
   const [showMore, setShowMore] = useState<boolean>(false)
   const defaultValues = useMemo(
-    () => ({
-      name: '',
-      loaderType: 'pdf loader',
-      splitType: 'character textsplitter',
-      files: [],
-      chunkSize: 1000,
-      chunkOverlap: 1000,
-      embeddingType: 'openAI embedding',
-      storeType: 'pinecone',
-      collectionName: '',
-      chromaUrl: '',
-      apiKey: '',
-      instanceName: '',
-      developmentName: '',
-      apiVersion: '',
-    }),
-    []
+    () =>
+      defaultValue || {
+        name: '',
+        loaderType: 'pdf loader',
+        splitType: 'character textsplitter',
+        files: [],
+        chunkSize: 1000,
+        chunkOverlap: 1000,
+        embeddingType: 'openAI embedding',
+        storeType: 'pinecone',
+        collectionName: '',
+        chromaUrl: '',
+        apiKey: '',
+        instanceName: '',
+        developmentName: '',
+        apiVersion: '',
+      },
+    [defaultValue]
   )
 
   const checkIsUpdate = () => {
     const current = form.getValues()
+    // @ts-ignore
     if (difference(current?.files, defaultValues?.files)?.length) {
       return true
     }

@@ -74,6 +74,8 @@ const DatasetForm = ({
               onUpdateCallback={scrollMenu}
               navContainerRef={navRef}
               scrollThrottle={100}
+              offsetTop={100}
+              offsetBottom={100}
               parentScrollContainerRef={scrollRef}
             >
               <section
