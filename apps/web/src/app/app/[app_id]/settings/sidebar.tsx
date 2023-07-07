@@ -50,7 +50,7 @@ export default function Sidebar() {
             Some basic configurations of the App.
           </div>
         </Link>
-        <Link
+        {/* <Link
           className={cn(
             commonStyle,
             url?.includes('workflow') ? 'bg-slate-200' : ''
@@ -62,7 +62,7 @@ export default function Sidebar() {
           <div className="text-sm text-slate-500">
             Workflow related configurations of the App.
           </div>
-        </Link>
+        </Link> */}
       </div>
 
       <div className="my-2 h-px shrink-0 px-3" />

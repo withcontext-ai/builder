@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera, Loader2 } from 'lucide-react'
 import { nanoid } from 'nanoid'
@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
-import { cn, fetcher } from '@/lib/utils'
+import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -26,7 +26,7 @@ import Upload from '@/components/upload/upload'
 
 function editApp(
   url: string,
-  { arg }: { arg: { name: string; description: string; icon: string } }
+  { arg }: { arg: { name: string; description?: string; icon?: string } }
 ) {
   return fetcher(url, {
     method: 'PATCH',
@@ -38,6 +38,7 @@ const formSchema = z.object({
   name: z
     .string()
     .trim()
+    .nonempty('App name is required.')
     .min(2, {
       message: 'App name at least 2 characters.',
     })
@@ -47,7 +48,7 @@ const formSchema = z.object({
     .max(300, {
       message: 'Short description must be less than 300 characters.',
     })
-    .min(0),
+    .optional(),
   icon: z.string().optional(),
 })
 
@@ -78,26 +79,18 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
       : []
   }
   const [image, setImage] = useState<UploadFile<any>[]>(stringUrlToFile())
-  const currentImage = useRef({ url: '' })
   const [disabled, setDisabled] = useState<boolean>(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: 'all',
+    mode: 'onBlur',
   })
 
+  const { watch, handleSubmit } = form
+
   const onSubmit = async () => {
-    if (!form.formState.isValid) return
-
-    console.log('-----onSubmit', watch(), 'image is:', currentImage.current.url)
-
-    const newValue = {
-      name: watch().name,
-      description: watch().description,
-      icon: watch().icon || '',
-      // icon: currentImage.current.url,
-    }
-
+    const newValue = watch()
     await trigger(newValue)
     toast({ description: 'Update successfully.' })
   }
@@ -108,18 +101,20 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
     }
     setImage([file[lens - 1]])
     if (file[lens - 1]?.url) {
-      currentImage.current.url = file[lens - 1]?.url || ''
+      const newUrl = file[lens - 1]?.url || ''
+      form.setValue('icon', newUrl)
       setDisabled(false)
       onSubmit()
     }
   }
-  const { watch, setError } = form
+
+  const color = getAvatarBgColor(appId)
 
   return (
     <div>
       <h6 className="mb-6	text-2xl font-semibold leading-8">Basics</h6>
       <Form {...form}>
-        <form className="space-y-8">
+        <form onBlur={handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
             name="name"
@@ -129,19 +124,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
                   App Name <div className="text-red-500">*</div>
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Give your App a name"
-                    {...field}
-                    onBlur={(e) => {
-                      if (watch().name?.length < 2) {
-                        setError('name', {
-                          type: 'string',
-                          message: 'App name at least 2 characters.',
-                        })
-                      }
-                      onSubmit()
-                    }}
-                  />
+                  <Input placeholder="Give your App a name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -158,9 +141,6 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
                     minRows={3}
                     placeholder="Type your description here"
                     {...field}
-                    onBlur={() => {
-                      onSubmit()
-                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -174,6 +154,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
         <div
           className={cn(
             'relative flex h-16 w-16 items-center justify-center rounded-lg border-0 bg-orange-600',
+            watch().icon ? '' : `bg-${color}-600 text-white`,
             image[0]?.status === 'error' ? 'border-[#ff4d4f]' : '',
             image[0]?.status === 'uploading' ? 'bg-gray-50' : '',
             image[0]?.status === 'success'
@@ -182,7 +163,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
           )}
         >
           {image?.length === 0 ? (
-            'A'
+            getFirstLetter(watch().name || '')
           ) : image[0]?.status === 'uploading' ? (
             <div className="bg-slate-100">
               <Loader2 className="h-3 w-3 animate-spin" />
