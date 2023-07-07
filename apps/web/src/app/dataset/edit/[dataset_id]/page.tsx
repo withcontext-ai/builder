@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation'
 
-import DatasetSetting from '../../settings/page'
+import DatasetSetting from '../../settings/setting-page'
 
 const DatasetEdit = () => {
   const { dataset_id: datasetId } = useParams()

@@ -38,11 +38,7 @@ const FormSchema = z.object({
 
 export type SchameProps = z.infer<typeof FormSchema>
 
-type SettingType = {
-  defaultValue?: SchameProps
-}
-
-const DatasetSetting = ({ defaultValue }: SettingType) => {
+const DatasetSetting = ({ defaultValue }: { defaultValue?: SchameProps }) => {
   const [selected, setSelected] = useState<string>('dataset-name')
   const navRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)

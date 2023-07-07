@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 
-import { SectionType } from './page'
+import { SectionType } from './setting-page'
 
 interface IProps {
   handleGoBack: () => void

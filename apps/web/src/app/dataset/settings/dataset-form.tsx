@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 import DocumentLoader from './document-loader'
-import { SchameProps } from './page'
+import { SchameProps } from './setting-page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
