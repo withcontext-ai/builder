@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { Plus } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
@@ -39,8 +39,12 @@ export default function AppSidebar({ appList }: IProps) {
   // console.log('data:', appListData)
   // console.log('error:', error)
 
+  const isHome =
+    ['/', '/apps', '/datasets', '/explore'].includes(pathname) ||
+    pathname.includes('/explore/')
+
   return (
-    <>
+    <div className="overflow-y-auto scrollbar-none">
       <div className="group relative mt-6 flex shrink-0 items-center justify-center">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -48,10 +52,10 @@ export default function AppSidebar({ appList }: IProps) {
               <Avatar
                 className={cn(
                   'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-                  pathname === '/explore' && 'rounded-2xl'
+                  isHome && 'rounded-2xl'
                 )}
               >
-                <AvatarImage src="https://github.com/withcontext-ai.png" />
+                <AvatarImage src="/logo.png" />
                 <AvatarFallback>CO</AvatarFallback>
               </Avatar>
             </Link>
@@ -61,12 +65,12 @@ export default function AppSidebar({ appList }: IProps) {
         <div
           className={cn(
             'absolute left-0 top-1/2 h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
-            pathname === '/explore' && 'h-10 translate-x-0 group-hover:h-10'
+            isHome && 'h-10 translate-x-0 group-hover:h-10'
           )}
         />
       </div>
       <div className="m-auto mt-6 h-px w-14 bg-slate-200" />
-      <nav className="flex-1 overflow-y-auto py-6 scrollbar-none">
+      <nav className="flex-1 py-6">
         <ul role="list" className="flex flex-col space-y-4">
           {appListData?.map((appItem) => {
             const isSelected = appId === appItem.app_id
@@ -85,7 +89,7 @@ export default function AppSidebar({ appList }: IProps) {
                         className={cn(
                           'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
                           isSelected && 'rounded-2xl',
-                          `bg-${color}-600`
+                          !appItem.app_icon ? `bg-${color}-600` : ''
                         )}
                       >
                         {appItem.app_icon && (
@@ -113,16 +117,21 @@ export default function AppSidebar({ appList }: IProps) {
           <CreateAppDialog
             dialogTrigger={
               <li className="group flex justify-center">
-                <Avatar className="h-12 w-12 cursor-pointer rounded-3xl bg-white transition-all group-hover:rounded-2xl">
-                  <AvatarFallback className="bg-white">
-                    <Plus />
-                  </AvatarFallback>
-                </Avatar>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Avatar className="h-12 w-12 cursor-pointer rounded-3xl bg-white transition-all group-hover:rounded-2xl">
+                      <AvatarFallback className="bg-white">
+                        <PlusIcon />
+                      </AvatarFallback>
+                    </Avatar>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Create an app</TooltipContent>
+                </Tooltip>
               </li>
             }
           />
         </ul>
       </nav>
-    </>
+    </div>
   )
 }
