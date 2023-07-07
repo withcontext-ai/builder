@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 import {
@@ -16,16 +16,20 @@ import SearchSelect from './search-select'
 
 export interface SessionProps {
   form: UseFormReturn<any>
+  sectionRef: RefObject<HTMLElement>
 }
 const types = [
   { label: 'Character TextSplitter', value: 'character textsplitter' },
   { label: 'Coming soon...', value: 'coming soon' },
 ]
 
-const TextSplits = ({ form }: SessionProps) => {
-  const ref = useRef<HTMLAnchorElement>(null)
+const TextSplits = ({ form, sectionRef }: SessionProps) => {
   return (
-    <section id="splitters" className="w-full border-b-[1px] py-6" ref={ref}>
+    <section
+      id="splitters"
+      className="w-full border-b-[1px] py-6"
+      ref={sectionRef}
+    >
       <div className="mb-6 text-2xl font-semibold leading-8">
         Text Splitters
       </div>

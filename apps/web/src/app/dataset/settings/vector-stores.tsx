@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-
 import {
   FormControl,
   FormField,
@@ -19,10 +17,13 @@ const types = [
   { label: 'Coming soon...', value: 'coming soon' },
 ]
 
-const VectorStores = ({ form }: SessionProps) => {
-  const ref = useRef<HTMLElement>(null)
+const VectorStores = ({ form, sectionRef }: SessionProps) => {
   return (
-    <section id="stores" className="w-full border-b-[1px] py-6" ref={ref}>
+    <section
+      id="stores"
+      className="w-full border-b-[1px] py-6"
+      ref={sectionRef}
+    >
       <div className="mb-6 text-2xl font-semibold leading-8">Vector Stores</div>
       <div className="mb-6	text-sm font-normal leading-6 text-slate-600">
         One of the most common ways to store and search over unstructured data

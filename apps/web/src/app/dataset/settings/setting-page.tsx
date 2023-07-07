@@ -7,6 +7,8 @@ import { difference } from 'lodash'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import useScrollSpy from '@/hooks/use-scroll-spy'
+
 import DatasetForm from './dataset-form'
 import SlideBar from './slidebar'
 
@@ -39,9 +41,19 @@ const FormSchema = z.object({
 export type SchameProps = z.infer<typeof FormSchema>
 
 const DatasetSetting = ({ defaultValue }: { defaultValue?: SchameProps }) => {
-  const [selected, setSelected] = useState<string>('dataset-name')
-  const navRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const sectionRefs = [
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+  ]
+  const activeSection = useScrollSpy({
+    scrollingElement: scrollRef,
+    sectionElementRefs: sectionRefs,
+    offsetPx: -10,
+  })
 
   const [error, setError] = useState<string>('')
   const [saved, setSaved] = useState<boolean>(false)
@@ -102,23 +114,20 @@ const DatasetSetting = ({ defaultValue }: { defaultValue?: SchameProps }) => {
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
         <SlideBar
           handleGoBack={handleGoBack}
-          setSelect={setSelected}
-          selected={selected}
           showMore={showMore}
-          navRef={navRef}
           scrollRef={scrollRef}
+          activeSection={activeSection}
         />
       </div>
       <DatasetForm
         showMore={showMore}
-        setSelected={setSelected}
         error={error}
         setError={setError}
         setSaved={setSaved}
         form={form}
-        navRef={navRef}
-        scrollRef={scrollRef}
         setShowMore={setShowMore}
+        scrollRef={scrollRef}
+        sectionRefs={sectionRefs}
       />
     </div>
   )

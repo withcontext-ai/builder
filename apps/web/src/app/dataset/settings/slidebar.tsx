@@ -21,11 +21,9 @@ import { SectionType } from './setting-page'
 
 interface IProps {
   handleGoBack: () => void
-  selected: string
   showMore?: boolean
   scrollRef: RefObject<HTMLDivElement>
-  navRef?: RefObject<HTMLDivElement>
-  setSelect: (s: string) => void
+  activeSection?: number
 }
 const sections: SectionType[] = [
   {
@@ -54,16 +52,12 @@ const moreSessions = [
 
 const SlideBar = ({
   handleGoBack,
-  setSelect,
-  selected,
   showMore,
   scrollRef,
-  navRef,
+  activeSection,
 }: IProps) => {
   const data = showMore ? [...sections, ...moreSessions] : sections
   const handleClick = (name: string) => {
-    setSelect(name)
-
     const element = document.getElementById(`${name}`)
     if (element) {
       scrollRef?.current?.scrollTo({
@@ -89,11 +83,7 @@ const SlideBar = ({
         <div className="text-sm font-medium uppercase text-slate-500">
           DATASETS
         </div>
-        <div
-          className="flex flex-col gap-1	text-sm	font-medium"
-          id="horiz-menu"
-          ref={navRef}
-        >
+        <div className="flex flex-col gap-1	text-sm	font-medium">
           {data?.map((item: SectionType, index: number) => (
             <button
               key={item?.title}
@@ -101,7 +91,7 @@ const SlideBar = ({
               onClick={() => handleClick(item?.name)}
               className={cn(
                 'p-3 text-start hover:rounded-md hover:bg-slate-200',
-                selected === item?.name ? 'rounded-md bg-slate-200' : ''
+                activeSection === index ? 'rounded-md bg-slate-200' : ''
               )}
             >
               {item?.title}
