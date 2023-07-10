@@ -39,7 +39,7 @@ export async function getDatasets() {
     .from(DatasetsTable)
     .orderBy(desc(DatasetsTable.created_at))
     .where(and(eq(DatasetsTable.created_by, userId)))
-  console.log(data, '----data')
+  console.log(data, '--data')
   return data
 }
 
@@ -48,6 +48,7 @@ export async function getDataset(datasetId: string) {
     .select()
     .from(DatasetsTable)
     .where(eq(DatasetsTable.short_id, datasetId))
+  console.log(items, '--items', datasetId)
   return Promise.resolve(items[0])
 }
 

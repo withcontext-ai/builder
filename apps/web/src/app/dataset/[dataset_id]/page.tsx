@@ -1,14 +1,13 @@
-'use client'
-
-import { useParams } from 'next/navigation'
+import { getDataset } from '@/db/datasets/actions'
 
 import DatasetSetting from './settings/setting-page'
 
-const DatasetEdit = () => {
-  const { dataset_id: datasetId } = useParams()
-  console.log(datasetId, '--datasetId')
-  // TODO: get defaultValue by datasetId
-  // const defaultValue =
-  return <DatasetSetting />
+interface IProps {
+  params: { dataset_id: string }
+}
+const DatasetEdit = async ({ params }: IProps) => {
+  const dataset_id = params?.dataset_id
+  const data = await getDataset(dataset_id)
+  return <DatasetSetting name={data?.name} config={data?.config || {}} />
 }
 export default DatasetEdit

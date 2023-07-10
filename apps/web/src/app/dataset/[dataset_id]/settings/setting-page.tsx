@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useMemo, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { difference } from 'lodash'
@@ -40,7 +40,13 @@ const FormSchema = z.object({
 
 export type SchemaProps = z.infer<typeof FormSchema>
 
-const DatasetSetting = ({ defaultValue }: { defaultValue?: SchemaProps }) => {
+const DatasetSetting = ({
+  name = '',
+  config,
+}: {
+  name?: string
+  config?: Object
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = [
     useRef(null),
@@ -59,25 +65,13 @@ const DatasetSetting = ({ defaultValue }: { defaultValue?: SchemaProps }) => {
   const [saved, setSaved] = useState<boolean>(false)
   const router = useRouter()
   const [showMore, setShowMore] = useState<boolean>(false)
+  console.log(config, '----config')
   const defaultValues = useMemo(
-    () =>
-      defaultValue || {
-        name: '',
-        loaderType: 'pdf loader',
-        splitType: 'character textsplitter',
-        files: [],
-        chunkSize: 1000,
-        chunkOverlap: 1000,
-        embeddingType: 'openAI embedding',
-        storeType: 'pinecone',
-        collectionName: '',
-        chromaUrl: '',
-        apiKey: '',
-        instanceName: '',
-        developmentName: '',
-        apiVersion: '',
-      },
-    [defaultValue]
+    () => ({
+      name,
+      ...config,
+    }),
+    [config, name]
   )
 
   const checkIsUpdate = () => {
