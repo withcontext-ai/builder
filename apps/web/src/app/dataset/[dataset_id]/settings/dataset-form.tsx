@@ -1,4 +1,5 @@
 import { RefObject } from 'react'
+import { useRouter } from 'next/navigation'
 import { UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 
@@ -53,13 +54,14 @@ const DatasetForm = ({
     form.reset()
   }
   const { trigger, isMutating } = useSWRMutation('/api/datasets', addDataset)
-
+  const router = useRouter()
   const onSubmit = async (data: SchemaProps) => {
     try {
       console.log(data, '---data')
       const json = await trigger(data)
       setSaved(true)
       setError('')
+      router.push('/datasets')
       console.log('add Dataset onSubmit json:', json)
     } catch (error) {
       setError(error as string)
@@ -133,7 +135,9 @@ const DatasetForm = ({
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Submit</Button>
+                <Button type="submit" disabled={isMutating}>
+                  {isMutating ? 'Submitting...' : 'Submit'}
+                </Button>
               </div>
             </div>
           </form>
