@@ -52,7 +52,7 @@ const DatasetForm = ({
   }
   return (
     <div
-      className="h-full w-full overflow-auto px-6 pb-[100px] pt-12"
+      className="h-full w-full overflow-auto px-14 pb-[100px] pt-12"
       ref={scrollRef}
     >
       <div className="sm:w-full md:max-w-[600px]">
@@ -64,7 +64,7 @@ const DatasetForm = ({
               className="border-b-[1px] py-6"
             >
               <div className="mb-6 text-2xl font-semibold leading-8">
-                DataSet Name
+                Dataset Name
               </div>
               <FormField
                 control={form.control}
@@ -72,7 +72,7 @@ const DatasetForm = ({
                 render={({ field }) => (
                   <FormItem className="w-[332px]">
                     <FormLabel className="flex">
-                      DataSet Name <div className="text-red-500">*</div>
+                      Dataset Name <div className="text-red-500">*</div>
                     </FormLabel>
                     <FormControl>
                       <Input placeholder="Input your dataset name" {...field} />

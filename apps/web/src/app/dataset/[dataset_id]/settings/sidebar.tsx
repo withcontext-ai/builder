@@ -68,8 +68,8 @@ const SlideBar = ({
     }
   }
   return (
-    <div>
-      <div className="flex items-center space-x-2 px-4 py-3">
+    <div className="h-full w-[276px]">
+      <div className="flex w-full items-center space-x-2 px-4 py-3">
         <Button
           variant="outline"
           className="h-8 w-8 p-0"
@@ -79,7 +79,7 @@ const SlideBar = ({
         </Button>
         <div className="text-lg font-semibold">Back</div>
       </div>
-      <div className="mt-4 space-y-2 px-3 py-2">
+      <div className="mt-4 w-full space-y-2 p-3">
         <div className="text-sm font-medium uppercase text-slate-500">
           DATASETS
         </div>

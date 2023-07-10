@@ -63,7 +63,7 @@ const SearchSelect = ({
                   role="combobox"
                   aria-expanded={open}
                   className={cn(
-                    'w-[308px] justify-between',
+                    'w-[332px] justify-between',
                     !field.value && 'text-muted-foreground'
                   )}
                 >
