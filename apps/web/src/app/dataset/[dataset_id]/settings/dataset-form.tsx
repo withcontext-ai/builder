@@ -1,4 +1,4 @@
-import { RefObject } from 'react'
+import { RefObject, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
@@ -62,8 +62,10 @@ const DatasetForm = ({
   const handelCancel = () => {
     setError('')
     form.reset()
+    setCancel(true)
   }
   const { trigger, isMutating } = useSWRMutation('/api/datasets', addDataset)
+  const [cancel, setCancel] = useState(false)
   const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
     editDataset
@@ -74,7 +76,7 @@ const DatasetForm = ({
       const json = datasetId ? await editTrigger(data) : await trigger(data)
       setSaved(true)
       setError('')
-      router.back()
+      router.push('/datasets')
       console.log('add Dataset onSubmit json:', json)
     } catch (error) {
       setError(error as string)
@@ -116,6 +118,7 @@ const DatasetForm = ({
               form={form}
               sectionRef={sectionRefs[1]}
               files={files}
+              cancel={cancel}
             />
             {showMore ? (
               <>
@@ -147,6 +150,7 @@ const DatasetForm = ({
                   type="reset"
                   onClick={handelCancel}
                   variant="outline"
+                  disabled={isMutating || editMutating}
                   className={cn(error ? 'border-none bg-red-500' : '')}
                 >
                   Cancel

@@ -88,7 +88,7 @@ const SearchSelect = ({
                         form.setValue('type', value)
                         setOpen(false)
                       }}
-                      disabled={type?.value === 'comming soon'}
+                      disabled={type?.value === 'coming soon'}
                     >
                       {type.label}
                       <CheckIcon

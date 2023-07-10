@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { nanoid } from 'nanoid'
 
 import {
@@ -36,7 +36,7 @@ const stringUrlToFile = (file: FileProps) => {
   }
 }
 
-const DocumentLoader = ({ form, sectionRef, files }: SessionProps) => {
+const DocumentLoader = ({ form, sectionRef, files, cancel }: SessionProps) => {
   const changeUrlsToFile = () => {
     return files
       ? files.reduce((m: UploadFile<any>[], item: FileProps) => {
@@ -48,6 +48,13 @@ const DocumentLoader = ({ form, sectionRef, files }: SessionProps) => {
   }
 
   const [data, setData] = useState<UploadFile<any>[]>(changeUrlsToFile())
+
+  useEffect(() => {
+    if (cancel) {
+      setData(changeUrlsToFile())
+    }
+  }, [cancel])
+
   const getSuccessFile = (values: UploadFile[]) => {
     const success = values
       ?.filter((item) => item?.url && item?.status === 'success')
