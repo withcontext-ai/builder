@@ -12,7 +12,7 @@ export default async function Page() {
   return (
     <RootWrapper pageTitle="My Apps">
       <div className="flex flex-col">
-        <div className="flex h-12 items-center justify-between px-6">
+        <div className="hidden h-12 items-center justify-between px-6 lg:flex">
           <h1 className="font-medium">My Apps</h1>
           <CreateAppDialog
             dialogTrigger={
