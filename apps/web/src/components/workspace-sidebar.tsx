@@ -55,8 +55,13 @@ export default function WorkspaceSidebar({ appList }: IProps) {
                   isHome && 'rounded-2xl'
                 )}
               >
-                <AvatarImage src="/logo.png" />
-                <AvatarFallback>CO</AvatarFallback>
+                <img
+                  src="/logo.png"
+                  alt=""
+                  className="aspect-square h-full w-full"
+                />
+                {/* <AvatarImage src="/logo.png" /> */}
+                {/* <AvatarFallback>CO</AvatarFallback> */}
               </Avatar>
             </Link>
           </TooltipTrigger>
@@ -93,8 +98,34 @@ export default function WorkspaceSidebar({ appList }: IProps) {
                         )}
                       >
                         {appItem.app_icon && (
-                          <AvatarImage src={appItem.app_icon} />
+                          <img
+                            src={appItem.app_icon}
+                            alt=""
+                            className="aspect-square h-full w-full"
+                          />
                         )}
+                        {/* {appItem.app_icon && (
+                          <AvatarImage src={appItem.app_icon} />
+                        )} */}
+                        {/* <span
+                        className={cn(
+                          'relative flex h-12 w-12 shrink-0 overflow-hidden rounded-3xl bg-white transition-all group-hover:rounded-2xl',
+                          isSelected && 'rounded-2xl',
+                          !appItem.app_icon ? `bg-${color}-600` : ''
+                        )}
+                      >
+                        {appItem.app_icon ? (
+                          <img
+                            src={appItem.app_icon}
+                            alt=""
+                            className="aspect-square h-full w-full"
+                          />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center rounded-full text-white">
+                            {getFirstLetter(appItem.app_name || '')}
+                          </span>
+                        )}
+                      </span> */}
                         <AvatarFallback className="bg-transparent text-white">
                           {getFirstLetter(appItem.app_name || '')}
                         </AvatarFallback>
