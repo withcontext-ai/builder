@@ -1,6 +1,5 @@
 import AppCard from '@/components/app-card'
-import RootLayout from '@/components/root-layout'
-import RootSidebar from '@/components/root-sidebar'
+import RootWrapper from '@/components/root-wrapper'
 
 const LIST = [
   {
@@ -28,11 +27,7 @@ const LIST = [
 
 export default async function Page() {
   return (
-    <RootLayout
-      sidebar={<RootSidebar />}
-      pageTitle="Explore"
-      mainClassnames="lg:pl-[312px]"
-    >
+    <RootWrapper pageTitle="Explore">
       <div className="flex flex-col">
         <h1 className="hidden border-b border-slate-100 px-6 py-3 font-medium lg:block">
           Explore
@@ -52,6 +47,6 @@ export default async function Page() {
           </ul>
         </div>
       </div>
-    </RootLayout>
+    </RootWrapper>
   )
 }
