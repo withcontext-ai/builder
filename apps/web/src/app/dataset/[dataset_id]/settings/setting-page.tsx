@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { difference } from 'lodash'
@@ -43,9 +43,11 @@ export type SchemaProps = z.infer<typeof FormSchema>
 const DatasetSetting = ({
   name = '',
   config,
+  datasetId,
 }: {
   name?: string
   config?: Object
+  datasetId?: string
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = [
@@ -65,12 +67,29 @@ const DatasetSetting = ({
   const [saved, setSaved] = useState<boolean>(false)
   const router = useRouter()
   const [showMore, setShowMore] = useState<boolean>(false)
-  console.log(config, '----config')
   const defaultValues = useMemo(
-    () => ({
-      name,
-      ...config,
-    }),
+    () =>
+      name
+        ? {
+            name,
+            ...config,
+          }
+        : {
+            name: '',
+            loaderType: 'pdf loader',
+            splitType: 'character textsplitter',
+            files: [],
+            chunkSize: 1000,
+            chunkOverlap: 1000,
+            embeddingType: 'openAI embedding',
+            storeType: 'pinecone',
+            collectionName: '',
+            chromaUrl: '',
+            apiKey: '',
+            instanceName: '',
+            developmentName: '',
+            apiVersion: '',
+          },
     [config, name]
   )
 
@@ -114,6 +133,7 @@ const DatasetSetting = ({
         />
       </div>
       <DatasetForm
+        datasetId={datasetId}
         showMore={showMore}
         error={error}
         setError={setError}

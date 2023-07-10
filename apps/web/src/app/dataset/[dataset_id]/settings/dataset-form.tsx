@@ -23,6 +23,7 @@ import VectorStores from './vector-stores'
 
 interface IProps {
   error: string
+  datasetId?: string
   showMore?: boolean
   setError: (s: string) => void
   setSaved: (s: boolean) => void
@@ -38,9 +39,16 @@ function addDataset(url: string, { arg }: { arg: SchemaProps }) {
     body: JSON.stringify(arg),
   })
 }
+function editDataset(url: string, { arg }: { arg: SchemaProps }) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
+}
 
 const DatasetForm = ({
   error,
+  datasetId,
   setError,
   setSaved,
   form,
@@ -54,18 +62,20 @@ const DatasetForm = ({
     form.reset()
   }
   const { trigger, isMutating } = useSWRMutation('/api/datasets', addDataset)
+  const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
+    `/api/datasets/${datasetId}`,
+    editDataset
+  )
   const router = useRouter()
   const onSubmit = async (data: SchemaProps) => {
     try {
-      console.log(data, '---data')
-      const json = await trigger(data)
+      const json = datasetId ? await editTrigger(data) : await trigger(data)
       setSaved(true)
       setError('')
       router.push('/datasets')
       console.log('add Dataset onSubmit json:', json)
     } catch (error) {
       setError(error as string)
-      console.log('add Dataset onSubmit error:', error)
     }
   }
   return (
@@ -135,8 +145,8 @@ const DatasetForm = ({
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isMutating}>
-                  {isMutating ? 'Submitting...' : 'Submit'}
+                <Button type="submit" disabled={isMutating || editMutating}>
+                  {isMutating || editMutating ? 'Submitting...' : 'Submit'}
                 </Button>
               </div>
             </div>

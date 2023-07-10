@@ -34,13 +34,11 @@ export async function addDataset(
 export async function getDatasets() {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  const data = db
+  return db
     .select()
     .from(DatasetsTable)
     .orderBy(desc(DatasetsTable.created_at))
     .where(and(eq(DatasetsTable.created_by, userId)))
-  console.log(data, '--data')
-  return data
 }
 
 export async function getDataset(datasetId: string) {
@@ -48,18 +46,19 @@ export async function getDataset(datasetId: string) {
     .select()
     .from(DatasetsTable)
     .where(eq(DatasetsTable.short_id, datasetId))
-  console.log(items, '--items', datasetId)
   return Promise.resolve(items[0])
 }
 
 export async function editDataset(id: string, newValue: Partial<NewDataset>) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-
+  const config = omit(newValue, 'name')
   return db
     .update(DatasetsTable)
-    .set(newValue)
-    .where(and(eq(AppsTable.short_id, id), eq(AppsTable.created_by, userId)))
+    .set({ name: newValue?.name, config })
+    .where(
+      and(eq(DatasetsTable.short_id, id), eq(DatasetsTable.created_by, userId))
+    )
 }
 
 export async function removeDataset(id: string) {

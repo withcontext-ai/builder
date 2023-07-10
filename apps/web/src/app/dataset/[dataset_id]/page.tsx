@@ -8,6 +8,12 @@ interface IProps {
 const DatasetEdit = async ({ params }: IProps) => {
   const dataset_id = params?.dataset_id
   const data = await getDataset(dataset_id)
-  return <DatasetSetting name={data?.name} config={data?.config || {}} />
+  return (
+    <DatasetSetting
+      name={data?.name}
+      config={data?.config || {}}
+      datasetId={dataset_id}
+    />
+  )
 }
 export default DatasetEdit
