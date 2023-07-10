@@ -25,7 +25,7 @@ const FormSchema = z.object({
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
   loaderType: z.string().optional(),
   splitType: z.string().optional(),
-  embeddingTyp: z.string().optional(),
+  embeddingType: z.string().optional(),
   files: z.array(z.string()).optional(),
   chunkSize: z.number(),
   chunkOverlap: z.number(),

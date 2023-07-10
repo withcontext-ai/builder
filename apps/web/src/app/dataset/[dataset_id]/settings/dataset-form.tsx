@@ -1,7 +1,8 @@
 import { RefObject } from 'react'
 import { UseFormReturn } from 'react-hook-form'
+import useSWRMutation from 'swr/mutation'
 
-import { cn } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -30,6 +31,13 @@ interface IProps {
   sectionRefs: RefObject<HTMLDivElement>[]
 }
 
+function addDataset(url: string, { arg }: { arg: SchemaProps }) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
+}
+
 const DatasetForm = ({
   error,
   setError,
@@ -44,11 +52,19 @@ const DatasetForm = ({
     setError('')
     form.reset()
   }
+  const { trigger, isMutating } = useSWRMutation('/api/datasets', addDataset)
 
-  const onSubmit = (data: SchemaProps) => {
-    setSaved(true)
-    setError('')
-    console.log(data, '---data')
+  const onSubmit = async (data: SchemaProps) => {
+    try {
+      console.log(data, '---data')
+      const json = await trigger(data)
+      setSaved(true)
+      setError('')
+      console.log('add Dataset onSubmit json:', json)
+    } catch (error) {
+      setError(error as string)
+      console.log('add Dataset onSubmit error:', error)
+    }
   }
   return (
     <div

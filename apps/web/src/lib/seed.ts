@@ -50,4 +50,16 @@ export async function seed() {
     );
   `)
   console.log(`Created "workspace" table`)
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS datasets (
+      id SERIAL PRIMARY KEY,
+      short_id VARCHAR(255) UNIQUE NOT NULL,
+      user_id VARCHAR(255) NOT NULL,
+      created_by VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      name VARCHAR(255) NOT NULL,
+      config json
+    );
+  `)
+  console.log(`Created "datasets" table`)
 }

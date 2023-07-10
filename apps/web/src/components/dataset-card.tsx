@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card'
 
 interface IProps {
-  id: string
+  id: number
   title: string
 }
 

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { PlusIcon } from 'lucide-react'
 
+import { getDatasets } from '@/db/datasets/actions'
 import { Button } from '@/components/ui/button'
 import DatasetCard from '@/components/dataset-card'
 import HomeSidebar from '@/components/home-sidebar'
@@ -35,6 +36,8 @@ const LIST = [
 ]
 
 export default async function Page() {
+  const datasets = await getDatasets()
+  console.log(datasets, '----datasetes')
   return (
     <SidebarLayout sidebar={<HomeSidebar />}>
       <div className="flex flex-col">
@@ -50,8 +53,8 @@ export default async function Page() {
         <div className="m-full h-px bg-slate-100" />
         <div className="p-6">
           <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {LIST.map(({ id, title }) => (
-              <DatasetCard key={id} id={id} title={title} />
+            {datasets.map(({ id, name }) => (
+              <DatasetCard key={id} id={id} title={name} />
             ))}
           </ul>
         </div>
