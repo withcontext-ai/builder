@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import DocumentLoader from './document-loader'
+import DocumentLoader, { FileProps } from './document-loader'
 import { SchemaProps } from './setting-page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
@@ -25,6 +25,7 @@ interface IProps {
   error: string
   datasetId?: string
   showMore?: boolean
+  files?: FileProps[]
   setError: (s: string) => void
   setSaved: (s: boolean) => void
   form: UseFormReturn<any>
@@ -56,6 +57,7 @@ const DatasetForm = ({
   showMore,
   scrollRef,
   sectionRefs,
+  files,
 }: IProps) => {
   const handelCancel = () => {
     setError('')
@@ -72,7 +74,7 @@ const DatasetForm = ({
       const json = datasetId ? await editTrigger(data) : await trigger(data)
       setSaved(true)
       setError('')
-      router.push('/datasets')
+      router.back()
       console.log('add Dataset onSubmit json:', json)
     } catch (error) {
       setError(error as string)
@@ -110,7 +112,11 @@ const DatasetForm = ({
                 )}
               />
             </section>
-            <DocumentLoader form={form} sectionRef={sectionRefs[1]} />
+            <DocumentLoader
+              form={form}
+              sectionRef={sectionRefs[1]}
+              files={files}
+            />
             {showMore ? (
               <>
                 <TextSplits form={form} sectionRef={sectionRefs[2]} />

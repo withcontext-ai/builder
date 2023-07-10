@@ -26,7 +26,7 @@ const FormSchema = z.object({
   loaderType: z.string().optional(),
   splitType: z.string().optional(),
   embeddingType: z.string().optional(),
-  files: z.array(z.string()).optional(),
+  files: z.array(z.object({ name: z.string(), url: z.string() })).optional(),
   chunkSize: z.number(),
   chunkOverlap: z.number(),
   storeType: z.string(),
@@ -46,7 +46,7 @@ const DatasetSetting = ({
   datasetId,
 }: {
   name?: string
-  config?: Object
+  config?: Record<string, any>
   datasetId?: string
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -139,6 +139,7 @@ const DatasetSetting = ({
         setError={setError}
         setSaved={setSaved}
         form={form}
+        files={config?.files}
         setShowMore={setShowMore}
         scrollRef={scrollRef}
         sectionRefs={sectionRefs}

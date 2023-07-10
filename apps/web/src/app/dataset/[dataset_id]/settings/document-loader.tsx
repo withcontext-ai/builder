@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { nanoid } from 'nanoid'
 
 import {
   FormControl,
@@ -9,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { UploadFile } from '@/components/upload/type'
+import { UploadFile, UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
 import SearchSelect from './search-select'
@@ -20,14 +21,38 @@ const types = [
   { label: 'Coming soon...', value: 'coming soon' },
 ]
 
-const DocumentLoader = ({ form, sectionRef }: SessionProps) => {
-  const [data, setData] = useState<UploadFile[]>([])
+export interface FileProps {
+  name?: string
+  url?: string
+}
 
+const stringUrlToFile = (file: FileProps) => {
+  const status: UploadFileStatus = 'success'
+  return {
+    url: file?.url || '',
+    name: file?.name || '',
+    uid: nanoid(),
+    status,
+  }
+}
+
+const DocumentLoader = ({ form, sectionRef, files }: SessionProps) => {
+  const changeUrlsToFile = () => {
+    return files
+      ? files.reduce((m: UploadFile<any>[], item: FileProps) => {
+          const file = stringUrlToFile(item)
+          m?.push(file)
+          return m
+        }, [])
+      : []
+  }
+
+  const [data, setData] = useState<UploadFile<any>[]>(changeUrlsToFile())
   const getSuccessFile = (values: UploadFile[]) => {
     const success = values
       ?.filter((item) => item?.url && item?.status === 'success')
-      ?.reduce((m: string[], file: UploadFile) => {
-        m?.push(file?.url || '')
+      ?.reduce((m: FileProps[], file: UploadFile) => {
+        m?.push({ url: file?.url || '', name: file?.name || '' })
         return m
       }, [])
     form.setValue('files', [...success])
