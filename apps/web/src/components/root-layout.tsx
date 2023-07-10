@@ -16,7 +16,7 @@ export default function RootLayout({
   mainClassnames,
 }: IProps) {
   return (
-    <div>
+    <>
       {/* Static sidebar for desktop */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col">
         {sidebar}
@@ -42,6 +42,6 @@ export default function RootLayout({
 
       {/* Page content for desktop and mobile */}
       <main className={mainClassnames}>{children}</main>
-    </div>
+    </>
   )
 }
