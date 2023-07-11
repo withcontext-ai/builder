@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { removeApp } from '@/db/apps/actions'
-import { editDataset } from '@/db/datasets/actions'
+import { editDataset, removeDataset } from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
 
 // Get a dataset
@@ -31,6 +30,6 @@ export async function DELETE(
   { params }: { params: { dataset_id: string } }
 ) {
   const { dataset_id } = params
-  await removeApp(dataset_id)
+  await removeDataset(dataset_id)
   return NextResponse.json({ success: true, data: { dataset_id } })
 }

@@ -129,6 +129,7 @@ const DatasetSetting = ({
           handleGoBack={handleGoBack}
           showMore={showMore}
           scrollRef={scrollRef}
+          datasetId={datasetId}
           activeSection={activeSection}
         />
       </div>
