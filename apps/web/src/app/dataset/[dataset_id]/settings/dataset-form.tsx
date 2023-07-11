@@ -73,7 +73,7 @@ const DatasetForm = ({
   }
 
   const { trigger, isMutating } = useSWRMutation(
-    `/api/datasets/${datasetId}`,
+    `/api/datasets/${datasetId || 'add-dataset'}`,
     addOrEditDataset
   )
   const router = useRouter()
