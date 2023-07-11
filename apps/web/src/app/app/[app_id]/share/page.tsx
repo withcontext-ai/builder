@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import * as React from 'react'
 import { useParams } from 'next/navigation'
 
+import usePageTitle from '@/hooks/use-page-title'
 import useCopyToClipboard from '@/hooks/useCopyToClipboard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,7 +13,7 @@ import { FacingIcon, InsIcon, NotionIcon, VersionIcon, WebIcon } from './icons'
 
 const ShareApp = () => {
   const { app_id } = useParams()
-  const [copyBtnText, setCopyBtnText] = useState('Copy')
+  const [copyBtnText, setCopyBtnText] = React.useState('Copy')
   const { copy } = useCopyToClipboard()
 
   const protocol = document.location.protocol
@@ -28,10 +29,15 @@ const ShareApp = () => {
       setCopyBtnText('Copy')
     }, 2000)
   }
+
+  usePageTitle('Share App')
+
   return (
     <div className="flex flex-col">
       <div className="flex items-center gap-10 px-6 py-3">
-        <Text variant="body1">Share App</Text>
+        <Text variant="body1" className="hidden lg:block">
+          Share App
+        </Text>
         <Text className="text-slate-500">
           Your conversation will not be shared with others.
         </Text>

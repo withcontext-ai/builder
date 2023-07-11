@@ -13,7 +13,6 @@ export default function Layout({ children, params }: IProps) {
   return (
     <RootLayout
       sidebar={<Sidebar appId={app_id} />}
-      pageTitle="Chat"
       mainClassnames="h-[calc(100%-56px)] lg:pl-[312px] lg:h-full"
     >
       {children}
