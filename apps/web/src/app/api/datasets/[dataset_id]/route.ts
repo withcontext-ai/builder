@@ -13,7 +13,7 @@ export async function GET(
 }
 
 // // Update a dataset
-export async function POST(
+export async function PATCH(
   req: NextRequest,
   { params }: { params: { dataset_id: string } }
 ) {

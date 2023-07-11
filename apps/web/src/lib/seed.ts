@@ -49,14 +49,16 @@ export async function seed() {
       archived BOOLEAN DEFAULT FALSE
     );
   `)
+
   console.log(`Created "workspace" table`)
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS datasets (
       id SERIAL PRIMARY KEY,
       short_id VARCHAR(255) UNIQUE NOT NULL,
-      user_id VARCHAR(255) NOT NULL,
       created_by VARCHAR(255) NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      archived BOOLEAN DEFAULT FALSE,
       name VARCHAR(255) NOT NULL,
       config json
     );

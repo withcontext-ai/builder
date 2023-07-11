@@ -18,7 +18,7 @@ export async function addDataset(
     name: dataset?.name,
     short_id: nanoid(),
     created_by: userId,
-    user_id: userId,
+    created_at: new Date(),
   }
   const config = omit(dataset, 'name')
   const newDataset = await db
@@ -53,7 +53,7 @@ export async function editDataset(id: string, newValue: Partial<NewDataset>) {
   const config = omit(newValue, 'name')
   return db
     .update(DatasetsTable)
-    .set({ name: newValue?.name, config })
+    .set({ name: newValue?.name, config, updated_at: new Date() })
     .where(
       and(eq(DatasetsTable.short_id, id), eq(DatasetsTable.created_by, userId))
     )
@@ -62,9 +62,9 @@ export async function editDataset(id: string, newValue: Partial<NewDataset>) {
 export async function removeDataset(id: string) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  // 删除某一列数据
   return db
-    .delete(DatasetsTable)
+    .update(DatasetsTable)
+    .set({ archived: true, updated_at: new Date() })
     .where(
       and(eq(DatasetsTable.short_id, id), eq(DatasetsTable.created_by, userId))
     )

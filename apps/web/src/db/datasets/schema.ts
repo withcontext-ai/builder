@@ -1,9 +1,8 @@
 import { InferModel } from 'drizzle-orm'
 import {
+  boolean,
   index,
-  integer,
   json,
-  jsonb,
   pgTable,
   serial,
   text,
@@ -16,16 +15,17 @@ export const DatasetsTable = pgTable(
   {
     id: serial('id').primaryKey(),
     short_id: text('short_id').notNull(),
-    user_id: text('user_id').notNull(),
     created_by: text('created_by').notNull(),
     created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+    archived: boolean('archived').default(false).notNull(),
     name: text('name').notNull(),
     config: json('config'),
   },
   (datasets) => {
     return {
       unique_idx: uniqueIndex('unique_idx').on(datasets.short_id),
-      user_id_idx: index('user_id_idx').on(datasets.user_id),
+      user_id_idx: index('user_id_idx').on(datasets.created_by),
     }
   }
 )

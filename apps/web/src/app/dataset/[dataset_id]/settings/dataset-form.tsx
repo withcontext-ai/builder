@@ -34,13 +34,6 @@ interface IProps {
   sectionRefs: RefObject<HTMLDivElement>[]
 }
 
-function handelDataset(url: string, { arg }: { arg: SchemaProps }) {
-  return fetcher(url, {
-    method: 'POST',
-    body: JSON.stringify(arg),
-  })
-}
-
 const DatasetForm = ({
   error,
   datasetId,
@@ -58,15 +51,23 @@ const DatasetForm = ({
     form.reset()
     setCancel(true)
   }
+  function addOrEditDataset(url: string, { arg }: { arg: SchemaProps }) {
+    return fetcher(url, {
+      method: datasetId ? 'PATCH' : 'POST',
+      body: JSON.stringify(arg),
+    })
+  }
+
   const { trigger, isMutating: addMutating } = useSWRMutation(
     '/api/datasets',
-    handelDataset
+    addOrEditDataset
   )
   const [cancel, setCancel] = useState(false)
   const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
-    handelDataset
+    addOrEditDataset
   )
+  const disabled = editMutating || addMutating
   const router = useRouter()
   const onSubmit = async (data: SchemaProps) => {
     try {
@@ -147,13 +148,13 @@ const DatasetForm = ({
                   type="reset"
                   onClick={handelCancel}
                   variant="outline"
-                  disabled={addMutating || editMutating}
+                  disabled={disabled}
                   className={cn(error ? 'border-none bg-red-500' : '')}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={addMutating || editMutating}>
-                  {addMutating || editMutating ? 'Submitting...' : 'Submit'}
+                <Button type="submit" disabled={disabled}>
+                  {disabled ? 'Submitting...' : 'Submit'}
                 </Button>
               </div>
             </div>
