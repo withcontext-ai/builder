@@ -26,6 +26,7 @@ export async function addDataset(
     .values({ ...data, config })
     .returning()
   const datasetId = newDataset[0]?.short_id
+  console.log(newDataset[0], '----')
   return { datasetId, name: newDataset[0].name }
 }
 

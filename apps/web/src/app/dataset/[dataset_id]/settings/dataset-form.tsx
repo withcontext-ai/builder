@@ -58,24 +58,19 @@ const DatasetForm = ({
     })
   }
 
-  const { trigger, isMutating: addMutating } = useSWRMutation(
-    '/api/datasets',
-    addOrEditDataset
-  )
   const [cancel, setCancel] = useState(false)
-  const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
+  const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
     addOrEditDataset
   )
-  const disabled = editMutating || addMutating
   const router = useRouter()
   const onSubmit = async (data: SchemaProps) => {
     try {
-      const json = datasetId ? await editTrigger(data) : await trigger(data)
+      const json = await trigger(data)
       setSaved(true)
       setError('')
       router.push('/datasets')
-      console.log('add Dataset onSubmit json:', json)
+      console.log(`${datasetId ? 'edit' : 'add'} Dataset onSubmit json:`, json)
     } catch (error) {
       setError(error as string)
     }
@@ -148,13 +143,13 @@ const DatasetForm = ({
                   type="reset"
                   onClick={handelCancel}
                   variant="outline"
-                  disabled={disabled}
+                  disabled={isMutating}
                   className={cn(error ? 'border-none bg-red-500' : '')}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={disabled}>
-                  {disabled ? 'Submitting...' : 'Submit'}
+                <Button type="submit" disabled={isMutating}>
+                  {isMutating ? 'Submitting...' : 'Submit'}
                 </Button>
               </div>
             </div>
