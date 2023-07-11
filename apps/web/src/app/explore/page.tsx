@@ -34,7 +34,7 @@ export default async function Page() {
         </h1>
         <div className="p-6">
           <h2 className="text-sm font-medium">All Categories</h2>
-          <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {LIST.map(({ id, name, description, icon }) => (
               <AppCard
                 key={id}

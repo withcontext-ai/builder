@@ -48,7 +48,7 @@ export default async function Page() {
         </div>
         <div className="m-full h-px bg-slate-100" />
         <div className="p-6">
-          <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {LIST.map(({ id, title }) => (
               <DatasetCard key={id} id={id} title={title} />
             ))}

@@ -23,9 +23,9 @@ export default async function Page() {
             }
           />
         </div>
-        <div className="m-full h-px bg-slate-100" />
+        <div className="m-full h-px shrink-0 bg-slate-100" />
         <div className="p-6">
-          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {appList.map(({ short_id, name, description, icon }) => (
               <AppCard
                 key={short_id}
