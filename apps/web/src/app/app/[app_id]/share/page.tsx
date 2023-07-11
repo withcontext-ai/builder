@@ -43,7 +43,7 @@ const ShareApp = () => {
         </Text>
       </div>
       <div className="m-full h-px bg-slate-100" />
-      <div className="pl-[155px] pt-[100px]">
+      <div className="p-4 lg:pl-[155px] lg:pt-[100px]">
         {/* <div className="mb-6 gap-2">
           <Text>embed this App in</Text>
           <div className="mt-2 flex w-full gap-4">
@@ -66,7 +66,7 @@ const ShareApp = () => {
         </div> */}
         <div className="gap-2">
           <Text>Copy link</Text>
-          <div className="mt-2 flex gap-1">
+          <div className="mt-2 flex gap-2">
             <Input className="w-[324px]" value={link} disabled />
             <Button onClick={handleClick}>{copyBtnText}</Button>
           </div>
