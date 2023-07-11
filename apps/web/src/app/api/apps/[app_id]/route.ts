@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { editApp, removeApp } from '@/db/apps/actions'
@@ -20,6 +21,7 @@ export async function PATCH(
   const { app_id } = params
   const body = (await req.json()) as Partial<NewApp>
   await editApp(app_id, body)
+  revalidateTag(`app:${app_id}`)
   return NextResponse.json({ success: true, data: { app_id, body } })
 }
 

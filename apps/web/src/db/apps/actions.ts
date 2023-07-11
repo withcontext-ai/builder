@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { unstable_cache } from 'next/cache'
 import { and, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
@@ -52,6 +53,23 @@ export async function getApp(appId: string) {
     .from(AppsTable)
     .where(eq(AppsTable.short_id, appId))
   return Promise.resolve(items[0])
+}
+
+export async function cacheGetApp(appId: string) {
+  return await unstable_cache(
+    async () => {
+      const items = await db
+        .select()
+        .from(AppsTable)
+        .where(eq(AppsTable.short_id, appId))
+      return Promise.resolve(items[0])
+    },
+    [`app:${appId}`],
+    {
+      revalidate: 900,
+      tags: [`app:${appId}`],
+    }
+  )()
 }
 
 export async function editApp(id: string, newValue: Partial<NewApp>) {
