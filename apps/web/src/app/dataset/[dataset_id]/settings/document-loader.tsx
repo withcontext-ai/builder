@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { nanoid } from 'nanoid'
 
 import {
@@ -26,7 +26,7 @@ export interface FileProps {
   url?: string
 }
 
-const stringUrlToFile = (file: FileProps) => {
+export const stringUrlToFile = (file: FileProps) => {
   const status: UploadFileStatus = 'success'
   return {
     url: file?.url || '',
@@ -36,25 +36,12 @@ const stringUrlToFile = (file: FileProps) => {
   }
 }
 
-const DocumentLoader = ({ form, sectionRef, files, cancel }: SessionProps) => {
-  const changeUrlsToFile = () => {
-    return files
-      ? files.reduce((m: UploadFile<any>[], item: FileProps) => {
-          const file = stringUrlToFile(item)
-          m?.push(file)
-          return m
-        }, [])
-      : []
-  }
+interface IProps extends SessionProps {
+  data: UploadFile<any>[]
+  setData: (data: UploadFile<any>[]) => void
+}
 
-  const [data, setData] = useState<UploadFile<any>[]>(changeUrlsToFile())
-
-  useEffect(() => {
-    if (cancel) {
-      setData(changeUrlsToFile())
-    }
-  }, [cancel])
-
+const DocumentLoader = ({ form, sectionRef, setData, data }: IProps) => {
   const getSuccessFile = (values: UploadFile[]) => {
     const success = values
       ?.filter((item) => item?.url && item?.status === 'success')

@@ -1,4 +1,4 @@
-import { RefObject, useState } from 'react'
+import { RefObject, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
@@ -14,8 +14,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { UploadFile } from '@/components/upload/type'
 
-import DocumentLoader, { FileProps } from './document-loader'
+import DocumentLoader, { FileProps, stringUrlToFile } from './document-loader'
 import { SchemaProps } from './setting-page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
@@ -46,10 +47,23 @@ const DatasetForm = ({
   sectionRefs,
   files,
 }: IProps) => {
+  const uploadFiles = useMemo(() => {
+    return files
+      ? files.reduce((m: UploadFile<any>[], item: FileProps) => {
+          const file = stringUrlToFile(item)
+          m?.push(file)
+          return m
+        }, [])
+      : []
+  }, [files])
+
+  const [data, setData] = useState<UploadFile<any>[]>(uploadFiles)
+
   const handelCancel = () => {
     setError('')
     form.reset()
-    setCancel(true)
+    // reset the files
+    setData(uploadFiles)
   }
   function addOrEditDataset(url: string, { arg }: { arg: SchemaProps }) {
     return fetcher(url, {
@@ -58,7 +72,6 @@ const DatasetForm = ({
     })
   }
 
-  const [cancel, setCancel] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
     addOrEditDataset
@@ -110,8 +123,8 @@ const DatasetForm = ({
             <DocumentLoader
               form={form}
               sectionRef={sectionRefs[1]}
-              files={files}
-              cancel={cancel}
+              data={data}
+              setData={setData}
             />
             {showMore ? (
               <>

@@ -18,7 +18,6 @@ import SearchSelect from './search-select'
 export interface SessionProps {
   form: UseFormReturn<any>
   files?: FileProps[]
-  cancel?: boolean
   sectionRef: RefObject<HTMLElement>
 }
 const types = [
