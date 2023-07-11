@@ -4,15 +4,14 @@ import { PlusIcon } from 'lucide-react'
 import { getDatasets } from '@/db/datasets/actions'
 import { Button } from '@/components/ui/button'
 import DatasetCard from '@/components/dataset-card'
-import HomeSidebar from '@/components/home-sidebar'
-import SidebarLayout from '@/components/sidebar-layout'
+import RootWrapper from '@/components/root-wrapper'
 
 export default async function Page() {
   const datasets = await getDatasets()
   return (
-    <SidebarLayout sidebar={<HomeSidebar />}>
+    <RootWrapper pageTitle="My Datasets">
       <div className="flex flex-col">
-        <div className="flex h-12 items-center justify-between px-6">
+        <div className="hidden h-12 items-center justify-between px-6 lg:flex">
           <h1 className="font-medium">My Datasets</h1>
           <Link href="/dataset/new">
             <Button size="sm">
@@ -30,6 +29,6 @@ export default async function Page() {
           </ul>
         </div>
       </div>
-    </SidebarLayout>
+    </RootWrapper>
   )
 }
