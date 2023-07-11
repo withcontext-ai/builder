@@ -27,9 +27,9 @@ const FormSchema = z.object({
   splitType: z.string().optional(),
   embeddingType: z.string().optional(),
   files: z.array(z.object({ name: z.string(), url: z.string() })).optional(),
-  chunkSize: z.number(),
-  chunkOverlap: z.number(),
-  storeType: z.string(),
+  chunkSize: z.number().optional(),
+  chunkOverlap: z.number().optional(),
+  storeType: z.string().optional(),
   collectionName: z.string().optional(),
   chromaUrl: z.string().optional(),
   apiKey: z.string().optional(),
@@ -95,8 +95,7 @@ const DatasetSetting = ({
 
   const checkIsUpdate = () => {
     const current = form.getValues()
-    // @ts-ignore
-    if (difference(current?.files, defaultValues?.files)?.length) {
+    if (difference(current?.files, defaultValues?.files || [])?.length) {
       return true
     }
     for (let k in current) {

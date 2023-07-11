@@ -7,7 +7,6 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { nanoid } from '@/lib/utils'
 
-import { AppsTable } from '../apps/schema'
 import { DatasetsTable, NewDataset } from './schema'
 
 export async function addDataset(
@@ -22,7 +21,6 @@ export async function addDataset(
     user_id: userId,
   }
   const config = omit(dataset, 'name')
-  console.log('---db', { ...data, config })
   const newDataset = await db
     .insert(DatasetsTable)
     .values({ ...data, config })
