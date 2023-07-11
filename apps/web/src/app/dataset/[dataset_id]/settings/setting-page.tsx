@@ -10,6 +10,7 @@ import { z } from 'zod'
 import useScrollSpy from '@/hooks/use-scroll-spy'
 
 import DatasetForm from './dataset-form'
+import { FileProps } from './document-loader'
 import SlideBar from './sidebar'
 
 export interface SectionType {
@@ -93,14 +94,32 @@ const DatasetSetting = ({
     [config, name]
   )
 
+  const checkFiles = () => {
+    const current = form.getValues()?.files
+    const origin = defaultValues?.files
+    if (current?.length !== origin?.length) {
+      return true
+    }
+    current?.forEach((item) => {
+      const index = origin?.findIndex((m: FileProps) => m?.url === item?.url)
+      if (index === -1) {
+        return true
+      }
+    })
+    return false
+  }
+
   const checkIsUpdate = () => {
     const current = form.getValues()
-    if (difference(current?.files, defaultValues?.files || [])?.length) {
+    const fileUpdate = checkFiles()
+    if (fileUpdate) {
+      console.log('---step1', current?.files, defaultValues?.files)
       return true
     }
     for (let k in current) {
       // @ts-ignore
       if (k !== 'files' && current?.[k] !== defaultValues?.[k]) {
+        console.log('---step2')
         return true
       }
     }
