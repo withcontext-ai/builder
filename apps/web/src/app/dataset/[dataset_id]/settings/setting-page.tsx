@@ -113,13 +113,11 @@ const DatasetSetting = ({
     const current = form.getValues()
     const fileUpdate = checkFiles()
     if (fileUpdate) {
-      console.log('---step1', current?.files, defaultValues?.files)
       return true
     }
     for (let k in current) {
       // @ts-ignore
       if (k !== 'files' && current?.[k] !== defaultValues?.[k]) {
-        console.log('---step2')
         return true
       }
     }
