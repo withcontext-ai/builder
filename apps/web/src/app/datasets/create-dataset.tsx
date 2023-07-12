@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
+import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -44,21 +47,42 @@ const defaultValues = {
   apiVersion: '',
 }
 
+function addDataset(url: string, { arg }: { arg: SchemaProps }) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
+}
+
 const CreateDialog = () => {
   const [open, setOpen] = useState(false)
+  const router = useRouter()
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/datasets/add-dataset`,
+    addDataset
+  )
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues,
   })
 
   const onSubmit = async (data: SchemaProps) => {
-    console.log(data, '---data')
-    setOpen(false)
+    try {
+      const json = await trigger(data)
+      router.push('/datasets')
+      setOpen(false)
+      console.log('add dataset success', json)
+    } catch (error) {
+      console.log('add dataset error', error)
+    }
   }
 
   const handleCancel = (open = false) => {
-    setOpen(open)
-    form.reset()
+    if (!isMutating) {
+      setOpen(open)
+      form.reset()
+    }
   }
   return (
     <Dialog open={open} onOpenChange={(open) => handleCancel(open)}>
@@ -96,11 +120,14 @@ const CreateDialog = () => {
               <Button
                 type="reset"
                 variant="outline"
+                disabled={isMutating}
                 onClick={() => handleCancel(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={isMutating}>
+                {isMutating ? 'Creating' : 'Create'}
+              </Button>
             </div>
           </form>
         </Form>
