@@ -32,7 +32,7 @@ const UploadScenes = () => {
   }
 
   const beforeUpload = (info: RcFile) => {
-    if (info?.size > 1024 * 1024) {
+    if (info?.size > 1024 * 1024 * 5) {
       console.log('the file is larger than 5M')
       return false
     }

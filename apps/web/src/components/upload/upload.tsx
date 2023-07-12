@@ -8,8 +8,6 @@ import { flushSync } from 'react-dom'
 
 import { cn } from '@/lib/utils'
 
-import { Button } from '../ui/button'
-import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
 import {
   BeforeUploadValueType,
