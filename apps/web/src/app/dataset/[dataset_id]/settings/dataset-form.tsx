@@ -23,23 +23,24 @@ import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
 
 interface IProps {
-  error: string
   datasetId?: string
   showMore?: boolean
   files?: FileProps[]
-  setError: (s: string) => void
-  setSaved: (s: boolean) => void
   form: UseFormReturn<any>
   setShowMore?: (s: boolean) => void
   scrollRef: RefObject<HTMLDivElement>
   sectionRefs: RefObject<HTMLDivElement>[]
 }
 
+function editDataset(url: string, { arg }: { arg: SchemaProps }) {
+  return fetcher(url, {
+    method: 'PATCH',
+    body: JSON.stringify(arg),
+  })
+}
+
 const DatasetForm = ({
-  error,
   datasetId,
-  setError,
-  setSaved,
   form,
   setShowMore,
   showMore,
@@ -59,33 +60,15 @@ const DatasetForm = ({
 
   const [data, setData] = useState<UploadFile<any>[]>(uploadFiles)
 
-  const handelCancel = () => {
-    setError('')
-    form.reset()
-    // reset the files
-    setData(uploadFiles)
-  }
-  function addOrEditDataset(url: string, { arg }: { arg: SchemaProps }) {
-    return fetcher(url, {
-      method: datasetId ? 'PATCH' : 'POST',
-      body: JSON.stringify(arg),
-    })
-  }
-
-  const { trigger, isMutating } = useSWRMutation(
-    `/api/datasets/${datasetId || 'add-dataset'}`,
-    addOrEditDataset
-  )
+  const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
   const router = useRouter()
   const onSubmit = async (data: SchemaProps) => {
     try {
       const json = await trigger(data)
-      setSaved(true)
-      setError('')
       router.push('/datasets')
-      console.log(`${datasetId ? 'edit' : 'add'} Dataset onSubmit json:`, json)
+      console.log(`edit Dataset onSubmit json:`, json)
     } catch (error) {
-      setError(error as string)
+      console.log('edit dataset error', error)
     }
   }
   return (
@@ -144,28 +127,6 @@ const DatasetForm = ({
                 </div>
               </div>
             )}
-            <div
-              className={cn(
-                'fixed bottom-6 mt-2 flex w-[600px] items-center justify-between rounded-lg border bg-white	px-4 py-2 shadow-xl',
-                error ? 'bg-red-500 text-slate-100' : ''
-              )}
-            >
-              <div className="max-w-[500px]"> {error}</div>
-              <div className="flex justify-end gap-2 ">
-                <Button
-                  type="reset"
-                  onClick={handelCancel}
-                  variant="outline"
-                  disabled={isMutating}
-                  className={cn(error ? 'border-none bg-red-500' : '')}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isMutating}>
-                  {isMutating ? 'Submitting...' : 'Submit'}
-                </Button>
-              </div>
-            </div>
           </form>
         </Form>
       </div>

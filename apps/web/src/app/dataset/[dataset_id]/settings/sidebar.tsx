@@ -22,7 +22,6 @@ import { Button } from '@/components/ui/button'
 import { SectionType } from './setting-page'
 
 interface IProps {
-  handleGoBack: () => void
   datasetId?: string
   showMore?: boolean
   scrollRef: RefObject<HTMLDivElement>
@@ -59,7 +58,6 @@ function deleteDataset(url: string) {
 }
 
 const SlideBar = ({
-  handleGoBack,
   showMore,
   scrollRef,
   activeSection,
@@ -97,7 +95,7 @@ const SlideBar = ({
         <Button
           variant="outline"
           className="h-8 w-8 p-0"
-          onClick={handleGoBack}
+          onClick={() => router.back()}
         >
           <ArrowLeftIcon className="h-4 w-4" />
         </Button>

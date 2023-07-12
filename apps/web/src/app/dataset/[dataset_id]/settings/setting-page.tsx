@@ -44,9 +44,6 @@ const DatasetSetting = ({
     offsetPx: -10,
   })
 
-  const [error, setError] = useState<string>('')
-  const [saved, setSaved] = useState<boolean>(false)
-  const router = useRouter()
   const [showMore, setShowMore] = useState<boolean>(false)
   const defaultValues = useMemo(() => ({ name, ...config }), [config, name])
 
@@ -86,20 +83,10 @@ const DatasetSetting = ({
     defaultValues,
   })
 
-  const handleGoBack = () => {
-    const update = checkIsUpdate()
-    if (!saved && update) {
-      setError('Your changes have not been published yet!')
-    } else {
-      router.back()
-    }
-  }
-
   return (
     <div className="absolute inset-0 flex h-full w-full bg-white">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
         <SlideBar
-          handleGoBack={handleGoBack}
           showMore={showMore}
           scrollRef={scrollRef}
           datasetId={datasetId}
@@ -109,9 +96,6 @@ const DatasetSetting = ({
       <DatasetForm
         datasetId={datasetId}
         showMore={showMore}
-        error={error}
-        setError={setError}
-        setSaved={setSaved}
         form={form}
         files={config?.files}
         setShowMore={setShowMore}

@@ -70,8 +70,8 @@ const CreateDialog = () => {
   const onSubmit = async (data: SchemaProps) => {
     try {
       const json = await trigger(data)
-      router.push('/datasets')
       setOpen(false)
+      router.push(`/dataset/${json?.datasetId}`)
       console.log('add dataset success', json)
     } catch (error) {
       console.log('add dataset error', error)
