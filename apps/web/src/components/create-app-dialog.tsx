@@ -99,6 +99,7 @@ const CreateAppDialog = (props: IProps) => {
       setOpen(false)
       mutate('/api/me/workspace')
       router.push(`/app/${json.appId}/session/${json.sessionId}`)
+      router.refresh()
     } catch (error) {
       console.log('CreateAppDialog onSubmit error:', error)
     }
