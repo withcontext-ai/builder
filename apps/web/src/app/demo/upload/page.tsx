@@ -5,7 +5,7 @@ import { Camera, Loader2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { UploadFile } from '@/components/upload/type'
+import { RcFile, UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 
 const UploadScenes = () => {
@@ -26,22 +26,41 @@ const UploadScenes = () => {
     setImage([...data])
   }
 
-  const disabled = current?.[0]?.status === 'uploading'
+  const handleRemove = (file: UploadFile) => {
+    const data = files?.filter((item) => item?.uid !== file?.uid)
+    setFiles(data)
+  }
 
+  const beforeUpload = (info: RcFile) => {
+    if (info?.size > 1024 * 1024) {
+      console.log('the file is larger than 5M')
+      return false
+    }
+    return true
+  }
+
+  const disabled = current?.[0]?.status === 'uploading'
   return (
     <div className="w-[960px] space-y-8 p-6">
       <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1>pdf list</h1>
+        <h1 className="text-xl	">pdf list</h1>
         <Upload
           fileList={files}
           accept=".pdf"
+          beforeUpload={beforeUpload}
           // default just show removeIcon,if showUploadList=false show no icon
           showUploadList={{ showPreviewIcon: true, showDownloadIcon: true }}
+          /***
+           * default api is google cloud , just use handleFiles to get the uploadFiles you need
+           * you can also to by onChange to use your own api
+           *  */
           handleFiles={(files) => setFiles([...files])}
+          onRemove={handleRemove}
         />
       </section>
+
       <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1>image list</h1>
+        <h1 className="text-xl	"> show default image list</h1>
         <Upload
           listType="images-list"
           accept=".png,jpeg,.jpg,.webp"
@@ -50,8 +69,11 @@ const UploadScenes = () => {
           handleFiles={(files: UploadFile[]) => setImages(files)}
         />
       </section>
+
       <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1>image: one step: delete the image ,tow step:upload a new</h1>
+        <h1 className="text-xl">
+          image: one step: delete the image ,tow step:upload a new
+        </h1>
         <Upload
           listType="image"
           fileList={image}
@@ -62,7 +84,7 @@ const UploadScenes = () => {
       </section>
 
       <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1>
+        <h1 className="text-xl">
           custom yourself: you can design your upload button or your fileList
           card
         </h1>
@@ -99,7 +121,7 @@ const UploadScenes = () => {
       </section>
 
       <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1>
+        <h1 className="text-xl">
           update image: just one step upload a new and to update the current
         </h1>
         <div
@@ -137,6 +159,23 @@ const UploadScenes = () => {
             </Button>
           </Upload>
         </div>
+      </section>
+
+      <section className="flex w-[600px] flex-col justify-start space-y-3">
+        <h1 className="text-xl">use your own api</h1>
+        <Upload
+          listType="images-list"
+          accept=".png,jpeg,.jpg,.webp"
+          action="your own form action url"
+          //rc-upload doc: https://upload-react-component.vercel.app/
+          onChange={({ file, fileList }) => {
+            // handel the file
+            console.log(file, fileList, '----onChange')
+          }}
+          onRemove={(file) => {
+            console.log(file, '----remove the current file')
+          }}
+        />
       </section>
     </div>
   )

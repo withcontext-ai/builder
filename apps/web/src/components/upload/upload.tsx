@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import axios from 'axios'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
@@ -11,7 +11,13 @@ import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
-import { RcFile, UploadChangeParam, UploadFile, UploadProps } from './type'
+import {
+  BeforeUploadValueType,
+  RcFile,
+  UploadChangeParam,
+  UploadFile,
+  UploadProps,
+} from './type'
 import {
   file2Obj,
   getFileItem,
@@ -41,10 +47,13 @@ const Upload = (props: UploadProps) => {
     disabled: mergedDisabled,
     customRequest = () => {},
     handleFiles,
+    beforeUpload,
     showFileList = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
-
+  const [isValid, setIsValid] = useState<
+    BeforeUploadValueType | Promise<BeforeUploadValueType>
+  >(true)
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
     {
@@ -105,20 +114,28 @@ const Upload = (props: UploadProps) => {
           onChange?.(changeInfo)
         } else {
           // google api for upload
-          uploadFile({ source, controller, ...changeInfo, handleFiles })
+          if (isValid !== false) {
+            uploadFile({ source, controller, ...changeInfo, handleFiles })
+          }
         }
       })
     },
-    [controller, handleFiles, maxCount, onChange, setMergedFileList, source]
+    [
+      controller,
+      handleFiles,
+      maxCount,
+      onChange,
+      setMergedFileList,
+      source,
+      isValid,
+    ]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
-    const { beforeUpload } = props
-
     let parsedFile: File | Blob | string = file
     if (beforeUpload) {
       const result = await beforeUpload(file, fileListArgs)
-
+      setIsValid(result)
       if (result === false) {
         return false
       }

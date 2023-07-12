@@ -63,7 +63,7 @@ export interface UploadFile<T = any> {
   preview?: string
 }
 // export type UploadListProgressProps = Omit<ProgressProps, 'percent' | 'type'>
-type BeforeUploadValueType = void | boolean | string | Blob | File
+export type BeforeUploadValueType = void | boolean | string | Blob | File
 
 export interface UploadChangeParam<T = UploadFile> {
   // https://github.com/ant-design/ant-design/issues/14420
