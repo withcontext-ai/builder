@@ -93,9 +93,13 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   const router = useRouter()
   const onSubmit = async () => {
     const newValue = watch()
-    await trigger(newValue)
-    toast({ description: 'Update successfully.' })
-    router.refresh()
+    const response = await trigger(newValue)
+    if (response?.error) {
+      toast({ variant: 'destructive', description: response.error })
+    } else {
+      toast({ description: 'Update successfully.' })
+      router.refresh()
+    }
   }
   const handleFiles = (file: UploadFile<any>[]) => {
     const lens = file?.length

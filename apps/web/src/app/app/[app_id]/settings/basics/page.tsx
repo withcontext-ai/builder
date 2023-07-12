@@ -1,4 +1,4 @@
-import { cacheGetApp, getApp } from '@/db/apps/actions'
+import { getApp } from '@/db/apps/actions'
 
 import BasicsSettingForm from './form'
 
@@ -12,7 +12,6 @@ export default async function Page({ params }: IProps) {
   const { app_id } = params
 
   const appDetail = await getApp(app_id)
-  // const appDetail = await cacheGetApp(app_id)
 
   const defaultValues = {
     name: appDetail?.name,

@@ -1,4 +1,4 @@
-import { cacheGetApp, getApp } from '@/db/apps/actions'
+import { getApp } from '@/db/apps/actions'
 
 import Sidebar from './sidebar'
 
@@ -11,7 +11,6 @@ export default async function SettingsLayout({ children, params }: IProps) {
   const { app_id } = params
 
   const appDetail = await getApp(app_id)
-  // const appDetail = await cacheGetApp(app_id)
 
   return (
     <div className="fixed inset-0 z-50 flex h-full w-full bg-white">

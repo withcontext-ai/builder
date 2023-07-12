@@ -24,11 +24,8 @@ export default function Sidebar({ appId, appName }: IProps) {
   const [isPending, startTransition] = useTransition()
 
   function handleGoBack() {
-    // router.back()
-
     startTransition(() => {
       router.back()
-      // router.refresh()
     })
   }
 

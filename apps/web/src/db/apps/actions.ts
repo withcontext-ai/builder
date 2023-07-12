@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { unstable_cache } from 'next/cache'
+import { revalidateTag, unstable_cache } from 'next/cache'
 import { and, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
@@ -48,14 +48,6 @@ export async function getApps() {
 }
 
 export async function getApp(appId: string) {
-  const items = await db
-    .select()
-    .from(AppsTable)
-    .where(eq(AppsTable.short_id, appId))
-  return Promise.resolve(items[0])
-}
-
-export async function cacheGetApp(appId: string) {
   return await unstable_cache(
     async () => {
       const items = await db
@@ -66,7 +58,7 @@ export async function cacheGetApp(appId: string) {
     },
     [`app:${appId}`],
     {
-      revalidate: 900,
+      revalidate: 15 * 60, // revalidate in 15 minutes
       tags: [`app:${appId}`],
     }
   )()
@@ -74,12 +66,24 @@ export async function cacheGetApp(appId: string) {
 
 export async function editApp(id: string, newValue: Partial<NewApp>) {
   const { userId } = auth()
-  if (!userId) return Promise.resolve([])
+  if (!userId) {
+    return {
+      error: 'Not authenticated',
+    }
+  }
 
-  return db
-    .update(AppsTable)
-    .set(newValue)
-    .where(and(eq(AppsTable.short_id, id), eq(AppsTable.created_by, userId)))
+  try {
+    const response = await db
+      .update(AppsTable)
+      .set(newValue)
+      .where(and(eq(AppsTable.short_id, id), eq(AppsTable.created_by, userId)))
+    await revalidateTag(`app:${id}`)
+    return response
+  } catch (error: any) {
+    return {
+      error: error.message,
+    }
+  }
 }
 
 export async function removeApp(id: string) {

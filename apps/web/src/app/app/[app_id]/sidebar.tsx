@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import { cacheGetApp, getApp } from '@/db/apps/actions'
+import { getApp } from '@/db/apps/actions'
 import { getSessions } from '@/db/sessions/actions'
 import { getWorkspace } from '@/db/workspace/actions'
 import AuthButton from '@/components/auth-button'
@@ -14,7 +14,6 @@ export default async function Sidebar({ appId }: { appId: string }) {
   const { userId } = auth()
   const appList = await getWorkspace()
   const appDetail = await getApp(appId)
-  // const appDetail = await cacheGetApp(appId)
   const sessionList = await getSessions(appId)
 
   const isOwner = userId === appDetail.created_by
