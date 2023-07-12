@@ -39,7 +39,7 @@ const Upload = (props: UploadProps) => {
     data,
     className,
     disabled: mergedDisabled,
-    customRequest,
+    customRequest = () => {},
     handleFiles,
     showFileList = true,
   } = props
@@ -420,7 +420,7 @@ const Upload = (props: UploadProps) => {
   return (
     <div
       className={cn(
-        'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
+        'flex h-full w-full cursor-pointer flex-col  items-start justify-start',
         listType === 'image' ? 'gap-0' : 'gap-2',
         className
       )}

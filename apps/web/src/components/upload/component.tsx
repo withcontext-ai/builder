@@ -121,7 +121,7 @@ export const PDFFile = (props: FileItemProps) => {
               <div className={`line-clamp-1 ${fileNameStyle}`}>
                 {file?.name}
               </div>
-              {file?.status === 'uploading' &&
+              {(file?.status === 'uploading' || !file?.url) &&
                 (props?.progress || (
                   <Progress value={file?.percent || 0} className="h-1" />
                 ))}
@@ -187,7 +187,7 @@ export const ImageFile = (props: FileItemProps) => {
     <>
       <div
         className={cn(
-          'relative z-20 h-20 w-20 rounded-lg border  p-2',
+          'relative z-20 h-16 w-16 rounded-lg border  p-2',
           className,
           file?.status === 'error' ? 'border-[#ff4d4f]' : '',
           file?.status === 'uploading' ? 'bg-gray-50' : ''
