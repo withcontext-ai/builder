@@ -1,4 +1,3 @@
-import { revalidateTag } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { editApp, removeApp } from '@/db/apps/actions'

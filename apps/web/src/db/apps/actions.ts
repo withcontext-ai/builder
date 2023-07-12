@@ -90,6 +90,7 @@ export async function editApp(id: string, newValue: Partial<NewApp>) {
       .set(newValue)
       .where(and(eq(AppsTable.short_id, id), eq(AppsTable.created_by, userId)))
     await revalidateTag(`app:${id}`)
+    await revalidateTag(`apps`)
     return response
   } catch (error: any) {
     return {
