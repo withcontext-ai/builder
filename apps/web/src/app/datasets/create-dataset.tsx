@@ -24,24 +24,44 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-const FormSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Username must be at least 2 characters.',
-  }),
-})
+import { SchemaProps } from '../dataset/[dataset_id]/settings/setting-page'
+import { FormSchema } from '../dataset/[dataset_id]/settings/utils'
+
+const defaultValues = {
+  name: '',
+  loaderType: 'pdf loader',
+  splitType: 'character textsplitter',
+  files: [],
+  chunkSize: 1000,
+  chunkOverlap: 1000,
+  embeddingType: 'openAI embedding',
+  storeType: 'pinecone',
+  collectionName: '',
+  chromaUrl: '',
+  apiKey: '',
+  instanceName: '',
+  developmentName: '',
+  apiVersion: '',
+}
 
 const CreateDialog = () => {
   const [open, setOpen] = useState(false)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues,
   })
 
-  const onSubmit = (data: any) => {
-    console.log('---data')
+  const onSubmit = async (data: SchemaProps) => {
+    console.log(data, '---data')
     setOpen(false)
   }
+
+  const handleCancel = (open = false) => {
+    setOpen(open)
+    form.reset()
+  }
   return (
-    <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
+    <Dialog open={open} onOpenChange={(open) => handleCancel(open)}>
       <DialogTrigger asChild>
         <Button size="sm">
           <PlusIcon className="mr-2 h-4 w-4" />
@@ -76,10 +96,7 @@ const CreateDialog = () => {
               <Button
                 type="reset"
                 variant="outline"
-                onClick={() => {
-                  form.reset()
-                  setOpen(false)
-                }}
+                onClick={() => handleCancel(false)}
               >
                 Cancel
               </Button>

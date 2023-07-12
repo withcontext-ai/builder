@@ -3,7 +3,6 @@
 import { RefObject, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { difference } from 'lodash'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -12,32 +11,13 @@ import useScrollSpy from '@/hooks/use-scroll-spy'
 import DatasetForm from './dataset-form'
 import { FileProps } from './document-loader'
 import SlideBar from './sidebar'
+import { FormSchema } from './utils'
 
 export interface SectionType {
   ref?: RefObject<HTMLElement>
   title: string
   name: string
 }
-
-const FormSchema = z.object({
-  name: z
-    .string()
-    .nonempty('Dataset name is required.')
-    .max(50, { message: 'Dataset name must be less than 50 characters.' }),
-  loaderType: z.string().optional(),
-  splitType: z.string().optional(),
-  embeddingType: z.string().optional(),
-  files: z.array(z.object({ name: z.string(), url: z.string() })).optional(),
-  chunkSize: z.number().optional(),
-  chunkOverlap: z.number().optional(),
-  storeType: z.string().optional(),
-  collectionName: z.string().optional(),
-  chromaUrl: z.string().optional(),
-  apiKey: z.string().optional(),
-  instanceName: z.string().optional(),
-  developmentName: z.string().optional(),
-  apiVersion: z.string().optional(),
-})
 
 export type SchemaProps = z.infer<typeof FormSchema>
 
@@ -68,34 +48,11 @@ const DatasetSetting = ({
   const [saved, setSaved] = useState<boolean>(false)
   const router = useRouter()
   const [showMore, setShowMore] = useState<boolean>(false)
-  const defaultValues = useMemo(
-    () =>
-      name
-        ? {
-            name,
-            ...config,
-          }
-        : {
-            name: '',
-            loaderType: 'pdf loader',
-            splitType: 'character textsplitter',
-            files: [],
-            chunkSize: 1000,
-            chunkOverlap: 1000,
-            embeddingType: 'openAI embedding',
-            storeType: 'pinecone',
-            collectionName: '',
-            chromaUrl: '',
-            apiKey: '',
-            instanceName: '',
-            developmentName: '',
-            apiVersion: '',
-          },
-    [config, name]
-  )
+  const defaultValues = useMemo(() => ({ name, ...config }), [config, name])
 
   const checkFiles = () => {
     const current = form.getValues()?.files
+    // @ts-ignore
     const origin = defaultValues?.files
     if (current?.length !== origin?.length) {
       return true
