@@ -14,17 +14,14 @@ export async function addDataset(
 ) {
   const { userId } = auth()
   if (!userId) return null
+  const config = omit(dataset, 'name')
   const data = {
     name: dataset?.name,
     short_id: nanoid(),
     created_by: userId,
-    created_at: new Date(),
+    config,
   }
-  const config = omit(dataset, 'name')
-  const newDataset = await db
-    .insert(DatasetsTable)
-    .values({ ...data, config })
-    .returning()
+  const newDataset = await db.insert(DatasetsTable).values(data).returning()
   const datasetId = newDataset[0]?.short_id
   return { datasetId, name: newDataset[0].name }
 }
