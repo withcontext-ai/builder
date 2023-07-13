@@ -96,7 +96,10 @@ const SlideBar = ({
         <Button
           variant="outline"
           className="h-8 w-8 p-0"
-          onClick={() => router.back()}
+          onClick={() => {
+            router.back()
+            router.refresh()
+          }}
         >
           <ArrowLeftIcon className="h-4 w-4" />
         </Button>

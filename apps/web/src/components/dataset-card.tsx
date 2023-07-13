@@ -13,6 +13,7 @@ interface IProps {
 }
 
 export default function DatasetCard({ id, title }: IProps) {
+  console.log(id, '----id')
   return (
     <Link href={`/dataset/${id}`}>
       <Card className="h-[132px] hover:shadow-md">

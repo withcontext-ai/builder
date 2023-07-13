@@ -71,6 +71,7 @@ const CreateDialog = () => {
     try {
       const json = await trigger(data)
       setOpen(false)
+      router.refresh()
       router.push(`/dataset/${json?.datasetId}`)
       console.log('add dataset success', json)
     } catch (error) {
