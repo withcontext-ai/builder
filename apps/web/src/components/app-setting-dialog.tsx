@@ -15,21 +15,13 @@ import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher } from '@/lib/utils'
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+import ConfirmDialog from './confirm-dialog'
 import { Button } from './ui/button'
 
 function removeApp(url: string) {
@@ -53,7 +45,7 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
             id: 'settings',
             name: 'App Settings',
             icon: <Settings size={16} />,
-            link: `/app/${appId}/settings`,
+            link: `/app/${appId}/settings/basics`,
           },
         ]
       : []),
@@ -84,7 +76,8 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
       const json = await trigger()
       console.log('leave app json:', json)
       mutate('/api/me/workspace')
-      router.push('/explore')
+      router.push('/apps')
+      router.refresh()
     } catch (error) {
       console.log('AppSettingDialog handleRemove error:', error)
     }
@@ -131,27 +124,17 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
           })}
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Leave &quot;{name}&quot; App?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to leave &quot;{name}&quot; App? If you
-              leave, the app will not appear on the left panel.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={handleRemove}
-              disabled={isMutating}
-            >
-              {isMutating ? 'Leaving...' : 'Leave App'}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title={`Leave “${name}” App?`}
+        description={`Are you sure you want to leave “${name}” App? If you
+        leave, the app will not appear on the left panel.`}
+        confirmText="Leave App"
+        loadingText="Leaving..."
+        handleConfirm={handleRemove}
+        isLoading={isMutating}
+      />
     </>
   )
 }

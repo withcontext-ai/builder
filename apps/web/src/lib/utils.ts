@@ -20,10 +20,11 @@ export const timeAgo = (timestamp: Date, timeOnly?: boolean): string => {
   }`
 }
 
+// https://planetscale.com/blog/why-we-chose-nanoids-for-planetscales-api
 export const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  7
-) // 7-character random string
+  12
+) // 12-character random string
 
 // export const getFirstLetter = (str: string) => str.charAt(0).toUpperCase()
 export const getFirstLetter = (str: string) => runes(str)?.[0]?.toUpperCase()
@@ -40,7 +41,7 @@ export const BASE_URL =
 export const fetcher = (...args: Parameters<typeof fetch>) =>
   fetch(...args)
     .then((res) => res.json())
-    .then((res) => res?.data)
+    .then((res) => (res.success ? res.data : res.error))
 
 export function getAvatarBgColor(value: string) {
   const colors = [
