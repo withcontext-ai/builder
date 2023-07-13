@@ -1,6 +1,7 @@
 'use client'
 
 import { RefObject, useMemo, useRef, useState } from 'react'
+import { z } from 'zod'
 
 import useScrollSpy from '@/hooks/use-scroll-spy'
 
