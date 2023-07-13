@@ -14,7 +14,7 @@ const UploadScenes = () => {
   const [image, setImage] = useState<UploadFile[]>([])
   const [custom, setCustom] = useState<UploadFile[]>([])
   const [current, setCurrent] = useState<UploadFile[]>([])
-
+  const [dragFile, setDragFile] = useState<UploadFile[]>([])
   const handleCurrent = (files: UploadFile[]) => {
     const latest = files?.length - 1
     const current = files?.[latest]
@@ -176,6 +176,18 @@ const UploadScenes = () => {
           onRemove={(file) => {
             console.log(file, '----remove the current file')
           }}
+        />
+      </section>
+
+      <section className="flex w-[600px] flex-col justify-start space-y-3">
+        <h1 className="text-xl">drag multiple files</h1>
+        <Upload
+          fileList={dragFile}
+          listType="images-list"
+          type="drag"
+          accept=".png,jpeg,.jpg,.webp"
+          handleFiles={(files) => setDragFile([...files])}
+          // onRemove={handleRemove}
         />
       </section>
     </div>
