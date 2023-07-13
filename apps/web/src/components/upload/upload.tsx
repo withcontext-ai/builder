@@ -46,7 +46,7 @@ const Upload = (props: UploadProps) => {
     customRequest = () => {},
     handleFiles,
     beforeUpload,
-    showFileList = true,
+    showFileListCard = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
   const [isValid, setIsValid] = useState<
@@ -316,7 +316,6 @@ const Upload = (props: UploadProps) => {
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     setDragState(e.type)
-
     if (e.type === 'drop') {
       onDrop?.(e)
     }
@@ -355,7 +354,7 @@ const Upload = (props: UploadProps) => {
     action,
     accept,
     disabled: mergedDisabled,
-    onChange: undefined,
+    onChange,
     customRequest,
     beforeUpload: mergedBeforeUpload,
   } as RcUploadProps
@@ -408,7 +407,7 @@ const Upload = (props: UploadProps) => {
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showImage = listType === 'image' && mergedFileList?.length !== 0
-    return showImage && showFileList ? (
+    return showImage && showFileListCard ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
@@ -430,7 +429,7 @@ const Upload = (props: UploadProps) => {
     props?.children,
     defaultButton,
     handleRemove,
-    showFileList,
+    showFileListCard,
   ])
   return (
     <div
@@ -442,7 +441,7 @@ const Upload = (props: UploadProps) => {
       onClick={onFileDrop}
     >
       {showUploadIcon}
-      {showFileList && (
+      {showFileListCard && (
         <div
           className={cn(
             'flex w-full gap-2',

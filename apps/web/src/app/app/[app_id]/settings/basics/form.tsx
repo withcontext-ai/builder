@@ -179,7 +179,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
             fileList={image}
             handleFiles={(file) => handleFiles(file)}
             customRequest={() => {}}
-            showFileList={false}
+            showFileListCard={false}
             onRemove={() => setImage([])}
             disabled={disabled}
             className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border bg-white text-black"

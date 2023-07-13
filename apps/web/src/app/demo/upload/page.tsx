@@ -91,7 +91,8 @@ const UploadScenes = () => {
         <Upload
           listType="images-list"
           accept=".png,jpeg,.jpg,.webp"
-          showFileList={false}
+          // showFileListCard : default true, if false you can design your own fileList card
+          showFileListCard={false}
           fileList={custom}
           handleFiles={(files) => setCustom(files)}
         >
@@ -144,7 +145,7 @@ const UploadScenes = () => {
             listType="images-list"
             className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 gap-0 rounded-full border bg-white text-black"
             accept=".png,jpeg,.jpg,.webp"
-            showFileList={false}
+            showFileListCard={false}
             fileList={current}
             disabled={disabled}
             handleFiles={handleCurrent}
