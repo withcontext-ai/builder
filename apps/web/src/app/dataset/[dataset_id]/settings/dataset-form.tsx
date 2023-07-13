@@ -1,10 +1,10 @@
-import { RefObject, useMemo, useState } from 'react'
+import { RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { UseFormReturn } from 'react-hook-form'
+import { useForm, UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
+import { useDebounce } from 'usehooks-ts'
 
-import { cn, fetcher } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { fetcher } from '@/lib/utils'
 import {
   Form,
   FormControl,
@@ -26,6 +26,7 @@ interface IProps {
   datasetId?: string
   showMore?: boolean
   files?: FileProps[]
+  defaultValues: SchemaProps
   form: UseFormReturn<any>
   setShowMore?: (s: boolean) => void
   scrollRef: RefObject<HTMLDivElement>
@@ -42,6 +43,7 @@ function editDataset(url: string, { arg }: { arg: SchemaProps }) {
 const DatasetForm = ({
   datasetId,
   form,
+  defaultValues,
   setShowMore,
   showMore,
   scrollRef,
@@ -59,18 +61,59 @@ const DatasetForm = ({
   }, [files])
 
   const [data, setData] = useState<UploadFile<any>[]>(uploadFiles)
-
+  const { watch, handleSubmit } = form
+  const current = watch()
   const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
-  const router = useRouter()
-  const onSubmit = async (data: SchemaProps) => {
-    try {
-      const json = await trigger(data)
-      router.push('/datasets')
-      console.log(`edit Dataset onSubmit json:`, json)
-    } catch (error) {
-      console.log('edit dataset error', error)
+
+  const onSubmit = useCallback(async (data: SchemaProps) => {
+    console.log('--submit')
+    // try {
+    //   const json = await trigger(data)
+    //   console.log(`edit Dataset onSubmit json:`, json)
+    // } catch (error) {
+    //   console.log('edit dataset error', error)
+    // }
+  }, [])
+
+  const checkFiles = useMemo(() => {
+    const files = current?.files
+    const origin = defaultValues?.files
+    if (files?.length !== origin?.length) {
+      return true
     }
-  }
+    files?.forEach((item: FileProps) => {
+      const index = origin?.findIndex((m: FileProps) => m?.url === item?.url)
+      if (index === -1) {
+        return true
+      }
+    })
+    return false
+  }, [defaultValues?.files, current])
+
+  const checkIsUpdate = useMemo(() => {
+    if (checkFiles) {
+      console.log('--step1')
+      return true
+    }
+    for (let k in current) {
+      // @ts-ignore
+      if (k !== 'files' && current?.[k] !== defaultValues?.[k]) {
+        console.log('--step2')
+        return true
+      }
+    }
+    return false
+  }, [checkFiles, defaultValues, current])
+
+  const isUpdate = useDebounce(checkIsUpdate, 1000)
+
+  useEffect(() => {
+    if (isUpdate) {
+      handleSubmit(onSubmit)()
+    } else {
+      return
+    }
+  }, [isUpdate, onSubmit, handleSubmit])
   return (
     <div
       className="h-full w-full overflow-auto px-14 pb-[100px] pt-12"
@@ -78,7 +121,7 @@ const DatasetForm = ({
     >
       <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+          <form className="w-full">
             <section
               id="dataset-name"
               ref={sectionRefs[0]}

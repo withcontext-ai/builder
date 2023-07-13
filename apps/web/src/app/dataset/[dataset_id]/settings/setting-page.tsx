@@ -47,37 +47,6 @@ const DatasetSetting = ({
   const [showMore, setShowMore] = useState<boolean>(false)
   const defaultValues = useMemo(() => ({ name, ...config }), [config, name])
 
-  const checkFiles = () => {
-    const current = form.getValues()?.files
-    // @ts-ignore
-    const origin = defaultValues?.files
-    if (current?.length !== origin?.length) {
-      return true
-    }
-    current?.forEach((item) => {
-      const index = origin?.findIndex((m: FileProps) => m?.url === item?.url)
-      if (index === -1) {
-        return true
-      }
-    })
-    return false
-  }
-
-  const checkIsUpdate = () => {
-    const current = form.getValues()
-    const fileUpdate = checkFiles()
-    if (fileUpdate) {
-      return true
-    }
-    for (let k in current) {
-      // @ts-ignore
-      if (k !== 'files' && current?.[k] !== defaultValues?.[k]) {
-        return true
-      }
-    }
-    return false
-  }
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues,
@@ -97,6 +66,7 @@ const DatasetSetting = ({
         datasetId={datasetId}
         showMore={showMore}
         form={form}
+        defaultValues={defaultValues}
         files={config?.files}
         setShowMore={setShowMore}
         scrollRef={scrollRef}
