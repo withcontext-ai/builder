@@ -15,7 +15,7 @@ export default async function AuthButton() {
     <AuthDropdownMenu>
       <button
         type="button"
-        className="flex h-16 items-center border-t border-slate-100 text-left"
+        className="flex h-16 items-center border-t border-slate-100 text-left focus:outline-none"
       >
         <div className="flex items-center space-x-2 truncate px-4">
           <div className="h-8 w-8 overflow-hidden rounded-full">

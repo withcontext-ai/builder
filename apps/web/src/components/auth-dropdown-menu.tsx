@@ -17,12 +17,19 @@ interface IProps {
 }
 
 export default function AuthDropdownMenu({ children }: IProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
   const [isProfileOpen, setIsProfileOpen] = React.useState(false)
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu
+        open={isDropdownOpen}
+        onOpenChange={(open) => {
+          if (isLoggingOut) return
+          setIsDropdownOpen(open)
+        }}
+      >
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent className="w-52">
           <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>
