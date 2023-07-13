@@ -1,15 +1,10 @@
 'use client'
 
 import { RefObject, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 
 import useScrollSpy from '@/hooks/use-scroll-spy'
 
 import DatasetForm from './dataset-form'
-import { FileProps } from './document-loader'
 import SlideBar from './sidebar'
 import { FormSchema } from './utils'
 
@@ -47,11 +42,6 @@ const DatasetSetting = ({
   const [showMore, setShowMore] = useState<boolean>(false)
   const defaultValues = useMemo(() => ({ name, ...config }), [config, name])
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues,
-  })
-
   return (
     <div className="absolute inset-0 flex h-full w-full bg-white">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
@@ -65,7 +55,6 @@ const DatasetSetting = ({
       <DatasetForm
         datasetId={datasetId}
         showMore={showMore}
-        form={form}
         defaultValues={defaultValues}
         files={config?.files}
         setShowMore={setShowMore}

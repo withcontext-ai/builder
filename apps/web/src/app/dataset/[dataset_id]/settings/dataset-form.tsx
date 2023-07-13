@@ -1,8 +1,9 @@
 import { RefObject, useCallback, useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
+import { z } from 'zod'
 
 import { fetcher } from '@/lib/utils'
 import {
@@ -20,6 +21,7 @@ import DocumentLoader, { FileProps, stringUrlToFile } from './document-loader'
 import { SchemaProps } from './setting-page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
+import { FormSchema } from './utils'
 import VectorStores from './vector-stores'
 
 interface IProps {
@@ -27,7 +29,6 @@ interface IProps {
   showMore?: boolean
   files?: FileProps[]
   defaultValues: SchemaProps
-  form: UseFormReturn<any>
   setShowMore?: (s: boolean) => void
   scrollRef: RefObject<HTMLDivElement>
   sectionRefs: RefObject<HTMLDivElement>[]
@@ -42,7 +43,6 @@ function editDataset(url: string, { arg }: { arg: SchemaProps }) {
 
 const DatasetForm = ({
   datasetId,
-  form,
   defaultValues,
   setShowMore,
   showMore,
@@ -61,23 +61,33 @@ const DatasetForm = ({
   }, [files])
 
   const [data, setData] = useState<UploadFile<any>[]>(uploadFiles)
+  const [values, setValues] = useState<SchemaProps>(defaultValues)
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues,
+  })
+
   const { watch, handleSubmit } = form
   const current = watch()
   const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
 
-  const onSubmit = useCallback(async (data: SchemaProps) => {
-    console.log('--submit')
-    // try {
-    //   const json = await trigger(data)
-    //   console.log(`edit Dataset onSubmit json:`, json)
-    // } catch (error) {
-    //   console.log('edit dataset error', error)
-    // }
-  }, [])
+  const onSubmit = useCallback(
+    async (data: SchemaProps) => {
+      try {
+        const json = await trigger(data)
+        setValues(json.body)
+        console.log(`edit Dataset onSubmit json:`, json)
+      } catch (error) {
+        console.log('edit dataset error', error)
+      }
+    },
+    [trigger]
+  )
 
   const checkFiles = useMemo(() => {
     const files = current?.files
-    const origin = defaultValues?.files
+    const origin = values?.files
     if (files?.length !== origin?.length) {
       return true
     }
@@ -88,25 +98,22 @@ const DatasetForm = ({
       }
     })
     return false
-  }, [defaultValues?.files, current])
+  }, [current?.files, values?.files])
 
   const checkIsUpdate = useMemo(() => {
     if (checkFiles) {
-      console.log('--step1')
       return true
     }
     for (let k in current) {
       // @ts-ignore
-      if (k !== 'files' && current?.[k] !== defaultValues?.[k]) {
-        console.log('--step2')
+      if (k !== 'files' && current?.[k] !== values?.[k]) {
         return true
       }
     }
     return false
-  }, [checkFiles, defaultValues, current])
+  }, [checkFiles, current, values])
 
   const isUpdate = useDebounce(checkIsUpdate, 1000)
-
   useEffect(() => {
     if (isUpdate) {
       handleSubmit(onSubmit)()
