@@ -9,6 +9,7 @@ import { flushSync } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { useIsMounted } from '@/hooks/useIsMounted'
 
+import { Button } from '../ui/button'
 import { ImageFile, PDFFile } from './component'
 import {
   BeforeUploadValueType,
@@ -356,16 +357,20 @@ const Upload = (props: UploadProps) => {
   const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
-        <div className="flex cursor-pointer flex-row rounded-md bg-primary px-4 py-2 text-sm text-white">
+        <Button type="button">
           <UploadIcon size={16} strokeWidth={3} />
           <span className="pl-2">Upload File</span>
-        </div>
+        </Button>
       )
     } else {
       return (
-        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-16 w-16 bg-slate-50"
+        >
           <UploadIcon size={28} strokeWidth={2} />
-        </div>
+        </Button>
       )
     }
   }, [listType])

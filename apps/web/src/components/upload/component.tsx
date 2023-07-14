@@ -35,6 +35,7 @@ interface PreviewProps {
 export const IconBox = (props: IconBoxProps) => (
   <Button
     variant="outline"
+    type="button"
     className={`flex h-8 w-8 items-center justify-center rounded-md border p-0 ${cn(
       props?.className
     )}`}
