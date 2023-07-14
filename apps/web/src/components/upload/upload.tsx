@@ -7,6 +7,7 @@ import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
 import { cn } from '@/lib/utils'
+import { useIsMounted } from '@/hooks/useIsMounted'
 
 import { ImageFile, PDFFile } from './component'
 import {
@@ -64,8 +65,6 @@ const Upload = (props: UploadProps) => {
 
   // cancel axios request when uploading
   const controller = useMemo(() => new AbortController(), [cancelCount])
-  const CancelToken = axios.CancelToken
-  const source = CancelToken.source()
 
   React.useMemo(() => {
     const timestamp = Date.now()
@@ -113,20 +112,12 @@ const Upload = (props: UploadProps) => {
         } else {
           // google api for upload
           if (isValid !== false) {
-            uploadFile({ source, controller, ...changeInfo, handleFiles })
+            uploadFile({ controller, ...changeInfo, handleFiles })
           }
         }
       })
     },
-    [
-      controller,
-      handleFiles,
-      maxCount,
-      onChange,
-      setMergedFileList,
-      source,
-      isValid,
-    ]
+    [controller, handleFiles, maxCount, onChange, setMergedFileList, isValid]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
@@ -278,7 +269,6 @@ const Upload = (props: UploadProps) => {
         if (ret === false) {
           return
         }
-        source.cancel()
         controller.abort()
         setCancelCount((c) => c + 1)
 
@@ -304,14 +294,7 @@ const Upload = (props: UploadProps) => {
         }
       })
     },
-    [
-      controller,
-      mergedFileList,
-      onInternalChange,
-      onRemove,
-      setMergedFileList,
-      source,
-    ]
+    [controller, mergedFileList, onInternalChange, onRemove, setMergedFileList]
   )
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {

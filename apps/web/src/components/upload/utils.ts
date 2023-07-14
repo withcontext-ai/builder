@@ -1,4 +1,4 @@
-import axios, { CancelTokenSource } from 'axios'
+import axios from 'axios'
 
 import type { InternalUploadFile, RcFile, UploadFile } from './type'
 import { ShowUploadListInterface } from './type'
@@ -95,11 +95,9 @@ export const uploadFile = async ({
   fileList,
   controller,
   handleFiles,
-  source,
 }: {
   file: UploadFile
   fileList: UploadFile[]
-  source?: CancelTokenSource
   controller?: AbortController
   handleFiles?: (files: UploadFile<any>[]) => void
 }) => {
@@ -132,7 +130,6 @@ export const uploadFile = async ({
   axios
     .post(upload_url, formData, {
       signal: controller?.signal,
-      cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
