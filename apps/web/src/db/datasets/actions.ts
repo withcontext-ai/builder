@@ -94,6 +94,6 @@ export async function removeDataset(id: string) {
     .where(
       and(eq(DatasetsTable.short_id, id), eq(DatasetsTable.created_by, userId))
     )
-  await revalidateTag(`/${userId}/datasets`)
+  await revalidateTag(`/user/${userId}/datasets`)
   return response
 }
