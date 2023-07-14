@@ -88,11 +88,7 @@ const SearchSelect = ({
                         form.setValue('type', value)
                         setOpen(false)
                       }}
-                      className={cn(
-                        'mb-1',
-                        type?.value === 'coming soon' ? 'bg-slate-50' : ''
-                      )}
-                      disabled={type?.value === 'coming soon'}
+                      data-disabled={type?.value === 'coming soon' || undefined}
                     >
                       {type.label}
                       <CheckIcon
