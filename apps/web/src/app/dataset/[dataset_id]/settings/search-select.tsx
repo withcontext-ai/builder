@@ -63,7 +63,7 @@ const SearchSelect = ({
                   role="combobox"
                   aria-expanded={open}
                   className={cn(
-                    'w-[332px] justify-between',
+                    'w-[332px] justify-between font-normal',
                     !field.value && 'text-muted-foreground'
                   )}
                 >
@@ -74,7 +74,7 @@ const SearchSelect = ({
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[308px] p-0">
+            <PopoverContent className="w-[332px] p-0">
               <Command>
                 <CommandInput placeholder={`Search ${title}`} className="h-9" />
                 <CommandEmpty>{`No ${title} found.`}</CommandEmpty>
@@ -88,6 +88,10 @@ const SearchSelect = ({
                         form.setValue('type', value)
                         setOpen(false)
                       }}
+                      className={cn(
+                        'mb-1',
+                        type?.value === 'coming soon' ? 'bg-slate-50' : ''
+                      )}
                       disabled={type?.value === 'coming soon'}
                     >
                       {type.label}
