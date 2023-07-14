@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useMemo, useState } from 'react'
+import { RefObject, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -66,27 +66,24 @@ const DatasetForm = ({
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: values,
+    values,
   })
 
-  const { watch, handleSubmit } = form
+  const { handleSubmit } = form
   const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
   const router = useRouter()
-  const current = useDebounce(watch(), 500)
+  const current = useDebounce(form.getValues(), 1000)
 
-  const onSubmit = useCallback(
-    async (data: SchemaProps) => {
-      try {
-        const json = await trigger(data)
-        setValues(json.body)
-        router.refresh()
-        console.log(`edit Dataset onSubmit json:`, json)
-      } catch (error) {
-        console.log('edit dataset error', error)
-      }
-    },
-    [router, trigger]
-  )
+  const onSubmit = async (data: SchemaProps) => {
+    try {
+      const json = await trigger(data)
+      setValues(json.body)
+      router.refresh()
+      console.log(`edit Dataset onSubmit json:`, json)
+    } catch (error) {
+      console.log('edit dataset error', error)
+    }
+  }
 
   const checkFiles = useMemo(() => {
     const files = current?.files
@@ -122,7 +119,8 @@ const DatasetForm = ({
     } else {
       return
     }
-  }, [checkIsUpdate])
+  }, [current])
+
   return (
     <div
       className="h-full w-full overflow-auto px-14 pb-[100px] pt-12"

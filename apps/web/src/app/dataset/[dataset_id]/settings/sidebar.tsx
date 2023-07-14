@@ -97,7 +97,7 @@ const SlideBar = ({
           variant="outline"
           className="h-8 w-8 p-0"
           onClick={() => {
-            router.back()
+            router.push('/datasets')
             router.refresh()
           }}
         >
