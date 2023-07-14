@@ -6,7 +6,7 @@ import secrets
 import uuid
 from typing import AsyncIterable, Awaitable, List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import StreamingResponse
 from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
 
@@ -22,11 +22,21 @@ from models.base import (
 )
 from models.workflow import Workflow
 from models.faceto_ai import FaceToAiManager
+from utils import WEBHOOK_KEY
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/v1/chat")
+
+
+def get_token_header(request: Request):
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token header not found")
+    if token != WEBHOOK_KEY:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return token
 
 
 def wrap_token(token: str, model_id: str, session_id: str, filt: bool = False) -> str:
@@ -107,7 +117,11 @@ async def stream_completions(body: CompletionsRequest):
 
 
 @router.post("/completions/vedio/{session_id}")
-async def video_stream_completions(session_id: str, body: VideoCompletionsRequest):
+async def video_stream_completions(
+    session_id: str,
+    body: VideoCompletionsRequest,
+    token: str = Depends(get_token_header),
+):
     return StreamingResponse(
         send_message(body.messages, session_id),
         media_type="text/event-stream",

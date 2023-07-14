@@ -38,7 +38,8 @@ class FaceToAiManager:
                 "greeting": opening_remarks,
             },
             "chatapi": {
-                "key": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}"
+                "api": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}",
+                "key": 
             },
         }
         headers = {
