@@ -63,7 +63,7 @@ export interface UploadFile<T = any> {
   preview?: string
 }
 // export type UploadListProgressProps = Omit<ProgressProps, 'percent' | 'type'>
-type BeforeUploadValueType = void | boolean | string | Blob | File
+export type BeforeUploadValueType = void | boolean | string | Blob | File
 
 export interface UploadChangeParam<T = UploadFile> {
   // https://github.com/ant-design/ant-design/issues/14420
@@ -77,7 +77,7 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   controller?: AbortController
   handleFiles?: (files: UploadFile<any>[]) => void
   defaultFileList?: Array<UploadFile<T>>
-  showFileList?: boolean
+  showFileListCard?: boolean
   fileList?: Array<UploadFile<T>>
   type?: 'drag' | 'select'
   listType?: 'images-list' | 'pdf' | 'image'
@@ -85,7 +85,6 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
     | string
     | ((file: RcFile) => string)
     | ((file: RcFile) => PromiseLike<string>)
-  directory?: boolean
   data?:
     | Record<string, unknown>
     | ((
@@ -111,7 +110,6 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   withCredentials?: boolean
   openFileDialogOnClick?: boolean
   locale?: UploadLocale
-  id?: string
   progress?: ReactNode
   maxCount?: number
   children?: React.ReactNode

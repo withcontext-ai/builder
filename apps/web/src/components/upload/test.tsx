@@ -9,6 +9,7 @@ const TestUpload = (props: UploadProps) => {
   const [files, setFiles] = useState<UploadFile[]>([])
 
   const handleRemove = (file: UploadFile) => {
+    console.log(file, '---drag --file')
     const data = files?.filter((item) => item?.uid !== file?.uid)
     setFiles(data)
   }

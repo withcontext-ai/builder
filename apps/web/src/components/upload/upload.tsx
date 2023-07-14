@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import axios from 'axios'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
@@ -7,11 +7,17 @@ import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
 import { cn } from '@/lib/utils'
+import { useIsMounted } from '@/hooks/useIsMounted'
 
 import { Button } from '../ui/button'
-import { Toggle } from '../ui/toggle'
 import { ImageFile, PDFFile } from './component'
-import { RcFile, UploadChangeParam, UploadFile, UploadProps } from './type'
+import {
+  BeforeUploadValueType,
+  RcFile,
+  UploadChangeParam,
+  UploadFile,
+  UploadProps,
+} from './type'
 import {
   file2Obj,
   getFileItem,
@@ -39,12 +45,15 @@ const Upload = (props: UploadProps) => {
     data,
     className,
     disabled: mergedDisabled,
-    customRequest,
+    customRequest = () => {},
     handleFiles,
-    showFileList = true,
+    beforeUpload,
+    showFileListCard = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
-
+  const [isValid, setIsValid] = useState<
+    BeforeUploadValueType | Promise<BeforeUploadValueType>
+  >(true)
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
     {
@@ -57,8 +66,6 @@ const Upload = (props: UploadProps) => {
 
   // cancel axios request when uploading
   const controller = useMemo(() => new AbortController(), [cancelCount])
-  const CancelToken = axios.CancelToken
-  const source = CancelToken.source()
 
   React.useMemo(() => {
     const timestamp = Date.now()
@@ -105,20 +112,20 @@ const Upload = (props: UploadProps) => {
           onChange?.(changeInfo)
         } else {
           // google api for upload
-          uploadFile({ source, controller, ...changeInfo, handleFiles })
+          if (isValid !== false) {
+            uploadFile({ controller, ...changeInfo, handleFiles })
+          }
         }
       })
     },
-    [controller, handleFiles, maxCount, onChange, setMergedFileList, source]
+    [controller, handleFiles, maxCount, onChange, setMergedFileList, isValid]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
-    const { beforeUpload } = props
-
     let parsedFile: File | Blob | string = file
     if (beforeUpload) {
       const result = await beforeUpload(file, fileListArgs)
-
+      setIsValid(result)
       if (result === false) {
         return false
       }
@@ -263,7 +270,6 @@ const Upload = (props: UploadProps) => {
         if (ret === false) {
           return
         }
-        source.cancel()
         controller.abort()
         setCancelCount((c) => c + 1)
 
@@ -289,19 +295,11 @@ const Upload = (props: UploadProps) => {
         }
       })
     },
-    [
-      controller,
-      mergedFileList,
-      onInternalChange,
-      onRemove,
-      setMergedFileList,
-      source,
-    ]
+    [controller, mergedFileList, onInternalChange, onRemove, setMergedFileList]
   )
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     setDragState(e.type)
-
     if (e.type === 'drop') {
       onDrop?.(e)
     }
@@ -340,7 +338,7 @@ const Upload = (props: UploadProps) => {
     action,
     accept,
     disabled: mergedDisabled,
-    onChange: undefined,
+    onChange,
     customRequest,
     beforeUpload: mergedBeforeUpload,
   } as RcUploadProps
@@ -359,16 +357,20 @@ const Upload = (props: UploadProps) => {
   const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
-        <div className="flex cursor-pointer flex-row rounded-md bg-primary px-4 py-2 text-sm text-white">
+        <Button type="button">
           <UploadIcon size={16} strokeWidth={3} />
           <span className="pl-2">Upload File</span>
-        </div>
+        </Button>
       )
     } else {
       return (
-        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-16 w-16 bg-slate-50"
+        >
           <UploadIcon size={28} strokeWidth={2} />
-        </div>
+        </Button>
       )
     }
   }, [listType])
@@ -393,7 +395,7 @@ const Upload = (props: UploadProps) => {
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showImage = listType === 'image' && mergedFileList?.length !== 0
-    return showImage && showFileList ? (
+    return showImage && showFileListCard ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
@@ -415,19 +417,19 @@ const Upload = (props: UploadProps) => {
     props?.children,
     defaultButton,
     handleRemove,
-    showFileList,
+    showFileListCard,
   ])
   return (
     <div
       className={cn(
-        'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
+        'flex h-full w-full cursor-pointer flex-col  items-start justify-start',
         listType === 'image' ? 'gap-0' : 'gap-2',
         className
       )}
       onClick={onFileDrop}
     >
       {showUploadIcon}
-      {showFileList && (
+      {showFileListCard && (
         <div
           className={cn(
             'flex w-full gap-2',
