@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import uuid
+import json
 from typing import AsyncIterable, Awaitable, List, Optional
 
 from fastapi import APIRouter, HTTPException
@@ -77,9 +78,9 @@ async def send_message(
             model=model_name,
             choices=[Choices(index=0, finish_reason=None, delta={"content": token})],
         )
-        yield f"data: {resp.dict()}\n\n"
+        yield f"data: {json.dumps(resp.dict())}\n\n"
 
-    yield f"data: {CompletionsResponse(id=completion_id, object='chat.completion.chunk', model=model_name, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict()}\n\n"
+    yield f"data: {json.dumps(CompletionsResponse(id=completion_id, object='chat.completion.chunk', model=model_name, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict())}\n\n"
     yield "data: [DONE]\n\n"
 
     await task
