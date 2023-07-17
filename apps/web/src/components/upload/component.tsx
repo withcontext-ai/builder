@@ -118,7 +118,7 @@ export const PDFFile = (props: FileItemProps) => {
           <div className={`flex-b flex w-[90%] items-center gap-2 `}>
             <PdfImage />
             <div className="flex w-full flex-col gap-1">
-              <div className={`line-clamp-1 ${fileNameStyle}`}>
+              <div className={`line-clamp-1 break-all ${fileNameStyle}`}>
                 {file?.name}
               </div>
               {file?.status === 'uploading' &&
@@ -132,16 +132,20 @@ export const PDFFile = (props: FileItemProps) => {
               {(file?.status === 'success' || file?.status === 'done') &&
                 file?.url && (
                   <>
-                    <IconBox onClick={() => props?.onDownload!(file)}>
-                      {showIcon?.downloadIcon || (
-                        <Download size={16} strokeWidth={3} color="#000" />
-                      )}
-                    </IconBox>
-                    <IconBox onClick={() => preview(file)}>
-                      {showIcon?.previewIcon || (
-                        <Eye size={16} strokeWidth={3} />
-                      )}
-                    </IconBox>
+                    {showIcon?.showDownloadIcon && (
+                      <IconBox onClick={() => props?.onDownload!(file)}>
+                        {showIcon?.downloadIcon || (
+                          <Download size={16} strokeWidth={3} color="#000" />
+                        )}
+                      </IconBox>
+                    )}
+                    {showIcon?.showPreviewIcon && (
+                      <IconBox onClick={() => preview(file)}>
+                        {showIcon?.previewIcon || (
+                          <Eye size={16} strokeWidth={3} />
+                        )}
+                      </IconBox>
+                    )}
                   </>
                 )}
               <IconBox

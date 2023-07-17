@@ -41,7 +41,7 @@ const Upload = (props: UploadProps) => {
     disabled: mergedDisabled,
     customRequest,
     handleFiles,
-    // controller,
+    showFileList = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
 
@@ -359,16 +359,16 @@ const Upload = (props: UploadProps) => {
   const selectDefaultButton = React.useMemo(() => {
     if (listType === 'pdf') {
       return (
-        <Button className="flex cursor-pointer flex-row rounded-md bg-primary px-4 py-2 text-sm text-white">
+        <div className="flex cursor-pointer flex-row rounded-md bg-primary px-4 py-2 text-sm text-white">
           <UploadIcon size={16} strokeWidth={3} />
           <span className="pl-2">Upload File</span>
-        </Button>
+        </div>
       )
     } else {
       return (
-        <Toggle className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
+        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50">
           <UploadIcon size={28} strokeWidth={2} />
-        </Toggle>
+        </div>
       )
     }
   }, [listType])
@@ -393,7 +393,7 @@ const Upload = (props: UploadProps) => {
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showImage = listType === 'image' && mergedFileList?.length !== 0
-    return showImage ? (
+    return showImage && showFileList ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
@@ -415,23 +415,23 @@ const Upload = (props: UploadProps) => {
     props?.children,
     defaultButton,
     handleRemove,
+    showFileList,
   ])
   return (
-    <div className={` ${className}`}>
-      <div
-        className={cn(
-          'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
-          listType === 'image' ? 'gap-0' : 'gap-2'
-        )}
-        onClick={onFileDrop}
-      >
-        {showUploadIcon}
+    <div
+      className={cn(
+        'flex h-full w-full cursor-pointer flex-col  items-center justify-center',
+        listType === 'image' ? 'gap-0' : 'gap-2',
+        className
+      )}
+      onClick={onFileDrop}
+    >
+      {showUploadIcon}
+      {showFileList && (
         <div
           className={cn(
-            'flex gap-2',
-            listType === 'images-list'
-              ? ' w-full flex-row flex-wrap'
-              : 'flex-col'
+            'flex w-full gap-2',
+            listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
           )}
         >
           {listType !== 'image' &&
@@ -456,7 +456,7 @@ const Upload = (props: UploadProps) => {
               )
             })}
         </div>
-      </div>
+      )}
     </div>
   )
 }

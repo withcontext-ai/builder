@@ -2,19 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ChevronDown, ChevronUp, Settings, Share, Trash2 } from 'lucide-react'
-
-import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+  ChevronDown,
+  ChevronUp,
+  LogOutIcon,
+  Settings,
+  Share,
+} from 'lucide-react'
+import { useSWRConfig } from 'swr'
+import useSWRMutation from 'swr/mutation'
+
+import { cn, fetcher } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,22 +21,34 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+import ConfirmDialog from './confirm-dialog'
 import { Button } from './ui/button'
+
+function removeApp(url: string) {
+  return fetcher(url, { method: 'DELETE' })
+}
 
 interface IProps {
   appId: string
+  name: string
+  isOwner: boolean
 }
 
-const AppSettingDialog = ({ appId }: IProps) => {
+const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false)
+
   const menus = [
-    {
-      id: 'settings',
-      name: 'App Setting',
-      icon: <Settings size={16} />,
-      link: `/app/${appId}/settings`,
-    },
+    ...(isOwner
+      ? [
+          {
+            id: 'settings',
+            name: 'App Settings',
+            icon: <Settings size={16} />,
+            link: `/app/${appId}/settings/basics`,
+          },
+        ]
+      : []),
     {
       id: 'share',
       name: 'Share',
@@ -46,12 +57,31 @@ const AppSettingDialog = ({ appId }: IProps) => {
     },
     {
       id: 'delete',
-      name: 'Delete App',
-      icon: <Trash2 size={16} />,
+      name: 'Leave App',
+      icon: <LogOutIcon size={16} />,
       link: '',
       danger: true,
     },
   ]
+
+  const router = useRouter()
+  const { mutate } = useSWRConfig()
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/me/workspace/app/${appId}`,
+    removeApp
+  )
+
+  async function handleRemove() {
+    try {
+      const json = await trigger()
+      console.log('leave app json:', json)
+      mutate('/api/me/workspace')
+      router.push('/apps')
+      router.refresh()
+    } catch (error) {
+      console.log('AppSettingDialog handleRemove error:', error)
+    }
+  }
 
   return (
     <>
@@ -59,7 +89,7 @@ const AppSettingDialog = ({ appId }: IProps) => {
         <DropdownMenuTrigger asChild>
           <Button
             onClick={() => setOpen(true)}
-            className="h-8 w-8 bg-white p-0 text-black"
+            className="h-8 w-8 shrink-0 bg-white p-0 text-black"
             variant="outline"
           >
             {!open ? <ChevronDown /> : <ChevronUp />}
@@ -94,25 +124,17 @@ const AppSettingDialog = ({ appId }: IProps) => {
           })}
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete &quot;AI Interview&quot; App?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete “AI Interview” App? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500 text-white">
-              Delete App
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title={`Leave “${name}” App?`}
+        description={`Are you sure you want to leave “${name}” App? If you
+        leave, the app will not appear on the left panel.`}
+        confirmText="Leave App"
+        loadingText="Leaving..."
+        handleConfirm={handleRemove}
+        isLoading={isMutating}
+      />
     </>
   )
 }
