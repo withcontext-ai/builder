@@ -16,7 +16,7 @@ const TestUpload = (props: UploadProps) => {
   return (
     <Upload
       fileList={files}
-      handleFiles={(files) => setFiles([...files])}
+      onChangeFileList={(files) => setFiles([...files])}
       onRemove={handleRemove}
       // 自定义请求方式，这里在onChange阶段调用的Google cloud，不处理会使用rc-upload的请求方式多发送一次请求
       customRequest={() => {}}

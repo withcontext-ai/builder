@@ -75,7 +75,7 @@ export interface UploadChangeParam<T = UploadFile> {
 export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   name?: string
   controller?: AbortController
-  handleFiles?: (files: UploadFile<any>[]) => void
+  onChangeFileList?: (files: UploadFile<any>[]) => void
   defaultFileList?: Array<UploadFile<T>>
   showFileListCard?: boolean
   fileList?: Array<UploadFile<T>>
@@ -92,7 +92,7 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
       ) => Record<string, unknown> | Promise<Record<string, unknown>>)
   method?: 'POST' | 'PUT' | 'PATCH' | 'post' | 'put' | 'patch'
   headers?: HttpRequestHeader
-  showUploadList?: boolean | ShowUploadListInterface
+  listProps?: boolean | listPropsInterface
   multiple?: boolean
   accept?: string
   beforeUpload?: (
@@ -116,7 +116,7 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   disabled?: boolean
 }
 
-export interface ShowUploadListInterface<T = any> {
+export interface listPropsInterface<T = any> {
   showRemoveIcon?: boolean
   showPreviewIcon?: boolean
   showDownloadIcon?: boolean
@@ -144,7 +144,7 @@ export interface FileItemProps<T = any> {
   file: UploadFile
   progress?: ReactNode | number
   className?: string
-  showUploadList?: boolean | ShowUploadListInterface
+  listProps?: boolean | listPropsInterface
   fileNameStyle?: string
   locale?: UploadLocale
 }

@@ -7,7 +7,7 @@ import type {
   UploadFile,
   UploadFileStatus,
 } from './type'
-import { ShowUploadListInterface } from './type'
+import { listPropsInterface } from './type'
 
 export function file2Obj(file: RcFile): InternalUploadFile {
   return {
@@ -58,13 +58,11 @@ export function removeFileItem(
   return removed
 }
 
-export const checkShowIcon = (
-  showUploadList: boolean | ShowUploadListInterface
-) => {
-  if (typeof showUploadList === 'object') {
-    return { show: true, ...showUploadList }
+export const checkShowIcon = (listProps: boolean | listPropsInterface) => {
+  if (typeof listProps === 'object') {
+    return { show: true, ...listProps }
   } else {
-    return { show: showUploadList }
+    return { show: listProps }
   }
 }
 
@@ -84,7 +82,7 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
 const changeCurrentFile = async (
   file: UploadFile,
   fileList: UploadFile[],
-  handleFiles?: (files: UploadFile<any>[]) => void
+  onChangeFileList?: (files: UploadFile<any>[]) => void
 ) => {
   const index = fileList?.indexOf(
     // @ts-ignore
@@ -93,30 +91,30 @@ const changeCurrentFile = async (
   if (index !== -1) {
     fileList[index] = file
   }
-  handleFiles?.(fileList)
+  onChangeFileList?.(fileList)
 }
 
 export const uploadFile = async ({
   file,
   fileList,
   controller,
-  handleFiles,
+  onChangeFileList,
 }: {
   file: UploadFile
   fileList: UploadFile[]
   controller?: AbortController
-  handleFiles?: (files: UploadFile<any>[]) => void
+  onChangeFileList?: (files: UploadFile<any>[]) => void
 }) => {
   if (!file) return
   file.status = 'uploading'
   file.percent = 0
-  await changeCurrentFile(file, fileList, handleFiles)
+  await changeCurrentFile(file, fileList, onChangeFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
   if (!success) {
     file.status = 'error'
-    await changeCurrentFile(file, fileList, handleFiles)
+    await changeCurrentFile(file, fileList, onChangeFileList)
   }
 
   const { upload_url, upload_fields, file_url } = data as {
@@ -140,13 +138,13 @@ export const uploadFile = async ({
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
-        await changeCurrentFile(file, fileList, handleFiles)
+        await changeCurrentFile(file, fileList, onChangeFileList)
       },
     })
     .then(async () => {
       file.status = 'success'
       file.url = file_url
-      await changeCurrentFile(file, fileList, handleFiles)
+      await changeCurrentFile(file, fileList, onChangeFileList)
     })
     .catch((error) => {
       if (axios.isCancel(error)) {

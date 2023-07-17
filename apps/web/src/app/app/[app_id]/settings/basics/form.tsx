@@ -82,7 +82,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
     await trigger(newValue)
     toast({ description: 'Update successfully.' })
   }
-  const handleFiles = (file: UploadFile<any>[]) => {
+  const onChangeFileList = (file: UploadFile<any>[]) => {
     const lens = file?.length
     if (file[lens - 1]?.status === 'uploading') {
       setDisabled(true)
@@ -165,7 +165,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
             listType="image"
             accept=".png,.jpeg,.webp,.jpg"
             fileList={image}
-            handleFiles={(file) => handleFiles(file)}
+            onChangeFileList={(file) => onChangeFileList(file)}
             customRequest={() => {}}
             showFileListCard={false}
             onRemove={() => setImage([])}

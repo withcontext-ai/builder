@@ -39,12 +39,12 @@ const Upload = (props: UploadProps) => {
     multiple = true,
     type = 'select',
     listType = 'pdf',
-    showUploadList = true,
+    listProps = true,
     data,
     className,
     disabled: mergedDisabled,
     customRequest = () => {},
-    handleFiles,
+    onChangeFileList,
     beforeUpload,
     showFileListCard = true,
   } = props
@@ -138,12 +138,19 @@ const Upload = (props: UploadProps) => {
         } else {
           // google api for upload
           if (isValid !== false) {
-            uploadFile({ controller, ...changeInfo, handleFiles })
+            uploadFile({ controller, ...changeInfo, onChangeFileList })
           }
         }
       })
     },
-    [controller, handleFiles, maxCount, onChange, setMergedFileList, isValid]
+    [
+      controller,
+      onChangeFileList,
+      maxCount,
+      onChange,
+      setMergedFileList,
+      isValid,
+    ]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
@@ -405,7 +412,7 @@ const Upload = (props: UploadProps) => {
       return (
         <div
           className="
-          rounded-md bg-slate-200 p-10 transition delay-150 ease-in-out hover:bg-gray-100 hover:p-12"
+         rounded-md border p-10 transition delay-150 ease-in-out hover:shadow-md"
         >
           Upload Files
           <div>
@@ -426,7 +433,7 @@ const Upload = (props: UploadProps) => {
         file={file}
         onRemove={handleRemove}
         className={cn('h-16 w-16', className)}
-        showUploadList={showUploadList}
+        listProps={listProps}
       />
     ) : (
       <RcUpload {...rcUploadProps} ref={upload}>
@@ -437,7 +444,7 @@ const Upload = (props: UploadProps) => {
     mergedFileList,
     listType,
     className,
-    showUploadList,
+    listProps,
     rcUploadProps,
     props?.children,
     defaultButton,
@@ -469,7 +476,7 @@ const Upload = (props: UploadProps) => {
                   file={file}
                   onDownload={handleDownload}
                   onRemove={handleRemove}
-                  showUploadList={showUploadList}
+                  listProps={listProps}
                   key={file?.uid}
                 />
               ) : (
@@ -477,7 +484,7 @@ const Upload = (props: UploadProps) => {
                   {...props}
                   file={file}
                   onRemove={handleRemove}
-                  showUploadList={showUploadList}
+                  listProps={listProps}
                   key={file?.uid}
                 />
               )

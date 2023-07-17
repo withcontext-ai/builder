@@ -63,13 +63,13 @@ const UploadScenes = () => {
           fileList={files}
           accept=".pdf"
           beforeUpload={beforeUpload}
-          // default just show removeIcon,if showUploadList=false show no icon
-          showUploadList={{ showPreviewIcon: true, showDownloadIcon: true }}
+          // default just show removeIcon,if listProps=false show no icon
+          listProps={{ showDownloadIcon: false }}
           /***
-           * default api is google cloud , just use handleFiles to get the uploadFiles you need
+           * default api is google cloud , just use onChangeFileList to get the uploadFiles you need
            * you can also to by onChange to use your own api
            *  */
-          handleFiles={(files) => setFiles([...files])}
+          onChangeFileList={(files) => setFiles([...files])}
           onRemove={handleRemove}
         />
       </section>
@@ -81,7 +81,7 @@ const UploadScenes = () => {
           accept=".png,jpeg,.jpg,.webp"
           fileList={images}
           onRemove={(file) => handelRemoveImage(file)}
-          handleFiles={handleImage}
+          onChangeFileList={handleImage}
         />
       </section>
 
@@ -93,7 +93,7 @@ const UploadScenes = () => {
           listType="image"
           fileList={image}
           accept=".png,jpeg,.jpg,.webp"
-          handleFiles={(files) => setImage(files)}
+          onChangeFileList={(files) => setImage(files)}
           onRemove={(file) => setImage([])}
         />
       </section>
@@ -109,7 +109,7 @@ const UploadScenes = () => {
           // showFileListCard : default true, if false you can design your own fileList card
           showFileListCard={false}
           fileList={custom}
-          handleFiles={(files) => setCustom(files)}
+          onChangeFileList={(files) => setCustom(files)}
         >
           <Button className="gap-2">
             upload images
@@ -163,7 +163,7 @@ const UploadScenes = () => {
             showFileListCard={false}
             fileList={current}
             disabled={disabled}
-            handleFiles={handleCurrent}
+            onChangeFileList={handleCurrent}
           >
             <Button
               className="h-6 w-6 rounded-full"
@@ -201,7 +201,7 @@ const UploadScenes = () => {
           listType="images-list"
           type="drag"
           accept=".png,jpeg,.jpg,.webp"
-          handleFiles={(files) => setDragFile([...files])}
+          onChangeFileList={(files) => setDragFile([...files])}
           // onRemove={handleRemove}
         />
       </section>

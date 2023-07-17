@@ -32,7 +32,7 @@ const DocumentLoader = ({ form, sectionRef }: SessionProps) => {
       }, [])
     form.setValue('files', [...success])
   }
-  const handleFiles = (values: UploadFile[]) => {
+  const onChangeFileList = (values: UploadFile[]) => {
     setData([...values])
     getSuccessFile(values)
   }
@@ -75,7 +75,7 @@ const DocumentLoader = ({ form, sectionRef }: SessionProps) => {
               <FormControl>
                 <Upload
                   className="items-start justify-start"
-                  showUploadList={{
+                  listProps={{
                     showDownloadIcon: false,
                     showPreviewIcon: false,
                   }}
@@ -83,7 +83,7 @@ const DocumentLoader = ({ form, sectionRef }: SessionProps) => {
                   listType="pdf"
                   accept="application/pdf"
                   fileList={data}
-                  handleFiles={handleFiles}
+                  onChangeFileList={onChangeFileList}
                   customRequest={() => {}}
                 />
               </FormControl>
