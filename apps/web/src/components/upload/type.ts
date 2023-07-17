@@ -54,10 +54,9 @@ export interface UploadFile<T = any> {
   response?: T
   error?: any
   type?: string
-  xhr?: T
   preview?: string
 }
-// export type UploadListProgressProps = Omit<ProgressProps, 'percent' | 'type'>
+
 export type BeforeUploadValueType = void | boolean | string | Blob | File
 
 export interface UploadChangeParam<T = UploadFile> {

@@ -248,8 +248,6 @@ const Upload = (props: UploadProps) => {
     targetItem.status = 'done'
     targetItem.percent = 100
     targetItem.response = response
-    targetItem.xhr = xhr
-
     const nextFileList = updateFileList(targetItem, mergedFileList)
 
     onInternalChange(targetItem, nextFileList)
