@@ -23,7 +23,7 @@ const UploadScenes = () => {
 
   const handelRemoveImage = (file: UploadFile) => {
     const data = images?.filter((item) => item?.uid !== file?.uid)
-    setImage([...data])
+    setImages([...data])
   }
 
   const handleRemove = (file: UploadFile) => {

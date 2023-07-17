@@ -67,14 +67,16 @@ const Upload = (props: UploadProps) => {
 
   const uploading = useMemo(() => {
     return (
+      mergedFileList?.length &&
       mergedFileList?.filter((item) => item?.status === 'uploading')?.length ===
-      0
+        0
     )
   }, [mergedFileList])
 
   const unloadCallback = (event: BeforeUnloadEvent) => {
     event.preventDefault()
     event.returnValue = ''
+    controller.abort()
     return ''
   }
 
