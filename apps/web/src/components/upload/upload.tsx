@@ -49,6 +49,8 @@ const Upload = (props: UploadProps) => {
     showFileListCard = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
+
+  // record the beforeUpload status, only isValid to fetch the google cloud api
   const [isValid, setIsValid] = useState<
     BeforeUploadValueType | Promise<BeforeUploadValueType>
   >(true)

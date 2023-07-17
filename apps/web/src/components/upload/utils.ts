@@ -1,6 +1,12 @@
 import axios from 'axios'
+import { nanoid } from 'nanoid'
 
-import type { InternalUploadFile, RcFile, UploadFile } from './type'
+import type {
+  InternalUploadFile,
+  RcFile,
+  UploadFile,
+  UploadFileStatus,
+} from './type'
 import { ShowUploadListInterface } from './type'
 
 export function file2Obj(file: RcFile): InternalUploadFile {
@@ -149,4 +155,18 @@ export const uploadFile = async ({
       file.status = 'error'
       console.error(error)
     })
+}
+
+export const stringUrlToFile = (url: string) => {
+  const status: UploadFileStatus = 'success'
+  return url
+    ? [
+        {
+          url,
+          name: '',
+          uid: nanoid(),
+          status,
+        },
+      ]
+    : []
 }

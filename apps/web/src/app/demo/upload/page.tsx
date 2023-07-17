@@ -7,10 +7,15 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { RcFile, UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
+import { stringUrlToFile } from '@/components/upload/utils'
 
 const UploadScenes = () => {
+  const defaultUrl =
+    ' https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg'
   const [files, setFiles] = useState<UploadFile[]>([])
-  const [images, setImages] = useState<UploadFile[]>([])
+  const [images, setImages] = useState<UploadFile[]>(
+    stringUrlToFile(defaultUrl)
+  )
   const [image, setImage] = useState<UploadFile[]>([])
   const [custom, setCustom] = useState<UploadFile[]>([])
   const [current, setCurrent] = useState<UploadFile[]>([])
