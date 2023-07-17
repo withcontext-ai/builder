@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import axios from 'axios'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
@@ -7,7 +6,6 @@ import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
 import { cn } from '@/lib/utils'
-import { useIsMounted } from '@/hooks/useIsMounted'
 
 import { Button } from '../ui/button'
 import { ImageFile, PDFFile } from './component'
@@ -66,6 +64,29 @@ const Upload = (props: UploadProps) => {
 
   // cancel axios request when uploading
   const controller = useMemo(() => new AbortController(), [cancelCount])
+
+  const uploading = useMemo(() => {
+    return (
+      mergedFileList?.filter((item) => item?.status === 'uploading')?.length ===
+      0
+    )
+  }, [mergedFileList])
+
+  const unloadCallback = (event: BeforeUnloadEvent) => {
+    event.preventDefault()
+    event.returnValue = ''
+    return ''
+  }
+
+  // browner close to conform when uploading
+  useEffect(() => {
+    if (uploading) {
+      window.addEventListener('beforeunload', unloadCallback)
+    }
+    return () => {
+      window.removeEventListener('beforeunload', unloadCallback)
+    }
+  }, [mergedFileList])
 
   React.useMemo(() => {
     const timestamp = Date.now()
