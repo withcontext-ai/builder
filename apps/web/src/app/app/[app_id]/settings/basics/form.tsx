@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -77,10 +78,15 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
 
   const { watch, handleSubmit } = form
 
+  const router = useRouter()
   const onSubmit = async () => {
     const newValue = watch()
-    await trigger(newValue)
-    toast({ description: 'Update successfully.' })
+    const response = await trigger(newValue)
+    if (response?.error) {
+      toast({ variant: 'destructive', description: response.error })
+    } else {
+      router.refresh()
+    }
   }
   const onChangeFileList = (file: UploadFile<any>[]) => {
     const lens = file?.length

@@ -1,9 +1,11 @@
 'use client'
 
-import { RefObject } from 'react'
-import { ArrowLeftIcon, Trash2 } from 'lucide-react'
+import { RefObject, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeftIcon, Loader2Icon, Trash2 } from 'lucide-react'
+import useSWRMutation from 'swr/mutation'
 
-import { cn } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,11 +22,13 @@ import { Button } from '@/components/ui/button'
 import { SectionType } from './setting-page'
 
 interface IProps {
-  handleGoBack: () => void
+  name: string
+  datasetId?: string
   showMore?: boolean
   scrollRef: RefObject<HTMLDivElement>
   activeSection?: number
 }
+
 const sections: SectionType[] = [
   {
     title: 'Dataset Name',
@@ -50,13 +54,24 @@ const moreSessions = [
   },
 ]
 
+function deleteDataset(url: string) {
+  return fetcher(url, { method: 'DELETE' })
+}
+
 const SlideBar = ({
-  handleGoBack,
   showMore,
   scrollRef,
   activeSection,
+  datasetId,
+  name,
 }: IProps) => {
   const data = showMore ? [...sections, ...moreSessions] : sections
+  const [isPending, startTransition] = useTransition()
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/datasets/${datasetId}`,
+    deleteDataset
+  )
+  const router = useRouter()
   const handleClick = (name: string) => {
     const element = document.getElementById(`${name}`)
     if (element) {
@@ -67,19 +82,38 @@ const SlideBar = ({
       })
     }
   }
+
+  const handelDelete = async () => {
+    try {
+      const json = await trigger()
+      console.log('delete dataset json:', json)
+      router.push('/datasets')
+      router.refresh()
+    } catch (error) {
+      console.log('delete dataset error:', error)
+    }
+  }
   return (
-    <div>
-      <div className="flex items-center space-x-2 px-4 py-3">
+    <div className="h-full w-[276px]">
+      <div className="flex w-full items-center space-x-2 px-4 py-3">
         <Button
           variant="outline"
           className="h-8 w-8 p-0"
-          onClick={handleGoBack}
+          onClick={() => {
+            startTransition(() => {
+              router.push('/datasets')
+            })
+          }}
         >
-          <ArrowLeftIcon className="h-4 w-4" />
+          {isPending ? (
+            <Loader2Icon className="h-4 w-4 animate-spin" />
+          ) : (
+            <ArrowLeftIcon className="h-4 w-4" />
+          )}
         </Button>
         <div className="text-lg font-semibold">Back</div>
       </div>
-      <div className="mt-4 space-y-2 px-3 py-2">
+      <div className="mt-4 w-full space-y-2 p-3">
         <div className="text-sm font-medium uppercase text-slate-500">
           DATASETS
         </div>
@@ -102,24 +136,28 @@ const SlideBar = ({
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <div className="w-full px-3 py-4">
-            <Button variant="ghost">
-              <Trash2 size={18} />
+            <Button variant="ghost" className="w-full justify-between">
               Delete this Dataset
+              <Trash2 size={18} />
             </Button>
           </div>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[512px]">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Dataset?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete “Customer Service Documentation”
-              Dataset? This action cannot be undone.
+              Are you sure you want to delete “{name}” Dataset? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500 text-white hover:bg-red-500">
-              Delete Dataset
+            <AlertDialogAction
+              disabled={isMutating}
+              className="bg-red-500 text-white hover:bg-red-500"
+              onClick={handelDelete}
+            >
+              {isMutating ? 'Deleting Dataset' : 'Delete Dataset'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

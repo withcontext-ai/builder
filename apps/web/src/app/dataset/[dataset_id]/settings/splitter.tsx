@@ -12,15 +12,17 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
+import { FileProps } from './document-loader'
 import SearchSelect from './search-select'
 
 export interface SessionProps {
   form: UseFormReturn<any>
+  files?: FileProps[]
   sectionRef: RefObject<HTMLElement>
 }
 const types = [
   { label: 'Character TextSplitter', value: 'character textsplitter' },
-  { label: 'Coming soon...', value: 'coming soon' },
+  { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 
 const TextSplits = ({ form, sectionRef }: SessionProps) => {
