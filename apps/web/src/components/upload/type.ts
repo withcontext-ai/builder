@@ -46,18 +46,12 @@ export interface UploadFile<T = any> {
   uid: string
   size?: number
   name: string
-  fileName?: string
   lastModified?: number
-  lastModifiedDate?: Date
   url?: string
   status?: UploadFileStatus
   percent?: number
-  thumbUrl?: string
-  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin']
   originFileObj?: File
-  response?: T
   error?: any
-  linkProps?: any
   type?: string
   xhr?: T
   preview?: string
@@ -77,7 +71,7 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   controller?: AbortController
   onChangeFileList?: (files: UploadFile<any>[]) => void
   defaultFileList?: Array<UploadFile<T>>
-  showFileListCard?: boolean
+  showFileList?: boolean
   fileList?: Array<UploadFile<T>>
   type?: 'drag' | 'select'
   listType?: 'images-list' | 'pdf' | 'image'

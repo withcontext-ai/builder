@@ -46,7 +46,7 @@ const Upload = (props: UploadProps) => {
     customRequest = () => {},
     onChangeFileList,
     beforeUpload,
-    showFileListCard = true,
+    showFileList = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
 
@@ -114,7 +114,6 @@ const Upload = (props: UploadProps) => {
       } else if (maxCount) {
         cloneList = cloneList.slice(0, maxCount)
       }
-
       // Prevent React18 auto batch since input[upload] trigger process at same time
       // which makes fileList closure problem
       flushSync(() => {
@@ -183,7 +182,6 @@ const Upload = (props: UploadProps) => {
     const filteredFileInfoList = batchFileInfoList.filter(
       (info) => !(info.file as any)[LIST_IGNORE]
     )
-
     // Nothing to do since no file need upload
     if (!filteredFileInfoList.length) {
       return
@@ -219,10 +217,8 @@ const Upload = (props: UploadProps) => {
             type: originFileObj.type,
           }) as any as UploadFile
           clone.name = originFileObj.name
-          clone.lastModifiedDate = new Date()
           clone.lastModified = new Date().getTime()
         }
-
         clone.uid = fileObj.uid
         triggerFileObj = clone
       } else {
@@ -377,9 +373,6 @@ const Upload = (props: UploadProps) => {
   delete rcUploadProps.style
 
   // Remove id to avoid open by label when trigger is hidden
-  // !children: https://github.com/ant-design/ant-design/issues/14298
-  // disabled: https://github.com/ant-design/ant-design/issues/16478
-  //           https://github.com/ant-design/ant-design/issues/24197
   if (!props?.children || mergedDisabled) {
     delete rcUploadProps.id
   }
@@ -425,7 +418,7 @@ const Upload = (props: UploadProps) => {
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showImage = listType === 'image' && mergedFileList?.length !== 0
-    return showImage && showFileListCard ? (
+    return showImage && showFileList ? (
       <ImageFile
         key={file?.url || file?.uid}
         file={file}
@@ -447,7 +440,7 @@ const Upload = (props: UploadProps) => {
     props?.children,
     defaultButton,
     handleRemove,
-    showFileListCard,
+    showFileList,
   ])
   return (
     <div
@@ -459,7 +452,7 @@ const Upload = (props: UploadProps) => {
       onClick={onFileDrop}
     >
       {showUploadIcon}
-      {showFileListCard && (
+      {showFileList && (
         <div
           className={cn(
             'flex w-full gap-2',

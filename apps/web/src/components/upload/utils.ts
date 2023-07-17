@@ -13,7 +13,6 @@ export function file2Obj(file: RcFile): InternalUploadFile {
   return {
     ...file,
     lastModified: file.lastModified,
-    lastModifiedDate: file.lastModifiedDate,
     name: file.name,
     size: file.size,
     type: file.type,
