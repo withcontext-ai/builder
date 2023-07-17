@@ -51,6 +51,7 @@ export interface UploadFile<T = any> {
   status?: UploadFileStatus
   percent?: number
   originFileObj?: File
+  response?: T
   error?: any
   type?: string
   xhr?: T
