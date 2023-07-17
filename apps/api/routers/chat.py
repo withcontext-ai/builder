@@ -79,7 +79,7 @@ async def send_message(
         )
         yield f"data: {resp.dict()}\n\n"
 
-    yield f"data: {CompletionsResponse(id=id, object='chat.completion.chunk', model=model_name, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict()}\n\n"
+    yield f"data: {CompletionsResponse(id=completion_id, object='chat.completion.chunk', model=model_name, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict()}\n\n"
     yield "data: [DONE]\n\n"
 
     await task
