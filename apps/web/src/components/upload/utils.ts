@@ -169,25 +169,23 @@ export const stringUrlToFile = (url: string) => {
     : []
 }
 
+type FileProps = { name: string; url: string }
 export const changeToUploadFile = (
-  value: Partial<UploadFile>[] | string | string[]
+  value: Array<FileProps | string> | string
 ) => {
-  const singImage = typeof value === 'string'
-  if (singImage) {
-    return stringUrlToFile(value)
-  }
-  const data = value?.reduce(
-    (m: UploadFile[], item: Partial<UploadFile> | string) => {
+  const isFiles = Array.isArray(value)
+  if (isFiles) {
+    const data = value?.reduce((m: UploadFile[], item: FileProps | string) => {
       const isImage = typeof item === 'string'
       const status: UploadFileStatus = 'success'
       const cur = isImage
         ? stringUrlToFile(item)[0]
         : { ...item, status, uid: nanoid() }
-      // @ts-ignore
       m.push(cur)
       return m
-    },
-    []
-  )
-  return data
+    }, [])
+    return data
+  } else {
+    return stringUrlToFile(value)
+  }
 }

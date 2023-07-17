@@ -5,7 +5,7 @@ import type { UploadProps as RcUploadProps } from 'rc-upload'
 import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
-import { cn } from '@/lib/utils'
+import { cn, nanoid } from '@/lib/utils'
 
 import { Button } from '../ui/button'
 import { ImageFile, PDFFile } from './component'
@@ -93,11 +93,9 @@ const Upload = (props: UploadProps) => {
   }, [mergedFileList])
 
   React.useMemo(() => {
-    const timestamp = Date.now()
-
     ;(fileList || []).forEach((file: UploadFile, index: number) => {
       if (!file.uid && !Object.isFrozen(file)) {
-        file.uid = `__AUTO__${timestamp}_${index}__`
+        file.uid = nanoid()
       }
     })
   }, [fileList])
