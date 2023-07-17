@@ -32,16 +32,6 @@ const UploadScenes = () => {
     setCurrent([current])
   }
 
-  const handelRemoveImage = (file: UploadFile) => {
-    const data = images?.filter((item) => item?.uid !== file?.uid)
-    setImages([...data])
-  }
-
-  const handleRemove = (file: UploadFile) => {
-    const data = files?.filter((item) => item?.uid !== file?.uid)
-    setFiles(data)
-  }
-
   const beforeUpload = (info: RcFile) => {
     if (info?.size > 1024 * 1024 * 5) {
       console.log('the file is larger than 5M')
@@ -69,7 +59,6 @@ const UploadScenes = () => {
            * you can also to by onChange to use your own api
            *  */
           onChangeFileList={(files) => setFiles([...files])}
-          onRemove={handleRemove}
         />
       </section>
 
@@ -79,7 +68,6 @@ const UploadScenes = () => {
           listType="images-list"
           accept=".png,jpeg,.jpg,.webp"
           fileList={images}
-          onRemove={(file) => handelRemoveImage(file)}
           onChangeFileList={handleImage}
         />
       </section>
@@ -93,7 +81,6 @@ const UploadScenes = () => {
           fileList={image}
           accept=".png,jpeg,.jpg,.webp"
           onChangeFileList={(files) => setImage(files)}
-          onRemove={(file) => setImage([])}
         />
       </section>
 
@@ -197,9 +184,7 @@ const UploadScenes = () => {
         <h1 className="text-xl">drag multiple files</h1>
         <Upload
           fileList={dragFile}
-          listType="images-list"
           type="drag"
-          accept=".png,jpeg,.jpg,.webp"
           onChangeFileList={(files) => setDragFile([...files])}
           // onRemove={handleRemove}
         />

@@ -156,6 +156,7 @@ export const PDFFile = (props: FileItemProps) => {
                   e.stopPropagation()
                   e.preventDefault()
                   onRemove?.(file)
+                  console.log(file, '----onRemove')
                 }}
               >
                 {showIcon?.removeIcon || <X size={16} strokeWidth={3} />}

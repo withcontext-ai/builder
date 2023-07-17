@@ -298,6 +298,7 @@ const Upload = (props: UploadProps) => {
         setCancelCount((c) => c + 1)
 
         const removedFileList = removeFileItem(file, mergedFileList)
+        console.log(removedFileList, '---removedFileList')
         if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {
@@ -309,17 +310,25 @@ const Upload = (props: UploadProps) => {
               item.status = 'removed'
             }
           })
-          upload.current?.abort(currentFile as RcFile)
+          onChangeFileList?.(removedFileList)
           onInternalChange(currentFile, removedFileList)
         } else {
           // 解决上传单张图片移除后展示removed状态的图片问题
           flushSync(() => {
             setMergedFileList([])
+            onChangeFileList?.([])
           })
         }
       })
     },
-    [controller, mergedFileList, onInternalChange, onRemove, setMergedFileList]
+    [
+      controller,
+      mergedFileList,
+      onChangeFileList,
+      onInternalChange,
+      onRemove,
+      setMergedFileList,
+    ]
   )
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
