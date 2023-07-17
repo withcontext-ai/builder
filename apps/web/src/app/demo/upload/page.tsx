@@ -63,8 +63,7 @@ const UploadScenes = () => {
           fileList={files}
           accept=".pdf"
           beforeUpload={beforeUpload}
-          // default just show removeIcon,if listProps=false show no icon
-          listProps={{ showDownloadIcon: false }}
+          // default show all icons(delete, preview & download),if listProps=false show no icon
           /***
            * default api is google cloud , just use onChangeFileList to get the uploadFiles you need
            * you can also to by onChange to use your own api
