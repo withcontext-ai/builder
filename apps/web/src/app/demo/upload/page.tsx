@@ -7,14 +7,20 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { RcFile, UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
-import { stringUrlToFile } from '@/components/upload/utils'
+import { changeToUploadFile } from '@/components/upload/utils'
 
 const UploadScenes = () => {
+  const defaultPdf = {
+    url: 'https://storage.googleapis.com/context-builder/public-tmp/tbkDzOBF4Fat.pdf',
+    name: 'test.pdf',
+  }
   const defaultUrl =
     ' https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg'
-  const [files, setFiles] = useState<UploadFile[]>([])
+  const [files, setFiles] = useState<UploadFile[]>(
+    changeToUploadFile([defaultPdf])
+  )
   const [images, setImages] = useState<UploadFile[]>(
-    stringUrlToFile(defaultUrl)
+    changeToUploadFile(defaultUrl)
   )
   const [image, setImage] = useState<UploadFile[]>([])
   const [custom, setCustom] = useState<UploadFile[]>([])
@@ -44,6 +50,10 @@ const UploadScenes = () => {
     return true
   }
 
+  const handleImage = (files: UploadFile[]) => {
+    setImages([...files])
+  }
+
   const disabled = current?.[0]?.status === 'uploading'
   return (
     <div className="w-[960px] space-y-8 p-6">
@@ -71,7 +81,7 @@ const UploadScenes = () => {
           accept=".png,jpeg,.jpg,.webp"
           fileList={images}
           onRemove={(file) => handelRemoveImage(file)}
-          handleFiles={(files: UploadFile[]) => setImages(files)}
+          handleFiles={handleImage}
         />
       </section>
 
