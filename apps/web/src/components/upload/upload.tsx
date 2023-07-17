@@ -68,7 +68,7 @@ const Upload = (props: UploadProps) => {
   const uploading = useMemo(() => {
     return (
       mergedFileList?.length &&
-      mergedFileList?.filter((item) => item?.status === 'uploading')?.length ===
+      mergedFileList?.filter((item) => item?.status === 'uploading')?.length !==
         0
     )
   }, [mergedFileList])
