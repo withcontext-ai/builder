@@ -57,13 +57,7 @@ const Upload = (props: UploadProps) => {
   const [isValid, setIsValid] = useState<
     BeforeUploadValueType | Promise<BeforeUploadValueType>
   >(true)
-  const [mergedFileList, setMergedFileList] = useMergedState(
-    defaultFileList || [],
-    {
-      value: files,
-      postState: (list: UploadFile[]) => list ?? [],
-    }
-  )
+  const [mergedFileList, setMergedFileList] = useState<UploadFile<any>[]>(files)
   const [_, setDragState] = React.useState<string>('drop')
   const [cancelCount, setCancelCount] = React.useState(0)
 

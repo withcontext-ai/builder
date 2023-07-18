@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { current } from 'immer'
 import { nanoid } from 'nanoid'
+import { flushSync } from 'react-dom'
 
 import type {
   InternalUploadFile,
@@ -110,11 +111,10 @@ export const uploadFile = async ({
   onChangeFileList?: (files: FileProps[]) => void
   setMergedFileList?: (files: UploadFile<any>[]) => void
 }) => {
-  console.log(mergedFileList, '-----api--util')
   if (!file) return
   file.status = 'uploading'
   file.percent = 0
-  setMergedFileList?.(mergedFileList)
+  await changeCurrentFile(file, mergedFileList, setMergedFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
@@ -137,6 +137,7 @@ export const uploadFile = async ({
       formData.append(key, value)
     }
   )
+
   axios
     .post(upload_url, formData, {
       signal: controller?.signal,
