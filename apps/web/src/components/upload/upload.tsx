@@ -89,14 +89,6 @@ const Upload = (props: UploadProps) => {
     }
   }, [mergedFileList])
 
-  React.useMemo(() => {
-    ;(files || []).forEach((file: UploadFile, index: number) => {
-      if (!file.uid && !Object.isFrozen(file)) {
-        file.uid = nanoid()
-      }
-    })
-  }, [files])
-
   const onInternalChange = useCallback(
     (
       file: UploadFile,
@@ -104,7 +96,6 @@ const Upload = (props: UploadProps) => {
       event?: { percent: number }
     ) => {
       let cloneList = [...changedFileList]
-      console.log(cloneList, '---cloneList')
       // Cut to match count
       if (maxCount === 1) {
         cloneList = cloneList.slice(-1)
@@ -162,20 +153,6 @@ const Upload = (props: UploadProps) => {
       setIsValid(result)
       if (result === false) {
         return false
-      }
-
-      // Hack for LIST_IGNORE, we add additional info to remove from the list
-      delete (file as any)[LIST_IGNORE]
-      if ((result as any) === LIST_IGNORE) {
-        Object.defineProperty(file, LIST_IGNORE, {
-          value: true,
-          configurable: true,
-        })
-        return false
-      }
-
-      if (typeof result === 'object' && result) {
-        parsedFile = result as File
       }
     }
 

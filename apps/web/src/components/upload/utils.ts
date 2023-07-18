@@ -1,7 +1,5 @@
 import axios from 'axios'
-import { current } from 'immer'
 import { nanoid } from 'nanoid'
-import { flushSync } from 'react-dom'
 
 import type {
   InternalUploadFile,
