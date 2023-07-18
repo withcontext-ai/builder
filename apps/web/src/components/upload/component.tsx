@@ -62,9 +62,11 @@ export const PreviewPdf = (props: PreviewProps) => {
 export const PdfImage = ({
   width,
   height,
+  id,
 }: {
   width?: string
   height?: string
+  id?: string
 }) => (
   <svg
     width={width || '25'}
@@ -73,10 +75,10 @@ export const PdfImage = ({
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <rect width="24.2759" height="32" fill="url(#pattern0)" />
+    <rect width="24.2759" height="32" fill={`url(#pdf_image_${id})`} />
     <defs>
       <pattern
-        id="pattern0"
+        id={`pdf_image_${id}`}
         patternContentUnits="objectBoundingBox"
         width="1"
         height="1"
@@ -118,7 +120,7 @@ export const PDFFile = (props: FileItemProps) => {
           <div className={`flex-b flex w-[90%] items-center gap-2 `}>
             <PdfImage />
             <div className="flex w-full flex-col gap-1">
-              <div className={`line-clamp-1 ${fileNameStyle}`}>
+              <div className={`line-clamp-1 break-all ${fileNameStyle}`}>
                 {file?.name}
               </div>
               {file?.status === 'uploading' &&
