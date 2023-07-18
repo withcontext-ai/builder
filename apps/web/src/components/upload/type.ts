@@ -5,6 +5,8 @@ import type {
   UploadProps as RcUploadProps,
 } from 'rc-upload/lib/interface'
 
+import { FileProps } from './utils'
+
 export interface HttpRequestHeader {
   [key: string]: string
 }
@@ -69,10 +71,10 @@ export interface UploadChangeParam<T = UploadFile> {
 export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   name?: string
   controller?: AbortController
-  onChangeFileList?: (files: UploadFile<any>[]) => void
+  onChangeFileList?: (files: FileProps[]) => void
   defaultFileList?: Array<UploadFile<T>>
   showFileList?: boolean
-  fileList?: Array<UploadFile<T>>
+  fileList?: FileProps[]
   type?: 'drag' | 'select'
   listType?: 'images-list' | 'pdf' | 'image'
   action?:

@@ -17,6 +17,7 @@ import {
   UploadProps,
 } from './type'
 import {
+  changeToUploadFile,
   file2Obj,
   getFileItem,
   removeFileItem,
@@ -49,6 +50,7 @@ const Upload = (props: UploadProps) => {
     showFileList = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
+  const files = changeToUploadFile(fileList || [])
 
   // record the beforeUpload status, only isValid to fetch the google cloud api
   const [isValid, setIsValid] = useState<
@@ -57,7 +59,7 @@ const Upload = (props: UploadProps) => {
   const [mergedFileList, setMergedFileList] = useMergedState(
     defaultFileList || [],
     {
-      value: fileList,
+      value: files,
       postState: (list: UploadFile[]) => list ?? [],
     }
   )
@@ -93,12 +95,12 @@ const Upload = (props: UploadProps) => {
   }, [mergedFileList])
 
   React.useMemo(() => {
-    ;(fileList || []).forEach((file: UploadFile, index: number) => {
+    ;(files || []).forEach((file: UploadFile, index: number) => {
       if (!file.uid && !Object.isFrozen(file)) {
         file.uid = nanoid()
       }
     })
-  }, [fileList])
+  }, [files])
 
   const onInternalChange = useCallback(
     (
@@ -107,7 +109,7 @@ const Upload = (props: UploadProps) => {
       event?: { percent: number }
     ) => {
       let cloneList = [...changedFileList]
-
+      console.log(cloneList, '---cloneList')
       // Cut to match count
       if (maxCount === 1) {
         cloneList = cloneList.slice(-1)
@@ -135,18 +137,26 @@ const Upload = (props: UploadProps) => {
         } else {
           // google api for upload
           if (isValid !== false) {
-            uploadFile({ controller, ...changeInfo, onChangeFileList })
+            uploadFile({
+              controller,
+              fileList,
+              file: changeInfo?.file,
+              mergedFileList: changeInfo?.fileList,
+              onChangeFileList,
+              setMergedFileList,
+            })
           }
         }
       })
     },
     [
-      controller,
-      onChangeFileList,
       maxCount,
-      onChange,
       setMergedFileList,
+      onChange,
       isValid,
+      controller,
+      fileList,
+      onChangeFileList,
     ]
   )
 
@@ -298,7 +308,6 @@ const Upload = (props: UploadProps) => {
         setCancelCount((c) => c + 1)
 
         const removedFileList = removeFileItem(file, mergedFileList)
-        console.log(removedFileList, '---removedFileList')
         if (removedFileList?.length) {
           currentFile = { ...file, status: 'removed' }
           mergedFileList?.forEach((item: UploadFile) => {
@@ -310,7 +319,7 @@ const Upload = (props: UploadProps) => {
               item.status = 'removed'
             }
           })
-          onChangeFileList?.(removedFileList)
+          // onChangeFileList?.(removedFileList)
           onInternalChange(currentFile, removedFileList)
         } else {
           // 解决上传单张图片移除后展示removed状态的图片问题
@@ -449,6 +458,7 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     showFileList,
   ])
+  console.log(mergedFileList, '---mergeList')
   return (
     <div
       className={cn(

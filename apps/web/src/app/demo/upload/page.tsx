@@ -7,30 +7,28 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { RcFile, UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
-import { changeToUploadFile } from '@/components/upload/utils'
+import { changeToUploadFile, FileProps } from '@/components/upload/utils'
 
 const UploadScenes = () => {
   const defaultPdf = {
     url: 'https://storage.googleapis.com/context-builder/public-tmp/tbkDzOBF4Fat.pdf',
     name: 'test.pdf',
   }
-  const defaultUrl =
-    ' https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg'
-  const [files, setFiles] = useState<UploadFile[]>(
-    changeToUploadFile([defaultPdf])
-  )
-  const [images, setImages] = useState<UploadFile[]>(
-    changeToUploadFile(defaultUrl)
-  )
-  const [image, setImage] = useState<UploadFile[]>([])
-  const [custom, setCustom] = useState<UploadFile[]>([])
-  const [current, setCurrent] = useState<UploadFile[]>([])
-  const [dragFile, setDragFile] = useState<UploadFile[]>([])
-  const handleCurrent = (files: UploadFile[]) => {
-    const latest = files?.length - 1
-    const current = files?.[latest]
-    setCurrent([current])
+  const defaultUrl = {
+    url: ' https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg',
+    name: '1.jpeg',
   }
+  const [files, setFiles] = useState<FileProps[]>([defaultPdf])
+  const [images, setImages] = useState<FileProps[]>([defaultUrl])
+  // const [image, setImage] = useState<UploadFile[]>([])
+  // const [custom, setCustom] = useState<UploadFile[]>([])
+  // const [current, setCurrent] = useState<UploadFile[]>([])
+  // const [dragFile, setDragFile] = useState<UploadFile[]>([])
+  // const handleCurrent = (files: UploadFile[]) => {
+  //   const latest = files?.length - 1
+  //   const current = files?.[latest]
+  //   setCurrent([current])
+  // }
 
   const beforeUpload = (info: RcFile) => {
     if (info?.size > 1024 * 1024 * 5) {
@@ -40,11 +38,11 @@ const UploadScenes = () => {
     return true
   }
 
-  const handleImage = (files: UploadFile[]) => {
-    setImages([...files])
-  }
+  // const handleImage = (files: UploadFile[]) => {
+  //   setImages([...files])
+  // }
 
-  const disabled = current?.[0]?.status === 'uploading'
+  // const disabled = current?.[0]?.status === 'uploading'
   return (
     <div className="w-[960px] space-y-8 p-6">
       <section className="flex w-[600px] flex-col justify-start space-y-3">
@@ -58,7 +56,9 @@ const UploadScenes = () => {
            * default api is google cloud , just use onChangeFileList to get the uploadFiles you need
            * you can also to by onChange to use your own api
            *  */
-          onChangeFileList={(files) => setFiles([...files])}
+          onChangeFileList={(files) => {
+            setFiles([...files])
+          }}
         />
       </section>
 
@@ -68,11 +68,11 @@ const UploadScenes = () => {
           listType="images-list"
           accept=".png,jpeg,.jpg,.webp"
           fileList={images}
-          onChangeFileList={handleImage}
+          onChangeFileList={(files) => setImages([...files])}
         />
       </section>
 
-      <section className="flex w-[600px] flex-col justify-start space-y-3">
+      {/* <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">
           image: one step: delete the image ,tow step:upload a new
         </h1>
@@ -188,7 +188,7 @@ const UploadScenes = () => {
           onChangeFileList={(files) => setDragFile([...files])}
           // onRemove={handleRemove}
         />
-      </section>
+      </section> */}
     </div>
   )
 }

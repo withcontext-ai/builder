@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { current } from 'immer'
 import { nanoid } from 'nanoid'
 
 import type {
@@ -80,40 +81,47 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
 
 const changeCurrentFile = async (
   file: UploadFile,
-  fileList: UploadFile[],
-  onChangeFileList?: (files: UploadFile<any>[]) => void
+  mergedFileList: UploadFile[],
+  setMergedFileList?: (files: UploadFile<any>[]) => void
 ) => {
-  const index = fileList?.indexOf(
+  const index = mergedFileList?.indexOf(
     // @ts-ignore
     (item: { uid: any }) => item?.uid === file?.uid
   )
+  console.log(mergedFileList, '--mergedFileList', index)
+
   if (index !== -1) {
-    fileList[index] = file
+    mergedFileList[index] = file
   }
-  onChangeFileList?.(fileList)
+  setMergedFileList?.(mergedFileList)
 }
 
 export const uploadFile = async ({
   file,
+  mergedFileList,
   fileList,
   controller,
   onChangeFileList,
+  setMergedFileList,
 }: {
   file: UploadFile
-  fileList: UploadFile[]
+  mergedFileList: UploadFile[]
+  fileList?: FileProps[]
   controller?: AbortController
-  onChangeFileList?: (files: UploadFile<any>[]) => void
+  onChangeFileList?: (files: FileProps[]) => void
+  setMergedFileList?: (files: UploadFile<any>[]) => void
 }) => {
+  console.log(mergedFileList, '--fileList--uploadApi')
   if (!file) return
   file.status = 'uploading'
   file.percent = 0
-  await changeCurrentFile(file, fileList, onChangeFileList)
+  await changeCurrentFile(file, mergedFileList, setMergedFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
   if (!success) {
     file.status = 'error'
-    await changeCurrentFile(file, fileList, onChangeFileList)
+    await changeCurrentFile(file, mergedFileList, setMergedFileList)
   }
 
   const { upload_url, upload_fields, file_url } = data as {
@@ -137,13 +145,14 @@ export const uploadFile = async ({
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
-        await changeCurrentFile(file, fileList, onChangeFileList)
+        await changeCurrentFile(file, mergedFileList, setMergedFileList)
       },
     })
     .then(async () => {
       file.status = 'success'
       file.url = file_url
-      await changeCurrentFile(file, fileList, onChangeFileList)
+      await changeCurrentFile(file, mergedFileList, setMergedFileList)
+      onChangeFileList?.([...fileList, { url: file?.url, name: file?.name }])
     })
     .catch((error) => {
       if (axios.isCancel(error)) {
@@ -168,7 +177,7 @@ export const stringUrlToFile = (url: string) => {
     : []
 }
 
-type FileProps = { name: string; url: string }
+export type FileProps = { name: string; url: string }
 export const changeToUploadFile = (
   value: Array<FileProps | string> | string
 ) => {
