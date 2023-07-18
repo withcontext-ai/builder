@@ -107,7 +107,6 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   }, [current, latest])
 
   useEffect(() => {
-    console.log(checkIsUpdate)
     if (checkIsUpdate) {
       handleSubmit(onSubmit)()
     }

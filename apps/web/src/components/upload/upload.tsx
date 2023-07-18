@@ -452,7 +452,7 @@ const Upload = (props: UploadProps) => {
     ) : (
       bgText
     )
-  }, [bgText, handleRemove, latest, mergedFileList?.length])
+  }, [bgText, latest, mergedFileList])
 
   return (
     <div

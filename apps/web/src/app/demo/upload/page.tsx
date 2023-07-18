@@ -84,7 +84,7 @@ const UploadScenes = () => {
         />
       </section>
 
-      <section className="flex w-[600px] flex-col justify-start space-y-3">
+      {/* <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">use your own api</h1>
         <Upload
           listType="images-list"
@@ -99,7 +99,7 @@ const UploadScenes = () => {
             console.log(file, '----remove the current file')
           }}
         />
-      </section>
+      </section> */}
 
       <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">drag multiple files</h1>
