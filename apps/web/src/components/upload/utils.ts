@@ -101,6 +101,7 @@ export const uploadFile = async ({
   controller,
   onChangeFileList,
   setMergedFileList,
+  setIsUploading,
 }: {
   file: UploadFile
   mergedFileList: UploadFile<any>[]
@@ -108,7 +109,9 @@ export const uploadFile = async ({
   controller?: AbortController
   onChangeFileList?: (files: FileProps[]) => void
   setMergedFileList?: (files: UploadFile<any>[]) => void
+  setIsUploading: (s: boolean) => void
 }) => {
+  setIsUploading(true)
   if (!file) return
   file.status = 'uploading'
   file.percent = 0
@@ -118,6 +121,7 @@ export const uploadFile = async ({
   const { success, data } = await res.json()
   if (!success) {
     file.status = 'error'
+    setIsUploading(false)
     await changeCurrentFile(file, mergedFileList, setMergedFileList)
   }
 
@@ -149,6 +153,7 @@ export const uploadFile = async ({
     .then(async () => {
       file.status = 'success'
       file.url = file_url
+      setIsUploading(false)
       await changeCurrentFile(file, mergedFileList, setMergedFileList)
       onChangeFileList?.([...fileList, { url: file?.url, name: file?.name }])
     })
@@ -175,7 +180,12 @@ export const stringUrlToFile = (url: string) => {
     : []
 }
 
-export type FileProps = { name: string; url: string }
+export type FileProps = {
+  name: string
+  url: string
+  uid?: string
+  type?: string
+}
 export const changeToUploadFile = (
   value: Array<FileProps | string> | string
 ) => {

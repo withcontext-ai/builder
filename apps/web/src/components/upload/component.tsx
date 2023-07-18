@@ -190,7 +190,7 @@ export const ImageFile = (props: FileItemProps) => {
     <>
       <div
         className={cn(
-          'relative z-20 h-16 w-16 rounded-lg border  p-2',
+          'relative h-16 w-16 rounded-lg border p-2',
           className,
           file?.status === 'error' ? 'border-[#ff4d4f]' : '',
           file?.status === 'uploading' ? 'bg-gray-50' : ''

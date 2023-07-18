@@ -20,7 +20,7 @@ const UploadScenes = () => {
   }
   const [files, setFiles] = useState<FileProps[]>([defaultPdf])
   const [images, setImages] = useState<FileProps[]>([defaultUrl])
-  // const [image, setImage] = useState<UploadFile[]>([])
+  const [image, setImage] = useState<FileProps[]>([])
   // const [custom, setCustom] = useState<UploadFile[]>([])
   // const [current, setCurrent] = useState<UploadFile[]>([])
   // const [dragFile, setDragFile] = useState<UploadFile[]>([])
@@ -72,7 +72,7 @@ const UploadScenes = () => {
         />
       </section>
 
-      {/* <section className="flex w-[600px] flex-col justify-start space-y-3">
+      <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">
           image: one step: delete the image ,tow step:upload a new
         </h1>
@@ -84,7 +84,7 @@ const UploadScenes = () => {
         />
       </section>
 
-      <section className="flex w-[600px] flex-col justify-start space-y-3">
+      {/* <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">
           custom yourself: you can design your upload button or your fileList
           card
@@ -188,7 +188,7 @@ const UploadScenes = () => {
           onChangeFileList={(files) => setDragFile([...files])}
           // onRemove={handleRemove}
         />
-      </section> */}
+      </section>  */}
     </div>
   )
 }

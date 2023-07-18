@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Upload as UploadIcon } from 'lucide-react'
+import { C } from 'drizzle-orm/db.d-cf0abe10'
+import { Camera, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import useMergedState from 'rc-util/lib/hooks/useMergedState'
@@ -31,12 +32,13 @@ export const LIST_IGNORE = `__LIST_IGNORE_${Date.now()}__`
 const Upload = (props: UploadProps) => {
   const {
     fileList,
-    defaultFileList,
     maxCount,
     onChange,
     onRemove,
     onDrop,
     accept,
+    bgText = '',
+    bgColor = 'slate',
     action = '',
     multiple = true,
     type = 'select',
@@ -48,11 +50,13 @@ const Upload = (props: UploadProps) => {
     customRequest = () => {},
     onChangeFileList,
     beforeUpload,
+    setUploading,
     showFileList = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
   const files = changeToUploadFile(fileList || [])
-
+  // check is uploading
+  const [isUploading, setIsUploading] = useState(false)
   // record the beforeUpload status, only isValid to fetch the google cloud api
   const [isValid, setIsValid] = useState<
     BeforeUploadValueType | Promise<BeforeUploadValueType>
@@ -64,14 +68,6 @@ const Upload = (props: UploadProps) => {
   // cancel axios request when uploading
   const controller = useMemo(() => new AbortController(), [cancelCount])
 
-  const uploading = useMemo(() => {
-    return (
-      mergedFileList?.length &&
-      mergedFileList?.filter((item) => item?.status === 'uploading')?.length !==
-        0
-    )
-  }, [mergedFileList])
-
   const unloadCallback = (event: BeforeUnloadEvent) => {
     event.preventDefault()
     event.returnValue = ''
@@ -79,15 +75,19 @@ const Upload = (props: UploadProps) => {
     return ''
   }
 
+  useEffect(() => {
+    setUploading?.(isUploading)
+  }, [isUploading])
+
   // browner close to conform when uploading
   useEffect(() => {
-    if (uploading) {
+    if (isUploading) {
       window.addEventListener('beforeunload', unloadCallback)
     }
     return () => {
       window.removeEventListener('beforeunload', unloadCallback)
     }
-  }, [mergedFileList])
+  }, [isUploading])
 
   const onInternalChange = useCallback(
     (
@@ -130,6 +130,7 @@ const Upload = (props: UploadProps) => {
               mergedFileList: changeInfo?.fileList,
               onChangeFileList,
               setMergedFileList,
+              setIsUploading,
             })
           }
         }
@@ -160,16 +161,7 @@ const Upload = (props: UploadProps) => {
   }
 
   const onBatchStart: RcUploadProps['onBatchStart'] = (batchFileInfoList) => {
-    // Skip file which marked as `LIST_IGNORE`, these file will not add to file list
-    const filteredFileInfoList = batchFileInfoList.filter(
-      (info) => !(info.file as any)[LIST_IGNORE]
-    )
-    // Nothing to do since no file need upload
-    if (!filteredFileInfoList.length) {
-      return
-    }
-
-    const objectFileList = filteredFileInfoList.map((info) =>
+    const objectFileList = batchFileInfoList.map((info) =>
       file2Obj(info.file as RcFile)
     )
 
@@ -185,7 +177,7 @@ const Upload = (props: UploadProps) => {
       // Repeat trigger `onChange` event for compatible
       let triggerFileObj: UploadFile = fileObj
 
-      if (!filteredFileInfoList[index].parsedFile) {
+      if (!batchFileInfoList[index].parsedFile) {
         // `beforeUpload` return false
         const { originFileObj } = fileObj
         let clone
@@ -290,6 +282,7 @@ const Upload = (props: UploadProps) => {
               item.status = 'removed'
             }
           })
+          // handle fileList
           const removed = removedFileList?.reduce(
             (m: FileProps[], item: UploadFile) => {
               m.push({ url: item?.url || '', name: item?.name })
@@ -379,6 +372,18 @@ const Upload = (props: UploadProps) => {
           <span className="pl-2">Upload File</span>
         </Button>
       )
+    }
+    if (listType === 'update-image') {
+      return (
+        <Button
+          className="h-6 w-6 rounded-full border"
+          variant="outline"
+          size="icon"
+          disabled={isUploading}
+        >
+          <Camera size={16} strokeWidth={2} />
+        </Button>
+      )
     } else {
       return (
         <Button
@@ -386,7 +391,7 @@ const Upload = (props: UploadProps) => {
           variant="outline"
           className="h-16 w-16 bg-slate-50"
         >
-          <UploadIcon size={28} strokeWidth={2} />
+          <Camera size={28} />
         </Button>
       )
     }
@@ -436,47 +441,76 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     showFileList,
   ])
-  console.log(mergedFileList, '---mergeList')
+  const latest = mergedFileList[mergedFileList?.length - 1]
+
+  const showUpdateImageList = useMemo(() => {
+    return mergedFileList?.length !== 0 ? (
+      <ImageFile
+        {...props}
+        file={latest}
+        onRemove={handleRemove}
+        listProps={listProps}
+        key={latest?.uid}
+      />
+    ) : (
+      bgText
+    )
+  }, [bgText, handleRemove, latest, listProps, mergedFileList?.length, props])
+
   return (
     <div
       className={cn(
-        'flex h-full w-full cursor-pointer flex-col  items-start justify-start',
-        listType === 'image' ? 'gap-0' : 'gap-2',
-        className
+        listType === 'update-image' &&
+          'relative flex h-16 w-16 items-center justify-center rounded-lg border-0',
+        listType === 'update-image' &&
+          mergedFileList?.length === 0 &&
+          `bg-${bgColor}-600 text-white`
       )}
-      onClick={onFileDrop}
     >
-      {showUploadIcon}
-      {showFileList && (
-        <div
-          className={cn(
-            'flex w-full gap-2',
-            listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
-          )}
-        >
-          {listType !== 'image' &&
-            mergedFileList?.map((file: UploadFile) => {
-              return listType === 'pdf' ? (
-                <PDFFile
-                  {...props}
-                  file={file}
-                  onDownload={handleDownload}
-                  onRemove={handleRemove}
-                  listProps={listProps}
-                  key={file?.uid}
-                />
-              ) : (
-                <ImageFile
-                  {...props}
-                  file={file}
-                  onRemove={handleRemove}
-                  listProps={listProps}
-                  key={file?.uid}
-                />
-              )
-            })}
-        </div>
-      )}
+      {listType === 'update-image' && showUpdateImageList}
+      <div
+        className={cn(
+          'flex h-full w-full cursor-pointer flex-col  items-start justify-start',
+          listType === 'image' ? 'gap-0' : 'gap-2',
+          className,
+          listType === 'update-image'
+            ? 'z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border text-black'
+            : ''
+        )}
+        onClick={onFileDrop}
+      >
+        {showUploadIcon}
+        {showFileList && (
+          <div
+            className={cn(
+              'flex w-full gap-2',
+              listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
+            )}
+          >
+            {(listType === 'pdf' || listType === 'images-list') &&
+              mergedFileList?.map((file: UploadFile) => {
+                return listType === 'pdf' ? (
+                  <PDFFile
+                    {...props}
+                    file={file}
+                    onDownload={handleDownload}
+                    onRemove={handleRemove}
+                    listProps={listProps}
+                    key={file?.uid}
+                  />
+                ) : (
+                  <ImageFile
+                    {...props}
+                    file={file}
+                    onRemove={handleRemove}
+                    listProps={listProps}
+                    key={file?.uid}
+                  />
+                )
+              })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

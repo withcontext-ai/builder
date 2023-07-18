@@ -72,11 +72,14 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   name?: string
   controller?: AbortController
   onChangeFileList?: (files: FileProps[]) => void
+  setUploading?: (s: boolean) => void
+  bgColor?: string
+  bgText?: string
   defaultFileList?: Array<UploadFile<T>>
   showFileList?: boolean
   fileList?: FileProps[]
   type?: 'drag' | 'select'
-  listType?: 'images-list' | 'pdf' | 'image'
+  listType?: 'images-list' | 'pdf' | 'image' | 'update-image'
   action?:
     | string
     | ((file: RcFile) => string)
