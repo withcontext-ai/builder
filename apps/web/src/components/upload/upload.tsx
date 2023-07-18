@@ -471,7 +471,7 @@ const Upload = (props: UploadProps) => {
           listType === 'image' ? 'gap-0' : 'gap-2',
           className,
           listType === 'update-image'
-            ? 'z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full border text-black'
+            ? 'z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 rounded-full bg-white text-black'
             : ''
         )}
         onClick={onFileDrop}

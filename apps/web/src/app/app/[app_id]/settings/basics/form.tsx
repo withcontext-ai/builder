@@ -1,15 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Camera, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
+import { useDebounce } from 'usehooks-ts'
 import { z } from 'zod'
 
-import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import {
   Form,
   FormControl,
@@ -21,9 +20,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
-import { UploadFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
-import { FileProps, stringUrlToFile } from '@/components/upload/utils'
+import { FileProps } from '@/components/upload/utils'
 
 function editApp(
   url: string,
@@ -64,6 +62,7 @@ interface IProps {
 
 export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   const { trigger } = useSWRMutation(`/api/apps/${appId}`, editApp)
+  const [latest, setLatest] = useState(defaultValues)
   const { toast } = useToast()
   const values = defaultValues?.icon
     ? [
@@ -74,7 +73,6 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
       ]
     : []
   const [image, setImage] = useState<FileProps[]>(values)
-  const [disabled, setDisabled] = useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,18 +80,38 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
     mode: 'onBlur',
   })
 
-  const { watch, handleSubmit } = form
+  const { watch, handleSubmit, getValues } = form
+  const current = useDebounce(getValues(), 1000)
 
   const router = useRouter()
   const onSubmit = async () => {
     const newValue = watch()
     const response = await trigger(newValue)
+    setLatest(response?.body)
+    console.log(response, '----edit basic')
     if (response?.error) {
       toast({ variant: 'destructive', description: response.error })
     } else {
       router.refresh()
     }
   }
+  const checkIsUpdate = useMemo(() => {
+    if (
+      current?.name === latest?.name &&
+      current?.description === latest?.description &&
+      current?.icon === latest?.icon
+    ) {
+      return false
+    }
+    return true
+  }, [current, latest])
+
+  useEffect(() => {
+    console.log(checkIsUpdate)
+    if (checkIsUpdate) {
+      handleSubmit(onSubmit)()
+    }
+  }, [current])
 
   const color = getAvatarBgColor(appId)
   const bgText = getFirstLetter(watch().name || '')
@@ -101,7 +119,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
     <div>
       <h6 className="mb-6	text-2xl font-semibold leading-8">Basics</h6>
       <Form {...form}>
-        <form onBlur={handleSubmit(onSubmit)} className="space-y-8">
+        <form className="space-y-8">
           <FormField
             control={form.control}
             name="name"
