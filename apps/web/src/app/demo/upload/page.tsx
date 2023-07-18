@@ -1,13 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Camera, Loader2 } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { RcFile, UploadFile } from '@/components/upload/type'
+import { RcFile } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
-import { changeToUploadFile, FileProps } from '@/components/upload/utils'
+import { FileProps } from '@/components/upload/utils'
 
 const UploadScenes = () => {
   const defaultPdf = {
@@ -21,14 +18,9 @@ const UploadScenes = () => {
   const [files, setFiles] = useState<FileProps[]>([defaultPdf])
   const [images, setImages] = useState<FileProps[]>([defaultUrl])
   const [image, setImage] = useState<FileProps[]>([])
-  // const [custom, setCustom] = useState<UploadFile[]>([])
-  // const [current, setCurrent] = useState<UploadFile[]>([])
-  // const [dragFile, setDragFile] = useState<UploadFile[]>([])
-  // const handleCurrent = (files: UploadFile[]) => {
-  //   const latest = files?.length - 1
-  //   const current = files?.[latest]
-  //   setCurrent([current])
-  // }
+
+  const [current, setCurrent] = useState<FileProps[]>([])
+  const [dragFile, setDragFile] = useState<FileProps[]>([])
 
   const beforeUpload = (info: RcFile) => {
     if (info?.size > 1024 * 1024 * 5) {
@@ -37,12 +29,6 @@ const UploadScenes = () => {
     }
     return true
   }
-
-  // const handleImage = (files: UploadFile[]) => {
-  //   setImages([...files])
-  // }
-
-  // const disabled = current?.[0]?.status === 'uploading'
   return (
     <div className="w-[960px] space-y-8 p-6">
       <section className="flex w-[600px] flex-col justify-start space-y-3">
@@ -84,83 +70,18 @@ const UploadScenes = () => {
         />
       </section>
 
-      {/* <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1 className="text-xl">
-          custom yourself: you can design your upload button or your fileList
-          card
-        </h1>
-        <Upload
-          listType="images-list"
-          accept=".png,jpeg,.jpg,.webp"
-          // showFileList : default true, if false you can design your own fileList card
-          showFileList={false}
-          fileList={custom}
-          onChangeFileList={(files) => setCustom(files)}
-        >
-          <Button className="gap-2">
-            upload images
-            <Camera size={24} strokeWidth={2} />
-          </Button>
-        </Upload>
-        <div className="flex gap-2">
-          {custom?.map((image) => {
-            return (
-              <div
-                className={cn(
-                  'relative flex h-16 w-16 items-center justify-center rounded-lg border',
-                  image?.status === 'uploading' ? 'bg-slate-200' : ''
-                )}
-                key={image?.uid}
-              >
-                {image.url && <img src={image?.url} alt="image" />}
-                {image?.status === 'uploading' && (
-                  <Loader2 className="animate-spin" />
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </section>
-
       <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">
           update image: just one step upload a new and to update the current
         </h1>
-        <div
-          className={cn(
-            'relative flex h-16 w-16 items-center justify-center rounded-lg border-0 bg-orange-600',
-            current[0]?.status === 'error' ? 'border-[#ff4d4f]' : '',
-            current[0]?.status === 'uploading' ? 'bg-gray-50' : '',
-            current[0]?.status === 'success'
-              ? 'border border-gray-100 bg-white'
-              : ''
-          )}
-        >
-          {current?.[0]?.url && <img src={current?.[0]?.url} alt="" />}
-          {disabled && (
-            <div className="bg-slate-100">
-              <Loader2 className="h-3 w-3 animate-spin" />
-            </div>
-          )}
-          <Upload
-            listType="images-list"
-            className="z-1 absolute bottom-[-8px] right-[-8px] h-6 w-6 gap-0 rounded-full border bg-white text-black"
-            accept=".png,jpeg,.jpg,.webp"
-            showFileList={false}
-            fileList={current}
-            disabled={disabled}
-            onChangeFileList={handleCurrent}
-          >
-            <Button
-              className="h-6 w-6 rounded-full"
-              variant="outline"
-              size="icon"
-              disabled={disabled}
-            >
-              <Camera size={16} strokeWidth={2} />
-            </Button>
-          </Upload>
-        </div>
+
+        <Upload
+          listType="update-image"
+          accept=".png,jpeg,.jpg,.webp"
+          showFileList={false}
+          fileList={current}
+          onChangeFileList={(files) => setCurrent(files)}
+        />
       </section>
 
       <section className="flex w-[600px] flex-col justify-start space-y-3">
@@ -188,7 +109,7 @@ const UploadScenes = () => {
           onChangeFileList={(files) => setDragFile([...files])}
           // onRemove={handleRemove}
         />
-      </section>  */}
+      </section>
     </div>
   )
 }

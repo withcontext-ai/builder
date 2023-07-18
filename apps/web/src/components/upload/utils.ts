@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { nanoid } from 'nanoid'
+
+import { nanoid } from '@/lib/utils'
 
 import type {
   InternalUploadFile,
@@ -94,6 +95,28 @@ const changeCurrentFile = async (
   setMergedFileList?.(mergedFileList)
 }
 
+const handleSuccess = ({
+  mergedFileList,
+  onChangeFileList,
+}: {
+  mergedFileList: UploadFile[]
+  onChangeFileList?: (files: FileProps[]) => void
+}) => {
+  const success = mergedFileList?.filter(
+    (item) => item?.status === 'success' && item?.url
+  )
+  const data = success?.reduce((m: FileProps[], item: UploadFile) => {
+    m.push({
+      url: item?.url || '',
+      uid: nanoid(),
+      type: item?.type,
+      name: item?.name,
+    })
+    return m
+  }, [])
+  onChangeFileList?.(data)
+}
+
 export const uploadFile = async ({
   file,
   mergedFileList,
@@ -154,8 +177,8 @@ export const uploadFile = async ({
       file.status = 'success'
       file.url = file_url
       setIsUploading(false)
+      handleSuccess({ mergedFileList, onChangeFileList })
       await changeCurrentFile(file, mergedFileList, setMergedFileList)
-      onChangeFileList?.([...fileList, { url: file?.url, name: file?.name }])
     })
     .catch((error) => {
       if (axios.isCancel(error)) {

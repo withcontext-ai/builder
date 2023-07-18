@@ -198,7 +198,7 @@ export const ImageFile = (props: FileItemProps) => {
         key={file?.uid || file?.url}
       >
         <div className={`relative z-10 flex h-full w-full items-center`}>
-          {file?.status == 'uploading' && !file?.url ? (
+          {file?.status == 'uploading' ? (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1">
               {props?.locale?.uploading}
               <Loader2 className="h-3 w-3 animate-spin" />

@@ -148,6 +148,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
           onChangeFileList={(files) => {
             const current = files[files?.length - 1]
             form.setValue('icon', current?.url)
+            setImage(files)
           }}
         />
       </div>

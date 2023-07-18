@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { C } from 'drizzle-orm/db.d-cf0abe10'
 import { Camera, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
-import useMergedState from 'rc-util/lib/hooks/useMergedState'
 import { flushSync } from 'react-dom'
 
-import { cn, nanoid } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 import { Button } from '../ui/button'
 import { ImageFile, PDFFile } from './component'
@@ -77,7 +75,7 @@ const Upload = (props: UploadProps) => {
 
   useEffect(() => {
     setUploading?.(isUploading)
-  }, [isUploading])
+  }, [isUploading, setUploading])
 
   // browner close to conform when uploading
   useEffect(() => {
@@ -442,26 +440,26 @@ const Upload = (props: UploadProps) => {
     showFileList,
   ])
   const latest = mergedFileList[mergedFileList?.length - 1]
-
   const showUpdateImageList = useMemo(() => {
     return mergedFileList?.length !== 0 ? (
       <ImageFile
         {...props}
         file={latest}
         onRemove={handleRemove}
-        listProps={listProps}
+        listProps={false}
         key={latest?.uid}
       />
     ) : (
       bgText
     )
-  }, [bgText, handleRemove, latest, listProps, mergedFileList?.length, props])
+  }, [bgText, handleRemove, latest, mergedFileList?.length])
 
+  console.log(isUploading, '0000updateing')
   return (
     <div
       className={cn(
         listType === 'update-image' &&
-          'relative flex h-16 w-16 items-center justify-center rounded-lg border-0',
+          'relative flex h-16 w-16 items-center justify-center rounded-lg border',
         listType === 'update-image' &&
           mergedFileList?.length === 0 &&
           `bg-${bgColor}-600 text-white`
