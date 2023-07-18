@@ -56,7 +56,7 @@ const DatasetForm = ({
 }: IProps) => {
   const uploadFiles = useMemo(() => {
     return files
-      ? files.reduce((m: UploadFile<any>[], item: FileProps) => {
+      ? files.reduce((m: FileProps[], item: FileProps) => {
           const file = stringUrlToFile(item)
           m?.push(file)
           return m
@@ -64,7 +64,7 @@ const DatasetForm = ({
       : []
   }, [files])
 
-  const [data, setData] = useState<UploadFile<any>[]>(uploadFiles)
+  const [data, setData] = useState<FileProps[]>(uploadFiles)
   const [values, setValues] = useState<SchemaProps>(defaultValues)
 
   const form = useForm<z.infer<typeof FormSchema>>({

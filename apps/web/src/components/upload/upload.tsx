@@ -454,7 +454,6 @@ const Upload = (props: UploadProps) => {
     )
   }, [bgText, handleRemove, latest, mergedFileList?.length])
 
-  console.log(isUploading, '0000updateing')
   return (
     <div
       className={cn(

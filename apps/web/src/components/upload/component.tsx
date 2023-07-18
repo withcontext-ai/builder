@@ -142,7 +142,7 @@ export const PDFFile = (props: FileItemProps) => {
                         )}
                       </IconBox>
                     )}
-                    {!showIcon?.showPreviewIcon !== false && (
+                    {showIcon?.showPreviewIcon !== false && (
                       <IconBox onClick={() => preview(file)}>
                         {showIcon?.previewIcon || (
                           <Eye size={16} strokeWidth={3} />
