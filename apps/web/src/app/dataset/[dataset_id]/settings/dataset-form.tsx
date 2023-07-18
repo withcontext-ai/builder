@@ -17,9 +17,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { UploadFile } from '@/components/upload/type'
+import { FileProps } from '@/components/upload/utils'
 
-import DocumentLoader, { FileProps, stringUrlToFile } from './document-loader'
+import DocumentLoader, { stringUrlToFile } from './document-loader'
 import { SchemaProps } from './setting-page'
 import TextSplits from './splitter'
 import TextEmbedding from './text-embedding'
