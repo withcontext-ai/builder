@@ -88,7 +88,6 @@ const changeCurrentFile = async (
     // @ts-ignore
     (item: { uid: any }) => item?.uid === file?.uid
   )
-  console.log(mergedFileList, '--mergedFileList', index)
 
   if (index !== -1) {
     mergedFileList[index] = file
@@ -99,23 +98,23 @@ const changeCurrentFile = async (
 export const uploadFile = async ({
   file,
   mergedFileList,
-  fileList,
+  fileList = [],
   controller,
   onChangeFileList,
   setMergedFileList,
 }: {
   file: UploadFile
-  mergedFileList: UploadFile[]
+  mergedFileList: UploadFile<any>[]
   fileList?: FileProps[]
   controller?: AbortController
   onChangeFileList?: (files: FileProps[]) => void
   setMergedFileList?: (files: UploadFile<any>[]) => void
 }) => {
-  console.log(mergedFileList, '--fileList--uploadApi')
+  console.log(mergedFileList, '-----api--util')
   if (!file) return
   file.status = 'uploading'
   file.percent = 0
-  await changeCurrentFile(file, mergedFileList, setMergedFileList)
+  setMergedFileList?.(mergedFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()

@@ -19,6 +19,7 @@ import {
 import {
   changeToUploadFile,
   file2Obj,
+  FileProps,
   getFileItem,
   removeFileItem,
   updateFileList,
@@ -235,7 +236,6 @@ const Upload = (props: UploadProps) => {
         // Inject `uploading` status
         fileObj.status = 'uploading'
       }
-
       onInternalChange(triggerFileObj, newFileList)
     })
   }
@@ -319,7 +319,14 @@ const Upload = (props: UploadProps) => {
               item.status = 'removed'
             }
           })
-          // onChangeFileList?.(removedFileList)
+          const removed = removedFileList?.reduce(
+            (m: FileProps[], item: UploadFile) => {
+              m.push({ url: item?.url || '', name: item?.name })
+              return m
+            },
+            []
+          )
+          onChangeFileList?.(removed)
           onInternalChange(currentFile, removedFileList)
         } else {
           // 解决上传单张图片移除后展示removed状态的图片问题
@@ -359,7 +366,7 @@ const Upload = (props: UploadProps) => {
           const url = window.URL.createObjectURL(blob)
           const fileLink = document.createElement('a')
           fileLink.href = url
-          fileLink.download = `${name}`
+          fileLink.download = `${file?.name}`
           document.body.appendChild(fileLink)
           fileLink.click()
           fileLink.remove()
