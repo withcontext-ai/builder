@@ -3,6 +3,8 @@
 import { Ref } from 'react'
 import { Message } from 'ai'
 
+import { cn } from '@/lib/utils'
+
 import ChatCard from './chat-card'
 
 interface IProps {
@@ -14,6 +16,7 @@ interface IProps {
   appId: string
   appName: string
   appIcon: string
+  isDebug?: boolean
 }
 
 const ChatList = ({
@@ -25,10 +28,14 @@ const ChatList = ({
   appId,
   appName,
   appIcon,
+  isDebug = false,
 }: IProps) => {
   return (
     <div
-      className="flex flex-1 flex-col gap-12 overflow-auto px-6 pb-24 pt-6"
+      className={cn(
+        'flex flex-1 flex-col gap-12 overflow-auto pb-24 pt-6',
+        !isDebug ? 'px-6' : ''
+      )}
       ref={scrollRef}
       onWheel={() => setAutoScroll(false)}
     >

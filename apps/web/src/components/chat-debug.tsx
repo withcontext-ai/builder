@@ -1,12 +1,6 @@
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Play } from 'lucide-react'
+
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import Chat from './chat/page'
 import { Button } from './ui/button'
@@ -23,16 +17,13 @@ const ChatDebug = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">Open</Button>
+        <Button>
+          <Play />
+          Enter Debug
+        </Button>
       </SheetTrigger>
-      <SheetContent className="mt-[10%] h-4/5 w-[569px]">
-        <SheetHeader>
-          <SheetTitle className="flex justify-between">
-            Debug <Button variant="outline">Restart</Button>
-          </SheetTitle>
-        </SheetHeader>
-        <Chat {...values} showHeader={false} />
-        <SheetFooter></SheetFooter>
+      <SheetContent className="bottom-6 right-6 top-auto h-4/5 sm:w-full md:w-full lg:w-[569px]">
+        <Chat {...values} isDebug />
       </SheetContent>
     </Sheet>
   )

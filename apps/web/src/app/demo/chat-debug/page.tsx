@@ -1,7 +1,11 @@
 import ChatDebug from '@/components/chat-debug'
 
 const ChatDebugPage = () => {
-  return <ChatDebug />
+  return (
+    <div className="p-6">
+      <ChatDebug />
+    </div>
+  )
 }
 
 export default ChatDebugPage

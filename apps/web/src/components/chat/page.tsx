@@ -16,7 +16,7 @@ interface IProps {
   appId: string
   appName: string
   appIcon: string
-  showHeader?: boolean
+  isDebug?: boolean
 }
 
 const Chat = ({
@@ -25,18 +25,27 @@ const Chat = ({
   appName,
   appIcon,
   appId,
-  showHeader = true,
+  isDebug = false,
 }: IProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
-  const { messages, input, setInput, isLoading, reload, stop, append, error } =
-    useChat({
-      id: sessionId,
-      onResponse: () => {
-        setWaiting(false)
-      },
-    })
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    reload,
+    stop,
+    append,
+    error,
+    setMessages,
+  } = useChat({
+    id: sessionId,
+    onResponse: () => {
+      setWaiting(false)
+    },
+  })
 
   const handelReload = () => {
     setAutoScroll(true)
@@ -53,10 +62,12 @@ const Chat = ({
 
   usePageTitle(sessionName)
 
+  const reStart = () => {
+    setMessages([])
+  }
   return (
     <div className="flex h-full w-full flex-col">
-      {showHeader && <ChatHeader name={sessionName} />}
-
+      <ChatHeader name={sessionName} isDebug={isDebug} reStart={reStart} />
       <ChatList
         messages={messages}
         waiting={waiting}
@@ -66,6 +77,7 @@ const Chat = ({
         appId={appId}
         appName={appName}
         appIcon={appIcon}
+        isDebug={isDebug}
       />
       <ChatInput
         input={input}
