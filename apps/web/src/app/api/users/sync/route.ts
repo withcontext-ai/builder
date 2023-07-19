@@ -10,7 +10,7 @@ export async function GET() {
     return NextResponse.redirect('/')
   }
 
-  const totalUsers = await clerkClient.users.getCount()
+  // const totalUsers = await clerkClient.users.getCount()
 
   const users = await clerkClient.users.getUserList({
     limit: 100,
@@ -28,11 +28,5 @@ export async function GET() {
     addUser(userValue)
   })
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      totalUsers,
-      users,
-    },
-  })
+  return NextResponse.json({ success: true })
 }
