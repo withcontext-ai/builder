@@ -18,7 +18,10 @@ export const Markdown = (props: MarkdownProps) => {
   const { className, showCustomerCard: showCustomerCard, ...others } = props
   return (
     <ReactMarkdown
-      className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+      className={cn(
+        'prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0',
+        className
+      )}
       components={{
         p({ children }) {
           return (
