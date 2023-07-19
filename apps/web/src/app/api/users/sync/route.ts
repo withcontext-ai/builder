@@ -10,23 +10,25 @@ export async function GET() {
     return NextResponse.redirect('/')
   }
 
-  // const totalUsers = await clerkClient.users.getCount()
+  const totalUsers = await clerkClient.users.getCount()
 
   const users = await clerkClient.users.getUserList({
-    limit: 100,
+    orderBy: '-created_at',
+    limit: totalUsers,
   })
 
-  users.forEach((user) => {
-    const userValue = {
-      short_id: user.id,
-      last_name: user.lastName,
-      first_name: user.firstName,
-      image_url: user.imageUrl,
-      username: user.username,
-      created_at: new Date(user.createdAt),
-    }
-    addUser(userValue)
+  const userValues = users.map((user) => ({
+    short_id: user.id,
+    last_name: user.lastName,
+    first_name: user.firstName,
+    image_url: user.imageUrl,
+    username: user.username,
+    created_at: new Date(user.createdAt),
+  }))
+
+  userValues.forEach((user) => {
+    addUser(user)
   })
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, data: { totalUsers, userValues } })
 }
