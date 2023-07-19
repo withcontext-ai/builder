@@ -11,7 +11,7 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 
-interface IProps {
+export interface chatProps {
   sessionId: string
   sessionName: string
   appId: string
@@ -27,7 +27,7 @@ const Chat = ({
   appIcon,
   appId,
   isDebug = false,
-}: IProps) => {
+}: chatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 

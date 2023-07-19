@@ -2,18 +2,10 @@ import { Play } from 'lucide-react'
 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
-import Chat from './chat/page'
+import Chat, { chatProps } from './chat/page'
 import { Button } from './ui/button'
 
-const ChatDebug = () => {
-  const values = {
-    sessionId: '',
-    sessionName: '1',
-    appName: '222',
-    appIcon:
-      'https://backend.withcontext.ai/backend/upload/2023/04/65947928-68d6-4f64-99d9-0b98578fe4c6.jpeg',
-    appId: '11',
-  }
+const ChatDebug = (values: chatProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
