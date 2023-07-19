@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useChat } from 'ai/react'
 
+import { cn } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
@@ -77,7 +78,6 @@ const Chat = ({
         appId={appId}
         appName={appName}
         appIcon={appIcon}
-        isDebug={isDebug}
       />
       <ChatInput
         input={input}
