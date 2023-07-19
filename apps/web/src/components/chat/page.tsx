@@ -96,6 +96,7 @@ const Chat = ({
         showResend={showResend}
         reload={handelReload}
         stop={handelStop}
+        isDebug={isDebug}
       />
     </div>
   )

@@ -109,7 +109,7 @@ const ChatCard = (props: IProps) => {
           <div className="flex items-end">
             <div
               className={cn(
-                'rounded-lg p-4 text-sm sm:max-w-full md:max-w-full lg:max-w-3xl	xl:max-w-3xl',
+                'rounded-lg p-4 text-sm sm:max-w-xs md:max-w-full	lg:max-w-3xl xl:max-w-3xl',
                 isUser ? 'bg-primary' : 'bg-gray-100',
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
               )}
