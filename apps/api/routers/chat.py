@@ -1,16 +1,17 @@
 import asyncio
+import json
 import logging
 import os
 import uuid
-import json
-from typing import AsyncIterable, Awaitable, List, Optional
+from typing import AsyncIterable, Awaitable, List
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
-from pydantic import BaseModel
+
+from apps.api.models.chat import Choices, CompletionsRequest, CompletionsResponse
 
 logger = logging.getLogger(__name__)
 
@@ -18,29 +19,6 @@ if "OPENAI_API_KEY" not in os.environ:
     os.environ["OPENAI_API_KEY"] = ""
 
 router = APIRouter(prefix="/v1/chat")
-
-
-class Messages(BaseModel):
-    role: str
-    content: str
-
-
-class CompletionsRequest(BaseModel):
-    model: str
-    messages: List[Messages]
-
-
-class Choices(BaseModel):
-    index: int
-    finish_reason: Optional[str]
-    delta: dict
-
-
-class CompletionsResponse(BaseModel):
-    id: str
-    object: str
-    model: str
-    choices: List[Choices]
 
 
 async def send_message(
