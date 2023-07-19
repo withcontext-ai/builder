@@ -4,12 +4,7 @@ import logging
 import os
 import secrets
 import uuid
-<<<<<<< HEAD
 from typing import AsyncIterable, Awaitable, List
-=======
-import json
-from typing import AsyncIterable, Awaitable, List, Optional
->>>>>>> f1af916 (fix: json serialisation)
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import StreamingResponse
