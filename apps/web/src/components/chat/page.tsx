@@ -16,9 +16,17 @@ interface IProps {
   appId: string
   appName: string
   appIcon: string
+  showHeader?: boolean
 }
 
-const Chat = ({ sessionId, sessionName, appName, appIcon, appId }: IProps) => {
+const Chat = ({
+  sessionId,
+  sessionName,
+  appName,
+  appIcon,
+  appId,
+  showHeader = true,
+}: IProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
@@ -47,7 +55,8 @@ const Chat = ({ sessionId, sessionName, appName, appIcon, appId }: IProps) => {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ChatHeader name={sessionName} />
+      {showHeader && <ChatHeader name={sessionName} />}
+
       <ChatList
         messages={messages}
         waiting={waiting}
