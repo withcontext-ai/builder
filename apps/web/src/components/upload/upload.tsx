@@ -439,8 +439,8 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     showFileList,
   ])
-  const latest = mergedFileList[mergedFileList?.length - 1]
   const showUpdateImageList = useMemo(() => {
+    const latest = mergedFileList[mergedFileList?.length - 1]
     return mergedFileList?.length !== 0 ? (
       <ImageFile
         {...props}
@@ -452,7 +452,7 @@ const Upload = (props: UploadProps) => {
     ) : (
       bgText
     )
-  }, [bgText, latest, mergedFileList])
+  }, [bgText, mergedFileList, props])
 
   return (
     <div

@@ -80,26 +80,11 @@ const UploadScenes = () => {
           accept=".png,jpeg,.jpg,.webp"
           showFileList={false}
           fileList={current}
-          onChangeFileList={(files) => setCurrent(files)}
+          onChangeFileList={(files) => {
+            setCurrent(files)
+          }}
         />
       </section>
-
-      {/* <section className="flex w-[600px] flex-col justify-start space-y-3">
-        <h1 className="text-xl">use your own api</h1>
-        <Upload
-          listType="images-list"
-          accept=".png,jpeg,.jpg,.webp"
-          action="your own form action url"
-          //rc-upload doc: https://upload-react-component.vercel.app/
-          onChange={({ file, fileList }) => {
-            // handel the file
-            console.log(file, fileList, '----onChange')
-          }}
-          onRemove={(file) => {
-            console.log(file, '----remove the current file')
-          }}
-        />
-      </section> */}
 
       <section className="flex w-[600px] flex-col justify-start space-y-3">
         <h1 className="text-xl">drag multiple files</h1>
