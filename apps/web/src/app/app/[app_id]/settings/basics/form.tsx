@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isEqual } from 'lodash'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
@@ -55,14 +56,13 @@ interface IProps {
   appId: string
   defaultValues: {
     name: string
-    description: string
-    icon: string
+    description?: string
+    icon?: string
   }
 }
 
 export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   const { trigger } = useSWRMutation(`/api/apps/${appId}`, editApp)
-  const [latest, setLatest] = useState(defaultValues)
   const { toast } = useToast()
   const values = defaultValues?.icon
     ? [
@@ -77,43 +77,37 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: 'onBlur',
   })
 
-  const { watch, handleSubmit, getValues } = form
-  const current = useDebounce(getValues(), 1000)
+  const { watch, handleSubmit } = form
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const formValue = useMemo(() => watch(), [JSON.stringify(watch())])
+  const debouncedFormValue = useDebounce(formValue, 1000)
+  const latestFormValueRef = useRef(defaultValues)
 
   const router = useRouter()
   const onSubmit = async () => {
     const newValue = watch()
     const response = await trigger(newValue)
-    setLatest(response?.body)
-    console.log(response, '----edit basic')
     if (response?.error) {
       toast({ variant: 'destructive', description: response.error })
     } else {
+      latestFormValueRef.current = newValue
       router.refresh()
     }
   }
-  const checkIsUpdate = useMemo(() => {
-    if (
-      current?.name === latest?.name &&
-      current?.description === latest?.description &&
-      current?.icon === latest?.icon
-    ) {
-      return false
-    }
-    return true
-  }, [current, latest])
 
   useEffect(() => {
-    if (checkIsUpdate) {
+    if (!isEqual(debouncedFormValue, latestFormValueRef.current)) {
       handleSubmit(onSubmit)()
     }
-  }, [current])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(debouncedFormValue)])
 
   const color = getAvatarBgColor(appId)
   const bgText = getFirstLetter(watch().name || '')
+
   return (
     <div>
       <h6 className="mb-6	text-2xl font-semibold leading-8">Basics</h6>
