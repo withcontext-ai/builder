@@ -49,6 +49,7 @@ const ChatList = ({
             appName={appName}
             appIcon={appIcon}
             appId={appId}
+            isDebug={isDebug}
           />
         )
       })}

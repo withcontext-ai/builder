@@ -78,6 +78,7 @@ const Chat = ({
         appId={appId}
         appName={appName}
         appIcon={appIcon}
+        isDebug={isDebug}
       />
       <ChatInput
         input={input}

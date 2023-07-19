@@ -20,6 +20,7 @@ interface IProps {
   appId: string
   appName: string
   appIcon: string
+  isDebug?: boolean
 }
 
 const AlertErrorIcon = ({ className }: { className: string }) => (
@@ -73,7 +74,7 @@ const formatTime = (time: number) => {
 }
 
 const ChatCard = (props: IProps) => {
-  const { message, error = '', isEnd, appName, appIcon, appId } = props
+  const { message, error = '', isEnd, appName, appIcon, appId, isDebug } = props
   const isUser = message?.role === 'user'
   const showError = isEnd && error && !isUser
 
@@ -110,6 +111,8 @@ const ChatCard = (props: IProps) => {
             <div
               className={cn(
                 'max-w-[280px] rounded-lg p-4 text-sm sm:max-w-xs md:max-w-lg	lg:max-w-3xl xl:max-w-3xl',
+                isDebug &&
+                  'max-w-[240px] rounded-lg p-4 text-sm	sm:max-w-xs md:max-w-md lg:max-w-md xl:max-w-md',
                 isUser ? 'bg-primary' : 'bg-gray-100',
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
               )}
