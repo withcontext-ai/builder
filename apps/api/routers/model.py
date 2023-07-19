@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import logging
 from uuid import uuid4
 
@@ -43,10 +42,3 @@ def update_model(id: str, model: Model):
 def delete_model(id: str):
     model_manager.delete_model(id)
     return {"message": "success", "status": 200}
-=======
-from fastapi import APIRouter, HTTPException
-import logging
-
-logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/v1/models")
->>>>>>> d387e4c (fix: conflict)
