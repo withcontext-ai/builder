@@ -102,14 +102,23 @@ export async function editDataset(id: string, newValue: Partial<NewDataset>) {
   return response
 }
 
-export async function removeDataset(id: string) {
+export async function removeDataset(dataset_id: string, api_id: string) {
+  console.log(api_id, dataset_id, '----delete')
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
+  const deleted = fetcher(`/v1/datasets/${api_id}`, {
+    method: 'DELETE',
+    body: JSON.stringify({ dataset_id: api_id }),
+  })
+  if (!deleted) return
   const response = await db
     .update(DatasetsTable)
     .set({ archived: true, updated_at: new Date() })
     .where(
-      and(eq(DatasetsTable.short_id, id), eq(DatasetsTable.created_by, userId))
+      and(
+        eq(DatasetsTable.short_id, dataset_id),
+        eq(DatasetsTable.created_by, userId)
+      )
     )
   await revalidateTag(`/user/${userId}/datasets`)
   return response

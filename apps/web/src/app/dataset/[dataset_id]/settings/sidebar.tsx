@@ -24,6 +24,7 @@ import { SectionType } from './setting-page'
 interface IProps {
   name: string
   datasetId?: string
+  apiId?: string
   showMore?: boolean
   scrollRef: RefObject<HTMLDivElement>
   activeSection?: number
@@ -64,11 +65,12 @@ const SlideBar = ({
   activeSection,
   datasetId,
   name,
+  apiId = '',
 }: IProps) => {
   const data = showMore ? [...sections, ...moreSessions] : sections
   const [isPending, startTransition] = useTransition()
   const { trigger, isMutating } = useSWRMutation(
-    `/api/datasets/${datasetId}`,
+    `/api/datasets/${datasetId}${apiId}`,
     deleteDataset
   )
   const router = useRouter()

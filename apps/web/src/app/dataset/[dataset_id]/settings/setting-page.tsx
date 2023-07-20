@@ -53,6 +53,7 @@ const DatasetSetting = ({
           scrollRef={scrollRef}
           datasetId={datasetId}
           name={name}
+          apiId={apiId}
           activeSection={activeSection}
         />
       </div>
