@@ -13,6 +13,7 @@ const DatasetEdit = async ({ params }: IProps) => {
     <>
       {/* Desktop version, can edit */}
       <DatasetSetting
+        apiId={data?.api_dataset_id}
         name={data?.name}
         config={data?.config || {}}
         datasetId={dataset_id}

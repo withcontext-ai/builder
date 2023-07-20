@@ -28,6 +28,7 @@ import VectorStores from './vector-stores'
 
 interface IProps {
   datasetId?: string
+  apiId?: string
   showMore?: boolean
   files?: FileProps[]
   defaultValues: SchemaProps
@@ -37,7 +38,10 @@ interface IProps {
   setUploading?: (s: boolean) => void
 }
 
-function editDataset(url: string, { arg }: { arg: SchemaProps }) {
+function editDataset(
+  url: string,
+  { arg }: { arg: SchemaProps & { apiId?: string } }
+) {
   return fetcher(url, {
     method: 'PATCH',
     body: JSON.stringify(arg),
@@ -52,6 +56,7 @@ const DatasetForm = ({
   scrollRef,
   sectionRefs,
   files,
+  apiId,
   setUploading,
 }: IProps) => {
   const uploadFiles = useMemo(() => {
@@ -79,7 +84,7 @@ const DatasetForm = ({
 
   const onSubmit = async (data: SchemaProps) => {
     try {
-      const json = await trigger(data)
+      const json = await trigger({ ...data, apiId })
       setValues(json.body)
       router.refresh()
       console.log(`edit Dataset onSubmit json:`, json)
