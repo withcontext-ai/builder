@@ -17,7 +17,7 @@ interface State {
   workflowData: WorkflowItem[]
 
   resetState: () => void
-  addWorkflow: (type: WorkflowType, subType: string) => void
+  addTask: (type: WorkflowType, subType: string) => void
   setWorkflowTree: (tree: TreeItem[]) => void
 }
 
@@ -32,7 +32,7 @@ export const useSettingsStore = create<State>((set) => ({
   resetState: () => {
     set(() => defaultState)
   },
-  addWorkflow: (type: WorkflowType, subType: string) => {
+  addTask: (type: WorkflowType, subType: string) => {
     set(
       produce((draft: State) => {
         const id = nanoid()

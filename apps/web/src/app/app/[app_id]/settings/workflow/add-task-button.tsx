@@ -72,10 +72,10 @@ const CONFIG = [
 export default function AddTaskButton() {
   const [open, setOpen] = React.useState(false)
 
-  const addWorkflow = useSettingsStore((state) => state.addWorkflow)
+  const addTask = useSettingsStore((state) => state.addTask)
 
   const selectHandler = (type: WorkflowType, subType: string) => () => {
-    addWorkflow(type, subType)
+    addTask(type, subType)
     setOpen(false)
   }
 
