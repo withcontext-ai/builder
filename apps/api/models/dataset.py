@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from sqlalchemy import Column, String, JSON
+from typing import Union
 from .base import Base, BaseManager
 
 
@@ -39,11 +40,18 @@ class DatasetManager(BaseManager):
         return self.table.delete().where(self.table.c.id == dataset_id)
 
     @BaseManager.db_session
-    def get_dataset(self, dataset_id: str = None):
+    def _get_datasets(self, dataset_id: str = None):
         if dataset_id:
             return self.table.select().where(self.table.c.id == dataset_id)
         else:
             return self.table.select()
+
+    def get_datasets(self, dataset_id: str = None) -> Union[Dataset, list[Dataset]]:
+        dataset_info = self._get_datasets(dataset_id)
+        if dataset_info is None:
+            return None
+        dataset_info = dataset_info.fetchall()
+        return [Dataset(**dataset._mapping) for dataset in dataset_info]
 
 
 dataset_manager = DatasetManager()
