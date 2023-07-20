@@ -42,6 +42,7 @@ const Upload = (props: UploadProps) => {
     type = 'select',
     listType = 'pdf',
     listProps = true,
+    fileType,
     data,
     className,
     disabled: mergedDisabled,
@@ -123,26 +124,18 @@ const Upload = (props: UploadProps) => {
           if (isValid !== false) {
             uploadFile({
               controller,
-              fileList,
               file: changeInfo?.file,
               mergedFileList: changeInfo?.fileList,
               onChangeFileList,
               setMergedFileList,
               setIsUploading,
+              fileType,
             })
           }
         }
       })
     },
-    [
-      maxCount,
-      setMergedFileList,
-      onChange,
-      isValid,
-      controller,
-      fileList,
-      onChangeFileList,
-    ]
+    [maxCount, onChange, isValid, controller, onChangeFileList, fileType]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
