@@ -1,6 +1,7 @@
 import logging
 from uuid import uuid4
 
+import pinecone
 from fastapi import APIRouter, HTTPException
 from models.base import Dataset, dataset_manager
 from models.retrieval import Retriever
