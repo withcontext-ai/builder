@@ -22,7 +22,7 @@ router = APIRouter(prefix="/v1/datasets")
 
 @router.get("/{id}", tags=["datasets"])
 def get_dataset(id: str):
-    dataset = dataset_manager.get_dataset(id)
+    dataset = dataset_manager.get_datasets(id)
     if dataset is None:
         raise HTTPException(status_code=404, detail="Dataset not found")
     return {"data": dataset, "message": "success", "status": 200}
@@ -30,7 +30,7 @@ def get_dataset(id: str):
 
 @router.get("/", tags=["datasets"])
 def get_datasets():
-    return {"data": dataset_manager.get_dataset(), "message": "success", "status": 200}
+    return {"data": dataset_manager.get_datasets(), "message": "success", "status": 200}
 
 
 @router.post("/", tags=["datasets"])
