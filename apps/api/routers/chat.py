@@ -11,12 +11,10 @@ from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
 
-from apps.api.models.chat import Choices, CompletionsRequest, CompletionsResponse
+from models.chat import Choices, CompletionsRequest, CompletionsResponse
+
 
 logger = logging.getLogger(__name__)
-
-if "OPENAI_API_KEY" not in os.environ:
-    os.environ["OPENAI_API_KEY"] = ""
 
 router = APIRouter(prefix="/v1/chat")
 

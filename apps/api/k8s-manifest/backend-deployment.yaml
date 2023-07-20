@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: withcontext-backend
+  namespace: withcontext-backend-test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: withcontext-backend
+  template:
+    metadata:
+      labels:
+        app: withcontext-backend
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry
+      containers:
+        - name: withcontext-backend
+          image: <ECR_REGISTRY_ENDPOINT>/<ECR_REPOSITORY_NAME>::latest
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              memory: '512Mi'
+              cpu: '0.5'

@@ -1,6 +1,12 @@
+import os
+
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import FastAPI
-from apps.api.routers import chat, dataset, model
+
+from routers import chat, dataset, model
+
+load_dotenv()
 
 app = FastAPI()
 

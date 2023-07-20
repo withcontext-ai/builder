@@ -1,0 +1,6 @@
+import os
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+PIPECONE_ENVIRONMENT = os.environ.get("PIPECONE_ENVIRONMENT")
+PIPECONE_API_KEY = os.environ.get("PIPECONE_API_KEY")
