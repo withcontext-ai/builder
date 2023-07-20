@@ -4,13 +4,12 @@ import { create } from 'zustand'
 import { nanoid } from '@/lib/utils'
 import { TreeItem } from '@/components/dnd/types'
 
-export type WorkflowType = 'model' | 'tool' | 'agent' | string
+export type WorkflowType = 'tool'
 
 export type WorkflowItem = {
   id: string
   type: WorkflowType
   subType: string
-  name: string
 }
 
 interface State {
@@ -42,7 +41,6 @@ export const useSettingsStore = create<State>((set) => ({
           id,
           type,
           subType,
-          name: subType, // tmp name
         })
         draft.workflowTree.push({
           id,
