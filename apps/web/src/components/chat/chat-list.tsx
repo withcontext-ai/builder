@@ -33,8 +33,8 @@ const ChatList = ({
   return (
     <div
       className={cn(
-        'flex flex-1 flex-col gap-12 overflow-auto pb-24 pt-6 scrollbar-none',
-        !isDebug ? 'px-6' : ''
+        'flex flex-1 flex-col gap-12 overflow-auto px-6 pb-24 pt-6 scrollbar-none',
+        isDebug && 'px-0'
       )}
       ref={scrollRef}
       onWheel={() => setAutoScroll(false)}

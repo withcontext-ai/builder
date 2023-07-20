@@ -2,10 +2,10 @@ import { Play } from 'lucide-react'
 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
-import Chat, { chatProps } from './chat/page'
+import Chat, { ChatProps } from './chat/page'
 import { Button } from './ui/button'
 
-const ChatDebug = (values: chatProps) => {
+const ChatDebug = (values: ChatProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>

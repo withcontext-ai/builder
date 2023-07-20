@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { useChat } from 'ai/react'
 
-import { cn } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
@@ -11,7 +10,7 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 
-export interface chatProps {
+export interface ChatProps {
   sessionId: string
   sessionName: string
   appId: string
@@ -27,7 +26,7 @@ const Chat = ({
   appIcon,
   appId,
   isDebug = false,
-}: chatProps) => {
+}: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
@@ -63,12 +62,13 @@ const Chat = ({
 
   usePageTitle(sessionName)
 
-  const reStart = () => {
+  const onRestart = () => {
     setMessages([])
   }
+
   return (
     <div className="flex h-full w-full flex-col">
-      <ChatHeader name={sessionName} isDebug={isDebug} reStart={reStart} />
+      <ChatHeader name={sessionName} isDebug={isDebug} onRestart={onRestart} />
       <ChatList
         messages={messages}
         waiting={waiting}
