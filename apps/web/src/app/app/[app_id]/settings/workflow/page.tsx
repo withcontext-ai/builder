@@ -18,9 +18,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="w-[380px] shrink-0 overflow-auto border-l border-slate-200">
-          <TaskDetail />
-        </div>
+        <TaskDetail />
       </div>
       <FormActions />
     </FormProvider>

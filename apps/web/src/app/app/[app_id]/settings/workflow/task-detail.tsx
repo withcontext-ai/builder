@@ -1,5 +1,7 @@
 'use client'
 
+import { useSettingsStore } from '@/store/settings'
+
 import {
   InputItem,
   ListSelectItem,
@@ -19,56 +21,66 @@ const DATASETS_OPTIONS = [
 ]
 
 export default function TaskDetail() {
+  const selectedTask = useSettingsStore((state) =>
+    state.workflowData.find((d) => d.id === state.selectedTaskId)
+  )
+
+  if (!selectedTask) return null
+
+  console.log('selectedTask:', selectedTask)
+
   return (
-    <div className="space-y-6 p-6">
-      <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <div className="text-sm font-medium text-slate-500">LLM</div>
-          <div className="space-y-8">
-            <SelectItem
-              name="model_name"
-              label="Model"
-              options={MODELS_OPTIONS}
-            />
-            <SlideItem
-              name="model_temperature"
-              label="Temperature"
-              min={0}
-              max={2}
-              step={0.1}
-            />
+    <div className="w-[380px] shrink-0 overflow-auto border-l border-slate-200">
+      <div className="space-y-6 p-6">
+        <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <div className="text-sm font-medium text-slate-500">LLM</div>
+            <div className="space-y-8">
+              <SelectItem
+                name="model_name"
+                label="Model"
+                options={MODELS_OPTIONS}
+              />
+              <SlideItem
+                name="model_temperature"
+                label="Temperature"
+                min={0}
+                max={2}
+                step={0.1}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
 
-        <div className="space-y-4">
-          <div className="text-sm font-medium text-slate-500">memory</div>
-          <div className="space-y-8">
-            <InputItem name="memory_key" label="Memory Key" />
+          <div className="space-y-4">
+            <div className="text-sm font-medium text-slate-500">memory</div>
+            <div className="space-y-8">
+              <InputItem name="memory_key" label="Memory Key" />
+            </div>
           </div>
-        </div>
 
-        <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
 
-        <div className="space-y-4">
-          <div className="text-sm font-medium text-slate-500">prompt</div>
-          <div className="space-y-8">
-            <TextareaItem name="prompt_template" label="Template" />
+          <div className="space-y-4">
+            <div className="text-sm font-medium text-slate-500">prompt</div>
+            <div className="space-y-8">
+              <TextareaItem name="prompt_template" label="Template" />
+            </div>
           </div>
-        </div>
 
-        <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
 
-        <div className="space-y-4">
-          <div className="text-sm font-medium text-slate-500">data</div>
-          <div className="space-y-8">
-            <ListSelectItem
-              name="data_datasets"
-              label="Dataset"
-              options={DATASETS_OPTIONS}
-            />
+          <div className="space-y-4">
+            <div className="text-sm font-medium text-slate-500">data</div>
+            <div className="space-y-8">
+              <ListSelectItem
+                name="data_datasets"
+                label="Dataset"
+                options={DATASETS_OPTIONS}
+              />
+            </div>
           </div>
         </div>
       </div>
