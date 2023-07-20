@@ -11,4 +11,7 @@ export const SUB_TYPE_MAP = {
   'conversation-chain': {
     title: 'Conversation chain',
   },
+  'conversational-retrieval-qa': {
+    title: 'Conversational Retrieval QA',
+  },
 }

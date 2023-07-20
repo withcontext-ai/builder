@@ -44,7 +44,7 @@ const CONFIG = [
           {
             subType: 'conversation-chain',
             title: 'Conversation chain',
-            desc: 'Basic example of  conversation with a Prompt Template and LLM Model',
+            desc: 'Basic example of conversation with a Prompt Template and LLM Model',
           },
           {
             subType: 'conversational-retrieval-qa',
