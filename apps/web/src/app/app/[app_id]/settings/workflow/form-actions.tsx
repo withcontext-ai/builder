@@ -13,7 +13,7 @@ export default function FormActions() {
         <Button type="button" variant="ghost" onClick={() => reset()}>
           Reset
         </Button>
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Publish</Button>
       </div>
     </div>
   )
