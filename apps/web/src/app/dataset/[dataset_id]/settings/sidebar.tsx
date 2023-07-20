@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useState, useTransition } from 'react'
+import { RefObject, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeftIcon, Loader2Icon, Trash2 } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
@@ -70,7 +70,7 @@ const SlideBar = ({
   const data = showMore ? [...sections, ...moreSessions] : sections
   const [isPending, startTransition] = useTransition()
   const { trigger, isMutating } = useSWRMutation(
-    `/api/datasets/${datasetId}${apiId}`,
+    `/api/datasets/${datasetId}/${apiId}`,
     deleteDataset
   )
   const router = useRouter()

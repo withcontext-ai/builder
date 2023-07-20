@@ -38,10 +38,7 @@ interface IProps {
   setUploading?: (s: boolean) => void
 }
 
-function editDataset(
-  url: string,
-  { arg }: { arg: SchemaProps & { apiId?: string } }
-) {
+function editDataset(url: string, { arg }: { arg: SchemaProps }) {
   return fetcher(url, {
     method: 'PATCH',
     body: JSON.stringify(arg),
@@ -78,13 +75,16 @@ const DatasetForm = ({
   })
 
   const { handleSubmit } = form
-  const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
+  const { trigger } = useSWRMutation(
+    `/api/datasets/${datasetId}/${apiId}`,
+    editDataset
+  )
   const router = useRouter()
   const current = useDebounce(form.getValues(), 1000)
 
   const onSubmit = async (data: SchemaProps) => {
     try {
-      const json = await trigger({ ...data, apiId })
+      const json = await trigger(data)
       setValues(json.body)
       router.refresh()
       console.log(`edit Dataset onSubmit json:`, json)

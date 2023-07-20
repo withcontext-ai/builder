@@ -7,6 +7,7 @@ import { omit } from 'lodash'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { fetcher, nanoid } from '@/lib/utils'
+import { SchemaProps } from '@/app/dataset/[dataset_id]/settings/setting-page'
 
 import { DatasetsTable, NewDataset } from './schema'
 
@@ -15,19 +16,19 @@ export async function addDataset(
 ) {
   const { userId } = auth()
   if (!userId) return null
-  const dataset_name = dataset?.name
-  const { data: dataset_id } = await fetcher('/v1/datasets', {
-    method: 'POST',
-    body: JSON.stringify(dataset_name),
-  })
-  if (!dataset_id) return
-  console.log(dataset_id, '---datasetId')
+  // const dataset_name = dataset?.name
+  // const { data: dataset_id } = await fetcher('/v1/datasets', {
+  //   method: 'POST',
+  //   body: JSON.stringify(dataset_name),
+  // })
+  // if (!dataset_id) return
+  // console.log(dataset_id, '---datasetId')
   const config = omit(dataset, 'name')
   const data = {
     name: dataset?.name,
     short_id: nanoid(),
     created_by: userId,
-    api_dataset_id: dataset_id,
+    api_dataset_id: '111111',
     config,
   }
   const newDataset = await db.insert(DatasetsTable).values(data).returning()
@@ -78,12 +79,15 @@ export async function getDataset(datasetId: string) {
   )()
 }
 
-export async function editDataset(id: string, newValue: Partial<NewDataset>) {
+export async function editDataset(
+  id: string,
+  api_dataset_id: string,
+  newValue: SchemaProps
+) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  const api_dataset_id = newValue?.api_dataset_id
-  // @ts-ignore
-  const documents = newValue?.config?.files || []
+  const documents = newValue?.files || []
+  console.log(documents, '--documents')
   const editParams = { dataset_name: newValue?.name, documents }
   const edited = await fetcher(`/v1/datasets/${api_dataset_id}`, {
     method: 'PATCH',
@@ -103,7 +107,6 @@ export async function editDataset(id: string, newValue: Partial<NewDataset>) {
 }
 
 export async function removeDataset(dataset_id: string, api_id: string) {
-  console.log(api_id, dataset_id, '----delete')
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
   const deleted = fetcher(`/v1/datasets/${api_id}`, {
