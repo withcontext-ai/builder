@@ -43,9 +43,17 @@ const FormSchema = z.object({
     frequency_penalty: z.number().min(0).max(2),
     presence_penalty: z.number().min(0).max(2),
   }),
-  // memory_key: z.string().optional(),
-  // prompt_template: z.string().optional(),
-  // data_datasets: z.array(z.string()).optional(),
+  prompt: z.object({
+    type: z.string(),
+    template: z.string().optional(),
+    values: z.string().optional(),
+  }),
+  retriever: z.object({
+    type: z.string(),
+  }),
+  data: z.object({
+    datasets: z.array(z.string()).optional(),
+  }),
 })
 
 type IFormSchema = z.infer<typeof FormSchema>
@@ -68,6 +76,17 @@ function FormProvider({ children, taskId }: FormProviderProps) {
         frequency_penalty: 0,
         presence_penalty: 0,
       },
+      prompt: {
+        type: 'prompt_template',
+        template: '',
+        values: '',
+      },
+      retriever: {
+        type: 'pinecone_hybrid_search',
+      },
+      data: {
+        datasets: [],
+      },
     },
   })
 
@@ -89,11 +108,6 @@ function FormProvider({ children, taskId }: FormProviderProps) {
   )
 }
 
-const DATASETS_OPTIONS = [
-  { label: 'Customer service documentation', value: 'd1' },
-  { label: 'This is a Document with very very very long title.', value: 'd2' },
-]
-
 function FormItems() {
   return (
     <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200">
@@ -101,40 +115,12 @@ function FormItems() {
         <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
         <div className="space-y-6">
           <FormItemLLM />
-
-          {/* <div className="-mx-6 h-px shrink-0 bg-slate-100" />
-
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-slate-500">memory</div>
-            <div className="space-y-8">
-              <InputItem<IFormSchema> name="memory_key" label="Memory Key" />
-            </div>
-          </div>
-
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
-
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-slate-500">prompt</div>
-            <div className="space-y-8">
-              <TextareaItem<IFormSchema>
-                name="prompt_template"
-                label="Template"
-              />
-            </div>
-          </div>
-
+          <FormItemPrompt />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
-
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-slate-500">data</div>
-            <div className="space-y-8">
-              <ListSelectItem<IFormSchema>
-                name="data_datasets"
-                label="Dataset"
-                options={DATASETS_OPTIONS}
-              />
-            </div>
-          </div> */}
+          <FormItemRetriever />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <FormItemData />
 
           <Button type="submit">Submit</Button>
         </div>
@@ -143,7 +129,7 @@ function FormItems() {
   )
 }
 
-const MODELS_OPTIONS = [
+const LLM_MODEL_NAME_OPTIONS = [
   { label: 'OpenAI-GPT-3.5', value: 'openai-gpt-3.5-turbo' },
   { label: 'OpenAI-GPT-4', value: 'openai-gpt-4' },
 ]
@@ -162,7 +148,7 @@ function FormItemLLM() {
         <SelectItem<IFormSchema>
           name="llm.model_name"
           label="Model"
-          options={MODELS_OPTIONS}
+          options={LLM_MODEL_NAME_OPTIONS}
         />
         <Button
           type="button"
@@ -219,6 +205,69 @@ function FormItemLLM() {
             />
           </>
         )}
+      </div>
+    </div>
+  )
+}
+
+const PROMPT_TYPE_OPTIONS = [
+  { label: 'Prompt Template', value: 'prompt_template' },
+]
+
+function FormItemPrompt() {
+  return (
+    <div className="space-y-4">
+      <div className="text-sm font-medium text-slate-500">prompt</div>
+      <div className="space-y-8">
+        <SelectItem<IFormSchema>
+          name="prompt.type"
+          label="Type"
+          options={PROMPT_TYPE_OPTIONS}
+        />
+        <TextareaItem<IFormSchema> name="prompt.template" label="Template" />
+        <TextareaItem<IFormSchema> name="prompt.values" label="Values" />
+      </div>
+    </div>
+  )
+}
+
+const RETRIEVER_TYPE_OPTIONS = [
+  {
+    label: 'Pinecone Hybrid Search',
+    value: 'pinecone_hybrid_search',
+  },
+]
+
+function FormItemRetriever() {
+  return (
+    <div className="space-y-4">
+      <div className="text-sm font-medium text-slate-500">retriever</div>
+      <div className="space-y-8">
+        <SelectItem<IFormSchema>
+          name="retriever.type"
+          label="Type"
+          options={RETRIEVER_TYPE_OPTIONS}
+        />
+      </div>
+    </div>
+  )
+}
+
+const DATASETS_OPTIONS = [
+  { label: 'Customer service documentation', value: 'd1' },
+  { label: 'This is a Document with very very very long title.', value: 'd2' },
+]
+
+function FormItemData() {
+  return (
+    <div className="space-y-4">
+      <div className="text-sm font-medium text-slate-500">data</div>
+      <div className="space-y-8">
+        <ListSelectItem<IFormSchema>
+          name="data.datasets"
+          label="Dataset"
+          options={DATASETS_OPTIONS}
+        />
       </div>
     </div>
   )
