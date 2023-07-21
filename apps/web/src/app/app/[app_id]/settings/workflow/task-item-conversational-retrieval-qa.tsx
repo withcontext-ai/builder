@@ -89,7 +89,7 @@ function FormItems() {
                 label="Model"
                 options={MODELS_OPTIONS}
               />
-              <SlideItem
+              <SlideItem<IFormSchema>
                 name="model_temperature"
                 label="Temperature"
                 min={0}
@@ -104,7 +104,7 @@ function FormItems() {
           <div className="space-y-4">
             <div className="text-sm font-medium text-slate-500">memory</div>
             <div className="space-y-8">
-              <InputItem name="memory_key" label="Memory Key" />
+              <InputItem<IFormSchema> name="memory_key" label="Memory Key" />
             </div>
           </div>
 
@@ -113,7 +113,10 @@ function FormItems() {
           <div className="space-y-4">
             <div className="text-sm font-medium text-slate-500">prompt</div>
             <div className="space-y-8">
-              <TextareaItem name="prompt_template" label="Template" />
+              <TextareaItem<IFormSchema>
+                name="prompt_template"
+                label="Template"
+              />
             </div>
           </div>
 
@@ -122,7 +125,7 @@ function FormItems() {
           <div className="space-y-4">
             <div className="text-sm font-medium text-slate-500">data</div>
             <div className="space-y-8">
-              <ListSelectItem
+              <ListSelectItem<IFormSchema>
                 name="data_datasets"
                 label="Dataset"
                 options={DATASETS_OPTIONS}

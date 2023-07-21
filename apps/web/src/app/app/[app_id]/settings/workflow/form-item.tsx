@@ -1,10 +1,5 @@
 import { Check, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react'
-import {
-  FieldValues,
-  Path,
-  PathValue,
-  useFormContext as useFormContextHook,
-} from 'react-hook-form'
+import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
 import { ConditionalKeys } from 'type-fest'
 
 import { cn } from '@/lib/utils'
@@ -33,7 +28,7 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
-import { IFormSchema, useFormContext } from './form-provider'
+// import { IFormSchema, useFormContext } from './form-provider'
 
 const labelFilterBuilder =
   (options: { label: string; value: string }[]) =>
@@ -43,13 +38,17 @@ const labelFilterBuilder =
     return 0
   }
 
-interface IInputItem {
-  name: ConditionalKeys<IFormSchema, string | undefined>
+interface IInputItem<T> {
+  name: Path<T>
   label?: string
   placeholder?: string
 }
 
-export function InputItem({ name, label, placeholder }: IInputItem) {
+export function InputItem<T extends FieldValues>({
+  name,
+  label,
+  placeholder,
+}: IInputItem<T>) {
   const form = useFormContext()
 
   return (
@@ -69,14 +68,18 @@ export function InputItem({ name, label, placeholder }: IInputItem) {
   )
 }
 
-interface ITextareaItem {
-  name: ConditionalKeys<IFormSchema, string | undefined>
+interface ITextareaItem<T> {
+  name: Path<T>
   label?: string
   placeholder?: string
 }
 
-export function TextareaItem({ name, label, placeholder }: ITextareaItem) {
-  const form = useFormContext()
+export function TextareaItem<T extends FieldValues>({
+  name,
+  label,
+  placeholder,
+}: ITextareaItem<T>) {
+  const form = useFormContext<T>()
 
   return (
     <FormField
@@ -106,7 +109,7 @@ export function SelectItem<T extends FieldValues>({
   label,
   options,
 }: ISelectItem<T>) {
-  const form = useFormContextHook<T>()
+  const form = useFormContext<T>()
 
   return (
     <FormField
@@ -170,16 +173,22 @@ export function SelectItem<T extends FieldValues>({
   )
 }
 
-interface ISlideItem {
-  name: ConditionalKeys<IFormSchema, number[] | undefined>
+interface ISlideItem<T> {
+  name: Path<T>
   label?: string
   min?: number
   max?: number
   step?: number
 }
 
-export function SlideItem({ name, label, min, max, step }: ISlideItem) {
-  const form = useFormContext()
+export function SlideItem<T extends FieldValues>({
+  name,
+  label,
+  min,
+  max,
+  step,
+}: ISlideItem<T>) {
+  const form = useFormContext<T>()
 
   return (
     <div className="flex space-x-5">
@@ -203,7 +212,7 @@ export function SlideItem({ name, label, min, max, step }: ISlideItem) {
       />
       <FormField
         control={form.control}
-        name="model_temperature"
+        name={name}
         render={({ field }) => (
           <FormItem className="shrink-0 self-end">
             <FormControl>
@@ -230,14 +239,18 @@ export function SlideItem({ name, label, min, max, step }: ISlideItem) {
   )
 }
 
-interface IListSelectItem {
-  name: ConditionalKeys<IFormSchema, string[] | undefined>
+interface IListSelectItem<T> {
+  name: Path<T>
   label: string
-  options: { label: string; value: string }[]
+  options: { label: string; value: PathValue<T, Path<T>> }[]
 }
 
-export function ListSelectItem({ name, label, options }: IListSelectItem) {
-  const form = useFormContext()
+export function ListSelectItem<T extends FieldValues>({
+  name,
+  label,
+  options,
+}: IListSelectItem<T>) {
+  const form = useFormContext<T>()
 
   return (
     <FormField
