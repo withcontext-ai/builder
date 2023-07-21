@@ -204,7 +204,7 @@ export function SlideItem<T extends FieldValues>({
               min={min}
               max={max}
               step={step}
-              onValueChange={field.onChange}
+              onValueChange={field.onChange as any}
             />
             <FormMessage />
           </FormItem>
@@ -226,7 +226,7 @@ export function SlideItem<T extends FieldValues>({
                 value={field.value[0]}
                 onChange={(e) => {
                   const value = +e.target.value
-                  field.onChange([value])
+                  field.onChange([value] as any)
                 }}
                 className="h-10 w-18"
               />
@@ -280,7 +280,7 @@ export function ListSelectItem<T extends FieldValues>({
                         value={item.value}
                         onSelect={(value) => {
                           const newValue = [...(field.value || []), value]
-                          form.setValue(name, newValue)
+                          form.setValue(name, newValue as any)
                         }}
                         data-disabled={
                           field.value?.includes(item.value) || undefined
@@ -297,7 +297,7 @@ export function ListSelectItem<T extends FieldValues>({
           <FormMessage />
           {field.value &&
             field.value.length > 0 &&
-            field.value.map((value) => {
+            field.value.map((value: string) => {
               const label = options.find((d) => d.value === value)?.label
               return (
                 <div
@@ -310,7 +310,9 @@ export function ListSelectItem<T extends FieldValues>({
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => {
-                      const newValue = field.value?.filter((v) => v !== value)
+                      const newValue = field.value?.filter(
+                        (v: string) => v !== value
+                      )
                       form.setValue(name, newValue)
                     }}
                   >
