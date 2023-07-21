@@ -38,7 +38,9 @@ interface IProps {
   setUploading?: (s: boolean) => void
 }
 
-function editDataset(url: string, { arg }: { arg: SchemaProps }) {
+type Params = SchemaProps & { fileUpdate?: boolean }
+
+function editDataset(url: string, { arg }: { arg: Params }) {
   return fetcher(url, {
     method: 'PATCH',
     body: JSON.stringify(arg),
@@ -83,8 +85,9 @@ const DatasetForm = ({
   const current = useDebounce(form.getValues(), 1000)
 
   const onSubmit = async (data: SchemaProps) => {
+    const param = { ...data, fileUpdate: checkFiles }
     try {
-      const json = await trigger(data)
+      const json = await trigger(param)
       setValues(json.body)
       router.refresh()
       console.log(`edit Dataset onSubmit json:`, json)
