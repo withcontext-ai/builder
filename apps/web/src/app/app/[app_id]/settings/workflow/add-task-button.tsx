@@ -1,9 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { useSettingsStore, WorkflowType } from '@/store/settings'
 import { PlusIcon, WrenchIcon } from 'lucide-react'
 
+import { useSettingsStore, WorkflowType } from '@/store/settings'
 import { Button } from '@/components/ui/button'
 import {
   Command,

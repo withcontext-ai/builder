@@ -1,9 +1,9 @@
 'use client'
 
-import { useSettingsStore, WorkflowItem } from '@/store/settings'
 import { TrashIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { useSettingsStore, WorkflowItem } from '@/store/settings'
 import {
   AlertDialog,
   AlertDialogCancel,

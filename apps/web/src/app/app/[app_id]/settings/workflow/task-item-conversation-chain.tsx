@@ -1,13 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { useSettingsStore } from '@/store/settings'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronRightIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
+import { useSettingsStore } from '@/store/settings'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 

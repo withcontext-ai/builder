@@ -1,8 +1,8 @@
 'use client'
 
-import { WorkflowItem } from '@/store/settings'
 import { UniqueIdentifier } from '@dnd-kit/core'
 
+import { WorkflowItem } from '@/store/settings'
 import { SortableTree } from '@/components/dnd/sortable-tree'
 import { TreeItem } from '@/components/dnd/types'
 
