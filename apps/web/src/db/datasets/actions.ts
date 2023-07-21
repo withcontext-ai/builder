@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { revalidateTag, unstable_cache } from 'next/cache'
+import axios from 'axios'
 import { and, desc, eq } from 'drizzle-orm'
 import { omit } from 'lodash'
 
@@ -16,19 +17,21 @@ export async function addDataset(
 ) {
   const { userId } = auth()
   if (!userId) return null
-  // const dataset_name = dataset?.name
-  // const { data: dataset_id } = await fetcher('/v1/datasets', {
-  //   method: 'POST',
-  //   body: JSON.stringify(dataset_name),
-  // })
-  // if (!dataset_id) return
-  // console.log(dataset_id, '---datasetId')
+  const name = dataset?.name
+  const res = await fetcher('v1/datasets', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
+
+  console.log(res, '---res2')
+  if (!res) return null
+  const dataset_id = res?.data?.dataset_id || '1112'
   const config = omit(dataset, 'name')
   const data = {
     name: dataset?.name,
     short_id: nanoid(),
     created_by: userId,
-    api_dataset_id: '111111',
+    api_dataset_id: dataset_id,
     config,
   }
   const newDataset = await db.insert(DatasetsTable).values(data).returning()
@@ -87,13 +90,12 @@ export async function editDataset(
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
   const documents = newValue?.files || []
-  console.log(documents, '--documents')
   const editParams = { dataset_name: newValue?.name, documents }
-  const edited = await fetcher(`/v1/datasets/${api_dataset_id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(editParams),
-  })
-  if (!edited) return
+  // const edited = await fetcher(`/v1/datasets/${api_dataset_id}`, {
+  //   method: 'PATCH',
+  //   body: JSON.stringify(editParams),
+  // })
+  // if (!edited) return
   const config = omit(newValue, 'name')
   const response = await db
     .update(DatasetsTable)

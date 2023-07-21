@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { editDataset, removeDataset } from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
+import { SchemaProps } from '@/app/dataset/[dataset_id]/settings/setting-page'
 
 // // Update a dataset
 export async function PATCH(
@@ -10,7 +11,7 @@ export async function PATCH(
 ) {
   const { dataset_id, api_dataset_id } = params
 
-  const body = (await req.json()) as Partial<NewDataset>
+  const body = (await req.json()) as SchemaProps
   await editDataset(dataset_id, api_dataset_id, body)
   return NextResponse.json({ success: true, data: { dataset_id, body } })
 }

@@ -127,7 +127,7 @@ const DatasetForm = ({
     } else {
       return
     }
-  }, [current])
+  }, [checkIsUpdate])
 
   return (
     <div

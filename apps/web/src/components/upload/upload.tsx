@@ -276,7 +276,12 @@ const Upload = (props: UploadProps) => {
           // handle fileList
           const removed = removedFileList?.reduce(
             (m: FileProps[], item: UploadFile) => {
-              m.push({ url: item?.url || '', name: item?.name })
+              m.push({
+                url: item?.url || '',
+                name: item?.name,
+                uid: item?.uid,
+                type: fileType || item?.type,
+              })
               return m
             },
             []
