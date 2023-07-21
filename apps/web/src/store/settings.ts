@@ -18,6 +18,7 @@ interface State {
   workflowTree: TreeItem[]
   workflowData: WorkflowItem[]
   selectedTaskId: string | null
+  isWorkflowInitialized: boolean
 
   resetState: () => void
   setWorkflowTree: (tree: TreeItem[]) => void
@@ -25,9 +26,11 @@ interface State {
   selectTask: (id: string) => void
   removeTask: (id: string) => void
   editTaskFormValueStr: (id: string, formValue: string) => void
+  initWorkflow: (tree: TreeItem[], data: WorkflowItem[]) => void
 }
 
 const defaultState = {
+  isWorkflowInitialized: false,
   workflowTree: [],
   workflowData: [],
   selectedTaskId: null,
@@ -88,6 +91,16 @@ export const useSettingsStore = create<State>((set) => ({
         if (idx > -1) {
           draft.workflowData[idx].formValueStr = formValue
         }
+      })
+    )
+  },
+  initWorkflow: (tree: TreeItem[], data: WorkflowItem[]) => {
+    set(
+      produce((draft: State) => {
+        console.log('isWorkflowInitialized')
+        draft.isWorkflowInitialized = true
+        draft.workflowTree = tree
+        draft.workflowData = data
       })
     )
   },

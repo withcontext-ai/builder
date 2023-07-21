@@ -1,12 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
-import { useSettingsStore } from '@/store/settings'
+import { useSettingsStore, WorkflowItem } from '@/store/settings'
 import { Button } from '@/components/ui/button'
+import { TreeItem } from '@/components/dnd/types'
 
 function editApp(
   url: string,
@@ -28,27 +29,45 @@ function editApp(
   })
 }
 
-function useAutoSave(key: string, value: any) {
+function useAutoSave(key: string, value: any, canSave: boolean) {
   const { app_id } = useParams()
   const { trigger } = useSWRMutation(`/api/apps/${app_id}`, editApp)
 
   const valueStr = JSON.stringify(value)
-  const latestValueStrRef = React.useRef(valueStr)
+  const latestValueStrRef = React.useRef(JSON.stringify(valueStr))
 
   React.useEffect(() => {
-    if (valueStr !== latestValueStrRef.current) {
+    if (canSave && valueStr !== latestValueStrRef.current) {
       console.log('saving data:', key, valueStr)
       trigger({ [key]: valueStr })
+      latestValueStrRef.current = JSON.stringify(valueStr)
     }
-  }, [trigger, key, valueStr])
+  }, [canSave, trigger, key, valueStr])
 }
 
-export default function FormActions() {
+interface IProps {
+  defaultWorkflowTree: TreeItem[]
+  defaultWorkflowData: WorkflowItem[]
+}
+
+export default function FormActions({
+  defaultWorkflowTree,
+  defaultWorkflowData,
+}: IProps) {
+  const initWorkflow = useSettingsStore((state) => state.initWorkflow)
+  const isWorkflowInitialized = useSettingsStore(
+    (state) => state.isWorkflowInitialized
+  )
+
+  React.useEffect(() => {
+    initWorkflow(defaultWorkflowTree, defaultWorkflowData)
+  }, [initWorkflow, defaultWorkflowTree, defaultWorkflowData])
+
   const workflowTree = useSettingsStore((state) => state.workflowTree)
   const workflowData = useSettingsStore((state) => state.workflowData)
 
-  useAutoSave('workflow_tree_str', workflowTree)
-  useAutoSave('workflow_data_str', workflowData)
+  useAutoSave('workflow_tree_str', workflowTree, isWorkflowInitialized)
+  useAutoSave('workflow_data_str', workflowData, isWorkflowInitialized)
 
   return (
     <div className="fixed bottom-4 left-[276px] mx-4">

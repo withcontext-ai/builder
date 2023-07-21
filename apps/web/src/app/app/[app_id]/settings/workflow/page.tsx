@@ -1,9 +1,25 @@
+import { getApp } from '@/db/apps/actions'
+
 import AddTaskButton from './add-task-button'
 import FormActions from './form-actions'
 import TaskDetail from './task-detail'
 import TaskList from './task-list'
 
-export default function Page() {
+interface IProps {
+  params: {
+    app_id: string
+  }
+}
+
+export default async function Page({ params }: IProps) {
+  const { app_id } = params
+
+  const appDetail = await getApp(app_id)
+  const { workflow_tree_str, workflow_data_str } = appDetail
+
+  const defaultWorkflowTree = parseStr(workflow_tree_str)
+  const defaultWorkflowData = parseStr(workflow_data_str)
+
   return (
     <>
       <div className="flex h-full">
@@ -20,7 +36,19 @@ export default function Page() {
         <TaskDetail />
       </div>
 
-      <FormActions />
+      <FormActions
+        defaultWorkflowTree={defaultWorkflowTree}
+        defaultWorkflowData={defaultWorkflowData}
+      />
     </>
   )
+}
+
+function parseStr(str: string | null) {
+  try {
+    if (!str) return []
+    return JSON.parse(str)
+  } catch (error) {
+    return []
+  }
 }
