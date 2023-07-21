@@ -1,9 +1,13 @@
-import { WrenchIcon } from 'lucide-react'
+import { RocketIcon, WrenchIcon } from 'lucide-react'
 
 export const TYPE_MAP = {
   tool: {
     title: 'Tools',
     icon: WrenchIcon,
+  },
+  agent: {
+    title: 'Agents',
+    icon: RocketIcon,
   },
 }
 

@@ -25,6 +25,7 @@ interface IProps {
   ghost?: boolean
   childCount?: number
   handleProps?: any
+  isDragValid?: boolean
 }
 
 export default function WorkflowTreeItem({
@@ -34,6 +35,7 @@ export default function WorkflowTreeItem({
   ghost,
   childCount,
   handleProps,
+  isDragValid,
 }: IProps) {
   const selectedTaskId = useSettingsStore((state) => state.selectedTaskId)
   const selectTask = useSettingsStore((state) => state.selectTask)
@@ -54,7 +56,8 @@ export default function WorkflowTreeItem({
         className={cn(
           'relative overflow-hidden rounded-lg border bg-white p-4 pb-6',
           isSelected && 'border-blue-500',
-          ghost && 'border-gray-100'
+          ghost && isDragValid && 'border-gray-100',
+          ghost && !isDragValid && 'border-red-100'
         )}
         {...handleProps}
         onClick={() => selectTask(id)}
@@ -66,7 +69,14 @@ export default function WorkflowTreeItem({
         <div className="mt-3 text-sm font-medium text-slate-900">
           {subTypeTitle}
         </div>
-        {ghost && <div className="absolute inset-0 bg-gray-100" />}
+        {ghost && (
+          <div
+            className={cn(
+              'absolute inset-0',
+              isDragValid ? 'bg-gray-100' : 'bg-red-100'
+            )}
+          />
+        )}
       </div>
       {clone && childCount && childCount > 1 ? (
         <span className="absolute right-[-10px] top-[-10px] flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">

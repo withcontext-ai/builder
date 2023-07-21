@@ -5,7 +5,7 @@ import { create } from 'zustand'
 import { nanoid } from '@/lib/utils'
 import { TreeItem } from '@/components/dnd/types'
 
-export type WorkflowType = 'tool'
+export type WorkflowType = 'tool' | 'agent'
 
 export type WorkflowItem = {
   id: string
