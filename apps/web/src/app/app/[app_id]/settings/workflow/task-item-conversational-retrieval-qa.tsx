@@ -5,13 +5,11 @@ import { useSettingsStore } from '@/store/settings'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronRightIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useDebounce } from 'usehooks-ts'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { toast } from '@/components/ui/use-toast'
 
 import {
   InputItem,
@@ -20,6 +18,7 @@ import {
   SlideItem,
   TextareaItem,
 } from './form-item'
+import useAutoSave from './use-auto-save'
 
 interface IProps {
   taskId: string
@@ -101,43 +100,19 @@ function FormProvider({ children, taskId, formValue }: FormProviderProps) {
     defaultValues,
   })
 
-  const { watch, handleSubmit } = form
-
   const editTaskFormValueStr = useSettingsStore(
     (state) => state.editTaskFormValueStr
   )
-  const formValueStr = React.useMemo(
-    () => JSON.stringify(watch()),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(watch())]
-  )
-  const debouncedFormValueStr = useDebounce(formValueStr, 1000)
-  const latestFormValueStrRef = React.useRef(JSON.stringify(defaultValues))
 
-  function onSubmit(data: IFormSchema) {
-    console.log('onSubmit data:', data)
+  function onSave(data: IFormSchema) {
     editTaskFormValueStr(taskId, JSON.stringify(data))
-    latestFormValueStrRef.current = JSON.stringify(data)
-    // toast({
-    //   title: `Submit to task ${taskId}:`,
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // })
   }
 
-  React.useEffect(() => {
-    if (debouncedFormValueStr !== latestFormValueStrRef.current) {
-      handleSubmit(onSubmit)()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedFormValueStr])
+  useAutoSave<IFormSchema>({ form, defaultValues, onSave })
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>{children}</form>
+      <form>{children}</form>
     </Form>
   )
 }
@@ -155,8 +130,6 @@ function FormItems() {
           <FormItemRetriever />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <FormItemData />
-
-          <Button type="submit">Submit</Button>
         </div>
       </div>
     </div>
