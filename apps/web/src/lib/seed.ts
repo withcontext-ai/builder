@@ -27,6 +27,8 @@ export async function seed() {
       name TEXT NOT NULL,
       description TEXT NOT NULL,
       icon TEXT NOT NULL,
+      workflow_tree_str TEXT,
+      workflow_data_str TEXT,
       created_by TEXT NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE,
