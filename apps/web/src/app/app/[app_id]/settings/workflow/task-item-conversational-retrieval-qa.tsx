@@ -1,9 +1,12 @@
 'use client'
 
+import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ChevronRightIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { toast } from '@/components/ui/use-toast'
@@ -16,16 +19,33 @@ import {
   TextareaItem,
 } from './form-item'
 
+interface IProps {
+  taskId: string
+}
+
+export default function TaskItemConversationalRetrievalQA({ taskId }: IProps) {
+  return (
+    <FormProvider taskId={taskId}>
+      <FormItems />
+    </FormProvider>
+  )
+}
+
 const FormSchema = z.object({
   llm: z.object({
     model_name: z.string({
       required_error: 'Please select a model.',
     }),
+    api_key: z.string().optional(),
+    temperature: z.number().min(0).max(2),
+    max_tokens: z.number().min(0).max(2048),
+    top_p: z.number().min(0).max(1),
+    frequency_penalty: z.number().min(0).max(2),
+    presence_penalty: z.number().min(0).max(2),
   }),
-  model_temperature: z.array(z.number().min(0).max(1)),
-  memory_key: z.string().optional(),
-  prompt_template: z.string().optional(),
-  data_datasets: z.array(z.string()).optional(),
+  // memory_key: z.string().optional(),
+  // prompt_template: z.string().optional(),
+  // data_datasets: z.array(z.string()).optional(),
 })
 
 type IFormSchema = z.infer<typeof FormSchema>
@@ -40,10 +60,14 @@ function FormProvider({ children, taskId }: FormProviderProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       llm: {
-        model_name: 'openai-gpt4',
+        model_name: 'openai-gpt-3.5-turbo',
+        api_key: '',
+        temperature: 0.9,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
       },
-      model_temperature: [0.9],
-      prompt_template: '',
     },
   })
 
@@ -65,11 +89,6 @@ function FormProvider({ children, taskId }: FormProviderProps) {
   )
 }
 
-const MODELS_OPTIONS = [
-  { label: 'OpenAI-GPT3.5', value: 'openai-gpt3dot5' },
-  { label: 'OpenAI-GPT4', value: 'openai-gpt4' },
-]
-
 const DATASETS_OPTIONS = [
   { label: 'Customer service documentation', value: 'd1' },
   { label: 'This is a Document with very very very long title.', value: 'd2' },
@@ -81,25 +100,9 @@ function FormItems() {
       <div className="space-y-6 p-6">
         <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
         <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-slate-500">LLM</div>
-            <div className="space-y-8">
-              <SelectItem<IFormSchema>
-                name="llm.model_name"
-                label="Model"
-                options={MODELS_OPTIONS}
-              />
-              <SlideItem<IFormSchema>
-                name="model_temperature"
-                label="Temperature"
-                min={0}
-                max={2}
-                step={0.1}
-              />
-            </div>
-          </div>
+          <FormItemLLM />
 
-          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          {/* <div className="-mx-6 h-px shrink-0 bg-slate-100" />
 
           <div className="space-y-4">
             <div className="text-sm font-medium text-slate-500">memory</div>
@@ -131,7 +134,7 @@ function FormItems() {
                 options={DATASETS_OPTIONS}
               />
             </div>
-          </div>
+          </div> */}
 
           <Button type="submit">Submit</Button>
         </div>
@@ -140,14 +143,83 @@ function FormItems() {
   )
 }
 
-interface IProps {
-  taskId: string
-}
+const MODELS_OPTIONS = [
+  { label: 'OpenAI-GPT-3.5', value: 'openai-gpt-3.5-turbo' },
+  { label: 'OpenAI-GPT-4', value: 'openai-gpt-4' },
+]
 
-export default function TaskItemConversationalRetrievalQA({ taskId }: IProps) {
+function FormItemLLM() {
+  const [isExpend, setIsExpend] = React.useState(false)
+
+  function toggle() {
+    setIsExpend((v) => !v)
+  }
+
   return (
-    <FormProvider taskId={taskId}>
-      <FormItems />
-    </FormProvider>
+    <div className="space-y-4">
+      <div className="text-sm font-medium text-slate-500">LLM</div>
+      <div className="space-y-8">
+        <SelectItem<IFormSchema>
+          name="llm.model_name"
+          label="Model"
+          options={MODELS_OPTIONS}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="w-full bg-slate-100"
+          onClick={toggle}
+        >
+          <ChevronRightIcon
+            className={cn(
+              'mr-2 h-4 w-4 transition-transform',
+              isExpend && ' rotate-90'
+            )}
+          />
+          More model options
+        </Button>
+        {isExpend && (
+          <>
+            <InputItem<IFormSchema> name="llm.api_key" label="OpenAI Key" />
+            <SlideItem<IFormSchema>
+              name="llm.temperature"
+              label="Temperature"
+              min={0}
+              max={2}
+              step={0.01}
+            />
+            <SlideItem<IFormSchema>
+              name="llm.max_tokens"
+              label="Max Tokens"
+              min={0}
+              max={2048}
+              step={1}
+            />
+            <SlideItem<IFormSchema>
+              name="llm.top_p"
+              label="Top P"
+              min={0}
+              max={1}
+              step={0.01}
+            />
+            <SlideItem<IFormSchema>
+              name="llm.frequency_penalty"
+              label="Frequency penalty"
+              min={0}
+              max={2}
+              step={0.01}
+            />
+            <SlideItem<IFormSchema>
+              name="llm.presence_penalty"
+              label="Presence penalty"
+              min={0}
+              max={2}
+              step={0.01}
+            />
+          </>
+        )}
+      </div>
+    </div>
   )
 }

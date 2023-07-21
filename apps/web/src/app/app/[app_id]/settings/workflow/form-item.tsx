@@ -133,7 +133,7 @@ export function SelectItem<T extends FieldValues>({
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[316px] p-0">
+            <PopoverContent className="w-[331px] p-0">
               <Command>
                 <CommandInput
                   placeholder={`Search ${label?.toLowerCase()}...`}
@@ -197,11 +197,11 @@ export function SlideItem<T extends FieldValues>({
             {label && <FormLabel>{label}</FormLabel>}
             <Slider
               name={field.name}
-              value={field.value as number[]}
+              value={[field.value] as number[]}
               min={min}
               max={max}
               step={step}
-              onValueChange={field.onChange as any}
+              onValueChange={(val) => field.onChange(val[0] as any)}
             />
             <FormMessage />
           </FormItem>
@@ -216,14 +216,14 @@ export function SlideItem<T extends FieldValues>({
               <Input
                 type="number"
                 placeholder="placeholder"
-                min={0}
-                max={1}
-                step={0.1}
+                min={min}
+                max={max}
+                step={step}
                 {...field}
-                value={field.value[0]}
+                value={field.value}
                 onChange={(e) => {
                   const value = +e.target.value
-                  field.onChange([value] as any)
+                  field.onChange(value as any)
                 }}
                 className="h-10 w-18"
               />
