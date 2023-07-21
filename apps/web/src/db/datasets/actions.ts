@@ -8,7 +8,6 @@ import { omit } from 'lodash'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { fetcher, nanoid } from '@/lib/utils'
-import { SchemaProps } from '@/app/dataset/[dataset_id]/settings/setting-page'
 
 import { DatasetsTable, NewDataset } from './schema'
 
@@ -17,21 +16,22 @@ export async function addDataset(
 ) {
   const { userId } = auth()
   if (!userId) return null
-  const name = dataset?.name
-  const res = await fetcher('v1/datasets', {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-  })
-
-  console.log(res, '---res2')
+  const dataset_name = dataset?.name
+  // mock host is http://a4c2f361d838546e5ade56b2819753bd-1413636879.us-east-2.elb.amazonaws.com
+  const { data: res } = await axios.post(
+    'http://a4c2f361d838546e5ade56b2819753bd-1413636879.us-east-2.elb.amazonaws.com/v1/datasets',
+    {
+      name: dataset_name,
+    }
+  )
   if (!res) return null
-  const dataset_id = res?.data?.dataset_id || '1112'
+  const api_dataset_id = res?.data?.id
   const config = omit(dataset, 'name')
   const data = {
     name: dataset?.name,
     short_id: nanoid(),
     created_by: userId,
-    api_dataset_id: dataset_id,
+    api_dataset_id,
     config,
   }
   const newDataset = await db.insert(DatasetsTable).values(data).returning()
@@ -85,7 +85,7 @@ export async function getDataset(datasetId: string) {
 export async function editDataset(
   id: string,
   api_dataset_id: string,
-  newValue: SchemaProps
+  newValue: Record<string, any>
 ) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
