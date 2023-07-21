@@ -1,4 +1,10 @@
 import { Check, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react'
+import {
+  FieldValues,
+  Path,
+  PathValue,
+  useFormContext as useFormContextHook,
+} from 'react-hook-form'
 import { ConditionalKeys } from 'type-fest'
 
 import { cn } from '@/lib/utils'
@@ -89,14 +95,18 @@ export function TextareaItem({ name, label, placeholder }: ITextareaItem) {
   )
 }
 
-interface ISelectItem {
-  name: ConditionalKeys<IFormSchema, string | undefined>
+interface ISelectItem<T> {
+  name: Path<T>
   label?: string
-  options: { label: string; value: string }[]
+  options: { label: string; value: PathValue<T, Path<T>> }[]
 }
 
-export function SelectItem({ name, label, options }: ISelectItem) {
-  const form = useFormContext()
+export function SelectItem<T extends FieldValues>({
+  name,
+  label,
+  options,
+}: ISelectItem<T>) {
+  const form = useFormContextHook<T>()
 
   return (
     <FormField
@@ -135,7 +145,7 @@ export function SelectItem({ name, label, options }: ISelectItem) {
                       value={item.value}
                       key={item.value}
                       onSelect={(value) => {
-                        form.setValue(name, value)
+                        form.setValue(name, value as PathValue<T, Path<T>>)
                       }}
                     >
                       <Check

@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, useFormContext as useFormContextHook } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { Button } from '@/components/ui/button'
@@ -16,9 +16,11 @@ import {
   TextareaItem,
 } from './form-item'
 
-export const FormSchema = z.object({
-  model_name: z.string({
-    required_error: 'Please select a model.',
+const FormSchema = z.object({
+  llm: z.object({
+    model_name: z.string({
+      required_error: 'Please select a model.',
+    }),
   }),
   model_temperature: z.array(z.number().min(0).max(1)),
   memory_key: z.string().optional(),
@@ -26,21 +28,20 @@ export const FormSchema = z.object({
   data_datasets: z.array(z.string()).optional(),
 })
 
-export type IFormSchema = z.infer<typeof FormSchema>
-
-export function useFormContext() {
-  return useFormContextHook<IFormSchema>()
-}
+type IFormSchema = z.infer<typeof FormSchema>
 
 interface FormProviderProps {
   children: React.ReactNode
+  taskId: string
 }
 
-function FormProvider({ children }: FormProviderProps) {
+function FormProvider({ children, taskId }: FormProviderProps) {
   const form = useForm<IFormSchema>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      model_name: 'openai-gpt4',
+      llm: {
+        model_name: 'openai-gpt4',
+      },
       model_temperature: [0.9],
       prompt_template: '',
     },
@@ -48,7 +49,7 @@ function FormProvider({ children }: FormProviderProps) {
 
   function onSubmit(data: IFormSchema) {
     toast({
-      title: 'You submitted the following values:',
+      title: `Submit to task ${taskId}:`,
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -83,8 +84,8 @@ function FormItems() {
           <div className="space-y-4">
             <div className="text-sm font-medium text-slate-500">LLM</div>
             <div className="space-y-8">
-              <SelectItem
-                name="model_name"
+              <SelectItem<IFormSchema>
+                name="llm.model_name"
                 label="Model"
                 options={MODELS_OPTIONS}
               />
@@ -136,9 +137,13 @@ function FormItems() {
   )
 }
 
-export default function TaskItemConversationalRetrievalQA() {
+interface IProps {
+  taskId: string
+}
+
+export default function TaskItemConversationalRetrievalQA({ taskId }: IProps) {
   return (
-    <FormProvider>
+    <FormProvider taskId={taskId}>
       <FormItems />
     </FormProvider>
   )

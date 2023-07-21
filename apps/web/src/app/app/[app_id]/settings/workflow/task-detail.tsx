@@ -15,7 +15,7 @@ export default function TaskDetail() {
 
   switch (selectedTask.subType) {
     case 'conversational-retrieval-qa':
-      return <TaskItemConversationalRetrievalQA />
+      return <TaskItemConversationalRetrievalQA taskId={selectedTask.id} />
     default:
       return null
   }
