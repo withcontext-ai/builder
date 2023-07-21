@@ -1,6 +1,5 @@
 import { Check, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react'
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
-import { ConditionalKeys } from 'type-fest'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -27,8 +26,6 @@ import {
 } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-
-// import { IFormSchema, useFormContext } from './form-provider'
 
 const labelFilterBuilder =
   (options: { label: string; value: string }[]) =>
