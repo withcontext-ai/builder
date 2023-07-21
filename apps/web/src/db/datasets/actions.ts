@@ -89,10 +89,10 @@ export async function editDataset(
 ) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  const { fileUpdate, name } = newValue
+  const { fileUpdate, name, files } = newValue
   // documents update to fetch
   if (fileUpdate) {
-    const documents = newValue?.files?.reduce(
+    const documents = files?.reduce(
       (m: Record<string, any>[], item: FileProps) => {
         const cur = omit(item, 'name')
         m.push(cur)
