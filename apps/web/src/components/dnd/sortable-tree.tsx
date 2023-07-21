@@ -159,7 +159,6 @@ export function SortableTree({
     return true
   }, [projected, checkDragValid])
   // }, [projected, activeItem, checkDragValid])
-  console.log('isDragValid:', isDragValid)
 
   function handleDragStart({ active: { id: activeId } }: DragStartEvent) {
     setActiveId(activeId)
