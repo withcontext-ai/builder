@@ -107,7 +107,7 @@ function FormProvider({ children, taskId, formValue }: FormProviderProps) {
 
 function FormItems() {
   return (
-    <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200">
+    <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200 scrollbar-none">
       <div className="space-y-6 p-6">
         <h2 className="text-lg font-semibold">Conversation Chain</h2>
         <div className="space-y-6">
