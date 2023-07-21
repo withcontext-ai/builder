@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { useSettingsStore } from '@/store/settings'
 
+import TaskItemConversationChain from './task-item-conversation-chain'
 import TaskItemConversationalRetrievalQA from './task-item-conversational-retrieval-qa'
 
 export default function TaskDetail() {
@@ -24,6 +25,14 @@ export default function TaskDetail() {
   if (!selectedTask) return null
 
   switch (selectedTask.subType) {
+    case 'conversation-chain':
+      return (
+        <TaskItemConversationChain
+          key={selectedTask.id}
+          taskId={selectedTask.id}
+          formValue={selectedTaskFormValue}
+        />
+      )
     case 'conversational-retrieval-qa':
       return (
         <TaskItemConversationalRetrievalQA
