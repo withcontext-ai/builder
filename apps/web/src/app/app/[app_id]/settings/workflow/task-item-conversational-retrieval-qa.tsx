@@ -1,9 +1,11 @@
 'use client'
 
 import * as React from 'react'
+import { useSettingsStore } from '@/store/settings'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronRightIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { useDebounce } from 'usehooks-ts'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
@@ -21,11 +23,15 @@ import {
 
 interface IProps {
   taskId: string
+  formValue: any
 }
 
-export default function TaskItemConversationalRetrievalQA({ taskId }: IProps) {
+export default function TaskItemConversationalRetrievalQA({
+  taskId,
+  formValue,
+}: IProps) {
   return (
-    <FormProvider taskId={taskId}>
+    <FormProvider taskId={taskId} formValue={formValue}>
       <FormItems />
     </FormProvider>
   )
@@ -37,11 +43,11 @@ const FormSchema = z.object({
       required_error: 'Please select a model.',
     }),
     api_key: z.string().optional(),
-    temperature: z.number().min(0).max(2),
-    max_tokens: z.number().min(0).max(2048),
-    top_p: z.number().min(0).max(1),
-    frequency_penalty: z.number().min(0).max(2),
-    presence_penalty: z.number().min(0).max(2),
+    temperature: z.number().min(0).max(2).optional(),
+    max_tokens: z.number().min(0).max(2048).optional(),
+    top_p: z.number().min(0).max(1).optional(),
+    frequency_penalty: z.number().min(0).max(2).optional(),
+    presence_penalty: z.number().min(0).max(2).optional(),
   }),
   prompt: z.object({
     type: z.string(),
@@ -61,45 +67,73 @@ type IFormSchema = z.infer<typeof FormSchema>
 interface FormProviderProps {
   children: React.ReactNode
   taskId: string
+  formValue: any
 }
 
-function FormProvider({ children, taskId }: FormProviderProps) {
+const DEFAULT_VALUES: IFormSchema = {
+  llm: {
+    model_name: 'openai-gpt-3.5-turbo',
+    api_key: '',
+    temperature: 0.9,
+    max_tokens: 256,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+  },
+  prompt: {
+    type: 'prompt_template',
+    template: '',
+    values: '',
+  },
+  retriever: {
+    type: 'pinecone_hybrid_search',
+  },
+  data: {
+    datasets: [],
+  },
+}
+
+function FormProvider({ children, taskId, formValue }: FormProviderProps) {
+  const defaultValues = formValue || DEFAULT_VALUES
+
   const form = useForm<IFormSchema>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      llm: {
-        model_name: 'openai-gpt-3.5-turbo',
-        api_key: '',
-        temperature: 0.9,
-        max_tokens: 256,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-      },
-      prompt: {
-        type: 'prompt_template',
-        template: '',
-        values: '',
-      },
-      retriever: {
-        type: 'pinecone_hybrid_search',
-      },
-      data: {
-        datasets: [],
-      },
-    },
+    defaultValues,
   })
 
+  const { watch, handleSubmit } = form
+
+  const editTaskFormValueStr = useSettingsStore(
+    (state) => state.editTaskFormValueStr
+  )
+  const formValueStr = React.useMemo(
+    () => JSON.stringify(watch()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(watch())]
+  )
+  const debouncedFormValueStr = useDebounce(formValueStr, 1000)
+  const latestFormValueStrRef = React.useRef(JSON.stringify(defaultValues))
+
   function onSubmit(data: IFormSchema) {
-    toast({
-      title: `Submit to task ${taskId}:`,
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+    console.log('onSubmit data:', data)
+    editTaskFormValueStr(taskId, JSON.stringify(data))
+    latestFormValueStrRef.current = JSON.stringify(data)
+    // toast({
+    //   title: `Submit to task ${taskId}:`,
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+    //     </pre>
+    //   ),
+    // })
   }
+
+  React.useEffect(() => {
+    if (debouncedFormValueStr !== latestFormValueStrRef.current) {
+      handleSubmit(onSubmit)()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedFormValueStr])
 
   return (
     <Form {...form}>

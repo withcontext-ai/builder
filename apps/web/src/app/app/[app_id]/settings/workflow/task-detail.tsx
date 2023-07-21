@@ -1,5 +1,6 @@
 'use client'
 
+import * as React from 'react'
 import { useSettingsStore } from '@/store/settings'
 
 import TaskItemConversationalRetrievalQA from './task-item-conversational-retrieval-qa'
@@ -9,13 +10,28 @@ export default function TaskDetail() {
     state.workflowData.find((d) => d.id === state.selectedTaskId)
   )
 
-  if (!selectedTask) return null
+  const selectedTaskFormValue = React.useMemo(() => {
+    try {
+      if (selectedTask?.formValueStr && selectedTask?.formValueStr !== '{}') {
+        return JSON.parse(selectedTask.formValueStr)
+      }
+      return null
+    } catch (error) {
+      return null
+    }
+  }, [selectedTask?.formValueStr])
 
-  console.log('selectedTask:', selectedTask)
+  if (!selectedTask) return null
 
   switch (selectedTask.subType) {
     case 'conversational-retrieval-qa':
-      return <TaskItemConversationalRetrievalQA taskId={selectedTask.id} />
+      return (
+        <TaskItemConversationalRetrievalQA
+          key={selectedTask.id}
+          taskId={selectedTask.id}
+          formValue={selectedTaskFormValue}
+        />
+      )
     default:
       return null
   }

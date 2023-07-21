@@ -11,6 +11,7 @@ export type WorkflowItem = {
   id: string
   type: WorkflowType
   subType: string
+  formValueStr: string
 }
 
 interface State {
@@ -23,6 +24,7 @@ interface State {
   addTask: (type: WorkflowType, subType: string) => void
   selectTask: (id: string) => void
   removeTask: (id: string) => void
+  editTaskFormValueStr: (id: string, formValue: string) => void
 }
 
 const defaultState = {
@@ -52,6 +54,7 @@ export const useSettingsStore = create<State>((set) => ({
           id,
           type,
           subType,
+          formValueStr: '{}',
         })
         draft.workflowTree.push({
           id,
@@ -75,6 +78,16 @@ export const useSettingsStore = create<State>((set) => ({
           (item) => !deletedIds.includes(item.id)
         )
         deleteTreeItem(draft.workflowTree, id)
+      })
+    )
+  },
+  editTaskFormValueStr: (id: string, formValue: string) => {
+    set(
+      produce((draft: State) => {
+        const idx = draft.workflowData.findIndex((item) => item.id === id)
+        if (idx > -1) {
+          draft.workflowData[idx].formValueStr = formValue
+        }
       })
     )
   },
