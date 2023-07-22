@@ -1,8 +1,7 @@
-import json
 from typing import Optional, Union
 
 from pydantic import BaseModel, Field
-from sqlalchemy import ARRAY, JSON, Column, String
+from sqlalchemy import JSON, Column, String
 
 from .base import Base, BaseManager
 
@@ -48,7 +47,9 @@ class ModelManager(BaseManager):
 
     @BaseManager.db_session
     def update_model(self, model: Model):
-        return self.table.update().values(model.dict())
+        return (
+            self.table.update().where(self.table.c.id == model.id).values(model.dict())
+        )
 
     @BaseManager.db_session
     def delete_model(self, model_id: str):

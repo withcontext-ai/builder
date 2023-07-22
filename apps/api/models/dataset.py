@@ -1,6 +1,8 @@
+from typing import Optional, Union
+
 from pydantic import BaseModel, Field
-from sqlalchemy import Column, String, JSON
-from typing import Union
+from sqlalchemy import JSON, Column, String
+
 from .base import Base, BaseManager
 
 
@@ -12,7 +14,7 @@ class Document(BaseModel):
 
 class Dataset(BaseModel):
     id: str = Field(default_factory=str)
-    documents: list[Document]
+    documents: Optional[list[Document]] = Field(default_factory=list)
 
 
 class DatasetTable(Base):
@@ -33,7 +35,11 @@ class DatasetManager(BaseManager):
 
     @BaseManager.db_session
     def update_dataset(self, dataset: Dataset):
-        return self.table.update().values(dataset.dict())
+        return (
+            self.table.update()
+            .where(self.table.c.id == dataset.id)
+            .values(dataset.dict())
+        )
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
