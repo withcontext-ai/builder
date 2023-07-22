@@ -1,9 +1,8 @@
 import logging
+from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
-
 from models.model import Model, model_manager
-from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1/models")
@@ -26,11 +25,12 @@ def get_models():
 def create_model(model: Model):
     model.id = uuid4().hex
     model_manager.save_model(model)
-    return {"data": model.id, "message": "success", "status": 200}
+    return {"data": {"id": model.id}, "message": "success", "status": 200}
 
 
 @router.patch("/{id}", tags=["models"])
 def update_model(id: str, model: Model):
+    model.id = id
     model_manager.update_model(model)
     return {"message": "success", "status": 200}
 

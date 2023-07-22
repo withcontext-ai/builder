@@ -5,3 +5,5 @@ python-dotenv==1.0.0
 sqlalchemy==2.0.18
 psycopg2-binary==2.9.6
 pinecone-client==2.2.2
+pdfminer.six==20221105
+tiktoken==0.4.0

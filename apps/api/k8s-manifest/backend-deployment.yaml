@@ -4,7 +4,7 @@ metadata:
   name: withcontext-backend
   namespace: withcontext-backend-test
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: withcontext-backend
@@ -17,10 +17,31 @@ spec:
         - name: ecr-registry
       containers:
         - name: withcontext-backend
-          image: <ECR_REGISTRY_ENDPOINT>/<ECR_REPOSITORY_NAME>::latest
+          image: <docker-image>
           ports:
             - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: DATABASE_URL
+            - name: PIPECONE_ENVIRONMENT
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: PIPECONE_ENVIRONMENT
+            - name: PIPECONE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: PIPECONE_API_KEY
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: OPENAI_API_KEY
           resources:
             limits:
-              memory: '512Mi'
-              cpu: '0.5'
+              memory: '1024Mi'
+              cpu: '1'

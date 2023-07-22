@@ -1,12 +1,10 @@
 import logging
 from uuid import uuid4
 
-import pinecone
 from fastapi import APIRouter, HTTPException
+from models.dataset import Dataset, dataset_manager
+from models.retrieval.base import Retriever
 from pydantic import BaseModel
-
-from models.dataset import Dataset, Document, dataset_manager
-from utils.config import PIPECONE_API_KEY, PIPECONE_ENVIRONMENT
 
 
 class IndexResponse(BaseModel):
@@ -37,11 +35,12 @@ def get_datasets():
 def create_dataset(dataset: Dataset):
     dataset.id = uuid4().hex
     dataset_manager.save_dataset(dataset)
-    return {"data": dataset.id, "message": "success", "status": 200}
+    return {"data": {"id": dataset.id}, "message": "success", "status": 200}
 
 
 @router.patch("/{id}", tags=["datasets"])
 def update_dataset(id: str, dataset: Dataset):
+    dataset.id = id
     dataset_manager.update_dataset(dataset)
     return {"message": "success", "status": 200}
 
@@ -54,8 +53,10 @@ def delete_dataset(id: str):
 
 @router.post("/{id}/index", tags=["datasets"])
 def query(id: str, index: IndexResponse):
-    pinecone.init(api_key=PIPECONE_API_KEY, environment=PIPECONE_ENVIRONMENT)
-    # print(pinecone.list_indexes())
-    # print(pinecone.list_collections())
-    # TODO
-    raise NotImplementedError
+    retrieval = Retriever(index.options, id)
+    try:
+        query = retrieval.query(index.content)
+        return {"data": {"query": query}, "message": "success", "status": 200}
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=400, detail="not supported")
