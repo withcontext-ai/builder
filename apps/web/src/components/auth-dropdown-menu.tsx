@@ -53,7 +53,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
         open={isProfileOpen}
         onOpenChange={(open) => setIsProfileOpen(open)}
       >
-        <SheetContent side="center">
+        <SheetContent side="center" className='shadow-none overflow-auto border-0'>
           <UserProfile />
         </SheetContent>
       </Sheet>
