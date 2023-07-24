@@ -21,6 +21,8 @@ export const AppsTable = pgTable(
     icon: text('icon').notNull(),
     workflow_tree_str: text('workflow_tree_str'),
     workflow_data_str: text('workflow_data_str'),
+    published_workflow_tree_str: text('published_workflow_tree_str'),
+    published_workflow_data_str: text('published_workflow_data_str'),
     created_by: text('created_by')
       .references(() => UsersTable.short_id)
       .notNull(),
