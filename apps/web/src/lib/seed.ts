@@ -75,7 +75,8 @@ export async function seed() {
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       archived BOOLEAN DEFAULT FALSE,
       name TEXT NOT NULL,
-      config json
+      config json,
+      linked BIGINT
     );
   `)
   console.log(`Created "datasets" table`)

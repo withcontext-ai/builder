@@ -15,9 +15,10 @@ interface IProps {
   id: string
   title: string
   config?: Record<string, any>
+  linked?: number
 }
 
-export default function DatasetCard({ id, title, config }: IProps) {
+export default function DatasetCard({ id, title, config, linked = 0 }: IProps) {
   return (
     <Link href={`/dataset/${id}`}>
       <Card className="flex h-[148px] flex-col p-6 hover:shadow-md">
@@ -37,7 +38,8 @@ export default function DatasetCard({ id, title, config }: IProps) {
               2.8k words
             </div>
             <div className="flex text-xs font-medium	text-slate-500">
-              <FileOutput size={18} color="#64748B" />2 linked apps
+              <FileOutput size={18} color="#64748B" />
+              {linked} linked apps
             </div>
           </CardFooter>
         </CardHeader>
