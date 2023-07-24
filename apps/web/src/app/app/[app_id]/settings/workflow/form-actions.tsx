@@ -91,7 +91,7 @@ function ResetSection() {
 
 function PublishButton() {
   const { app_id } = useParams()
-  const { trigger } = useSWRMutation(`/api/apps/${app_id}`, editApp)
+  const { trigger, isMutating } = useSWRMutation(`/api/apps/${app_id}`, editApp)
   const { toast } = useToast()
 
   const workflowTree = useWorkflowContext((state) => state.workflowTree)
@@ -111,11 +111,11 @@ function PublishButton() {
     }
   }
 
-  const isDisabled = isEmpty(workflowTree)
+  const isDisabled = isEmpty(workflowTree) || isMutating
 
   return (
     <Button type="button" onClick={handlePublish} disabled={isDisabled}>
-      Publish
+      {isMutating ? 'Publishing' : 'Publish'}
     </Button>
   )
 }
