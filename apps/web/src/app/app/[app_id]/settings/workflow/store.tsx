@@ -13,6 +13,8 @@ import { WorkflowItem, WorkflowType } from './type'
 interface WorkflowProps {
   workflowTree: TreeItem[]
   workflowData: WorkflowItem[]
+  publishedWorkflowTree: TreeItem[]
+  publishedWorkflowData: WorkflowItem[]
   selectedTaskId: string | null
 }
 
@@ -22,6 +24,7 @@ interface WorkflowState extends WorkflowProps {
   selectTask: (id: string) => void
   removeTask: (id: string) => void
   editTaskFormValueStr: (id: string, formValue: string) => void
+  resetWorkflow: () => void
 }
 
 type WorkflowStore = ReturnType<typeof createWorkflowStore>
@@ -30,6 +33,8 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
   const defaultProps: WorkflowProps = {
     workflowTree: [],
     workflowData: [],
+    publishedWorkflowTree: [],
+    publishedWorkflowData: [],
     selectedTaskId: null,
   }
   return createStore<WorkflowState>()((set) => ({
@@ -85,6 +90,14 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
           if (idx > -1) {
             draft.workflowData[idx].formValueStr = formValue
           }
+        })
+      )
+    },
+    resetWorkflow: () => {
+      set(
+        produce((draft: WorkflowState) => {
+          draft.workflowTree = draft.publishedWorkflowTree
+          draft.workflowData = draft.publishedWorkflowData
         })
       )
     },

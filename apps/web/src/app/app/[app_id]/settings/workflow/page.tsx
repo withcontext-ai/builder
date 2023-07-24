@@ -17,15 +17,30 @@ export default async function Page({ params }: IProps) {
   const { app_id } = params
 
   const appDetail = await getApp(app_id)
-  const { workflow_tree_str, workflow_data_str } = appDetail
+  const {
+    workflow_tree_str,
+    workflow_data_str,
+    published_workflow_tree_str,
+    published_workflow_data_str,
+  } = appDetail
 
   const defaultWorkflowTree = safeParse(workflow_tree_str, [])
   const defaultWorkflowData = safeParse(workflow_data_str, [])
+  const defaultPublishedWorkflowTree = safeParse(
+    published_workflow_tree_str,
+    []
+  )
+  const defaultPublishedWorkflowData = safeParse(
+    published_workflow_data_str,
+    []
+  )
 
   return (
     <WorkflowProvider
       workflowTree={defaultWorkflowTree}
       workflowData={defaultWorkflowData}
+      publishedWorkflowTree={defaultPublishedWorkflowTree}
+      publishedWorkflowData={defaultPublishedWorkflowData}
       selectedTaskId={defaultWorkflowTree[0]?.id ?? null}
     >
       <div className="flex h-full">
