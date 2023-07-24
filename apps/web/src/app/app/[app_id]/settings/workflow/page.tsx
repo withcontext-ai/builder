@@ -26,7 +26,7 @@ export default async function Page({ params }: IProps) {
     <WorkflowProvider
       workflowTree={defaultWorkflowTree}
       workflowData={defaultWorkflowData}
-      selectedTaskId={defaultWorkflowData[0]?.id ?? null}
+      selectedTaskId={defaultWorkflowTree[0]?.id ?? null}
     >
       <div className="flex h-full">
         <div className="flex-1 overflow-auto px-14 pt-16">
