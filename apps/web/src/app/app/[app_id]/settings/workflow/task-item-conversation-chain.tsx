@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
-import { useSettingsStore } from '@/store/settings'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 
@@ -18,6 +17,7 @@ import {
   SlideItem,
   TextareaItem,
 } from './form-item'
+import { useWorkflowContext } from './store'
 import useAutoSave from './use-auto-save'
 
 interface IProps {
@@ -88,7 +88,7 @@ function FormProvider({ children, taskId, formValue }: FormProviderProps) {
     defaultValues,
   })
 
-  const editTaskFormValueStr = useSettingsStore(
+  const editTaskFormValueStr = useWorkflowContext(
     (state) => state.editTaskFormValueStr
   )
 

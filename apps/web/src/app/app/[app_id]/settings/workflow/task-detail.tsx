@@ -2,13 +2,12 @@
 
 import * as React from 'react'
 
-import { useSettingsStore } from '@/store/settings'
-
+import { useWorkflowContext } from './store'
 import TaskItemConversationChain from './task-item-conversation-chain'
 import TaskItemConversationalRetrievalQA from './task-item-conversational-retrieval-qa'
 
 export default function TaskDetail() {
-  const selectedTask = useSettingsStore((state) =>
+  const selectedTask = useWorkflowContext((state) =>
     state.workflowData.find((d) => d.id === state.selectedTaskId)
   )
 

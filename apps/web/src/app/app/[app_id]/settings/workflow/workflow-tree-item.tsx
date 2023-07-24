@@ -3,7 +3,6 @@
 import { TrashIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { useSettingsStore, WorkflowItem } from '@/store/settings'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,6 +16,8 @@ import {
 import { Button } from '@/components/ui/button'
 
 import { SUB_TYPE_MAP, TYPE_MAP } from './const'
+import { useWorkflowContext } from './store'
+import { WorkflowItem } from './type'
 
 interface IProps {
   id: string
@@ -37,9 +38,9 @@ export default function WorkflowTreeItem({
   handleProps,
   isDragValid,
 }: IProps) {
-  const selectedTaskId = useSettingsStore((state) => state.selectedTaskId)
-  const selectTask = useSettingsStore((state) => state.selectTask)
-  const removeTask = useSettingsStore((state) => state.removeTask)
+  const selectedTaskId = useWorkflowContext((state) => state.selectedTaskId)
+  const selectTask = useWorkflowContext((state) => state.selectTask)
+  const removeTask = useWorkflowContext((state) => state.removeTask)
 
   const isSelected = selectedTaskId === id
 

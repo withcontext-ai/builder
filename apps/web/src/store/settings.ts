@@ -1,3 +1,4 @@
+// deprecated file
 import { UniqueIdentifier } from '@dnd-kit/core'
 import { produce } from 'immer'
 import { create } from 'zustand'

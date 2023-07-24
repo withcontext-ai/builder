@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { PlusIcon, WrenchIcon } from 'lucide-react'
 
-import { useSettingsStore, WorkflowType } from '@/store/settings'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -27,6 +26,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+
+import { useWorkflowContext } from './store'
+import { WorkflowType } from './type'
 
 const ICON_MAP = {
   tool: WrenchIcon,
@@ -72,7 +74,7 @@ const CONFIG = [
 export default function AddTaskButton() {
   const [open, setOpen] = React.useState(false)
 
-  const addTask = useSettingsStore((state) => state.addTask)
+  const addTask = useWorkflowContext((state) => state.addTask)
 
   const selectHandler = (type: WorkflowType, subType: string) => () => {
     addTask(type, subType)

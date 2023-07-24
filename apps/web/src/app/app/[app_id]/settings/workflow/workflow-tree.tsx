@@ -2,10 +2,10 @@
 
 import { UniqueIdentifier } from '@dnd-kit/core'
 
-import { WorkflowItem } from '@/store/settings'
 import { SortableTree } from '@/components/dnd/sortable-tree'
 import { TreeItem } from '@/components/dnd/types'
 
+import { WorkflowItem } from './type'
 import WorkflowTreeItem from './workflow-tree-item'
 
 interface IProps {

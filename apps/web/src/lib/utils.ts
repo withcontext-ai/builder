@@ -72,3 +72,12 @@ export function getAvatarBgColor(value: string) {
 
   return colors[idx]
 }
+
+export function safeParse(str: string | null, defaultReturn = {}) {
+  try {
+    if (!str) return defaultReturn
+    return JSON.parse(str)
+  } catch (error) {
+    return defaultReturn
+  }
+}

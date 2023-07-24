@@ -1,13 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
-import { useSettingsStore, WorkflowItem } from '@/store/settings'
 import { Button } from '@/components/ui/button'
-import { TreeItem } from '@/components/dnd/types'
+
+import { useWorkflowContext } from './store'
 
 function editApp(
   url: string,
@@ -15,9 +15,6 @@ function editApp(
     arg,
   }: {
     arg: {
-      name?: string
-      description?: string
-      icon?: string
       workflow_tree_str?: string
       workflow_data_str?: string
     }
@@ -29,54 +26,44 @@ function editApp(
   })
 }
 
-function useAutoSave(key: string, value: any, canSave: boolean) {
+function useAutoSave(key: string, value: any) {
   const { app_id } = useParams()
   const { trigger } = useSWRMutation(`/api/apps/${app_id}`, editApp)
 
-  const valueStr = JSON.stringify(value)
-  const latestValueStrRef = React.useRef(JSON.stringify(valueStr))
+  const latestValue = React.useRef(value)
 
   React.useEffect(() => {
-    if (canSave && valueStr !== latestValueStrRef.current) {
-      console.log('saving data:', key, valueStr)
-      trigger({ [key]: valueStr })
-      latestValueStrRef.current = JSON.stringify(valueStr)
+    if (value !== latestValue.current) {
+      console.log('saving data:', key, value)
+      trigger({ [key]: value })
+      latestValue.current = value
     }
-  }, [canSave, trigger, key, valueStr])
+  }, [trigger, key, value])
 }
 
-interface IProps {
-  defaultWorkflowTree: TreeItem[]
-  defaultWorkflowData: WorkflowItem[]
+function AutoSave() {
+  const workflowTree = useWorkflowContext((state) => state.workflowTree)
+  const workflowData = useWorkflowContext((state) => state.workflowData)
+
+  useAutoSave('workflow_tree_str', JSON.stringify(workflowTree))
+  useAutoSave('workflow_data_str', JSON.stringify(workflowData))
+
+  return null
 }
 
-export default function FormActions({
-  defaultWorkflowTree,
-  defaultWorkflowData,
-}: IProps) {
-  const initWorkflow = useSettingsStore((state) => state.initWorkflow)
-  const isWorkflowInitialized = useSettingsStore(
-    (state) => state.isWorkflowInitialized
-  )
-
-  React.useEffect(() => {
-    initWorkflow(defaultWorkflowTree, defaultWorkflowData)
-  }, [initWorkflow, defaultWorkflowTree, defaultWorkflowData])
-
-  const workflowTree = useSettingsStore((state) => state.workflowTree)
-  const workflowData = useSettingsStore((state) => state.workflowData)
-
-  useAutoSave('workflow_tree_str', workflowTree, isWorkflowInitialized)
-  useAutoSave('workflow_data_str', workflowData, isWorkflowInitialized)
-
+export default function FormActions() {
   return (
-    <div className="fixed bottom-4 left-[276px] mx-4">
-      <div className="flex h-18 w-[600px] max-w-md items-center justify-end space-x-2 rounded-lg border border-slate-100 bg-background px-4 shadow-md lg:max-w-lg xl:max-w-xl 2xl:max-w-full">
-        <Button type="button" variant="ghost">
-          Reset
-        </Button>
-        <Button type="submit">Publish</Button>
+    <>
+      <div className="fixed bottom-4 left-[276px] mx-4">
+        <div className="flex h-18 w-[600px] max-w-md items-center justify-end space-x-2 rounded-lg border border-slate-100 bg-background px-4 shadow-md lg:max-w-lg xl:max-w-xl 2xl:max-w-full">
+          <Button type="button" variant="ghost">
+            Reset
+          </Button>
+          <Button type="submit">Publish</Button>
+        </div>
       </div>
-    </div>
+
+      <AutoSave />
+    </>
   )
 }
