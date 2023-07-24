@@ -2,17 +2,11 @@ import * as React from 'react'
 import { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useDebounce } from 'usehooks-ts'
 
-interface IProps<T extends FieldValues> {
-  form: UseFormReturn<T>
-  defaultValues: T
+export default function useAutoSave<T extends FieldValues>(
+  form: UseFormReturn<T>,
+  defaultValues: T,
   onSave: (data: T) => void
-}
-
-export default function useAutoSave<T extends FieldValues>({
-  form,
-  defaultValues,
-  onSave,
-}: IProps<T>) {
+) {
   const { watch, handleSubmit } = form
 
   const formValueStr = React.useMemo(

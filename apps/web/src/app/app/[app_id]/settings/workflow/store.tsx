@@ -19,6 +19,7 @@ interface WorkflowProps {
 }
 
 interface WorkflowState extends WorkflowProps {
+  resetCount: number
   setWorkflowTree: (tree: TreeItem[]) => void
   addTask: (type: WorkflowType, subType: string) => void
   selectTask: (id: string) => void
@@ -41,6 +42,8 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
   return createStore<WorkflowState>()((set) => ({
     ...defaultProps,
     ...initProps,
+
+    resetCount: 0,
 
     setWorkflowTree: (tree: TreeItem[]) => {
       set(
@@ -99,6 +102,7 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
         produce((draft: WorkflowState) => {
           draft.workflowTree = draft.publishedWorkflowTree
           draft.workflowData = draft.publishedWorkflowData
+          draft.resetCount = draft.resetCount + 1
         })
       )
     },

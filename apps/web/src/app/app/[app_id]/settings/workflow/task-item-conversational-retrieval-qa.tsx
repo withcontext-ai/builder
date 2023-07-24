@@ -19,6 +19,7 @@ import {
 } from './form-item'
 import { useWorkflowContext } from './store'
 import useAutoSave from './use-auto-save'
+import useResetForm from './use-reset-form'
 
 interface IProps {
   taskId: string
@@ -112,7 +113,8 @@ function FormProvider({ children, taskId, formValue }: FormProviderProps) {
     editTaskFormValueStr(taskId, JSON.stringify(data))
   }
 
-  useAutoSave<IFormSchema>({ form, defaultValues, onSave })
+  useAutoSave<IFormSchema>(form, defaultValues, onSave)
+  useResetForm<IFormSchema>(form, defaultValues)
 
   return (
     <Form {...form}>
