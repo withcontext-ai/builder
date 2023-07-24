@@ -26,7 +26,6 @@ export const DatasetsTable = pgTable(
     archived: boolean('archived').default(false).notNull(),
     name: text('name').notNull(),
     config: json('config'),
-    linked: integer('linked'),
   },
   (datasets) => {
     return {

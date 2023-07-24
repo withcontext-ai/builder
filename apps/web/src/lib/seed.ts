@@ -76,7 +76,6 @@ export async function seed() {
       archived BOOLEAN DEFAULT FALSE,
       name TEXT NOT NULL,
       config json,
-      linked BIGINT
     );
   `)
   console.log(`Created "datasets" table`)
