@@ -56,25 +56,26 @@ export default function Sidebar({ appId, appName }: IProps) {
             url?.includes('basics') ? 'bg-slate-200' : ''
           )}
           href={`/app/${appId}/settings/basics`}
+          replace
         >
           <div className="text-sm font-medium">Basics</div>
           <div className="text-sm text-slate-500">
             Some basic configurations of the App.
           </div>
         </Link>
-        {/* <Link
+        <Link
           className={cn(
             commonStyle,
             url?.includes('workflow') ? 'bg-slate-200' : ''
           )}
-          replace
           href={`/app/${appId}/settings/workflow`}
+          replace
         >
           <div className="text-sm font-medium">Workflow</div>
           <div className="text-sm text-slate-500">
             Workflow related configurations of the App.
           </div>
-        </Link> */}
+        </Link>
       </div>
 
       <div className="my-2 shrink-0 px-3">
