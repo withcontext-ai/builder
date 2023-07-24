@@ -20,7 +20,7 @@ export default function useAutoSave<T extends FieldValues>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(watch())]
   )
-  const debouncedFormValueStr = useDebounce(formValueStr, 1000)
+  const debouncedFormValueStr = useDebounce(formValueStr, 500)
   const latestFormValueStrRef = React.useRef(JSON.stringify(defaultValues))
 
   function onSubmit(data: T) {
