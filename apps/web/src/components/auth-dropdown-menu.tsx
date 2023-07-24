@@ -4,23 +4,13 @@ import * as React from 'react'
 import { SignOutButton, UserProfile } from '@clerk/nextjs'
 import { Loader2Icon, LogOutIcon, SettingsIcon } from 'lucide-react'
 
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 interface IProps {
   children: React.ReactNode
