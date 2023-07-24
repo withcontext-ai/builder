@@ -25,6 +25,7 @@ interface WorkflowState extends WorkflowProps {
   removeTask: (id: string) => void
   editTaskFormValueStr: (id: string, formValue: string) => void
   resetWorkflow: () => void
+  publishWorkflow: () => void
 }
 
 type WorkflowStore = ReturnType<typeof createWorkflowStore>
@@ -98,6 +99,14 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
         produce((draft: WorkflowState) => {
           draft.workflowTree = draft.publishedWorkflowTree
           draft.workflowData = draft.publishedWorkflowData
+        })
+      )
+    },
+    publishWorkflow: () => {
+      set(
+        produce((draft: WorkflowState) => {
+          draft.publishedWorkflowTree = draft.workflowTree
+          draft.publishedWorkflowData = draft.workflowData
         })
       )
     },
