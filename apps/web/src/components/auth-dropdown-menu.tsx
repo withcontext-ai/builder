@@ -11,6 +11,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 
 interface IProps {
   children: React.ReactNode
@@ -49,11 +59,14 @@ export default function AuthDropdownMenu({ children }: IProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="max-h-screen overflow-auto p-0 sm:max-h-[90vh] sm:max-w-fit sm:p-6">
+      <Sheet
+        open={isProfileOpen}
+        onOpenChange={(open) => setIsProfileOpen(open)}
+      >
+        <SheetContent side="center">
           <UserProfile />
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </>
   )
 }
