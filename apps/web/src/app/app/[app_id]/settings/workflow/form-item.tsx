@@ -1,3 +1,4 @@
+import { HTMLInputTypeAttribute } from 'react'
 import { Check, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react'
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
 
@@ -37,12 +38,14 @@ const labelFilterBuilder =
 
 interface IInputItem<T> {
   name: Path<T>
+  type?: HTMLInputTypeAttribute | undefined
   label?: string
   placeholder?: string
 }
 
 export function InputItem<T extends FieldValues>({
   name,
+  type,
   label,
   placeholder,
 }: IInputItem<T>) {
@@ -56,7 +59,7 @@ export function InputItem<T extends FieldValues>({
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            <Input placeholder={placeholder} {...field} />
+            <Input placeholder={placeholder} type={type} {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

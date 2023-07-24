@@ -41,7 +41,11 @@ const FormSchema = z.object({
     model_name: z.string({
       required_error: 'Please select a model.',
     }),
-    api_key: z.string().optional(),
+    api_key: z
+      .string()
+      .regex(/^sk-[a-zA-Z0-9]{48}$/, 'Please enter a valid key.')
+      .optional()
+      .or(z.literal('')),
     temperature: z.number().min(0).max(2).optional(),
     max_tokens: z.number().min(0).max(2048).optional(),
     top_p: z.number().min(0).max(1).optional(),
@@ -158,7 +162,11 @@ function FormItemLLM() {
         </Button>
         {isExpend && (
           <>
-            <InputItem<IFormSchema> name="llm.api_key" label="OpenAI Key" />
+            <InputItem<IFormSchema>
+              name="llm.api_key"
+              type="password"
+              label="OpenAI Key"
+            />
             <SlideItem<IFormSchema>
               name="llm.temperature"
               label="Temperature"
