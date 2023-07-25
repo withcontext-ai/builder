@@ -87,10 +87,9 @@ export async function editDataset(id: string, newValue: Partial<NewDataset>) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
   const { name, config } = newValue
-
   const dataset = await getDataset(id)
   const api_dataset_id = dataset?.api_dataset_id
-  if (api_dataset_id) return Promise.resolve([])
+  if (!api_dataset_id) return Promise.resolve([])
 
   const oldFiles = (dataset?.config as any)?.files
   const newFiles = (config as any)?.files
