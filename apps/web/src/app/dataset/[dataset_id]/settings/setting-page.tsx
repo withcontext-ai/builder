@@ -19,7 +19,7 @@ export type SchemaProps = z.infer<typeof FormSchema>
 
 const DatasetSetting = ({
   name = '',
-  config,
+  config = {},
   datasetId,
 }: {
   name?: string
@@ -41,11 +41,18 @@ const DatasetSetting = ({
   })
 
   const [showMore, setShowMore] = useState<boolean>(false)
-  // to compatible the history dataset
+
   const defaultValues = useMemo(() => {
-    if (config?.loaderType === 'pdf loader') {
-      config.loaderType = 'pdf'
-    }
+    // some loaderType is pdf loader .now change to pdf
+    config.loaderType = config?.loaderType?.includes('pdf')
+      ? 'pdf'
+      : config.loaderType
+    config.splitType = config?.splitType?.includes('character')
+      ? 'character'
+      : config?.splitType
+    config.embeddingType = config?.embeddingType?.includes('openAI')
+      ? 'openAI'
+      : config.embeddingType
     return { name, ...config }
   }, [config, name])
 
