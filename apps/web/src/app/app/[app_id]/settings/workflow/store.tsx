@@ -8,7 +8,7 @@ import { createStore, useStore } from 'zustand'
 import { nanoid } from '@/lib/utils'
 import { TreeItem } from '@/components/dnd/types'
 
-import { WorkflowItem, WorkflowType } from './type'
+import { SelectOption, WorkflowItem, WorkflowType } from './type'
 
 interface WorkflowProps {
   workflowTree: TreeItem[]
@@ -16,6 +16,7 @@ interface WorkflowProps {
   publishedWorkflowTree: TreeItem[]
   publishedWorkflowData: WorkflowItem[]
   selectedTaskId: string | null
+  datasetOptions: SelectOption[]
 }
 
 interface WorkflowState extends WorkflowProps {
@@ -38,6 +39,7 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
     publishedWorkflowTree: [],
     publishedWorkflowData: [],
     selectedTaskId: null,
+    datasetOptions: [],
   }
   return createStore<WorkflowState>()((set) => ({
     ...defaultProps,

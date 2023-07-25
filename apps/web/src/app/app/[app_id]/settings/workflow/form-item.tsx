@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+import { PdfImage } from '@/components/upload/component'
 
 const labelFilterBuilder =
   (options: { label: string; value: string }[]) =>
@@ -242,7 +243,7 @@ export function SlideItem<T extends FieldValues>({
 interface IListSelectItem<T> {
   name: Path<T>
   label: string
-  options: { label: string; value: PathValue<T, Path<T>> }[]
+  options: { label: string; value: PathValue<T, Path<T>>; icon?: string }[]
 }
 
 export function ListSelectItem<T extends FieldValues>({
@@ -262,7 +263,8 @@ export function ListSelectItem<T extends FieldValues>({
             <PopoverTrigger asChild>
               <FormControl>
                 <Button>
-                  <PlusIcon className="mr-2 h-4 w-4" /> Add {label}
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Add {label}
                 </Button>
               </FormControl>
             </PopoverTrigger>
@@ -279,14 +281,20 @@ export function ListSelectItem<T extends FieldValues>({
                         key={item.value}
                         value={item.value}
                         onSelect={(value) => {
-                          const newValue = [...(field.value || []), value]
+                          // Note: cmdk currently lowercases values in forms for some reason, so don't use
+                          // 'value' directly from the onSelect here
+                          // const newValue = [...(field.value || []), value]
+                          const newValue = [...(field.value || []), item.value]
                           form.setValue(name, newValue as any)
                         }}
                         data-disabled={
                           field.value?.includes(item.value) || undefined
                         }
                       >
-                        {item.label}
+                        {item.icon === 'pdf' && (
+                          <PdfImage className="mr-3 shrink-0" />
+                        )}
+                        <div className="truncate">{item.label}</div>
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -298,17 +306,21 @@ export function ListSelectItem<T extends FieldValues>({
           {field.value &&
             field.value.length > 0 &&
             field.value.map((value: string) => {
-              const label = options.find((d) => d.value === value)?.label
+              const item = options.find((d) => d.value === value)
+              const { label, icon } = item || {}
               return (
                 <div
                   key={value}
                   className="flex h-12 items-center justify-between space-x-2 rounded-lg border border-slate-200 pl-3 pr-1"
                 >
-                  <div className="truncate text-sm font-normal">{label}</div>
+                  <div className="flex items-center truncate">
+                    {icon === 'pdf' && <PdfImage className="mr-3 shrink-0" />}
+                    <div className="truncate text-sm font-normal">{label}</div>
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 shrink-0"
                     onClick={() => {
                       const newValue = field.value?.filter(
                         (v: string) => v !== value

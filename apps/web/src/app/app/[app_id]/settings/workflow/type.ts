@@ -6,3 +6,9 @@ export type WorkflowItem = {
   subType: string
   formValueStr: string
 }
+
+export type SelectOption = {
+  label: string
+  value: string
+  icon?: string
+}

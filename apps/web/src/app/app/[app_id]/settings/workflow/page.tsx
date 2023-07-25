@@ -1,5 +1,6 @@
 import { safeParse } from '@/lib/utils'
 import { getApp } from '@/db/apps/actions'
+import { getDatasets } from '@/db/datasets/actions'
 
 import AddTaskButton from './add-task-button'
 import FormActions from './form-actions'
@@ -35,6 +36,15 @@ export default async function Page({ params }: IProps) {
     []
   )
 
+  const datasets = await getDatasets()
+  const datasetOptions = datasets.map((d) => {
+    return {
+      icon: (d.config as any).loaderType || 'pdf',
+      label: d.name,
+      value: d.short_id,
+    }
+  })
+
   return (
     <WorkflowProvider
       workflowTree={defaultWorkflowTree}
@@ -42,6 +52,7 @@ export default async function Page({ params }: IProps) {
       publishedWorkflowTree={defaultPublishedWorkflowTree}
       publishedWorkflowData={defaultPublishedWorkflowData}
       selectedTaskId={defaultWorkflowTree[0]?.id ?? null}
+      datasetOptions={datasetOptions}
     >
       <div className="flex h-full">
         <div className="flex-1 overflow-auto px-14 pt-16">

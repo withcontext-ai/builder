@@ -267,12 +267,9 @@ function FormItemRetriever() {
   )
 }
 
-const DATASETS_OPTIONS = [
-  { label: 'Customer service documentation', value: 'd1' },
-  { label: 'This is a Document with very very very long title.', value: 'd2' },
-]
-
 function FormItemData() {
+  const datasetOptions = useWorkflowContext((state) => state.datasetOptions)
+
   return (
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">data</div>
@@ -280,7 +277,7 @@ function FormItemData() {
         <ListSelectItem<IFormSchema>
           name="data.datasets"
           label="Dataset"
-          options={DATASETS_OPTIONS}
+          options={datasetOptions}
         />
       </div>
     </div>
