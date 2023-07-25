@@ -19,7 +19,7 @@ export type SchemaProps = z.infer<typeof FormSchema>
 
 const DatasetSetting = ({
   name = '',
-  config,
+  config = {},
   datasetId,
   apiId = '',
 }: {
@@ -43,7 +43,13 @@ const DatasetSetting = ({
   })
 
   const [showMore, setShowMore] = useState<boolean>(false)
-  const defaultValues = useMemo(() => ({ name, ...config }), [config, name])
+  const defaultValues = useMemo(() => {
+    // to compatible the history dataset
+    config.loaderType = 'pdf'
+    config.splitType = 'character'
+    config.embeddingType = 'openAI'
+    return { name, ...config }
+  }, [config, name])
 
   return (
     <div className="absolute inset-0 hidden h-full w-full bg-white lg:flex">
