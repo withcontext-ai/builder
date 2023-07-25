@@ -44,13 +44,18 @@ const DatasetSetting = ({
 
   const [showMore, setShowMore] = useState<boolean>(false)
   const defaultValues = useMemo(() => {
-    // to compatible the history dataset
-    config.loaderType = 'pdf'
-    config.splitType = 'character'
-    config.embeddingType = 'openAI'
+    // some loaderType is pdf loader .now change to pdf
+    config.loaderType = config?.loaderType?.includes('pdf')
+      ? 'pdf'
+      : config.loaderType
+    config.splitType = config?.splitType?.includes('character')
+      ? 'character'
+      : config?.splitType
+    config.embeddingType = config?.embeddingType?.includes('openAI')
+      ? 'openAI'
+      : config.embeddingType
     return { name, ...config }
   }, [config, name])
-
   return (
     <div className="absolute inset-0 hidden h-full w-full bg-white lg:flex">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
