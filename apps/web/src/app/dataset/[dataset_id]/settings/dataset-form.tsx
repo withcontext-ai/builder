@@ -84,15 +84,16 @@ const DatasetForm = ({
   const current = useDebounce(form.getValues(), 1000)
   const onSubmit = async (data: SchemaProps) => {
     try {
-      const { name, ...rest } = data
-      const json = await trigger({ name, config: rest })
-      setValues(json.body)
+      const {name,...rest} = data
+      const json = await trigger({name, config:rest})
+      setValues({name:json.body?.name, ...json?.body?.config})
       router.refresh()
       console.log(`edit Dataset onSubmit json:`, json)
     } catch (error) {
       console.log('edit dataset error', error)
     }
   }
+
 
   useEffect(() => {
     if (!isEqual(current, values)) {
