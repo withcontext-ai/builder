@@ -11,6 +11,7 @@ interface IProps {
 export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { sessions, apps } = await getSession(session_id)
+
   return (
     <>
       <div className="h-full w-full overflow-hidden">

@@ -24,14 +24,20 @@ export default async function Page() {
         <div className="m-full hidden h-px shrink-0 bg-slate-100 lg:block" />
         <div className="p-6">
           <ul className="xl-[960px] grid grid-cols-1 gap-4 md:grid-cols-2 lg:w-[960px] lg:grid-cols-3">
-            {datasets?.map(({ short_id, name, config }) => (
-              <DatasetCard
-                key={short_id}
-                id={short_id}
-                title={name}
-                config={config || {}}
-              />
-            ))}
+            {datasets?.map(({ short_id, name, config }) => {
+              const { files = [], loaderType } = config as any
+              return (
+                <DatasetCard
+                  key={short_id}
+                  id={short_id}
+                  title={name}
+                  iconType={loaderType}
+                  fileNum={files.length}
+                  // totalWords={0}
+                  // linkedAppNum={0}
+                />
+              )
+            })}
           </ul>
         </div>
       </div>
