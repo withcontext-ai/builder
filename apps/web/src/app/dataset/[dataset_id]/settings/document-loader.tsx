@@ -17,7 +17,7 @@ import SearchSelect from './search-select'
 import { SessionProps } from './splitter'
 
 const types = [
-  { label: 'PDF loader', value: 'pdf loader' },
+  { label: 'PDF loader', value: 'pdf' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 

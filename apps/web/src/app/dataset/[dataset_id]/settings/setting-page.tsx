@@ -41,7 +41,13 @@ const DatasetSetting = ({
   })
 
   const [showMore, setShowMore] = useState<boolean>(false)
-  const defaultValues = useMemo(() => ({ name, ...config }), [config, name])
+  // to compatible the history dataset
+  const defaultValues = useMemo(() => {
+    if (config?.loaderType === 'pdf loader') {
+      config.loaderType = 'pdf'
+    }
+    return { name, ...config }
+  }, [config, name])
 
   return (
     <div className="absolute inset-0 hidden h-full w-full bg-white lg:flex">
