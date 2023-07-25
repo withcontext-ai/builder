@@ -4,13 +4,13 @@ import * as React from 'react'
 import { SignOutButton, UserProfile } from '@clerk/nextjs'
 import { Loader2Icon, LogOutIcon, SettingsIcon } from 'lucide-react'
 
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 interface IProps {
   children: React.ReactNode
@@ -49,17 +49,14 @@ export default function AuthDropdownMenu({ children }: IProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Sheet
+      <Dialog
         open={isProfileOpen}
         onOpenChange={(open) => setIsProfileOpen(open)}
       >
-        <SheetContent
-          side="center"
-          className="overflow-auto border-0 shadow-none"
-        >
+        <DialogContent className="max-h-screen overflow-auto border-0 p-0 shadow-none sm:max-h-[90] sm:max-w-fit">
           <UserProfile />
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
