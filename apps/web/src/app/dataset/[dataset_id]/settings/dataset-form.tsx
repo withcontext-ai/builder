@@ -1,6 +1,7 @@
 import { RefObject, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { isEqual } from 'lodash'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
@@ -55,7 +56,6 @@ const DatasetForm = ({
   scrollRef,
   sectionRefs,
   files,
-  apiId,
   setUploading,
 }: IProps) => {
   const uploadFiles = useMemo(() => {
@@ -77,17 +77,12 @@ const DatasetForm = ({
   })
 
   const { handleSubmit } = form
-  const { trigger } = useSWRMutation(
-    `/api/datasets/${datasetId}/${apiId}`,
-    editDataset
-  )
+  const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
   const router = useRouter()
   const current = useDebounce(form.getValues(), 1000)
-
   const onSubmit = async (data: SchemaProps) => {
-    const param = { ...data, fileUpdate: checkFiles }
     try {
-      const json = await trigger(param)
+      const json = await trigger(data)
       setValues(json.body)
       router.refresh()
       console.log(`edit Dataset onSubmit json:`, json)
@@ -96,41 +91,13 @@ const DatasetForm = ({
     }
   }
 
-  const checkFiles = useMemo(() => {
-    const files = current?.files
-    const origin = values?.files
-    if (files?.length !== origin?.length) {
-      return true
-    }
-    files?.forEach((item: FileProps) => {
-      const index = origin?.findIndex((m: FileProps) => m?.url === item?.url)
-      if (index === -1) {
-        return true
-      }
-    })
-    return false
-  }, [current?.files, values?.files])
-
-  const checkIsUpdate = useMemo(() => {
-    if (checkFiles) {
-      return true
-    }
-    for (let k in current) {
-      // @ts-ignore
-      if (k !== 'files' && current?.[k] !== values?.[k]) {
-        return true
-      }
-    }
-    return false
-  }, [checkFiles, current, values])
-
   useEffect(() => {
-    if (checkIsUpdate) {
+    if (!isEqual(current, values)) {
       handleSubmit(onSubmit)()
     } else {
       return
     }
-  }, [checkIsUpdate])
+  }, [current])
 
   return (
     <div

@@ -3,7 +3,7 @@ import 'server-only'
 import { revalidateTag, unstable_cache } from 'next/cache'
 import axios from 'axios'
 import { and, desc, eq } from 'drizzle-orm'
-import { omit } from 'lodash'
+import { isEqual, omit } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
@@ -18,6 +18,7 @@ export async function addDataset(
   const { userId } = auth()
   if (!userId) return null
   const { name } = dataset
+
   const { data: res } = await axios.post(
     'http://api.withcontext.ai/v1/datasets',
     {
@@ -82,16 +83,18 @@ export async function getDataset(datasetId: string) {
   )()
 }
 
-export async function editDataset(
-  id: string,
-  api_dataset_id: string,
-  newValue: Record<string, any>
-) {
+export async function editDataset(id: string, newValue: Record<string, any>) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  const { fileUpdate, name, files } = newValue
-  // documents update to fetch
-  if (fileUpdate) {
+  const { name, files } = newValue
+
+  const data = await getDataset(id)
+
+  const api_dataset_id = data?.api_dataset_id
+  if (api_dataset_id) return Promise.resolve([])
+  // @ts-ignore
+  const update = !isEqual(data?.config?.files, files)
+  if (update) {
     const documents = files?.reduce(
       (m: Record<string, any>[], item: FileProps) => {
         const cur = omit(item, 'name')
@@ -101,13 +104,12 @@ export async function editDataset(
       []
     )
     const editParams = { name, documents }
-    const { data: res } = await axios.patch(
+    let { data: res } = await axios.patch(
       `http://api.withcontext.ai/v1/datasets/${api_dataset_id}`,
       editParams
     )
     if (res.status !== 200) return
   }
-
   const config = omit(newValue, 'name')
   const response = await db
     .update(DatasetsTable)
@@ -120,13 +122,18 @@ export async function editDataset(
   return response
 }
 
-export async function removeDataset(dataset_id: string, api_id: string) {
+export async function removeDataset(dataset_id: string) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
+
+  const { api_dataset_id } = await getDataset(dataset_id)
+  if (!api_dataset_id) return Promise.resolve([])
+
   const { data: res } = await axios.delete(
-    `http://api.withcontext.ai/v1/datasets/${api_id}`
+    `http://api.withcontext.ai/v1/datasets/${api_dataset_id}`
   )
-  if (res?.status !== 200) return null
+  if (res?.status !== 200) return Promise.resolve([])
+
   const response = await db
     .update(DatasetsTable)
     .set({ archived: true, updated_at: new Date() })

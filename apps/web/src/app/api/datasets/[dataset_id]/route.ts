@@ -18,3 +18,26 @@ export async function GET(
   const { dataset_id } = params
   return NextResponse.json({ success: true, data: { dataset_id } })
 }
+
+// // Update a dataset
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { dataset_id: string } }
+) {
+  const { dataset_id } = params
+
+  const body = (await req.json()) as Record<string, any>
+  await editDataset(dataset_id, body)
+  return NextResponse.json({ success: true, data: { dataset_id, body } })
+}
+
+// // Delete a dataset
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { dataset_id: string } }
+) {
+  console.log()
+  const { dataset_id } = params
+  await removeDataset(dataset_id)
+  return NextResponse.json({ success: true, data: { dataset_id } })
+}
