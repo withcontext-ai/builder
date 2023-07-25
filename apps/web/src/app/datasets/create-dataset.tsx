@@ -32,7 +32,7 @@ import { FormSchema } from '../dataset/[dataset_id]/settings/utils'
 
 const defaultValues = {
   name: '',
-  loaderType: 'pdf loader',
+  loaderType: 'pdf',
   splitType: 'character textsplitter',
   files: [],
   chunkSize: 1000,
