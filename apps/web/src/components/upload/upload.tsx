@@ -106,7 +106,6 @@ const Upload = (props: UploadProps) => {
       flushSync(() => {
         setMergedFileList(cloneList)
       })
-
       const changeInfo: UploadChangeParam<UploadFile> = {
         file: file as UploadFile,
         fileList: cloneList,
@@ -115,13 +114,14 @@ const Upload = (props: UploadProps) => {
       if (event) {
         changeInfo.event = event
       }
+      console.log(changeInfo?.file?.status, '--status')
 
       flushSync(() => {
         if (onChange) {
           onChange?.(changeInfo)
         } else {
           // google api for upload
-          if (isValid !== false) {
+          if (isValid !== false && changeInfo?.file?.status !== 'removed') {
             uploadFile({
               controller,
               file: changeInfo?.file,
