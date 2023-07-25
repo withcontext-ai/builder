@@ -56,7 +56,6 @@ const FormSchema = z.object({
   prompt: z.object({
     type: z.string(),
     template: z.string().optional(),
-    values: z.string().optional(),
   }),
   retriever: z.object({
     type: z.string(),
@@ -87,7 +86,6 @@ const DEFAULT_VALUES: IFormSchema = {
   prompt: {
     type: 'prompt_template',
     template: '',
-    values: '',
   },
   retriever: {
     type: 'pinecone_hybrid_search',
@@ -242,7 +240,6 @@ function FormItemPrompt() {
           options={PROMPT_TYPE_OPTIONS}
         />
         <TextareaItem<IFormSchema> name="prompt.template" label="Template" />
-        <TextareaItem<IFormSchema> name="prompt.values" label="Values" />
       </div>
     </div>
   )

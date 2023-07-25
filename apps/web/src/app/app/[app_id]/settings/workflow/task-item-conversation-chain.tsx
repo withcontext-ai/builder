@@ -56,7 +56,6 @@ const FormSchema = z.object({
   prompt: z.object({
     type: z.string(),
     template: z.string().optional(),
-    values: z.string().optional(),
   }),
 })
 
@@ -81,7 +80,6 @@ const DEFAULT_VALUES: IFormSchema = {
   prompt: {
     type: 'prompt_template',
     template: '',
-    values: '',
   },
 }
 
@@ -226,7 +224,6 @@ function FormItemPrompt() {
           options={PROMPT_TYPE_OPTIONS}
         />
         <TextareaItem<IFormSchema> name="prompt.template" label="Template" />
-        <TextareaItem<IFormSchema> name="prompt.values" label="Values" />
       </div>
     </div>
   )
