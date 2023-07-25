@@ -70,9 +70,10 @@ const Upload = (props: UploadProps) => {
   const unloadCallback = (event: BeforeUnloadEvent) => {
     event.preventDefault()
     event.returnValue = ''
-    controller.abort()
     return ''
   }
+
+  const handleEndConcert = () => controller.abort()
 
   useEffect(() => {
     setUploading?.(isUploading)
@@ -82,9 +83,11 @@ const Upload = (props: UploadProps) => {
   useEffect(() => {
     if (isUploading) {
       window.addEventListener('beforeunload', unloadCallback)
+      window.addEventListener('unload', handleEndConcert)
     }
     return () => {
       window.removeEventListener('beforeunload', unloadCallback)
+      window.removeEventListener('unload', handleEndConcert)
     }
   }, [isUploading])
 
@@ -114,7 +117,6 @@ const Upload = (props: UploadProps) => {
       if (event) {
         changeInfo.event = event
       }
-      console.log(changeInfo?.file?.status, '--status')
 
       flushSync(() => {
         if (onChange) {
