@@ -32,20 +32,20 @@ export default function DatasetCard({
           </CardTitle>
           <CardFooter className="flex h-5 w-full gap-3 p-0">
             {fileNum != null && (
-              <div className="flex text-xs font-medium	text-slate-500">
-                <Files size={18} color="#64748B" />
+              <div className="flex text-xs font-medium text-slate-500">
+                <Files size={18} className="mr-1" />
                 {fileNum} docs
               </div>
             )}
             {totalWords != null && (
-              <div className="flex text-xs font-medium	text-slate-500">
-                <FileType2 size={18} color="#64748B" />
+              <div className="flex text-xs font-medium text-slate-500">
+                <FileType2 size={18} className="mr-1" />
                 {totalWords} words
               </div>
             )}
             {linkedAppNum != null && (
-              <div className="flex text-xs font-medium	text-slate-500">
-                <FileOutput size={18} color="#64748B" />
+              <div className="flex text-xs font-medium text-slate-500">
+                <FileOutput size={18} className="mr-1" />
                 {linkedAppNum} linked apps
               </div>
             )}

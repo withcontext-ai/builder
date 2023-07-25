@@ -50,7 +50,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
       </DropdownMenu>
 
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="max-h-screen overflow-auto border-0 p-0 shadow-none sm:max-w-fit">
+        <DialogContent className="max-h-screen overflow-auto border-none p-0 shadow-none sm:max-w-fit">
           <UserProfile />
         </DialogContent>
       </Dialog>
