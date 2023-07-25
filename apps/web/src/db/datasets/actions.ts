@@ -83,19 +83,20 @@ export async function getDataset(datasetId: string) {
   )()
 }
 
-export async function editDataset(id: string, newValue: Record<string, any>) {
+export async function editDataset(id: string, newValue: Partial<NewDataset>) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  const { name, files } = newValue
+  const { name, config } = newValue
 
-  const data = await getDataset(id)
-
-  const api_dataset_id = data?.api_dataset_id
+  const dataset = await getDataset(id)
+  const api_dataset_id = dataset?.api_dataset_id
   if (api_dataset_id) return Promise.resolve([])
-  // @ts-ignore
-  const update = !isEqual(data?.config?.files, files)
+
+  const oldFiles = (dataset?.config as any)?.files
+  const newFiles = (config as any)?.files
+  const update = !isEqual(oldFiles, newFiles)
   if (update) {
-    const documents = files?.reduce(
+    const documents = newFiles?.reduce(
       (m: Record<string, any>[], item: FileProps) => {
         const cur = omit(item, 'name')
         m.push(cur)
@@ -110,7 +111,6 @@ export async function editDataset(id: string, newValue: Record<string, any>) {
     )
     if (res.status !== 200) return
   }
-  const config = omit(newValue, 'name')
   const response = await db
     .update(DatasetsTable)
     .set({ name, config, updated_at: new Date() })

@@ -24,7 +24,6 @@ import { SectionType } from './setting-page'
 interface IProps {
   name: string
   datasetId?: string
-  apiId?: string
   showMore?: boolean
   scrollRef: RefObject<HTMLDivElement>
   activeSection?: number

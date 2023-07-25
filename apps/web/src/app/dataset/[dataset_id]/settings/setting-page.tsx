@@ -21,10 +21,8 @@ const DatasetSetting = ({
   name = '',
   config = {},
   datasetId,
-  apiId = '',
 }: {
   name?: string
-  apiId?: string
   config?: Record<string, any>
   datasetId?: string
 }) => {
@@ -64,7 +62,6 @@ const DatasetSetting = ({
           scrollRef={scrollRef}
           datasetId={datasetId}
           name={name}
-          apiId={apiId}
           activeSection={activeSection}
         />
       </div>
@@ -76,7 +73,6 @@ const DatasetSetting = ({
         setShowMore={setShowMore}
         scrollRef={scrollRef}
         sectionRefs={sectionRefs}
-        apiId={apiId}
       />
     </div>
   )

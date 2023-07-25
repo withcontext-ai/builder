@@ -304,6 +304,7 @@ const Upload = (props: UploadProps) => {
       onInternalChange,
       onRemove,
       setMergedFileList,
+      fileType,
     ]
   )
 

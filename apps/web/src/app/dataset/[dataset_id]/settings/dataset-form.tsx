@@ -29,7 +29,6 @@ import VectorStores from './vector-stores'
 
 interface IProps {
   datasetId?: string
-  apiId?: string
   showMore?: boolean
   files?: FileProps[]
   defaultValues: SchemaProps
@@ -39,9 +38,12 @@ interface IProps {
   setUploading?: (s: boolean) => void
 }
 
-type Params = SchemaProps & { fileUpdate?: boolean }
+type Params = SchemaProps
 
-function editDataset(url: string, { arg }: { arg: Params }) {
+function editDataset(
+  url: string,
+  { arg }: { arg: { name: string; config: Omit<Params, 'name'> } }
+) {
   return fetcher(url, {
     method: 'PATCH',
     body: JSON.stringify(arg),
@@ -82,7 +84,8 @@ const DatasetForm = ({
   const current = useDebounce(form.getValues(), 1000)
   const onSubmit = async (data: SchemaProps) => {
     try {
-      const json = await trigger(data)
+      const { name, ...rest } = data
+      const json = await trigger({ name, config: rest })
       setValues(json.body)
       router.refresh()
       console.log(`edit Dataset onSubmit json:`, json)

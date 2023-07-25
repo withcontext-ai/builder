@@ -26,7 +26,7 @@ export async function PATCH(
 ) {
   const { dataset_id } = params
 
-  const body = (await req.json()) as Record<string, any>
+  const body = (await req.json()) as Partial<NewDataset>
   await editDataset(dataset_id, body)
   return NextResponse.json({ success: true, data: { dataset_id, body } })
 }
@@ -36,7 +36,6 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { dataset_id: string } }
 ) {
-  console.log()
   const { dataset_id } = params
   await removeDataset(dataset_id)
   return NextResponse.json({ success: true, data: { dataset_id } })
