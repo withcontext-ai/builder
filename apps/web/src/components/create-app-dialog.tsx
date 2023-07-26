@@ -171,7 +171,7 @@ const CreateAppDialog = (props: IProps) => {
                     <FormLabel>Image</FormLabel>
                     <FormControl>
                       <Upload
-                        listType="image"
+                        listType={image?.length ? 'update-image' : 'image'}
                         setUploading={setUploading}
                         accept=".png, .jpeg,.webp,.jpg"
                         fileList={image}
