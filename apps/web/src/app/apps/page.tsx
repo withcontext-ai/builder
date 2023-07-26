@@ -8,7 +8,6 @@ import RootWrapper from '@/components/root-wrapper'
 
 export default async function Page() {
   const appList = await getApps()
-
   return (
     <RootWrapper pageTitle="My Apps">
       <div className="flex flex-col">
@@ -31,13 +30,14 @@ export default async function Page() {
         <div className="m-full hidden h-px shrink-0 bg-slate-100 lg:block" />
         <div className="p-6">
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {appList.map(({ short_id, name, description, icon }) => (
+            {appList.map(({ short_id, name, description, icon, creator }) => (
               <AppCard
                 key={short_id}
                 id={short_id}
                 name={name}
                 description={description}
                 icon={icon}
+                creator={creator}
               />
             ))}
           </ul>

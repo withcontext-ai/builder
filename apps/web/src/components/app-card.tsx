@@ -13,9 +13,16 @@ interface IProps {
   name: string
   description: string
   icon: string
+  creator: string
 }
 
-export default function AppCard({ id, name, description, icon }: IProps) {
+export default function AppCard({
+  id,
+  name,
+  description,
+  icon,
+  creator,
+}: IProps) {
   const color = getAvatarBgColor(id || '')
 
   return (
@@ -39,6 +46,7 @@ export default function AppCard({ id, name, description, icon }: IProps) {
               {getFirstLetter(name)}
             </div>
           )}
+          <CardDescription className="text-xs">{creator}</CardDescription>
           <CardTitle className="truncate text-xl">{name}</CardTitle>
           <CardDescription className="line-clamp-4 break-words text-xs">
             {description}
