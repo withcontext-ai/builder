@@ -18,6 +18,7 @@ import {
   TextareaItem,
 } from './form-item'
 import { useWorkflowContext } from './store'
+import { TaskDefaultValueMap } from './task-default-value'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
 
@@ -67,21 +68,7 @@ interface FormProviderProps {
   formValue: any
 }
 
-const DEFAULT_VALUES: IFormSchema = {
-  llm: {
-    model_name: 'openai-gpt-3.5-turbo',
-    api_key: '',
-    temperature: 0.9,
-    max_tokens: 256,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  },
-  prompt: {
-    type: 'prompt_template',
-    template: '',
-  },
-}
+const DEFAULT_VALUES: IFormSchema = TaskDefaultValueMap['conversation-chain']
 
 function FormProvider({ children, taskId, formValue }: FormProviderProps) {
   const defaultValues = formValue || DEFAULT_VALUES

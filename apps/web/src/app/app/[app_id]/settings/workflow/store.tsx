@@ -8,6 +8,7 @@ import { createStore, useStore } from 'zustand'
 import { nanoid } from '@/lib/utils'
 import { TreeItem } from '@/components/dnd/types'
 
+import { TaskDefaultValueMap } from './task-default-value'
 import { SelectOption, WorkflowItem, WorkflowType } from './type'
 
 interface WorkflowProps {
@@ -58,11 +59,12 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
       set(
         produce((draft: WorkflowState) => {
           const id = nanoid()
+          const defaultFormValue = (TaskDefaultValueMap as any)[subType] || {}
           draft.workflowData.push({
             id,
             type,
             subType,
-            formValueStr: '{}',
+            formValueStr: JSON.stringify(defaultFormValue),
           })
           draft.workflowTree.push({
             id,
