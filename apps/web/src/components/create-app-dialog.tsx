@@ -112,8 +112,7 @@ const CreateAppDialog = (props: IProps) => {
     setImage(file)
     setValue('icon', file[0]?.url || '')
   }
-  const color = getAvatarBgColor('')
-  const bgText = getFirstLetter(watch().name || '')
+
   return (
     <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
