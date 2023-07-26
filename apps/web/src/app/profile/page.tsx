@@ -1,7 +1,7 @@
 import { UserProfile } from '@clerk/nextjs'
 
 const Profile = () => (
-  <div className="flex items-center justify-center py-10">
+  <div className="flex justify-center py-10">
     <UserProfile />
   </div>
 )

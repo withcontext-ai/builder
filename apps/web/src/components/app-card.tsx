@@ -30,27 +30,29 @@ export default function AppCard({
       <Card className="relative h-[278px] hover:shadow-md">
         <div className="absolute top-20 h-px w-full bg-slate-200" />
         <CardHeader className="p-4">
-          {icon ? (
-            <img
-              src={icon}
-              alt={id}
-              className="relative h-24 w-24 rounded-lg"
-            />
-          ) : (
-            <div
-              className={cn(
-                'relative flex h-24 w-24 items-center justify-center rounded-lg text-2xl text-background',
-                `bg-${color}-600`
-              )}
-            >
-              {getFirstLetter(name)}
-            </div>
-          )}
-          <CardDescription className="text-sm font-normal">
-            {creator}
-          </CardDescription>
+          <div className="space-y-2">
+            {icon ? (
+              <img
+                src={icon}
+                alt={id}
+                className="relative h-24 w-24 rounded-lg"
+              />
+            ) : (
+              <div
+                className={cn(
+                  'relative flex h-24 w-24 items-center justify-center rounded-lg text-2xl text-background',
+                  `bg-${color}-600`
+                )}
+              >
+                {getFirstLetter(name)}
+              </div>
+            )}
+            <CardDescription className="text-sm font-normal">
+              {creator}
+            </CardDescription>
+          </div>
           <CardTitle className="truncate text-xl">{name}</CardTitle>
-          <CardDescription className="line-clamp-4 break-words text-xs">
+          <CardDescription className="line-clamp-4 break-words text-xs leading-5">
             {description}
           </CardDescription>
         </CardHeader>

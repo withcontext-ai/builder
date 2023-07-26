@@ -32,13 +32,16 @@ export default function AuthDropdownMenu({ children }: IProps) {
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent className="w-52">
           <DropdownMenuItem>
-            <Link href="/profile" className="flex items-center gap-1">
+            <Link href="/profile" className="flex items-center">
               <SettingsIcon className="mr-2 h-4 w-4" />
-              <span>Manage account</span>
+              Manage account
             </Link>
           </DropdownMenuItem>
           <SignOutButton>
-            <DropdownMenuItem onClick={() => setIsLoggingOut(true)}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => setIsLoggingOut(true)}
+            >
               {isLoggingOut ? (
                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
               ) : (
