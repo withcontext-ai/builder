@@ -19,6 +19,21 @@ function editApp(
     arg: {
       workflow_tree_str?: string
       workflow_data_str?: string
+    }
+  }
+) {
+  return fetcher(url, {
+    method: 'PATCH',
+    body: JSON.stringify(arg),
+  })
+}
+
+function deployApp(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
       published_workflow_tree_str?: string
       published_workflow_data_str?: string
     }
@@ -97,7 +112,10 @@ function ResetSection() {
 
 function PublishButton() {
   const { app_id } = useParams()
-  const { trigger, isMutating } = useSWRMutation(`/api/apps/${app_id}`, editApp)
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/apps/${app_id}/deploy`,
+    deployApp
+  )
   const { toast } = useToast()
   const router = useRouter()
 
@@ -114,8 +132,12 @@ function PublishButton() {
       publishWorkflow()
       toast({ title: 'Publish success!' })
       router.refresh()
-    } catch (error) {
-      console.log('PublishButton error:', error)
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Publish failed!',
+        description: error.message,
+      })
     }
   }
 

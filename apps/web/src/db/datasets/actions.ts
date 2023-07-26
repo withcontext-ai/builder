@@ -20,7 +20,7 @@ export async function addDataset(
   const { name } = dataset
 
   const { data: res } = await axios.post(
-    'http://api.withcontext.ai/v1/datasets',
+    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets`,
     {
       name,
     }
@@ -108,7 +108,7 @@ export async function editDataset(
     )
     const editParams = { name, documents }
     let { data: res } = await axios.patch(
-      `http://api.withcontext.ai/v1/datasets/${api_dataset_id}`,
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
       editParams
     )
     if (res.status !== 200) return
@@ -135,7 +135,7 @@ export async function removeDataset(datasetId: string) {
   if (!api_dataset_id) return Promise.resolve([])
 
   const { data: res } = await axios.delete(
-    `http://api.withcontext.ai/v1/datasets/${api_dataset_id}`
+    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`
   )
   if (res?.status !== 200) return Promise.resolve([])
 

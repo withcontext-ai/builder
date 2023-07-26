@@ -31,6 +31,7 @@ export async function seed() {
       workflow_data_str TEXT,
       published_workflow_tree_str TEXT,
       published_workflow_data_str TEXT,
+      api_model_id TEXT,
       created_by TEXT NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE,
@@ -74,7 +75,7 @@ export async function seed() {
     CREATE TABLE IF NOT EXISTS datasets (
       id SERIAL PRIMARY KEY,
       short_id VARCHAR(12) UNIQUE NOT NULL,
-      api_dataset_id TEXT UNIQUE NOT NULL,
+      api_dataset_id TEXT NOT NULL,
       created_by TEXT NOT NULL,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

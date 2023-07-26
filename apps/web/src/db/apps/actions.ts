@@ -2,11 +2,13 @@ import 'server-only'
 
 import { revalidateTag, unstable_cache } from 'next/cache'
 import { redirect } from 'next/navigation'
+import axios from 'axios'
 import { and, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
-import { nanoid } from '@/lib/utils'
+import { nanoid, safeParse } from '@/lib/utils'
+import { WorkflowItem } from '@/app/app/[app_id]/settings/workflow/type'
 
 import { SessionsTable } from '../sessions/schema'
 import { addToWorkspace } from '../workspace/actions'
@@ -16,7 +18,22 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
   const { userId } = auth()
   if (!userId) return null
 
-  const appVal = { ...app, short_id: nanoid(), created_by: userId }
+  const { name } = app
+  const { data: res } = await axios.post(
+    `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
+    {
+      name,
+    }
+  )
+  if (!res) return null
+  const api_model_id = res?.data?.id
+
+  const appVal = {
+    ...app,
+    short_id: nanoid(),
+    api_model_id,
+    created_by: userId,
+  }
   const newApp = await db.insert(AppsTable).values(appVal).returning()
 
   const appId = newApp[0]?.short_id
@@ -101,6 +118,54 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
       return {
         error: 'Not authenticated',
       }
+    }
+
+    const response = await db
+      .update(AppsTable)
+      .set(newValue)
+      .where(
+        and(eq(AppsTable.short_id, appId), eq(AppsTable.created_by, userId))
+      )
+
+    await revalidateTag(`app:${appId}`)
+    await revalidateTag(`user:${userId}:apps`)
+
+    return response
+  } catch (error: any) {
+    return {
+      error: error.message,
+    }
+  }
+}
+
+export async function deployApp(appId: string, newValue: Partial<NewApp>) {
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      throw new Error('Not authenticated')
+    }
+
+    const { api_model_id } = await getApp(appId)
+    if (!api_model_id) {
+      throw new Error('api_model_id is not found')
+    }
+
+    const workflow = safeParse(newValue.published_workflow_data_str, [])
+    const chains = workflow.map((task: WorkflowItem) => {
+      const chainType = task.subType
+      const chain = safeParse(task.formValueStr, {})
+      return {
+        chain_type: chainType,
+        ...chain,
+      }
+    })
+    console.log('deploy chains:', chains)
+    let { data: res } = await axios.patch(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
+      { chains }
+    )
+    if (res.status !== 200) {
+      throw new Error(`AI service error: ${res.message}`)
     }
 
     const response = await db
