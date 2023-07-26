@@ -224,8 +224,20 @@ export async function removeApp(appId: string) {
   try {
     const { userId } = auth()
     if (!userId) {
-      return {
-        error: 'Not authenticated',
+      throw new Error('Not authenticated')
+    }
+
+    if (flags.enabledAIService) {
+      const { api_model_id } = await getApp(appId)
+      if (!api_model_id) {
+        throw new Error('api_model_id is not found, please create a new app')
+      }
+
+      const { data: res } = await axios.delete(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`
+      )
+      if (res.status !== 200) {
+        throw new Error(`AI service error: ${res.message}`)
       }
     }
 
