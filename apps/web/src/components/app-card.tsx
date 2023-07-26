@@ -46,7 +46,9 @@ export default function AppCard({
               {getFirstLetter(name)}
             </div>
           )}
-          <CardDescription className="text-xs">{creator}</CardDescription>
+          <CardDescription className="text-sm font-normal">
+            {creator}
+          </CardDescription>
           <CardTitle className="truncate text-xl">{name}</CardTitle>
           <CardDescription className="line-clamp-4 break-words text-xs">
             {description}
