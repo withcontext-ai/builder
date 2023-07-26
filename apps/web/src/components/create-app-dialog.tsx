@@ -28,6 +28,7 @@ import {
 } from './ui/form'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
+import { useToast } from './ui/use-toast'
 import Upload from './upload/upload'
 import { FileProps } from './upload/utils'
 
@@ -85,6 +86,7 @@ const CreateAppDialog = (props: IProps) => {
     defaultValues,
   })
   const { reset, setValue } = form
+  const { toast } = useToast()
 
   const [image, setImage] = useState<FileProps[]>([])
   const [uploading, setUploading] = useState(false)
@@ -98,8 +100,13 @@ const CreateAppDialog = (props: IProps) => {
       mutate('/api/me/workspace')
       router.push(`/app/${json.appId}/session/${json.sessionId}`)
       router.refresh()
-    } catch (error) {
+    } catch (error: any) {
       console.log('CreateAppDialog onSubmit error:', error)
+      toast({
+        variant: 'destructive',
+        title: 'Create failed!',
+        description: error.message,
+      })
     }
   }
   const onCancel = (open: boolean) => {

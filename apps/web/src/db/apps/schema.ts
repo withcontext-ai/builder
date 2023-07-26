@@ -23,7 +23,7 @@ export const AppsTable = pgTable(
     workflow_data_str: text('workflow_data_str'),
     published_workflow_tree_str: text('published_workflow_tree_str'),
     published_workflow_data_str: text('published_workflow_data_str'),
-    api_model_id: text('api_model_id').notNull(),
+    api_model_id: text('api_model_id'),
     created_by: text('created_by')
       .references(() => UsersTable.short_id)
       .notNull(),

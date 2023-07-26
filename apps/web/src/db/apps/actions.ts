@@ -8,6 +8,10 @@ import { and, desc, eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
 import { nanoid, safeParse } from '@/lib/utils'
+import {
+  defaultWorkflowData,
+  defaultWorkflowTree,
+} from '@/app/app/[app_id]/settings/workflow/task-default-value'
 import { WorkflowItem } from '@/app/app/[app_id]/settings/workflow/type'
 
 import { SessionsTable } from '../sessions/schema'
@@ -15,44 +19,68 @@ import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
 export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
-  const { userId } = auth()
-  if (!userId) return null
-
-  const { name } = app
-  const { data: res } = await axios.post(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
-    {
-      name,
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      throw new Error('Not authenticated')
     }
-  )
-  if (!res) return null
-  const api_model_id = res?.data?.id
 
-  const appVal = {
-    ...app,
-    short_id: nanoid(),
-    api_model_id,
-    created_by: userId,
+    const { name } = app
+    const chains = defaultWorkflowData.map((task: WorkflowItem) => {
+      const chainType = task.subType
+      const chain = safeParse(task.formValueStr, {})
+      return {
+        chain_type: chainType,
+        ...chain,
+      }
+    })
+    const { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
+      {
+        name,
+        chains,
+      }
+    )
+    console.log('AI service res:', res)
+    if (res.status !== 200) {
+      throw new Error(`AI service error: ${res.message}`)
+    }
+    const api_model_id = res?.data?.id
+
+    const appVal = {
+      ...app,
+      short_id: nanoid(),
+      workflow_tree_str: JSON.stringify(defaultWorkflowTree),
+      workflow_data_str: JSON.stringify(defaultWorkflowData),
+      published_workflow_tree_str: JSON.stringify(defaultWorkflowTree),
+      published_workflow_data_str: JSON.stringify(defaultWorkflowData),
+      api_model_id,
+      created_by: userId,
+    }
+    const newApp = await db.insert(AppsTable).values(appVal).returning()
+
+    const appId = newApp[0]?.short_id
+
+    const sessionVal = {
+      short_id: nanoid(),
+      name: 'Chat 1',
+      app_id: appId,
+      created_by: userId,
+    }
+    const newSession = await db
+      .insert(SessionsTable)
+      .values(sessionVal)
+      .returning()
+
+    await addToWorkspace(appId)
+    await revalidateTag(`user:${userId}:apps`)
+
+    return { appId, sessionId: newSession[0]?.short_id }
+  } catch (error: any) {
+    return {
+      error: error.message,
+    }
   }
-  const newApp = await db.insert(AppsTable).values(appVal).returning()
-
-  const appId = newApp[0]?.short_id
-
-  const sessionVal = {
-    short_id: nanoid(),
-    name: 'Chat 1',
-    app_id: appId,
-    created_by: userId,
-  }
-  const newSession = await db
-    .insert(SessionsTable)
-    .values(sessionVal)
-    .returning()
-
-  await addToWorkspace(appId)
-  await revalidateTag(`user:${userId}:apps`)
-
-  return { appId, sessionId: newSession[0]?.short_id }
 }
 
 export async function getApps() {
@@ -147,7 +175,7 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
 
     const { api_model_id } = await getApp(appId)
     if (!api_model_id) {
-      throw new Error('api_model_id is not found')
+      throw new Error('api_model_id is not found, please create a new app')
     }
 
     const workflow = safeParse(newValue.published_workflow_data_str, [])
