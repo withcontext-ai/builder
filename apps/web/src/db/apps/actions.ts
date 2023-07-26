@@ -7,6 +7,7 @@ import { and, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
+import { flags } from '@/lib/flags'
 import { nanoid, safeParse } from '@/lib/utils'
 import {
   defaultWorkflowData,
@@ -25,27 +26,30 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       throw new Error('Not authenticated')
     }
 
-    const { name } = app
-    const chains = defaultWorkflowData.map((task: WorkflowItem) => {
-      const chainType = task.subType
-      const chain = safeParse(task.formValueStr, {})
-      return {
-        chain_type: chainType,
-        ...chain,
+    let api_model_id = ''
+    if (flags.enabledAIService) {
+      const { name } = app
+      const chains = defaultWorkflowData.map((task: WorkflowItem) => {
+        const chainType = task.subType
+        const chain = safeParse(task.formValueStr, {})
+        return {
+          chain_type: chainType,
+          ...chain,
+        }
+      })
+      const { data: res } = await axios.post(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
+        {
+          name,
+          chains,
+        }
+      )
+      console.log('AI service res:', res)
+      if (res.status !== 200) {
+        throw new Error(`AI service error: ${res.message}`)
       }
-    })
-    const { data: res } = await axios.post(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
-      {
-        name,
-        chains,
-      }
-    )
-    console.log('AI service res:', res)
-    if (res.status !== 200) {
-      throw new Error(`AI service error: ${res.message}`)
+      api_model_id = res?.data?.id
     }
-    const api_model_id = res?.data?.id
 
     const appVal = {
       ...app,
@@ -173,27 +177,29 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
       throw new Error('Not authenticated')
     }
 
-    const { api_model_id } = await getApp(appId)
-    if (!api_model_id) {
-      throw new Error('api_model_id is not found, please create a new app')
-    }
-
-    const workflow = safeParse(newValue.published_workflow_data_str, [])
-    const chains = workflow.map((task: WorkflowItem) => {
-      const chainType = task.subType
-      const chain = safeParse(task.formValueStr, {})
-      return {
-        chain_type: chainType,
-        ...chain,
+    if (flags.enabledAIService) {
+      const { api_model_id } = await getApp(appId)
+      if (!api_model_id) {
+        throw new Error('api_model_id is not found, please create a new app')
       }
-    })
-    console.log('deploy chains:', chains)
-    let { data: res } = await axios.patch(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-      { chains }
-    )
-    if (res.status !== 200) {
-      throw new Error(`AI service error: ${res.message}`)
+
+      const workflow = safeParse(newValue.published_workflow_data_str, [])
+      const chains = workflow.map((task: WorkflowItem) => {
+        const chainType = task.subType
+        const chain = safeParse(task.formValueStr, {})
+        return {
+          chain_type: chainType,
+          ...chain,
+        }
+      })
+      console.log('deploy chains:', chains)
+      let { data: res } = await axios.patch(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
+        { chains }
+      )
+      if (res.status !== 200) {
+        throw new Error(`AI service error: ${res.message}`)
+      }
     }
 
     const response = await db

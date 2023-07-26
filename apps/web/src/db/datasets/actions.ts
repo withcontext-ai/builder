@@ -7,6 +7,7 @@ import { isEqual, omit } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
+import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
 import { FileProps } from '@/components/upload/utils'
 
@@ -19,14 +20,18 @@ export async function addDataset(
   if (!userId) return null
   const { name } = dataset
 
-  const { data: res } = await axios.post(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets`,
-    {
-      name,
-    }
-  )
-  if (!res) return null
-  const api_dataset_id = res?.data?.id
+  let api_dataset_id = ''
+  if (flags.enabledAIService) {
+    const { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets`,
+      {
+        name,
+      }
+    )
+    if (!res) return null
+    api_dataset_id = res?.data?.id
+  }
+
   const config = omit(dataset, 'name')
   const data = {
     name,
@@ -90,29 +95,33 @@ export async function editDataset(
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
   const { name, config } = newValue
-  const dataset = await getDataset(datasetId)
-  const api_dataset_id = dataset?.api_dataset_id
-  if (!api_dataset_id) return Promise.resolve([])
 
-  const oldFiles = (dataset?.config as any)?.files
-  const newFiles = (config as any)?.files
-  const update = !isEqual(oldFiles, newFiles)
-  if (update) {
-    const documents = newFiles?.reduce(
-      (m: Record<string, any>[], item: FileProps) => {
-        const cur = omit(item, 'name')
-        m.push(cur)
-        return m
-      },
-      []
-    )
-    const editParams = { name, documents }
-    let { data: res } = await axios.patch(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
-      editParams
-    )
-    if (res.status !== 200) return
+  if (flags.enabledAIService) {
+    const dataset = await getDataset(datasetId)
+    const api_dataset_id = dataset?.api_dataset_id
+    if (!api_dataset_id) return Promise.resolve([])
+
+    const oldFiles = (dataset?.config as any)?.files
+    const newFiles = (config as any)?.files
+    const update = !isEqual(oldFiles, newFiles)
+    if (update) {
+      const documents = newFiles?.reduce(
+        (m: Record<string, any>[], item: FileProps) => {
+          const cur = omit(item, 'name')
+          m.push(cur)
+          return m
+        },
+        []
+      )
+      const editParams = { name, documents }
+      let { data: res } = await axios.patch(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
+        editParams
+      )
+      if (res.status !== 200) return
+    }
   }
+
   const response = await db
     .update(DatasetsTable)
     .set({ name, config, updated_at: new Date() })
@@ -131,13 +140,15 @@ export async function removeDataset(datasetId: string) {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
 
-  const { api_dataset_id } = await getDataset(datasetId)
-  if (!api_dataset_id) return Promise.resolve([])
+  if (flags.enabledAIService) {
+    const { api_dataset_id } = await getDataset(datasetId)
+    if (!api_dataset_id) return Promise.resolve([])
 
-  const { data: res } = await axios.delete(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`
-  )
-  if (res?.status !== 200) return Promise.resolve([])
+    const { data: res } = await axios.delete(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`
+    )
+    if (res?.status !== 200) return Promise.resolve([])
+  }
 
   const response = await db
     .update(DatasetsTable)

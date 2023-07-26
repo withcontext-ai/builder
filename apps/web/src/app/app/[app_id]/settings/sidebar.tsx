@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { ArrowLeftIcon, Loader2Icon } from 'lucide-react'
 
+import { flags } from '@/lib/flags'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -63,19 +64,21 @@ export default function Sidebar({ appId, appName }: IProps) {
             Some basic configurations of the App.
           </div>
         </Link>
-        <Link
-          className={cn(
-            commonStyle,
-            url?.includes('workflow') ? 'bg-slate-200' : ''
-          )}
-          href={`/app/${appId}/settings/workflow`}
-          replace
-        >
-          <div className="text-sm font-medium">Workflow</div>
-          <div className="text-sm text-slate-500">
-            Workflow related configurations of the App.
-          </div>
-        </Link>
+        {flags.enabledWorkflow && (
+          <Link
+            className={cn(
+              commonStyle,
+              url?.includes('workflow') ? 'bg-slate-200' : ''
+            )}
+            href={`/app/${appId}/settings/workflow`}
+            replace
+          >
+            <div className="text-sm font-medium">Workflow</div>
+            <div className="text-sm text-slate-500">
+              Workflow related configurations of the App.
+            </div>
+          </Link>
+        )}
       </div>
 
       <div className="my-2 shrink-0 px-3">
