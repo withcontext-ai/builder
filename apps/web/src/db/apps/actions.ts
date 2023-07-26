@@ -33,7 +33,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     .returning()
 
   await addToWorkspace(appId)
-  await revalidateTag(`/user/${userId}/apps`)
+  await revalidateTag(`user:${userId}:apps`)
 
   return { appId, sessionId: newSession[0]?.short_id }
 }
@@ -59,10 +59,10 @@ export async function getApps() {
         redirect('/')
       }
     },
-    [`/user/${userId}/apps`],
+    [`user:${userId}:apps`],
     {
       revalidate: 15 * 60,
-      tags: [`/user/${userId}/apps`],
+      tags: [`user:${userId}:apps`],
     }
   )()
 }
@@ -86,15 +86,15 @@ export async function getApp(appId: string) {
         redirect('/')
       }
     },
-    [`/app/${appId}`],
+    [`app:${appId}`],
     {
       revalidate: 15 * 60, // revalidate in 15 minutes
-      tags: [`/app/${appId}`],
+      tags: [`app:${appId}`],
     }
   )()
 }
 
-export async function editApp(id: string, newValue: Partial<NewApp>) {
+export async function editApp(appId: string, newValue: Partial<NewApp>) {
   try {
     const { userId } = auth()
     if (!userId) {
@@ -106,10 +106,12 @@ export async function editApp(id: string, newValue: Partial<NewApp>) {
     const response = await db
       .update(AppsTable)
       .set(newValue)
-      .where(and(eq(AppsTable.short_id, id), eq(AppsTable.created_by, userId)))
+      .where(
+        and(eq(AppsTable.short_id, appId), eq(AppsTable.created_by, userId))
+      )
 
-    await revalidateTag(`/app/${id}`)
-    await revalidateTag(`/user/${userId}/apps`)
+    await revalidateTag(`app:${appId}`)
+    await revalidateTag(`user:${userId}:apps`)
 
     return response
   } catch (error: any) {
@@ -119,7 +121,7 @@ export async function editApp(id: string, newValue: Partial<NewApp>) {
   }
 }
 
-export async function removeApp(id: string) {
+export async function removeApp(appId: string) {
   try {
     const { userId } = auth()
     if (!userId) {
@@ -131,9 +133,11 @@ export async function removeApp(id: string) {
     const response = await db
       .update(AppsTable)
       .set({ archived: true, updated_at: new Date() })
-      .where(and(eq(AppsTable.short_id, id), eq(AppsTable.created_by, userId)))
+      .where(
+        and(eq(AppsTable.short_id, appId), eq(AppsTable.created_by, userId))
+      )
 
-    await revalidateTag(`/user/${userId}/apps`)
+    await revalidateTag(`user:${userId}:apps`)
 
     return response
   } catch (error: any) {
