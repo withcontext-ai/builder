@@ -32,7 +32,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent className="w-52">
           <DropdownMenuItem>
-            <Link href="/profile" className="flex gap-1">
+            <Link href="/profile" className="flex items-center gap-1">
               <SettingsIcon className="mr-2 h-4 w-4" />
               <span>Manage account</span>
             </Link>
