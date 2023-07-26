@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { isEmpty, isEqual } from 'lodash'
 import useSWRMutation from 'swr/mutation'
 
@@ -33,16 +33,22 @@ function editApp(
 function useAutoSave(key: string, value: any) {
   const { app_id } = useParams()
   const { trigger } = useSWRMutation(`/api/apps/${app_id}`, editApp)
+  const router = useRouter()
 
   const latestValue = React.useRef(value)
 
   React.useEffect(() => {
-    if (value !== latestValue.current) {
-      console.log('saving data:', key, value)
-      trigger({ [key]: value })
-      latestValue.current = value
+    async function init() {
+      if (value !== latestValue.current) {
+        console.log('saving data:', key, value)
+        await trigger({ [key]: value })
+        latestValue.current = value
+        router.refresh()
+      }
     }
-  }, [trigger, key, value])
+
+    init()
+  }, [trigger, key, value, router])
 }
 
 function AutoSave() {
@@ -93,6 +99,7 @@ function PublishButton() {
   const { app_id } = useParams()
   const { trigger, isMutating } = useSWRMutation(`/api/apps/${app_id}`, editApp)
   const { toast } = useToast()
+  const router = useRouter()
 
   const workflowTree = useWorkflowContext((state) => state.workflowTree)
   const workflowData = useWorkflowContext((state) => state.workflowData)
@@ -106,6 +113,7 @@ function PublishButton() {
       })
       publishWorkflow()
       toast({ title: 'Publish success!' })
+      router.refresh()
     } catch (error) {
       console.log('PublishButton error:', error)
     }
