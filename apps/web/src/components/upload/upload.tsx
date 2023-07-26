@@ -378,6 +378,7 @@ const Upload = (props: UploadProps) => {
           className="h-6 w-6 rounded-full border"
           variant="outline"
           size="icon"
+          type="button"
           disabled={isUploading}
         >
           <Camera size={16} strokeWidth={2} />
