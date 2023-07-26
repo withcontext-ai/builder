@@ -8,6 +8,7 @@ import RootWrapper from '@/components/root-wrapper'
 
 export default async function Page() {
   const appList = await getApps()
+
   return (
     <RootWrapper pageTitle="My Apps">
       <div className="flex flex-col">
