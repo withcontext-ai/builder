@@ -163,23 +163,13 @@ const CreateAppDialog = (props: IProps) => {
                   <FormItem>
                     <FormLabel>Image</FormLabel>
                     <FormControl>
-                      {image?.length ? (
-                        <Upload
-                          listType="update-image"
-                          setUploading={setUploading}
-                          accept=".png, .jpeg,.webp,.jpg"
-                          fileList={image}
-                          onChangeFileList={onChangeFileList}
-                        />
-                      ) : (
-                        <Upload
-                          listType="image"
-                          setUploading={setUploading}
-                          accept=".png, .jpeg,.webp,.jpg"
-                          fileList={image}
-                          onChangeFileList={onChangeFileList}
-                        />
-                      )}
+                      <Upload
+                        listType={image?.length ? 'update-image' : 'image'}
+                        setUploading={setUploading}
+                        accept=".png, .jpeg,.webp,.jpg"
+                        fileList={image}
+                        onChangeFileList={onChangeFileList}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
