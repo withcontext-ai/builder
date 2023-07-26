@@ -13,7 +13,7 @@ interface IProps {
   name: string
   description: string
   icon: string
-  creator: string
+  creator?: string
 }
 
 export default function AppCard({
