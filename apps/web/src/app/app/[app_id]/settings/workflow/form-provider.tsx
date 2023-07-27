@@ -13,7 +13,7 @@ export const FormSchema = z.object({
   }),
   model_temperature: z.array(z.number().min(0).max(1)),
   memory_key: z.string().optional(),
-  prompt_template: z.string().optional(),
+  // prompt_template: z.string().optional(),
   data_datasets: z.array(z.string()).optional(),
 })
 
@@ -33,7 +33,7 @@ export default function FormProvider({ children }: IProps) {
     defaultValues: {
       model_name: 'openai-gpt4',
       model_temperature: [0.9],
-      prompt_template: '',
+      // prompt_template: '',
     },
   })
 

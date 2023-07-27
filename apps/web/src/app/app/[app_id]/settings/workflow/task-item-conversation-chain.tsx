@@ -40,7 +40,7 @@ export default function TaskItemConversationChain({
 
 const FormSchema = z.object({
   llm: z.object({
-    model_name: z.string({
+    name: z.string({
       required_error: 'Please select a model.',
     }),
     api_key: z
@@ -55,7 +55,7 @@ const FormSchema = z.object({
     presence_penalty: z.number().min(0).max(2).optional(),
   }),
   prompt: z.object({
-    type: z.string(),
+    // type: z.string(),
     template: z.string().optional(),
   }),
 })
@@ -68,7 +68,7 @@ interface FormProviderProps {
   formValue: any
 }
 
-const DEFAULT_VALUES: IFormSchema = TaskDefaultValueMap['conversation-chain']
+const DEFAULT_VALUES: IFormSchema = TaskDefaultValueMap['conversation_chain']
 
 function FormProvider({ children, taskId, formValue }: FormProviderProps) {
   const defaultValues = formValue || DEFAULT_VALUES
@@ -112,8 +112,8 @@ function FormItems() {
 }
 
 const LLM_MODEL_NAME_OPTIONS = [
-  { label: 'OpenAI-GPT-3.5', value: 'openai-gpt-3.5-turbo' },
-  { label: 'OpenAI-GPT-4', value: 'openai-gpt-4' },
+  { label: 'OpenAI-GPT-3.5', value: 'gpt-3.5-turbo' },
+  { label: 'OpenAI-GPT-4', value: 'gpt-4' },
 ]
 
 function FormItemLLM() {
@@ -128,7 +128,7 @@ function FormItemLLM() {
       <div className="text-sm font-medium text-slate-500">LLM</div>
       <div className="space-y-8">
         <SelectItem<IFormSchema>
-          name="llm.model_name"
+          name="llm.name"
           label="Model"
           options={LLM_MODEL_NAME_OPTIONS}
         />
@@ -205,11 +205,11 @@ function FormItemPrompt() {
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">prompt</div>
       <div className="space-y-8">
-        <SelectItem<IFormSchema>
+        {/* <SelectItem<IFormSchema>
           name="prompt.type"
           label="Type"
           options={PROMPT_TYPE_OPTIONS}
-        />
+        /> */}
         <TextareaItem<IFormSchema> name="prompt.template" label="Template" />
       </div>
     </div>
