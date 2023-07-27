@@ -208,7 +208,11 @@ export const ImageFile = (props: FileItemProps) => {
             </div>
           ) : (
             file?.url && (
-              <img src={file?.url} width={72} height={72} alt={file?.name} />
+              <img
+                src={file?.url}
+                className="h-16 w-16 object-fill"
+                alt={file?.name}
+              />
             )
           )}
         </div>
