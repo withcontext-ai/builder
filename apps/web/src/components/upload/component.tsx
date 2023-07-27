@@ -68,11 +68,7 @@ export const PdfImage = ({
   id?: string
   className?: string
 }) => (
-  <img
-    src="../../../pdf.png"
-    alt="pdf"
-    className={cn('w-[25px h-[32px]', className)}
-  />
+  <img src="/pdf.png" alt="pdf" className={cn('w-[25px h-[32px]', className)} />
 )
 
 export const PDFFile = (props: FileItemProps) => {

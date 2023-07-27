@@ -13,7 +13,7 @@ interface IProps {
   content?: string
 }
 
-export function SectionTooltip({ children, content }: IProps) {
+export function HoverTooltip({ children, content }: IProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>

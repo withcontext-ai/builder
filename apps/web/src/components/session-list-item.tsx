@@ -11,7 +11,7 @@ import useSWRMutation from 'swr/mutation'
 import { fetcher } from '@/lib/utils'
 
 import ConfirmDialog from './confirm-dialog'
-import { SectionTooltip } from './hover-tooltip'
+import { HoverTooltip } from './hover-tooltip'
 
 function removeSession(url: string) {
   return fetcher(url, { method: 'DELETE' })
@@ -67,7 +67,7 @@ export default function SessionListItem({
         >
           <MessageCircleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="truncate">{name}</span>
-          <SectionTooltip content="Delete Chat">
+          <HoverTooltip content="Delete Chat">
             {!isOnlyOneSession && isSelected && (
               <button
                 className="absolute right-2 rounded-full bg-slate-200 p-1 text-center hover:bg-white"
@@ -82,7 +82,7 @@ export default function SessionListItem({
                 )}
               </button>
             )}
-          </SectionTooltip>
+          </HoverTooltip>
         </Link>
       </li>
       {!isOnlyOneSession && isSelected && (
