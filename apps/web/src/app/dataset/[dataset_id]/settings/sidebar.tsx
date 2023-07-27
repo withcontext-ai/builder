@@ -114,10 +114,10 @@ const SlideBar = ({
         <div className="text-lg font-semibold">Back</div>
       </div>
       <div className="mt-4 w-full space-y-2 p-3">
-        <div className="text-sm font-medium uppercase text-slate-500">
+        <div className="text-xl font-medium uppercase text-slate-500">
           DATASETS
         </div>
-        <div className="flex flex-col gap-1	text-sm	font-medium">
+        <div className="flex flex-col gap-2	text-sm	font-medium">
           {data?.map((item: SectionType, index: number) => (
             <button
               key={item?.title}
