@@ -113,8 +113,8 @@ const SlideBar = ({
         </Button>
         <div className="text-lg font-semibold">Back</div>
       </div>
-      <div className="mt-4 w-full space-y-2 p-3">
-        <div className="text-xl font-medium uppercase text-slate-500">
+      <div className="mt-4 w-full space-y-2 p-2">
+        <div className="pl-3 text-sm font-medium uppercase text-slate-500">
           DATASETS
         </div>
         <div className="flex flex-col gap-2	text-sm	font-medium">

@@ -48,7 +48,7 @@ export default function Sidebar({ appId, appName }: IProps) {
       </div>
 
       <div className="mt-4 space-y-2 p-2">
-        <div className="text-xl font-medium uppercase text-slate-500">
+        <div className="pl-3 text-sm font-medium uppercase text-slate-500">
           App Settings
         </div>
         <Link

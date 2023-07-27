@@ -1,3 +1,4 @@
+import { AvatarFallback } from '@radix-ui/react-avatar'
 import { ReactNode } from 'react-markdown/lib/ast-to-react'
 
 import {
@@ -14,13 +15,11 @@ interface IProps {
 
 export function SectionTooltip({ children, content }: IProps) {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent>
-          <p className="font-normal">{content}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side="right">
+        <p className="font-normal">{content}</p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
