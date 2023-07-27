@@ -29,7 +29,6 @@ import RootWrapper from '@/components/root-wrapper'
 // ]
 const LIST: any[] = []
 
-
 export default async function Page() {
   return (
     <RootWrapper pageTitle="Explore">
