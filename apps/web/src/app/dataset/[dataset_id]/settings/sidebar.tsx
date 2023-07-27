@@ -136,7 +136,10 @@ const SlideBar = ({
       <AlertDialog>
         <AlertDialogTrigger asChild>
           <div className="w-full p-3">
-            <Button variant="ghost" className="w-full justify-between p-3">
+            <Button
+              variant="ghost"
+              className="w-full justify-between px-2 py-3"
+            >
               Delete this Dataset
               <Trash2 size={18} />
             </Button>
