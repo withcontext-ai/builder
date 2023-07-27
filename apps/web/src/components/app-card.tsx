@@ -31,11 +31,12 @@ export default function AppCard({
         <div className="absolute top-20 h-px w-full bg-slate-200" />
         <CardHeader className="p-4">
           <div className="space-y-2">
+            ccc
             {icon ? (
               <img
                 src={icon}
                 alt={id}
-                className="relative h-24 w-24 rounded-lg"
+                className="relative h-24 w-24 rounded-lg object-cover"
               />
             ) : (
               <div
