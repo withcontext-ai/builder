@@ -31,7 +31,6 @@ export default function AppCard({
         <div className="absolute top-20 h-px w-full bg-slate-200" />
         <CardHeader className="p-4">
           <div className="space-y-2">
-            ccc
             {icon ? (
               <img
                 src={icon}
