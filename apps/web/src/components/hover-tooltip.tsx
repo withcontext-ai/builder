@@ -18,7 +18,7 @@ export function SectionTooltip({ children, content }: IProps) {
       <Tooltip>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent>
-          <p>{content}</p>
+          <p className="font-normal">{content}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
