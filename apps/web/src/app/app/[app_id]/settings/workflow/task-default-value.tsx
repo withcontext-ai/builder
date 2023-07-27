@@ -3,7 +3,7 @@ import { TreeItem } from '@/components/dnd/types'
 import { WorkflowItem } from './type'
 
 export const TaskDefaultValueMap = {
-  'conversation_chain': {
+  conversation_chain: {
     llm: {
       name: 'gpt-3.5-turbo',
       api_key: '',
@@ -18,7 +18,7 @@ export const TaskDefaultValueMap = {
       template: '',
     },
   },
-  'conversational_retrieval_qa_chain': {
+  conversational_retrieval_qa_chain: {
     llm: {
       name: 'gpt-3.5-turbo',
       api_key: '',
