@@ -1,5 +1,3 @@
-import { PlusIcon } from 'lucide-react'
-
 import { getDatasets } from '@/db/datasets/actions'
 import DatasetCard from '@/components/dataset-card'
 import RootWrapper from '@/components/root-wrapper'
@@ -23,7 +21,7 @@ export default async function Page() {
         </div> */}
         <div className="m-full hidden h-px shrink-0 bg-slate-100 lg:block" />
         <div className="p-6">
-          <ul className="xl-[960px] grid grid-cols-1 gap-4 md:grid-cols-2 lg:w-[960px] lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3  2xl:grid-cols-4 ">
             {datasets?.map(({ short_id, name, config, linked_app_count }) => {
               const { files = [], loaderType } = config as any
               return (
