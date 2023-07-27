@@ -26,7 +26,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       throw new Error('Not authenticated')
     }
 
-    let api_model_id = ''
+    let api_model_id = null
     if (flags.enabledAIService) {
       const { name } = app
       const chains = defaultWorkflowData.map((task: WorkflowItem) => {
