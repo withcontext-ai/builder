@@ -36,7 +36,6 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
           ...chain,
         }
       })
-      console.log('chains:', chains)
       const { data: res } = await axios.post(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
         {

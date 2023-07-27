@@ -14,7 +14,6 @@ export const TaskDefaultValueMap = {
       presence_penalty: 0,
     },
     prompt: {
-      // type: 'prompt_template',
       template: '',
     },
   },
@@ -29,7 +28,6 @@ export const TaskDefaultValueMap = {
       presence_penalty: 0,
     },
     prompt: {
-      // type: 'prompt_template',
       template: '',
     },
     retriever: {
@@ -54,5 +52,3 @@ export const defaultWorkflowData: WorkflowItem[] = [
       '{"llm":{"name":"gpt-3.5-turbo","api_key":"","temperature":0.9,"max_tokens":256,"top_p":1,"frequency_penalty":0,"presence_penalty":0},"prompt":{"template":""}}',
   },
 ]
-
-// status code: 422

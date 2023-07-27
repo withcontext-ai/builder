@@ -55,7 +55,6 @@ const FormSchema = z.object({
     presence_penalty: z.number().min(0).max(2).optional(),
   }),
   prompt: z.object({
-    // type: z.string(),
     template: z.string().optional(),
   }),
 })
@@ -196,20 +195,11 @@ function FormItemLLM() {
   )
 }
 
-const PROMPT_TYPE_OPTIONS = [
-  { label: 'Prompt Template', value: 'prompt_template' },
-]
-
 function FormItemPrompt() {
   return (
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">prompt</div>
       <div className="space-y-8">
-        {/* <SelectItem<IFormSchema>
-          name="prompt.type"
-          label="Type"
-          options={PROMPT_TYPE_OPTIONS}
-        /> */}
         <TextareaItem<IFormSchema> name="prompt.template" label="Template" />
       </div>
     </div>
