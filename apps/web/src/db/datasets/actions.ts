@@ -58,6 +58,7 @@ export async function getDatasets() {
           short_id: DatasetsTable.short_id,
           name: DatasetsTable.name,
           config: DatasetsTable.config,
+          api_dataset_id: DatasetsTable.api_dataset_id,
           linked_app_count: sql`count(${AppsDatasetsTable.app_id})`,
         })
         .from(DatasetsTable)
