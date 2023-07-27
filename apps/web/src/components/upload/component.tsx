@@ -210,7 +210,7 @@ export const ImageFile = (props: FileItemProps) => {
             file?.url && (
               <img
                 src={file?.url}
-                className="aspect-square h-16 w-16 rounded-md object-cover"
+                className="aspect-square h-full w-full rounded-md border object-cover"
                 alt={file?.name}
               />
             )
