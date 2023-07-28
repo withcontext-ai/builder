@@ -16,6 +16,7 @@ export default async function SessionPage({ params }: IProps) {
     <>
       <div className="h-full w-full overflow-hidden">
         <Chat
+          apiSessionId={sessions.api_session_id!}
           sessionId={session_id}
           sessionName={sessions.name}
           appId={apps?.short_id || ''}

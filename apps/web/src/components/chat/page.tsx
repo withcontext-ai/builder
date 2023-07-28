@@ -11,6 +11,7 @@ import ChatInput from './chat-input'
 import ChatList from './chat-list'
 
 export interface ChatProps {
+  apiSessionId: string
   sessionId: string
   sessionName: string
   appId: string
@@ -20,6 +21,7 @@ export interface ChatProps {
 }
 
 const Chat = ({
+  apiSessionId,
   sessionId,
   sessionName,
   appName,
@@ -41,6 +43,7 @@ const Chat = ({
     error,
     setMessages,
   } = useChat({
+    api: `/api/chat/${apiSessionId}`,
     id: sessionId,
     onResponse: () => {
       setWaiting(false)
