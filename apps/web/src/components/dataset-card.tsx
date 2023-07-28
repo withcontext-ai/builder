@@ -24,11 +24,13 @@ export default function DatasetCard({
 }: IProps) {
   return (
     <Link href={`/dataset/${id}`}>
-      <Card className="flex h-[148px] flex-col p-6 hover:shadow-md">
+      <Card className="flex h-[148px] flex-col px-4 py-6 shadow-none hover:shadow-md">
         <CardHeader className="h-full p-0">
           <CardTitle className="flex flex-1 gap-4 text-lg">
             {iconType?.includes('pdf') && <PdfImage />}
-            <div className="line-clamp-2 max-h-[52px] flex-1">{title}</div>
+            <div className="line-clamp-2 max-h-[52px] flex-1 break-all">
+              {title}
+            </div>
           </CardTitle>
           <CardFooter className="flex h-5 w-full gap-3 p-0">
             {fileNum != null && (
