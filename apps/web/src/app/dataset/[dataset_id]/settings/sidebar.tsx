@@ -138,10 +138,10 @@ const SlideBar = ({
           <div className="w-full p-3">
             <Button
               variant="ghost"
-              className="w-full justify-between p-2 text-sm"
+              className="h-9 w-full justify-between p-3 text-sm hover:bg-slate-200"
             >
               Delete this Dataset
-              <Trash2 size={18} />
+              <Trash2 size={18} className="p-0" />
             </Button>
           </div>
         </AlertDialogTrigger>
