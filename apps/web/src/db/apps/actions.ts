@@ -346,7 +346,7 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
         queue.push(task)
         serverLog.capture({
           distinctId: userId,
-          event: 'success:unlink_dataset_to_app',
+          event: 'success:unlink_dataset_from_app',
           properties: {
             app_id: appId,
             dataset_id: datasetId,
