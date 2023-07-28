@@ -123,7 +123,7 @@ const SlideBar = ({
               key={item?.title}
               onClick={() => handleClick(item?.name)}
               className={cn(
-                'p-3 text-start hover:rounded-md hover:bg-slate-200',
+                'p-3 text-start text-sm hover:rounded-md hover:bg-slate-200	',
                 activeSection === index ? 'rounded-md bg-slate-200' : ''
               )}
             >
@@ -138,7 +138,7 @@ const SlideBar = ({
           <div className="w-full p-3">
             <Button
               variant="ghost"
-              className="w-full justify-between px-2 py-3"
+              className="w-full justify-between px-2 py-3 text-sm"
             >
               Delete this Dataset
               <Trash2 size={18} />

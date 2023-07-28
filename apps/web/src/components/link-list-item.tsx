@@ -18,7 +18,7 @@ const LinkListItem = React.forwardRef<
       <li>
         <div
           className={cn(
-            'block select-none space-y-1 rounded-md p-2 leading-none text-slate-900 no-underline outline-none transition-colors hover:bg-slate-200',
+            'block select-none space-y-1 rounded-md p-3 leading-none text-slate-900 no-underline outline-none transition-colors hover:bg-slate-200',
             isSelected ? 'bg-slate-200' : '',
             className
           )}
