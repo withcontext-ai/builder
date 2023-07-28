@@ -11,23 +11,23 @@ import ChatInput from './chat-input'
 import ChatList from './chat-list'
 
 export interface ChatProps {
-  apiSessionId: string
   sessionId: string
   sessionName: string
   appId: string
   appName: string
   appIcon: string
   isDebug?: boolean
+  apiSessionId?: string | null
 }
 
 const Chat = ({
-  apiSessionId,
   sessionId,
   sessionName,
   appName,
   appIcon,
   appId,
   isDebug = false,
+  apiSessionId,
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
@@ -43,7 +43,7 @@ const Chat = ({
     error,
     setMessages,
   } = useChat({
-    api: `/api/chat/${apiSessionId}`,
+    api: apiSessionId ? `/api/chat/${apiSessionId}` : undefined,
     id: sessionId,
     onResponse: () => {
       setWaiting(false)
