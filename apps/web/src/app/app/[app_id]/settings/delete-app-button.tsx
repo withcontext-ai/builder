@@ -40,8 +40,8 @@ export default function DeleteAppButton({ id, name }: IProps) {
     <>
       <Button
         variant="ghost"
-        size="lg"
-        className="flex h-9 w-full items-center justify-between p-3 hover:bg-slate-200"
+        size="sm"
+        className="flex w-full items-center justify-between p-3 hover:bg-slate-200"
         onClick={() => setOpen(true)}
       >
         <span>Delete this App</span>
