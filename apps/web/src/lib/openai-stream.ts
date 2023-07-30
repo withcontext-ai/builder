@@ -4,7 +4,11 @@ import {
   ReconnectInterval,
 } from 'eventsource-parser'
 
-export async function OpenAIStream(baseUrl: string, payload: any, callback?: { onCompletion?: (completion: string) => void }) {
+export async function OpenAIStream(
+  baseUrl: string,
+  payload: any,
+  callback?: { onCompletion?: (completion: string) => void }
+) {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
