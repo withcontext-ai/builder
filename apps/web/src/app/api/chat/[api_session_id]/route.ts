@@ -4,7 +4,7 @@ import { Message } from 'ai'
 import { auth } from '@/lib/auth'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { serverLog } from '@/lib/posthog'
-import { updateMessagesToSession } from '@/db/sessions/actions'
+import { updateMessagesToSession } from '@/db/sessions/actions-edge'
 
 export const runtime = 'edge'
 
