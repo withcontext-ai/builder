@@ -75,7 +75,6 @@ async def send_message(
         )
     model = models[0]
     workflow = Workflow(model=model, session_id=session_id)
-
     callback = workflow.sequential_chain_callback
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):

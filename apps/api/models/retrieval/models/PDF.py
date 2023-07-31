@@ -165,5 +165,11 @@ class PDFRetrieverMixin:
         self.create_retriever()
         return self.retriever
 
+    def get_retriever(self):
+        if hasattr(self, "retriever"):
+            return self.retriever
+        self.create_retriever()
+        return self.retriever
+
     def query_from_pdf(self, query: str):
         return self.get_retriever().get_relevant_documents(query)
