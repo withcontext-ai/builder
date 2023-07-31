@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { Message } from 'ai'
 import { useChat } from 'ai/react'
 
+import { nanoid } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 import { useToast } from '@/components/ui/use-toast'
@@ -54,6 +55,11 @@ const Chat = ({
     onResponse: () => {
       setWaiting(false)
     },
+    body: {
+      sessionId,
+      apiSessionId,
+    },
+    sendExtraMessageFields: true,
   })
 
   const handelReload = () => {
@@ -96,7 +102,7 @@ const Chat = ({
           setAutoScroll(true)
           setWaiting(true)
           await append({
-            id: sessionId,
+            id: nanoid(),
             content: value,
             role: 'user',
             createdAt: new Date(),
