@@ -80,6 +80,7 @@ const AddTemplateButton = () => {
                     key={item.title}
                     onSelect={(item) => {
                       setValue('prompt.template', item)
+                      setOpen(false)
                     }}
                   >
                     <div className="flex-1">
