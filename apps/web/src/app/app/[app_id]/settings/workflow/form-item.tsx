@@ -1,4 +1,4 @@
-import { HTMLInputTypeAttribute } from 'react'
+import { HTMLInputTypeAttribute, ReactNode } from 'react'
 import { Check, ChevronsUpDown, PlusIcon, TrashIcon } from 'lucide-react'
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
 
@@ -71,7 +71,7 @@ export function InputItem<T extends FieldValues>({
 
 interface ITextareaItem<T> {
   name: Path<T>
-  label?: string
+  label?: string | ReactNode
   placeholder?: string
 }
 
