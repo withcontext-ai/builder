@@ -17,6 +17,7 @@ interface WorkflowProps {
   publishedWorkflowTree: TreeItem[]
   publishedWorkflowData: WorkflowItem[]
   selectedTaskId: string | null
+  selectedShowKey?: string
   datasetOptions: SelectOption[]
 }
 
@@ -24,7 +25,8 @@ interface WorkflowState extends WorkflowProps {
   resetCount: number
   setWorkflowTree: (tree: TreeItem[]) => void
   addTask: (type: WorkflowType, subType: string) => void
-  selectTask: (id: string) => void
+  selectTask: (id: string, type?: string) => void
+  getShowKey: (id: string, type?: string) => void
   removeTask: (id: string) => void
   editTaskFormValueStr: (id: string, formValue: string) => void
   resetWorkflow: () => void
@@ -40,9 +42,10 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
     publishedWorkflowTree: [],
     publishedWorkflowData: [],
     selectedTaskId: null,
+    selectedShowKey: 'tool-0',
     datasetOptions: [],
   }
-  return createStore<WorkflowState>()((set) => ({
+  return createStore<WorkflowState>()((set, get) => ({
     ...defaultProps,
     ...initProps,
 
@@ -73,10 +76,20 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
         })
       )
     },
-    selectTask: (id: string) => {
+    selectTask: (id: string, type?: string) => {
+      get().getShowKey(id, type)
       set(
         produce((draft: WorkflowState) => {
           draft.selectedTaskId = id
+        })
+      )
+    },
+    getShowKey: (id: string, type?: string) => {
+      const typeData = get().workflowData?.filter((item) => item?.type === type)
+      const index = typeData?.findIndex((item) => item?.id === id)
+      set(
+        produce((draft) => {
+          draft.selectedShowKey = `${type}-${index}`
         })
       )
     },

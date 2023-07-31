@@ -10,6 +10,7 @@ export default function TaskDetail() {
   const selectedTask = useWorkflowContext((state) =>
     state.workflowData.find((d) => d.id === state.selectedTaskId)
   )
+  const showKey = useWorkflowContext((state) => state.selectedShowKey)
 
   const selectedTaskFormValue = React.useMemo(() => {
     try {
@@ -29,6 +30,7 @@ export default function TaskDetail() {
       return (
         <TaskItemConversationChain
           key={selectedTask.id}
+          showKey={showKey}
           taskId={selectedTask.id}
           formValue={selectedTaskFormValue}
         />
@@ -37,6 +39,7 @@ export default function TaskDetail() {
       return (
         <TaskItemConversationalRetrievalQA
           key={selectedTask.id}
+          showKey={showKey}
           taskId={selectedTask.id}
           formValue={selectedTaskFormValue}
         />

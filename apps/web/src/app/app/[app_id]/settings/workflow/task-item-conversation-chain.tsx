@@ -24,16 +24,18 @@ import useResetForm from './use-reset-form'
 
 interface IProps {
   taskId: string
+  showKey?: string
   formValue: any
 }
 
 export default function TaskItemConversationChain({
   taskId,
   formValue,
+  showKey,
 }: IProps) {
   return (
     <FormProvider taskId={taskId} formValue={formValue}>
-      <FormItems />
+      <FormItems showKey={showKey} />
     </FormProvider>
   )
 }
@@ -95,11 +97,12 @@ function FormProvider({ children, taskId, formValue }: FormProviderProps) {
   )
 }
 
-function FormItems() {
+function FormItems({ showKey }: { showKey?: string }) {
   return (
     <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200 scrollbar-none">
       <div className="space-y-6 p-6">
         <h2 className="text-lg font-semibold">Conversation Chain</h2>
+        <div>key:{showKey}</div>
         <div className="space-y-6">
           <FormItemLLM />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
