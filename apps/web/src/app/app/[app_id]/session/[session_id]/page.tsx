@@ -1,3 +1,4 @@
+import { safeParse } from '@/lib/utils'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
 
@@ -21,6 +22,8 @@ export default async function SessionPage({ params }: IProps) {
           appId={apps?.short_id || ''}
           appName={apps?.name || ''}
           appIcon={apps?.icon || ''}
+          apiSessionId={sessions.api_session_id}
+          initialMessages={safeParse(sessions.messages_str, [])}
         />
       </div>
       <AppNotFound archived={apps?.archived || false} />

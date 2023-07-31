@@ -1,10 +1,14 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
+import { Message } from 'ai'
+import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
+import { flags } from '@/lib/flags'
+import { serverLog } from '@/lib/posthog'
 import { nanoid } from '@/lib/utils'
 
 import { AppsTable } from '../apps/schema'
@@ -12,13 +16,39 @@ import { SessionsTable } from './schema'
 
 export async function addSession(appId: string) {
   const { userId } = auth()
-  if (!userId) return null
+  if (!userId) {
+    throw new Error('Not authenticated')
+  }
 
   const foundApp = await db
     .select()
     .from(AppsTable)
     .where(eq(AppsTable.short_id, appId))
-  if (!foundApp?.[0]) return null
+  if (!foundApp?.[0]) {
+    throw new Error('App not found')
+  }
+
+  let api_session_id = null
+  if (flags.enabledAIService) {
+    let { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+      { model_id: foundApp?.[0]?.api_model_id }
+    )
+    console.log('res:', res)
+    if (res.status !== 200) {
+      serverLog.capture({
+        distinctId: userId,
+        event: 'ai_service_error:add_session',
+        properties: {
+          message: res.message,
+          app_id: appId,
+        },
+      })
+      throw new Error(`AI service error: ${res.message}`)
+    }
+    api_session_id = res?.data?.session_id
+    console.log('api_session_id:', api_session_id)
+  }
 
   const allSessions = await db
     .select({ count: sql<number>`count(*)` })
@@ -32,12 +62,23 @@ export async function addSession(appId: string) {
     short_id: nanoid(),
     name: `Chat ${sessionCount + 1}`,
     app_id: appId,
+    api_session_id,
     created_by: userId,
   }
   const newSession = await db
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
+
+  serverLog.capture({
+    distinctId: userId,
+    event: 'success:add_session',
+    properties: {
+      app_id: appId,
+      session_id: newSession[0]?.short_id,
+      api_session_id,
+    },
+  })
 
   return { sessionId: newSession[0]?.short_id }
 }
@@ -87,6 +128,15 @@ export async function removeSession(appId: string, sessionId: string) {
     .set({ archived: true, updated_at: new Date() })
     .where(eq(SessionsTable.short_id, sessionId))
 
+  serverLog.capture({
+    distinctId: userId,
+    event: 'success:remove_session',
+    properties: {
+      app_id: appId,
+      session_id: sessionId,
+    },
+  })
+
   const latestSession = await db
     .select()
     .from(SessionsTable)
@@ -131,11 +181,25 @@ export async function getLatestSessionId(appId: string) {
       .orderBy(desc(SessionsTable.created_at))
       .limit(1)
     if (!foundSession?.[0]) {
+      let api_session_id = null
+      if (flags.enabledAIService) {
+        let { data: res } = await axios.post(
+          `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+          { model_id: foundApp?.[0]?.api_model_id }
+        )
+        if (res.status !== 200) {
+          throw new Error(`AI service error: ${res.message}`)
+        }
+        api_session_id = res?.data?.session_id
+        console.log('api_session_id:', api_session_id)
+      }
+
       const sessionVal = {
         short_id: nanoid(),
         name: 'Chat 1',
         app_id: appId,
         created_by: userId,
+        api_session_id,
       }
       const newSession = await db
         .insert(SessionsTable)
@@ -176,5 +240,54 @@ export async function getSession(sessionId: string) {
     return sessionDetail
   } catch (error: any) {
     redirect('/')
+  }
+}
+
+export async function updateMessagesToSession(
+  apiSessionId: string,
+  messages: Message[]
+) {
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      throw new Error('Not authenticated')
+    }
+
+    const formattedMessages = messages.map((message) => {
+      if (!message.id) {
+        return {
+          ...message,
+          id: nanoid(),
+        }
+      }
+      return message
+    })
+
+    const response = await db
+      .update(SessionsTable)
+      .set({
+        messages_str: JSON.stringify(formattedMessages),
+      })
+      .where(
+        and(
+          eq(SessionsTable.api_session_id, apiSessionId),
+          eq(SessionsTable.created_by, userId)
+        )
+      )
+
+    serverLog.capture({
+      distinctId: userId,
+      event: 'success:update_messages_to_session',
+      properties: {
+        api_session_id: apiSessionId,
+        messages,
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    return {
+      error: error.message,
+    }
   }
 }

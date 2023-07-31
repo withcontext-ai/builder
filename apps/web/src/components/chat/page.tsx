@@ -1,10 +1,12 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { Message } from 'ai'
 import { useChat } from 'ai/react'
 
 import usePageTitle from '@/hooks/use-page-title'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
+import { useToast } from '@/components/ui/use-toast'
 
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
@@ -17,6 +19,8 @@ export interface ChatProps {
   appName: string
   appIcon: string
   isDebug?: boolean
+  apiSessionId?: string | null
+  initialMessages?: Message[]
 }
 
 const Chat = ({
@@ -26,9 +30,12 @@ const Chat = ({
   appIcon,
   appId,
   isDebug = false,
+  apiSessionId,
+  initialMessages = [],
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
+  const { toast } = useToast()
 
   const {
     messages,
@@ -41,8 +48,13 @@ const Chat = ({
     error,
     setMessages,
   } = useChat({
+    api: apiSessionId ? `/api/chat/${apiSessionId}` : undefined,
     id: sessionId,
-    onResponse: () => {
+    initialMessages,
+    onResponse: (response) => {
+      if (response?.status !== 200) {
+        toast({ variant: 'destructive', description: response.statusText })
+      }
       setWaiting(false)
     },
   })
