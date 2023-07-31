@@ -2,6 +2,8 @@
 // import axios from 'axios'
 // import { Configuration, OpenAIApi } from 'openai-edge'
 
+import { Message } from 'ai'
+
 import { auth } from '@/lib/auth'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { serverLog } from '@/lib/posthog'
@@ -16,18 +18,28 @@ export async function POST(req: Request) {
   }
 
   // Extract the `prompt` from the body of the request
-  const { messages } = await req.json()
+  // const { messages } = await req.json()
+  const body = await req.json()
+  const messages = body.messages as Message[]
+  // const payload = {
+  //   model: 'gpt-3.5-turbo',
+  //   stream: true,
+  //   messages,
+  // }
   const payload = {
-    model: 'gpt-3.5-turbo',
-    stream: true,
-    messages,
+    session_id: '0201125943034c02d77d354c83e35d9a',
+    messages: messages.map((message) => ({
+      role: message.role,
+      content: message.content,
+    })),
   }
   serverLog.capture({
     distinctId: userId,
     event: 'success:chat:openai',
     properties: payload,
   })
-  const baseUrl = process.env.OPENAI_BASE_PATH!
+  // const baseUrl = process.env.OPENAI_BASE_PATH!
+  const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
   const stream = await OpenAIStream(baseUrl, payload)
   return new Response(stream)
 }
