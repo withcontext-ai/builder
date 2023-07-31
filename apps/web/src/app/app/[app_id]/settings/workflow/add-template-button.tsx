@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { CommandGroup } from 'cmdk'
 import { Plus } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -9,6 +10,7 @@ import {
   Command,
   CommandEmpty,
   CommandInput,
+  CommandItem,
   CommandList,
 } from '@/components/ui/command'
 import {
@@ -51,6 +53,7 @@ const TEMPLATES = [
 
 const AddTemplateButton = () => {
   const [open, setOpen] = useState(false)
+  const [value, setValue] = useState('')
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -68,23 +71,23 @@ const AddTemplateButton = () => {
           <CommandInput placeholder="Search" />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              {TEMPLATES.map((item) => {
+                return (
+                  <CommandItem key={item.title}>
+                    <div className="flex-1">
+                      <div className="font-medium">{item.title}</div>
+                      <div className="mt-1 line-clamp-2 text-slate-500">
+                        {item.prompt}
+                      </div>
+                    </div>
+                    <DropdownMenuPortal></DropdownMenuPortal>
+                  </CommandItem>
+                )
+              })}
+            </CommandGroup>
           </CommandList>
         </Command>
-        <DropdownMenuGroup>
-          {TEMPLATES.map((item) => {
-            return (
-              <DropdownMenuItem key={item.title}>
-                <div className="flex-1">
-                  <div className="font-medium">{item.title}</div>
-                  <div className="mt-1 line-clamp-2 text-slate-500">
-                    {item.prompt}
-                  </div>
-                </div>
-                <DropdownMenuPortal></DropdownMenuPortal>
-              </DropdownMenuItem>
-            )
-          })}
-        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
