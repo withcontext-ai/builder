@@ -96,7 +96,7 @@ function ResetSection() {
       {isDisabled ? (
         <div />
       ) : (
-        <div className="text-slate-900">Your have unpublished changes yet!</div>
+        <div className="text-slate-900">You have unpublished changes!</div>
       )}
       <Button
         type="button"
