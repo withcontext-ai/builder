@@ -15,6 +15,7 @@ class Document(BaseModel):
 class Dataset(BaseModel):
     id: str = Field(default_factory=str)
     documents: Optional[list[Document]] = Field(default_factory=list)
+    retrieval: Optional[dict] = Field(default_factory=dict)
 
 
 class DatasetTable(Base):

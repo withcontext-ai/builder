@@ -2,8 +2,8 @@ import logging
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
-from models.dataset import Dataset, dataset_manager
-from models.retrieval.base import Retriever
+from models.base import Dataset, dataset_manager
+from models.retrieval import Retriever
 from pydantic import BaseModel
 
 
@@ -55,7 +55,7 @@ def delete_dataset(id: str):
 def query(id: str, index: IndexResponse):
     retrieval = Retriever(index.options, id)
     try:
-        query = retrieval.query(index.content)
+        query = retrieval.query(index.content, index.index_type)
         return {"data": {"query": query}, "message": "success", "status": 200}
     except Exception as e:
         logger.error(e)

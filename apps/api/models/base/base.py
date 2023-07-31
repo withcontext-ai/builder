@@ -1,16 +1,24 @@
-import os
 from functools import wraps
+
 from sqlalchemy import MetaData, Table, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 from utils.config import DATABASE_URL
+from sqlalchemy.pool import QueuePool
 
 Base = declarative_base()
 
 
 class BaseManager:
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(
+        DATABASE_URL,
+        poolclass=QueuePool,
+        pool_size=10,
+        max_overflow=20,
+        pool_recycle=300,
+        pool_pre_ping=True,
+    )
     metadata = MetaData()
     metadata.reflect(bind=engine)
     Session = sessionmaker(bind=engine)

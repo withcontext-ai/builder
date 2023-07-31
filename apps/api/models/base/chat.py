@@ -9,7 +9,7 @@ class Messages(BaseModel):
 
 
 class CompletionsRequest(BaseModel):
-    model: str
+    session_id: str
     messages: List[Messages]
 
 
@@ -24,3 +24,7 @@ class CompletionsResponse(BaseModel):
     object: str
     model: str
     choices: List[Choices]
+
+
+class SessionRequest(BaseModel):
+    model_id: str

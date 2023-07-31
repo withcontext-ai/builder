@@ -2,7 +2,7 @@ import logging
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
-from models.model import Model, model_manager
+from models.base import Model, model_manager
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1/models")

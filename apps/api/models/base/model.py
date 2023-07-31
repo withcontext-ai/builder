@@ -1,30 +1,36 @@
 from typing import Optional, Union
+import os
 
 from pydantic import BaseModel, Field
 from sqlalchemy import JSON, Column, String
 
 from .base import Base, BaseManager
+from utils import OPENAI_API_KEY
 
 
 class LLM(BaseModel):
-    temperature: float = Field(default=0.7, ge=0, le=2)
-    max_token: int = Field(default=100000000)
     name: str = Field(default_factory=str)
+    max_tokens: int = Field(default=100)
+    temperature: float = Field(default=1)
+    top_p: float = Field(default=1)
+    frequency_penalty: float = Field(default=0)
+    presence_penalty: float = Field(default=0)
+    api_key: str = Field(default_factory="")
 
 
 class Prompt(BaseModel):
-    prompt: str = Field(default_factory=str)
+    template: str = Field(default_factory=str)
 
 
 class Chain(BaseModel):
     llm: LLM
     prompt: Prompt
-    datasets: list[str]
+    datasets: Optional[list[str]] = []
+    chain_type: str
 
 
 class Model(BaseModel):
     id: Optional[str]
-    name: str
     chains: list[Chain]
 
 
@@ -67,6 +73,9 @@ class ModelManager(BaseManager):
         if model_info is None:
             return None
         model_info = model_info.fetchall()
+        models = []
+        for model in model_info:
+            models.append(Model(**model._mapping))
         return [Model(**model._mapping) for model in model_info]
 
 
