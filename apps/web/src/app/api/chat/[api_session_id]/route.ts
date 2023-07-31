@@ -4,10 +4,9 @@ import { Message } from 'ai'
 import { auth } from '@/lib/auth'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { serverLog } from '@/lib/posthog'
-import { updateMessagesToSession } from '@/db/sessions/actions'
+import { updateMessagesToSession } from '@/db/sessions/actions-edge'
 
-// TODO: https://neon.tech/blog/sub-10ms-postgres-queries-for-vercel-edge-functions
-// export const runtime = 'edge'
+export const runtime = 'edge'
 
 export async function POST(
   req: NextRequest,
