@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { CommandGroup } from 'cmdk'
 import { Plus } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -16,11 +16,10 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuPortal,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+
+import { IFormSchema } from './task-item-conversational-retrieval-qa'
 
 const TEMPLATES = [
   {
@@ -53,7 +52,8 @@ const TEMPLATES = [
 
 const AddTemplateButton = () => {
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState('')
+  const form = useFormContext<IFormSchema>()
+  const { setValue } = form
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -66,7 +66,7 @@ const AddTemplateButton = () => {
           add
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-96" align="start" side="top">
+      <DropdownMenuContent className="w-[332px]" align="start" side="top">
         <Command>
           <CommandInput placeholder="Search" />
           <CommandList>
@@ -74,14 +74,20 @@ const AddTemplateButton = () => {
             <CommandGroup>
               {TEMPLATES.map((item) => {
                 return (
-                  <CommandItem key={item.title}>
+                  <CommandItem
+                    className="p-3"
+                    value={item?.prompt}
+                    key={item.title}
+                    onSelect={(item) => {
+                      setValue('prompt.template', item)
+                    }}
+                  >
                     <div className="flex-1">
                       <div className="font-medium">{item.title}</div>
                       <div className="mt-1 line-clamp-2 text-slate-500">
                         {item.prompt}
                       </div>
                     </div>
-                    <DropdownMenuPortal></DropdownMenuPortal>
                   </CommandItem>
                 )
               })}

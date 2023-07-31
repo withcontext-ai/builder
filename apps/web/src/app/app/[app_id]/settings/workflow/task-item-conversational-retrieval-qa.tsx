@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 
+import AddTemplateButton from './add-template-button'
 import {
   InputItem,
   ListSelectItem,
@@ -67,7 +68,7 @@ const FormSchema = z.object({
   }),
 })
 
-type IFormSchema = z.infer<typeof FormSchema>
+export type IFormSchema = z.infer<typeof FormSchema>
 
 interface FormProviderProps {
   children: React.ReactNode
@@ -221,7 +222,15 @@ function FormItemPrompt() {
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">prompt</div>
       <div className="space-y-8">
-        <TextareaItem<IFormSchema> name="prompt.template" label="Template" />
+        <TextareaItem<IFormSchema>
+          name="prompt.template"
+          label={
+            <div className="flex items-center justify-between ">
+              Template
+              <AddTemplateButton />
+            </div>
+          }
+        />
       </div>
     </div>
   )
