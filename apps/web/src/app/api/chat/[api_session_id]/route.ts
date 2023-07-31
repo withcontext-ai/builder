@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { Message } from 'ai'
 
 import { auth } from '@/lib/auth'
 import { OpenAIStream } from '@/lib/openai-stream'
-import { serverLog } from '@/lib/posthog'
-import { updateMessagesToSession } from '@/db/sessions/actions-edge'
 
 export const runtime = 'edge'
 
@@ -27,11 +25,11 @@ export async function POST(
       content: message.content,
     })),
   }
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:chat',
-    properties: payload,
-  })
+  // serverLog.capture({
+  //   distinctId: userId,
+  //   event: 'success:chat',
+  //   properties: payload,
+  // })
   const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
   const stream = await OpenAIStream(baseUrl, payload)
   // const stream = await OpenAIStream(baseUrl, payload, {

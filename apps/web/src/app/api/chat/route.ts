@@ -6,7 +6,6 @@ import { Message } from 'ai'
 
 import { auth } from '@/lib/auth'
 import { OpenAIStream } from '@/lib/openai-stream'
-import { serverLog } from '@/lib/posthog'
 
 // IMPORTANT! Set the runtime to edge
 export const runtime = 'edge'
@@ -33,12 +32,12 @@ export async function POST(req: Request) {
       content: message.content,
     })),
   }
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:chat:openai',
-    properties: payload,
-  })
-  // const baseUrl = process.env.OPENAI_BASE_PATH!
+  // serverLog.capture({
+  //   distinctId: userId,
+  //   event: 'success:chat:openai',
+  //   properties: payload,
+  // })
+  // const baseUrl = `${process.env.OPENAI_BASE_PATH}/v1`
   const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
   const stream = await OpenAIStream(baseUrl, payload)
   return new Response(stream)
