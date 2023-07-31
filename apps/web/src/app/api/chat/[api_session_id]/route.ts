@@ -33,17 +33,18 @@ export async function POST(
     properties: payload,
   })
   const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
-  const stream = await OpenAIStream(baseUrl, payload, {
-    async onCompletion(completion) {
-      const payload = [
-        ...messages,
-        {
-          role: 'assistant',
-          content: completion,
-        },
-      ] as Message[]
-      updateMessagesToSession(api_session_id, payload)
-    },
-  })
+  const stream = await OpenAIStream(baseUrl, payload)
+  // const stream = await OpenAIStream(baseUrl, payload, {
+  //   async onCompletion(completion) {
+  //     const payload = [
+  //       ...messages,
+  //       {
+  //         role: 'assistant',
+  //         content: completion,
+  //       },
+  //     ] as Message[]
+  //     updateMessagesToSession(api_session_id, payload)
+  //   },
+  // })
   return new Response(stream)
 }
