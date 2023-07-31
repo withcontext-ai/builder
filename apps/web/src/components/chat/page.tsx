@@ -51,10 +51,7 @@ const Chat = ({
     api: apiSessionId ? `/api/chat/${apiSessionId}` : undefined,
     id: sessionId,
     initialMessages,
-    onResponse: (response) => {
-      if (response?.status !== 200) {
-        toast({ variant: 'destructive', description: response.statusText })
-      }
+    onResponse: () => {
       setWaiting(false)
     },
   })
