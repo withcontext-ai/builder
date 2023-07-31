@@ -108,8 +108,11 @@ function FormItems({ showKey }: { showKey?: string }) {
   return (
     <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200 scrollbar-none">
       <div className="space-y-6 p-6">
-        <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
-        <div>key:{showKey}</div>
+        <div className="space-y-[10px]">
+          <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
+          <div className="w-fit rounded-sm bg-slate-100	px-3">key:{showKey}</div>
+        </div>
+
         <div className="space-y-6">
           <FormItemLLM />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />

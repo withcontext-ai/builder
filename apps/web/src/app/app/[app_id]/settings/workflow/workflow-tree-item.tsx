@@ -61,7 +61,7 @@ export default function WorkflowTreeItem({
           ghost && !isDragValid && 'border-red-100'
         )}
         {...handleProps}
-        onClick={() => selectTask(id)}
+        onClick={() => selectTask(id, type)}
       >
         <div className="flex space-x-2">
           {TypeIcon && <TypeIcon className="h-6 w-6" />}
