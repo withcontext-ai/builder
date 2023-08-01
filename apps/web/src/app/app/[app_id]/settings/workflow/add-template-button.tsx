@@ -23,30 +23,16 @@ import { IFormSchema } from './task-item-conversational-retrieval-qa'
 
 const TEMPLATES = [
   {
-    title: 'role play - interviewer',
-    prompt: `Prompt type: chat prompt template
-    System Message: 
-    I want you to act as an interviewer. I will be the candidate and you will ask me the interview questions for the {position} position. I want you to only reply as the interviewer. Do not write all the conservation at once. I want you to only do the interview with me. Ask me the questions and wait for my answers.
-    Human Message: 
-    Format  prompt values: 
-    {"position":"Elementary Math Teacher"}`,
+    title: 'Roleplay - Interviewer',
+    prompt: `I want you to act as an software engineer internship interviewer. I will be the candidate and you will ask me the interview questions for the position position. I want you to only reply as the interviewer. Do not write all the conservation at once. I want you to only do the interview with me. Ask me the questions and wait for my answers. Do not write explanations. Ask me the questions one by one like an interviewer does and wait for my answers.`,
   },
   {
     title: 'Multilingual translation assistant',
-    prompt: `Prompt type: chat prompt template
-    System Message: 
-    You are a helpful assistant that translates {input_language} to {output_language}.
-    Format  prompt values: 
-    {  "input_language": "English ",
-      "output_language": "French"
-    }`,
+    prompt: `You are a helpful assistant that translates English to French.`,
   },
   {
     title: 'Product customer service',
-    prompt: `Prompt type: chat prompt template
-    System Message: You are a customer service agent, answering customer questions. Only answer what you know.
-    Human Message: 
-    Format  prompt values: `,
+    prompt: `You are a customer service agent, answering customer questions. Only answer what you know.`,
   },
 ]
 
