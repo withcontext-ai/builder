@@ -55,9 +55,9 @@ export default function WorkflowTreeItem({
     <div className={cn('relative mb-4 w-[360px]', clone && '-rotate-3')}>
       <div
         className={cn(
-          'relative overflow-hidden rounded-lg border bg-white p-4 pb-6',
+          'relative overflow-hidden rounded-lg border bg-white p-4 pb-6 hover:bg-slate-50',
           isSelected && 'border-blue-500',
-          ghost && isDragValid && 'border-gray-50',
+          ghost && isDragValid && 'border-gray-100',
           ghost && !isDragValid && 'border-red-100'
         )}
         {...handleProps}
