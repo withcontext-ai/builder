@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { UniqueIdentifier } from '@dnd-kit/core'
 import { produce } from 'immer'
+import { last } from 'lodash'
 import { createStore, useStore } from 'zustand'
 
 import { nanoid } from '@/lib/utils'
@@ -17,7 +18,6 @@ interface WorkflowProps {
   publishedWorkflowTree: TreeItem[]
   publishedWorkflowData: WorkflowItem[]
   selectedTaskId: string | null
-  selectedShowKey?: string
   datasetOptions: SelectOption[]
 }
 
@@ -26,7 +26,6 @@ interface WorkflowState extends WorkflowProps {
   setWorkflowTree: (tree: TreeItem[]) => void
   addTask: (type: WorkflowType, subType: string) => void
   selectTask: (id: string, type?: string) => void
-  getShowKey: (id: string, type?: string) => void
   removeTask: (id: string) => void
   editTaskFormValueStr: (id: string, formValue: string) => void
   resetWorkflow: () => void
@@ -42,7 +41,6 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
     publishedWorkflowTree: [],
     publishedWorkflowData: [],
     selectedTaskId: null,
-    selectedShowKey: 'tool-0',
     datasetOptions: [],
   }
   return createStore<WorkflowState>()((set, get) => ({
@@ -63,7 +61,11 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
         produce((draft: WorkflowState) => {
           const id = nanoid()
           const defaultFormValue = (TaskDefaultValueMap as any)[subType] || {}
+          const latestKey = last(
+            draft.workflowData.filter((p) => p.type === type)
+          )?.key
           draft.workflowData.push({
+            key: Number(latestKey ?? -1) + 1,
             id,
             type,
             subType,
@@ -76,20 +78,10 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
         })
       )
     },
-    selectTask: (id: string, type?: string) => {
-      get().getShowKey(id, type)
+    selectTask: (id: string) => {
       set(
         produce((draft: WorkflowState) => {
           draft.selectedTaskId = id
-        })
-      )
-    },
-    getShowKey: (id: string, type?: string) => {
-      const typeData = get().workflowData?.filter((item) => item?.type === type)
-      const index = typeData?.findIndex((item) => item?.id === id)
-      set(
-        produce((draft) => {
-          draft.selectedShowKey = `${type}-${index}`
         })
       )
     },

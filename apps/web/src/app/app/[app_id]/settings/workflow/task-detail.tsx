@@ -10,7 +10,6 @@ export default function TaskDetail() {
   const selectedTask = useWorkflowContext((state) =>
     state.workflowData.find((d) => d.id === state.selectedTaskId)
   )
-  const showKey = useWorkflowContext((state) => state.selectedShowKey)
 
   const selectedTaskFormValue = React.useMemo(() => {
     try {
@@ -25,12 +24,17 @@ export default function TaskDetail() {
 
   if (!selectedTask) return null
 
+  const keyLabel =
+    selectedTask.key != null
+      ? `${selectedTask.type}-${selectedTask.key}`
+      : undefined
+
   switch (selectedTask.subType) {
     case 'conversation_chain':
       return (
         <TaskItemConversationChain
           key={selectedTask.id}
-          showKey={showKey}
+          keyLabel={keyLabel}
           taskId={selectedTask.id}
           formValue={selectedTaskFormValue}
         />
@@ -39,7 +43,7 @@ export default function TaskDetail() {
       return (
         <TaskItemConversationalRetrievalQA
           key={selectedTask.id}
-          showKey={showKey}
+          keyLabel={keyLabel}
           taskId={selectedTask.id}
           formValue={selectedTaskFormValue}
         />

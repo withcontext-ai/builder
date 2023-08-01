@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 
@@ -25,18 +26,18 @@ import useResetForm from './use-reset-form'
 
 interface IProps {
   taskId: string
-  showKey?: string
+  keyLabel?: string
   formValue: any
 }
 
 export default function TaskItemConversationalRetrievalQA({
   taskId,
+  keyLabel,
   formValue,
-  showKey,
 }: IProps) {
   return (
     <FormProvider taskId={taskId} formValue={formValue}>
-      <FormItems showKey={showKey} />
+      <FormItems keyLabel={keyLabel} />
     </FormProvider>
   )
 }
@@ -105,13 +106,13 @@ function FormProvider({ children, taskId, formValue }: FormProviderProps) {
   )
 }
 
-function FormItems({ showKey }: { showKey?: string }) {
+function FormItems({ keyLabel }: { keyLabel?: string }) {
   return (
     <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200 scrollbar-none">
       <div className="space-y-6 p-6">
         <div className="space-y-[10px]">
           <h2 className="text-lg font-semibold">Conversational Retrieval QA</h2>
-          <div className="w-fit rounded-sm bg-slate-100	px-3">key:{showKey}</div>
+          {keyLabel && <Badge variant="secondary">key: {keyLabel}</Badge>}
         </div>
 
         <div className="space-y-6">
