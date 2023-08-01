@@ -1,3 +1,5 @@
+import { Info } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 
 import { Button } from '../ui/button'
@@ -20,11 +22,17 @@ export const IconBox = (props: IconBoxProps) => (
 
 interface IProps {
   name: string
+  confirmReset?: boolean
   isDebug?: boolean
-  onRestart?: () => void
+  setConfirmReset?: (s: boolean) => void
 }
 
-const ChatHeader = ({ name, isDebug, onRestart }: IProps) => {
+const ChatHeader = ({
+  name,
+  isDebug,
+  confirmReset,
+  setConfirmReset,
+}: IProps) => {
   return (
     <div
       className={cn(
@@ -35,7 +43,7 @@ const ChatHeader = ({ name, isDebug, onRestart }: IProps) => {
       {isDebug ? (
         <div className="flex w-full items-center justify-between text-lg font-medium">
           Debug
-          <Button variant="outline" onClick={onRestart}>
+          <Button variant="outline" onClick={() => setConfirmReset?.(true)}>
             Restart
           </Button>
         </div>

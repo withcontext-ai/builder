@@ -21,6 +21,7 @@ function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
 
 const ChatDebug = (values: { appName: string; appIcon: string }) => {
   const [open, setOpen] = useState(false)
+
   const workflowData = useWorkflowContext((state) => state.workflowData)
   const { trigger } = useSWRMutation(`/api/debug`, getApiSessionId)
   const [apiSessionId, setApiSessionId] = useState('')
