@@ -269,7 +269,10 @@ export function ListSelectItem<T extends FieldValues>({
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="p-0" align="end">
+            <PopoverContent
+              className="relative left-[195px] w-[332px] p-0"
+              align="end"
+            >
               <Command filter={labelFilterBuilder(options)}>
                 <CommandInput
                   placeholder={`Search ${label.toLowerCase()}...`}
