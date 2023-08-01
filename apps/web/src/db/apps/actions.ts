@@ -414,3 +414,67 @@ export async function removeApp(appId: string) {
     }
   }
 }
+
+export async function addDebugSession(api_model_id: string) {
+  const { userId } = auth()
+  if (flags.enabledAIService) {
+    let { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+      { model_id: api_model_id }
+    )
+    if (res.status !== 200) {
+      serverLog.capture({
+        distinctId: userId || '',
+        event: 'ai_service_debug_error:add_session',
+        properties: {
+          message: res.message,
+        },
+      })
+      throw new Error(`AI service debug error: ${res.message}`)
+    }
+    return res?.data?.session_id
+  }
+}
+
+export async function getDebugSessionId(tasks: WorkflowItem[]) {
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      return {
+        error: 'Not authenticated',
+      }
+    }
+    let api_model_id = null
+    console.log(flags.enabledAIService, '---------')
+    if (flags.enabledAIService) {
+      const chains = tasks.map((task: WorkflowItem) => {
+        const chainType = task.subType
+        const chain = safeParse(task.formValueStr, {})
+        return {
+          chain_type: chainType,
+          ...chain,
+        }
+      })
+      const { data: res } = await axios.post(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
+        {
+          chains,
+        }
+      )
+      if (res.status !== 200) {
+        serverLog.capture({
+          distinctId: userId,
+          event: 'ai_service_debug_error:add_app',
+          properties: {
+            message: res.message,
+          },
+        })
+        throw new Error(`AI service debug error: ${res.message}`)
+      }
+      api_model_id = res?.data?.id
+      return await addDebugSession(api_model_id)
+    }
+  } catch (error: any) {
+    return error.message
+  }
+}
