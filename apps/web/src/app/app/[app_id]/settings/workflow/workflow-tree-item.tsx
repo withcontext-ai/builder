@@ -57,7 +57,7 @@ export default function WorkflowTreeItem({
         className={cn(
           'relative overflow-hidden rounded-lg border bg-white p-4 pb-6',
           isSelected && 'border-blue-500',
-          ghost && isDragValid && 'border-gray-100',
+          ghost && isDragValid && 'border-gray-50',
           ghost && !isDragValid && 'border-red-100'
         )}
         {...handleProps}
