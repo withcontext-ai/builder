@@ -66,7 +66,11 @@ const AddTemplateButton = () => {
           add
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[332px]" align="start" side="top">
+      <DropdownMenuContent
+        className="relative right-6 w-[332px]"
+        alignOffset={-30}
+        side="top"
+      >
         <Command>
           <CommandInput placeholder="Search" />
           <CommandList>
