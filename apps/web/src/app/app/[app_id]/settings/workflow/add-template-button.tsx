@@ -60,10 +60,10 @@ const AddTemplateButton = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="gap-1 text-blue-800 hover:bg-white hover:text-blue-800"
+          className="text-blue-800 hover:text-blue-800"
         >
-          <Plus size={16} />
-          add
+          <Plus size={16} className="mr-2" />
+          Add
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
