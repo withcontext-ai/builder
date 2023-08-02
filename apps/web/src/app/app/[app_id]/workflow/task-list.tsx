@@ -6,11 +6,12 @@ import { useWindowSize } from 'usehooks-ts'
 
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 
+import { DatasetProps } from './page'
 import { useWorkflowContext } from './store'
 import TaskDetail from './task-detail'
 import TaskItem from './task-item'
 
-export default function TaskList() {
+export default function TaskList({ datasets }: { datasets?: DatasetProps[] }) {
   const workflowTree = useWorkflowContext((state) => state.workflowTree)
   const selectedTaskId = useWorkflowContext((state) => state.selectedTaskId)
   const selectTask = useWorkflowContext((state) => state.selectTask)
@@ -46,7 +47,11 @@ export default function TaskList() {
       </div>
       {selectedTaskId && (
         <div className="hidden w-96 border-l border-slate-100 p-6 lg:block">
-          <TaskDetail value={selectedTask} onClose={closeTaskDetail} />
+          <TaskDetail
+            value={selectedTask}
+            onClose={closeTaskDetail}
+            datasets={datasets}
+          />
         </div>
       )}
       {isSmallScreen && (
