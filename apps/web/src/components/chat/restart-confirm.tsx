@@ -7,7 +7,7 @@ interface IProps {
   onCancel: () => void
 }
 
-const ReStartConfirmPage = ({ onRestart, onCancel }: IProps) => {
+const RestartConfirmPage = ({ onRestart, onCancel }: IProps) => {
   return (
     <div className="absolute z-10 h-full w-full bg-white">
       <div className="flex items-center gap-2">
@@ -29,4 +29,4 @@ const ReStartConfirmPage = ({ onRestart, onCancel }: IProps) => {
   )
 }
 
-export default ReStartConfirmPage
+export default RestartConfirmPage
