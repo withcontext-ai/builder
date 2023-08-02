@@ -2,7 +2,7 @@ import io
 import logging
 import uuid
 from typing import List
-
+import io
 import pinecone
 from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
 from langchain.chains.query_constructor.base import AttributeInfo
@@ -11,6 +11,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.schema import Document
+from langchain.document_loaders import OnlinePDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from pdfminer.converter import TextConverter
@@ -21,6 +22,41 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
 from pydantic import BaseModel, Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfparser import PDFParser
+
+
+def extract_text_from_pdf(contents: io.BytesIO) -> list:
+    resource_manager = PDFResourceManager()
+    fake_file_handle = io.StringIO()
+    converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams())
+    page_interpreter = PDFPageInterpreter(resource_manager, converter)
+    for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
+        page_interpreter.process_page(page)
+    text = fake_file_handle.getvalue()
+    pages = text.split("\f")
+
+    # Remove the last line of each page if it's a number or its length is less than 5
+    for i in range(len(pages)):
+        lines = pages[i].split("\n")
+        if len(lines) > 1:  # Ensure there is more than one line
+            last_line = lines[-1]
+            if last_line.isdigit() or len(last_line) < 5:
+                lines = lines[:-1]  # Remove the last line
+                pages[i] = "\n".join(lines)
+
+    # Join the pages back together
+    text = "\f".join(pages)
+
+    converter.close()
+    fake_file_handle.close()
+
+    return text
+
 
 logger = logging.getLogger(__name__)
 

@@ -17,12 +17,17 @@ from models.base import (
     SessionRequest,
     model_manager,
     session_state_manager,
+<<<<<<< HEAD
     VideoCompletionsRequest,
     Messages as MessagesContent,
 )
 from models.workflow import Workflow
 from models.faceto_ai import FaceToAiManager
 from utils import WEBHOOK_KEY
+=======
+)
+from models.workflow import Workflow
+>>>>>>> 485d3df (feat: workflow)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,6 +54,7 @@ def wrap_token(token: str, model_id: str, session_id: str, filt: bool = False) -
 async def send_message(
     messages_contents: List[MessagesContent], session_id: str, filt=False
 ) -> AsyncIterable[str]:
+<<<<<<< HEAD
     messages = []
     for message_content in messages_contents:
         if message_content.role == "user":
@@ -62,6 +68,8 @@ async def send_message(
                 status_code=400, detail=f"Invalid role: {message_content.role}"
             )
 
+=======
+>>>>>>> 485d3df (feat: workflow)
     model_id = session_state_manager.get_model_id(session_id)
     models = model_manager.get_models(model_id)
     if not models:

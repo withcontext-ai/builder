@@ -3,6 +3,11 @@ import logging
 import re
 from typing import Any, Dict, List, Optional, cast
 
+from langchain.memory import (
+    ConversationSummaryMemory,
+    ChatMessageHistory,
+    ConversationBufferMemory,
+)
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.chains import (
     ConversationalRetrievalChain,
