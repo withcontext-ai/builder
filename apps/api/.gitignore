@@ -1,3 +1,5 @@
 __pycache__
 .env
 backend-secret.yaml
+example_model.py
+example_workflow.py

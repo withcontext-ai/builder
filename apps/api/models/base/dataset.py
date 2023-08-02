@@ -19,16 +19,17 @@ class Dataset(BaseModel):
 
 
 class DatasetTable(Base):
-    __tablename__ = "backend_datasets"
+    __tablename__ = "datasets"
 
     id = Column(String, primary_key=True)
     documents = Column(JSON)
+    retrieval = Column(JSON)
 
 
 class DatasetManager(BaseManager):
     def __init__(self) -> None:
         super().__init__()
-        self.table = self.get_table("backend_datasets")
+        self.table = self.get_table("datasets")
 
     @BaseManager.db_session
     def save_dataset(self, dataset: Dataset):
@@ -58,6 +59,8 @@ class DatasetManager(BaseManager):
         if dataset_info is None:
             return None
         dataset_info = dataset_info.fetchall()
+        if len(dataset_info) == 0:
+            return None
         return [Dataset(**dataset._mapping) for dataset in dataset_info]
 
 

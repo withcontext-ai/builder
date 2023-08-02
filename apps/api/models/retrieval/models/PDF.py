@@ -1,17 +1,51 @@
 from typing import List
-
+import io
 import pinecone
-import PyPDF2
 from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
 from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.schema import Document
+from langchain.document_loaders import OnlinePDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from pydantic import BaseModel, Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfparser import PDFParser
+
+
+def extract_text_from_pdf(contents: io.BytesIO) -> list:
+    resource_manager = PDFResourceManager()
+    fake_file_handle = io.StringIO()
+    converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams())
+    page_interpreter = PDFPageInterpreter(resource_manager, converter)
+    for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
+        page_interpreter.process_page(page)
+    text = fake_file_handle.getvalue()
+    pages = text.split("\f")
+
+    # Remove the last line of each page if it's a number or its length is less than 5
+    for i in range(len(pages)):
+        lines = pages[i].split("\n")
+        if len(lines) > 1:  # Ensure there is more than one line
+            last_line = lines[-1]
+            if last_line.isdigit() or len(last_line) < 5:
+                lines = lines[:-1]  # Remove the last line
+                pages[i] = "\n".join(lines)
+
+    # Join the pages back together
+    text = "\f".join(pages)
+
+    converter.close()
+    fake_file_handle.close()
+
+    return text
 
 
 class PDFSplitterOption(BaseModel):
@@ -59,28 +93,32 @@ class PDFRetrieverMixin:
         for dataset in self.datasets:
             _doc = []
             options = PDFRetrivalOption(**dataset.retrieval)
-            text_splitter = CharacterTextSplitter(
+
+            text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                separator=" ",
                 chunk_size=options.splitter.chunk_size,
                 chunk_overlap=options.splitter.chunk_overlap,
             )
+
             for document in dataset.documents:
                 if document.type == "pdf":
                     pdf_content = self.storage_client.load(document.url)
-                    pdf_reader = PyPDF2.PdfReader(pdf_content)
-                    for page in pdf_reader.pages:
+                    text = extract_text_from_pdf(pdf_content)
+                    pages = text.split("\f")
+                    for page_number, page in enumerate(pages):
                         _doc.append(
                             Document(
-                                page_content=page.extract_text(),
+                                page_content=page,
                                 metadata={
                                     "source": document.url,
-                                    "page_number": pdf_reader.get_page_number(page),
+                                    "page_number": page_number,
                                 },
                             )
                         )
             _doc = text_splitter.split_documents(_doc)
             doc += _doc
 
-        embeddings = OpenAIEmbeddings()
+        embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
         # TODO check if this is the right way to do it ⬇️
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         vector_store = Pinecone.from_documents(
@@ -94,7 +132,7 @@ class PDFRetrieverMixin:
             llm=OpenAI(),
             vectorstore=vector_store,
             verbose=True,
-            document_contents="",
+            document_contents="knowledge",
             metadata_field_info=[
                 AttributeInfo(
                     name="source", type="string", description="source of pdf"
@@ -104,6 +142,7 @@ class PDFRetrieverMixin:
                 ),
             ],
         )
+        self.retriever.search_type = "mmr"
 
     def get_retriever(self):
         if hasattr(self, "retriever"):

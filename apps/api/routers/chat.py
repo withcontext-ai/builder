@@ -16,8 +16,9 @@ from models.base import (
     CompletionsResponse,
     SessionRequest,
     model_manager,
+    session_state_manager,
 )
-from models.workflow import session_state, Workflow
+from models.workflow import Workflow
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ router = APIRouter(prefix="/v1/chat")
 async def send_message(
     messages: List[BaseMessage], session_id: str
 ) -> AsyncIterable[str]:
-    model_id = await session_state.get_state(session_id)
+    model_id = session_state_manager.get_model_id(session_id)
     models = model_manager.get_models(model_id)
     if not models:
         raise HTTPException(
@@ -40,7 +41,6 @@ async def send_message(
         )
     model = models[0]
     workflow = Workflow(model=model, session_id=session_id)
-    # TODO check messages
     callback = workflow.sequential_chain_callback
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
@@ -53,9 +53,7 @@ async def send_message(
         finally:
             event.set()
 
-    task = asyncio.create_task(
-        wrap_done(workflow.agenerate(messages[-1].content), callback.done)
-    )
+    task = asyncio.create_task(wrap_done(workflow.agenerate(messages), callback.done))
 
     yield f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=workflow.model.id, choices=[Choices(index=0, delta={'content': ''})]).dict())}\n\n"
 
@@ -95,6 +93,10 @@ async def stream_completions(body: CompletionsRequest):
 
 @router.post("/session")
 async def create_session(body: SessionRequest):
-    session_id = secrets.token_hex(16)
-    await session_state.create_state(session_id, body.model_id)
-    return {"data": {"session_id": session_id}, "message": "success", "status": 200}
+    try:
+        session_id = secrets.token_hex(16)
+        session_state_manager.save_session_state(session_id, body.model_id)
+        return {"data": {"session_id": session_id}, "message": "success", "status": 200}
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,26 +1,27 @@
 import asyncio
-import io
+import logging
 import re
 from typing import Any, Dict, List, Optional, cast
-from uuid import UUID
 
+from langchain.memory import (
+    ConversationSummaryMemory,
+    ChatMessageHistory,
+    ConversationBufferMemory,
+)
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.callbacks.base import BaseCallbackHandler
-from langchain.chains import (
-    ConversationalRetrievalChain,
-    LLMChain,
-    SequentialChain,
-    ConversationChain,
-)
+from langchain.chains import ConversationalRetrievalChain, LLMChain, SequentialChain
 from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
+from langchain.schema import BaseMessage
+from langchain.schema.messages import get_buffer_string
+from langchain.schema.output import LLMResult
 from models.base import Model, model_manager
 from models.retrieval import Retriever
 from pydantic import BaseModel, Field
+from utils import CONVERSION_CHAIN, CONVERSIONAL_RETRIEVAL_QA_CHAIN
 
-from langchain.schema.output import LLMResult
-from utils import CONVERSIONAL_RETRIEVAL_QA_CHAIN, CONVERSION_CHAIN
+logger = logging.getLogger(__name__)
 
 
 class LLMAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -39,26 +40,6 @@ class LLMAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         return await super().on_llm_new_token(token, **kwargs)
 
 
-class ChainBaseCallbackHandler(BaseCallbackHandler):
-    index: int = Field(default=0)
-    chain_type: str = Field(default="")
-
-    def __init__(self, index, chain_type) -> None:
-        self.index = index
-        self.chain_type = chain_type
-
-    def on_chain_start(
-        self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
-    ):
-        # if (
-        #     self.chain_type == CONVERSIONAL_RETRIEVAL_QA_CHAIN
-        #     and "question" not in prompts
-        #     and f"tool-{self.index-1}-output" in prompts
-        # ):
-        #     prompts["question"] = prompts[f"tool-{self.index-1}-output"]
-        pass
-
-
 class ChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
     index: int = Field(default=0)
     chain_type: str = Field(default="")
@@ -71,13 +52,6 @@ class ChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
     async def on_chain_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
     ):
-        #
-        # if (
-        #     self.chain_type == CONVERSIONAL_RETRIEVAL_QA_CHAIN
-        #     and "question" not in prompts
-        #     and f"tool-{self.index-1}-output" in prompts
-        # ):
-        #     prompts["question"] = prompts[f"tool-{self.index-1}-output"]
         await super().on_llm_start(serialized, prompts, **kwargs)
 
     async def on_chain_end(self, response: LLMResult, **kwargs: Any):
@@ -160,8 +134,6 @@ class Workflow:
                     )
 
                 case "conversation_chain":
-                    # ConversationChain has toooo many constraint
-                    # currently ConversationChain can only support prompt template that takes in "history" and "input" as the input variables
                     prompt_template = PromptTemplate(
                         template=template,
                         input_variables=parse_input_variables_from_template(template),
@@ -177,38 +149,18 @@ class Workflow:
                     index=index, chain_type=_chain.chain_type
                 ),
             ]
-            chain.output_key = f"tool-{index}-output"
+            chain.output_key = f"{_chain.key}-output"
             chains.append(chain)
         self.context = SequentialChain(
             chains=chains,
             verbose=True,
-            input_variables=["question", "chat_history"],
+            input_variables=["question"],
+            memory=ConversationBufferMemory(memory_key="chat_history"),
         )
 
-    async def agenerate(self, prompt: str) -> str:
-        # TODO Determine if this structure will meet the needs of the API
-        await self.context.arun({"question": prompt, "chat_history": {}})
-
-
-class SessionState:
-    state: dict = {}
-    state_lock = asyncio.Lock()
-
-    async def create_state(self, session_id: str, model_id: str):
-        async with self.state_lock:
-            # TODO
-            self.state[session_id] = model_id
-
-    async def get_state(self, session_id: str) -> Workflow:
-        async with self.state_lock:
-            value = self.state.get(session_id)
-            if value is None:
-                raise Exception("Session not found")
-            return value
-
-    async def delete_state(self, session_id: str):
-        async with self.state_lock:
-            del self.state[session_id]
-
-
-session_state = SessionState()
+    async def agenerate(self, messages: List[BaseMessage]) -> str:
+        # TODO buffer size limit
+        # 1k now
+        prompt = messages[-1].content
+        # chat_history = get_buffer_string(messages[:-1])
+        await self.context.arun({"question": prompt, "chat_history": messages})

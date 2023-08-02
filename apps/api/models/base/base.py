@@ -47,4 +47,4 @@ class BaseManager:
         return wrapper
 
     def get_table(self, table_name: str) -> Table:
-        return self.metadata.tables[table_name]
+        return self.metadata.tables.get(table_name, None)

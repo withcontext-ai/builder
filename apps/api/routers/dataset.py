@@ -34,27 +34,45 @@ def get_datasets():
 @router.post("/", tags=["datasets"])
 def create_dataset(dataset: Dataset):
     dataset.id = uuid4().hex
-    dataset_manager.save_dataset(dataset)
-    return {"data": {"id": dataset.id}, "message": "success", "status": 200}
+    try:
+        dataset_manager.save_dataset(dataset)
+        return {"data": {"id": dataset.id}, "message": "success", "status": 200}
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(
+            status_code=400, detail="Dataset not created with error: {}".format(e)
+        )
 
 
 @router.patch("/{id}", tags=["datasets"])
 def update_dataset(id: str, dataset: Dataset):
-    dataset.id = id
-    dataset_manager.update_dataset(dataset)
-    return {"message": "success", "status": 200}
+    try:
+        dataset.id = id
+        dataset_manager.update_dataset(dataset)
+        return {"message": "success", "status": 200}
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(
+            status_code=400, detail="Dataset not updated with error: {}".format(e)
+        )
 
 
 @router.delete("/{id}", tags=["datasets"])
 def delete_dataset(id: str):
-    dataset_manager.delete_dataset(id)
-    return {"message": "success", "status": 200}
+    try:
+        dataset_manager.delete_dataset(id)
+        return {"message": "success", "status": 200}
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(
+            status_code=400, detail="Dataset not deleted with error: {}".format(e)
+        )
 
 
 @router.post("/{id}/index", tags=["datasets"])
 def query(id: str, index: IndexResponse):
-    retrieval = Retriever(index.options, id)
     try:
+        retrieval = Retriever(index.options, id)
         query = retrieval.query(index.content, index.index_type)
         return {"data": {"query": query}, "message": "success", "status": 200}
     except Exception as e:

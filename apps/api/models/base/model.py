@@ -15,7 +15,7 @@ class LLM(BaseModel):
     top_p: float = Field(default=1)
     frequency_penalty: float = Field(default=0)
     presence_penalty: float = Field(default=0)
-    api_key: str = Field(default_factory="")
+    api_key: str = Field(default=OPENAI_API_KEY)
 
 
 class Prompt(BaseModel):
@@ -27,6 +27,7 @@ class Chain(BaseModel):
     prompt: Prompt
     datasets: Optional[list[str]] = []
     chain_type: str
+    key: Optional[str] = None
 
 
 class Model(BaseModel):
@@ -35,17 +36,16 @@ class Model(BaseModel):
 
 
 class ModelTable(Base):
-    __tablename__ = "backend_models"
+    __tablename__ = "models"
 
     id = Column(String, primary_key=True)
-    name = Column(String)
     chains = Column(JSON)
 
 
 class ModelManager(BaseManager):
     def __init__(self) -> None:
         super().__init__()
-        self.table = self.get_table("backend_models")
+        self.table = self.get_table("models")
 
     @BaseManager.db_session
     def save_model(self, model: Model):
@@ -73,9 +73,8 @@ class ModelManager(BaseManager):
         if model_info is None:
             return None
         model_info = model_info.fetchall()
-        models = []
-        for model in model_info:
-            models.append(Model(**model._mapping))
+        if len(model_info) == 0:
+            return None
         return [Model(**model._mapping) for model in model_info]
 
 
