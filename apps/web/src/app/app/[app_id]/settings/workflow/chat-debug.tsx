@@ -21,7 +21,8 @@ function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
 
 const ChatDebug = (values: { appName: string; appIcon: string }) => {
   const [open, setOpen] = useState(false)
-
+  const [clicked, setClicked] = useState(false)
+  const [sessionId, setSessionId] = useState('')
   const workflowData = useWorkflowContext((state) => state.workflowData)
   const { trigger } = useSWRMutation(`/api/debug`, getApiSessionId)
   const [apiSessionId, setApiSessionId] = useState('')
@@ -29,6 +30,10 @@ const ChatDebug = (values: { appName: string; appIcon: string }) => {
     trigger(workflowData).then((res) => {
       setApiSessionId(res?.api_session_id)
       setOpen(true)
+      if (!clicked) {
+        setSessionId(nanoid())
+      }
+      setClicked(true)
     })
   }
   return (
@@ -45,7 +50,8 @@ const ChatDebug = (values: { appName: string; appIcon: string }) => {
           isDebug
           apiSessionId={apiSessionId}
           appId=""
-          sessionId={nanoid()}
+          sessionId={sessionId}
+          setSessionId={setSessionId}
           sessionName=""
         />
       </SheetContent>

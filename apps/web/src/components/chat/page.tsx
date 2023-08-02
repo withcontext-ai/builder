@@ -22,6 +22,7 @@ export interface ChatProps {
   isDebug?: boolean
   apiSessionId?: string | null
   initialMessages?: Message[]
+  setSessionId?: (s: string) => void
 }
 
 const Chat = ({
@@ -32,6 +33,7 @@ const Chat = ({
   appId,
   isDebug = false,
   apiSessionId,
+  setSessionId,
   initialMessages = [],
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
@@ -80,6 +82,7 @@ const Chat = ({
   const onRestart = () => {
     setMessages([])
     setConfirmReset(false)
+    setSessionId?.(nanoid())
     stop()
   }
 
@@ -97,7 +100,13 @@ const Chat = ({
         <ChatHeader
           name={sessionName}
           isDebug={isDebug}
-          onRestart={() => setConfirmReset(true)}
+          onRestart={() => {
+            if (messages?.length) {
+              setConfirmReset(true)
+            } else {
+              setSessionId?.(nanoid())
+            }
+          }}
         />
         <ChatList
           messages={messages}
