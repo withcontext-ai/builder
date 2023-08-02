@@ -4,6 +4,7 @@ import { useUser } from '@clerk/nextjs'
 import { Message } from 'ai'
 import { format, isToday, isYesterday } from 'date-fns'
 import { Loader2 } from 'lucide-react'
+import { useIsClient } from 'usehooks-ts'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -66,11 +67,11 @@ const AlertErrorIcon = ({ className }: { className: string }) => (
 
 const formatTime = (time: Date) => {
   if (isToday(time)) {
-    return format(time, 'KK:mm aa')
+    return format(time, 'hh:mm aa')
   }
   if (isYesterday(time)) {
-    return `Yesterday at ${format(time, 'KK:mm aa')}`
-  } else return format(time, 'dd/MM/yyyy KK:mm aa')
+    return `Yesterday at ${format(time, 'hh:mm aa')}`
+  } else return format(time, 'dd/MM/yyyy hh:mm aa')
 }
 
 const ChatCard = (props: IProps) => {
@@ -84,6 +85,8 @@ const ChatCard = (props: IProps) => {
   const username = user?.primaryEmailAddress?.emailAddress
   const icon = isUser ? user?.imageUrl : appIcon
   const name = (isUser ? username : appName) || ''
+
+  const isClient = useIsClient()
 
   return (
     <div className="flex flex-col ">
@@ -103,9 +106,11 @@ const ChatCard = (props: IProps) => {
         <div className={cn('flex flex-col')}>
           <div className="mb-5 flex items-center gap-1">
             <Text variant="body2">{isUser ? 'Me' : appName}</Text>
-            <Text variant="caption">
-              {message?.createdAt && formatTime(new Date(message?.createdAt))}
-            </Text>
+            {isClient && message?.createdAt && (
+              <Text variant="caption">
+                {formatTime(new Date(message?.createdAt))}
+              </Text>
+            )}
           </div>
           <div className="flex items-end">
             <div

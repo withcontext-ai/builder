@@ -16,6 +16,7 @@ import {
   defaultWorkflowTree,
 } from '@/app/app/[app_id]/settings/workflow/task-default-value'
 import { WorkflowItem } from '@/app/app/[app_id]/settings/workflow/type'
+import { taskToApiFormatter } from '@/app/app/[app_id]/settings/workflow/utils'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable } from '../datasets/schema'
@@ -32,14 +33,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
 
     let api_model_id = null
     if (flags.enabledAIService) {
-      const chains = defaultWorkflowData.map((task: WorkflowItem) => {
-        const chainType = task.subType
-        const chain = safeParse(task.formValueStr, {})
-        return {
-          chain_type: chainType,
-          ...chain,
-        }
-      })
+      const chains = defaultWorkflowData.map(taskToApiFormatter)
       const { data: res } = await axios.post(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
         {
@@ -241,14 +235,7 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
       }
 
       const workflow = safeParse(newValue.published_workflow_data_str, [])
-      const chains = workflow.map((task: WorkflowItem) => {
-        const chainType = task.subType
-        const chain = safeParse(task.formValueStr, {})
-        return {
-          chain_type: chainType,
-          ...chain,
-        }
-      })
+      const chains = workflow.map(taskToApiFormatter)
       console.log('deploy chains:', chains)
       let { data: res } = await axios.patch(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
@@ -413,4 +400,29 @@ export async function removeApp(appId: string) {
       error: error.message,
     }
   }
+}
+
+export async function getAppsBasedOnIds(ids: string[]) {
+  const tags = [`apps:${ids.join(',')}`]
+
+  return await unstable_cache(
+    async () => {
+      try {
+        const apps = await db
+          .select()
+          .from(AppsTable)
+          .where(inArray(AppsTable.short_id, ids))
+          .orderBy(desc(AppsTable.created_at))
+
+        return apps
+      } catch (error) {
+        redirect('/')
+      }
+    },
+    tags,
+    {
+      revalidate: 15 * 60, // revalidate in 15 minutes
+      tags,
+    }
+  )()
 }
