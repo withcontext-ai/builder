@@ -33,6 +33,7 @@ export default async function Page({ params }: IProps) {
     <WorkflowProvider
       workflowTree={workflowTree}
       workflowData={workflowData}
+      dataset={data}
       // selectedTaskId={workflowTree[0]?.id ?? null}
       selectedTaskId={null}
     >
@@ -41,7 +42,7 @@ export default async function Page({ params }: IProps) {
           <h1>Workflow</h1>
         </div>
         <div className="h-px w-full shrink-0 bg-slate-100" />
-        <TaskList datasets={data} />
+        <TaskList />
       </div>
     </WorkflowProvider>
   )

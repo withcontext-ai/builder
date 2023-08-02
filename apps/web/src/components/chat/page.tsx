@@ -88,6 +88,8 @@ const Chat = ({
   const onCancel = () => {
     setConfirmReset(false)
   }
+
+  const disabled = isDebug && !apiSessionId
   return (
     <div className="relative h-full w-full">
       {confirmReset && (
@@ -97,8 +99,7 @@ const Chat = ({
         <ChatHeader
           name={sessionName}
           isDebug={isDebug}
-          setConfirmReset={setConfirmReset}
-          confirmReset={confirmReset}
+          onRestart={() => setConfirmReset(true)}
         />
         <ChatList
           messages={messages}
@@ -112,6 +113,7 @@ const Chat = ({
           isDebug={isDebug}
         />
         <ChatInput
+          disabled={disabled}
           input={input}
           setInput={setInput}
           onSubmit={async (value) => {

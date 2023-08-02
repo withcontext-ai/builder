@@ -7,10 +7,10 @@ import { PdfImage } from '@/components/upload/component'
 
 import { WorkflowItem } from '../settings/workflow/type'
 import { DatasetProps } from './page'
+import { useWorkflowContext } from './store'
 
 interface IProps {
   value?: WorkflowItem
-  datasets?: DatasetProps[]
   onClose: () => void
 }
 
@@ -22,7 +22,8 @@ function UpCaseStr(str: string) {
     .replace(/( |^)[a-z]/g, (L) => L.toUpperCase())
 }
 
-export default function TaskDetail({ value, datasets, onClose }: IProps) {
+export default function TaskDetail({ value, onClose }: IProps) {
+  const dataset = useWorkflowContext((state) => state.dataset)
   if (!value) return null
 
   const { subType, formValueStr, key, type } = value
@@ -41,9 +42,7 @@ export default function TaskDetail({ value, datasets, onClose }: IProps) {
   const retriever = UpCaseStr(formValue?.retriever?.type)
   const keyLabel = `${type}-${key}`
   const data = formValue?.data?.datasets
-  const curDataset = datasets?.filter(
-    (item) => data?.includes(item?.dataset_id)
-  )
+  const curDataset = dataset?.filter((item) => data?.includes(item?.dataset_id))
   return (
     <div className="space-y-8">
       <div className="-mr-2 -mt-2">

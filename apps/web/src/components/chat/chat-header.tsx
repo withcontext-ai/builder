@@ -22,17 +22,11 @@ export const IconBox = (props: IconBoxProps) => (
 
 interface IProps {
   name: string
-  confirmReset?: boolean
   isDebug?: boolean
-  setConfirmReset?: (s: boolean) => void
+  onRestart?: () => void
 }
 
-const ChatHeader = ({
-  name,
-  isDebug,
-  confirmReset,
-  setConfirmReset,
-}: IProps) => {
+const ChatHeader = ({ name, isDebug, onRestart }: IProps) => {
   return (
     <div
       className={cn(
@@ -43,7 +37,7 @@ const ChatHeader = ({
       {isDebug ? (
         <div className="flex w-full items-center justify-between text-lg font-medium">
           Debug
-          <Button variant="outline" onClick={() => setConfirmReset?.(true)}>
+          <Button variant="outline" onClick={onRestart}>
             Restart
           </Button>
         </div>
