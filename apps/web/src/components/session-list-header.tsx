@@ -8,6 +8,9 @@ import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
 
+import { HoverTooltip } from './hover-tooltip'
+import { useToast } from './ui/use-toast'
+
 function addSession(url: string) {
   return fetcher(url, { method: 'POST' })
 }
@@ -19,6 +22,7 @@ interface IProps {
 export default function SessionListHeader({ appId }: IProps) {
   const router = useRouter()
   const { mutate } = useSWRConfig()
+  const { toast } = useToast()
   const { trigger, isMutating } = useSWRMutation(
     `/api/apps/${appId}/sessions`,
     addSession
@@ -30,8 +34,13 @@ export default function SessionListHeader({ appId }: IProps) {
       console.log('SessionListHeader handleAdd json:', json)
       mutate('/api/me/workspace')
       router.push(`/app/${appId}/session/${json.sessionId}`)
-    } catch (error) {
+    } catch (error: any) {
       console.log('SessionListHeader handleAdd error:', error)
+      toast({
+        variant: 'destructive',
+        title: 'Chat Creation Failed',
+        description: error.message,
+      })
     }
   }
 
@@ -39,18 +48,20 @@ export default function SessionListHeader({ appId }: IProps) {
     <div className="px-4 pt-2">
       <div className="-mx-2 flex h-9 items-center justify-between p-2">
         <div className="text-sm text-slate-900">New Chat</div>
-        <button
-          className="rounded-full p-1 hover:bg-slate-200"
-          aria-hidden="true"
-          onClick={handleAdd}
-          disabled={isMutating}
-        >
-          {isMutating ? (
-            <Loader2Icon className="h-4 w-4 animate-spin" />
-          ) : (
-            <PlusIcon className="h-4 w-4 shrink-0" />
-          )}
-        </button>
+        <HoverTooltip content="Add New Chat">
+          <button
+            className="rounded-full p-1 hover:bg-slate-200"
+            aria-hidden="true"
+            onClick={handleAdd}
+            disabled={isMutating}
+          >
+            {isMutating ? (
+              <Loader2Icon className="h-4 w-4 animate-spin" />
+            ) : (
+              <PlusIcon className="h-4 w-4 shrink-0" />
+            )}
+          </button>
+        </HoverTooltip>
       </div>
     </div>
   )

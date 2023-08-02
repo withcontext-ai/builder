@@ -4,14 +4,19 @@ import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { GitCommitIcon, ShareIcon } from 'lucide-react'
 
+import { flags } from '@/lib/flags'
 import { cn } from '@/lib/utils'
 
 const MENU_ITEMS = [
-  // {
-  //   id: 'workflow',
-  //   name: 'Workflow',
-  //   Icon: GitCommitIcon,
-  // },
+  ...(flags.enabledWorkflow
+    ? [
+        {
+          id: 'workflow',
+          name: 'Workflow',
+          Icon: GitCommitIcon,
+        },
+      ]
+    : []),
   {
     id: 'share',
     name: 'Share',
@@ -49,7 +54,7 @@ export default function Menu() {
   const appId = params.app_id
 
   return (
-    <ul className="space-y-1 p-1">
+    <ul className="space-y-1 p-2">
       {MENU_ITEMS.map(({ id, name, Icon }) => {
         const href = `/app/${appId}/${id}`
         const isSelected = pathname === href

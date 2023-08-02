@@ -2,9 +2,10 @@
 
 import { useTransition } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeftIcon, Loader2Icon } from 'lucide-react'
 
+import { flags } from '@/lib/flags'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -21,11 +22,17 @@ interface IProps {
 export default function Sidebar({ appId, appName }: IProps) {
   const router = useRouter()
   const url = usePathname() || ''
+  const searchParams = useSearchParams()
+  const nextUrl = searchParams.get('nextUrl')
   const [isPending, startTransition] = useTransition()
 
   function handleGoBack() {
     startTransition(() => {
-      router.back()
+      if (nextUrl) {
+        router.push(nextUrl)
+      } else {
+        router.back()
+      }
     })
   }
 
@@ -46,8 +53,8 @@ export default function Sidebar({ appId, appName }: IProps) {
         <div className="text-lg font-semibold">Back</div>
       </div>
 
-      <div className="mt-4 space-y-2 px-3 py-2">
-        <div className="text-sm font-medium uppercase text-slate-500">
+      <div className="mt-4 space-y-2 p-2">
+        <div className="pl-3 text-sm font-medium uppercase text-slate-500">
           App Settings
         </div>
         <Link
@@ -56,32 +63,35 @@ export default function Sidebar({ appId, appName }: IProps) {
             url?.includes('basics') ? 'bg-slate-200' : ''
           )}
           href={`/app/${appId}/settings/basics`}
+          replace
         >
           <div className="text-sm font-medium">Basics</div>
           <div className="text-sm text-slate-500">
             Some basic configurations of the App.
           </div>
         </Link>
-        {/* <Link
-          className={cn(
-            commonStyle,
-            url?.includes('workflow') ? 'bg-slate-200' : ''
-          )}
-          replace
-          href={`/app/${appId}/settings/workflow`}
-        >
-          <div className="text-sm font-medium">Workflow</div>
-          <div className="text-sm text-slate-500">
-            Workflow related configurations of the App.
-          </div>
-        </Link> */}
+        {flags.enabledWorkflow && (
+          <Link
+            className={cn(
+              commonStyle,
+              url?.includes('workflow') ? 'bg-slate-200' : ''
+            )}
+            href={`/app/${appId}/settings/workflow`}
+            replace
+          >
+            <div className="text-sm font-medium">Workflow</div>
+            <div className="text-sm text-slate-500">
+              Workflow related configurations of the App.
+            </div>
+          </Link>
+        )}
       </div>
 
       <div className="my-2 shrink-0 px-3">
         <div className="h-px bg-slate-200" />
       </div>
 
-      <div className="px-3">
+      <div className="px-2">
         <DeleteAppButton id={appId} name={appName} />
       </div>
     </div>

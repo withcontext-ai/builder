@@ -6,18 +6,8 @@ import { ArrowLeftIcon, Loader2Icon, Trash2 } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher } from '@/lib/utils'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import ConfirmDialog from '@/components/confirm-dialog'
 
 import { SectionType } from './setting-page'
 
@@ -67,6 +57,7 @@ const SlideBar = ({
 }: IProps) => {
   const data = showMore ? [...sections, ...moreSessions] : sections
   const [isPending, startTransition] = useTransition()
+  const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
     deleteDataset
@@ -113,17 +104,17 @@ const SlideBar = ({
         </Button>
         <div className="text-lg font-semibold">Back</div>
       </div>
-      <div className="mt-4 w-full space-y-2 p-3">
-        <div className="text-sm font-medium uppercase text-slate-500">
+      <div className="mt-4 w-full space-y-2 p-2">
+        <div className="pl-3 text-sm font-medium uppercase text-slate-500">
           DATASETS
         </div>
-        <div className="flex flex-col gap-1	text-sm	font-medium">
+        <div className="flex flex-col gap-2	text-sm	font-medium">
           {data?.map((item: SectionType, index: number) => (
             <button
               key={item?.title}
               onClick={() => handleClick(item?.name)}
               className={cn(
-                'p-3 text-start hover:rounded-md hover:bg-slate-200',
+                'px-3 py-2 text-start text-sm hover:rounded-md hover:bg-slate-200	',
                 activeSection === index ? 'rounded-md bg-slate-200' : ''
               )}
             >
@@ -133,35 +124,29 @@ const SlideBar = ({
         </div>
       </div>
       <div className="m-full h-px bg-slate-100" />
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <div className="w-full px-3 py-4">
-            <Button variant="ghost" className="w-full justify-between">
-              Delete this Dataset
-              <Trash2 size={18} />
-            </Button>
-          </div>
-        </AlertDialogTrigger>
-        <AlertDialogContent className="w-[512px]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Dataset?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete “{name}” Dataset? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isMutating}
-              className="bg-red-500 text-white hover:bg-red-500"
-              onClick={handelDelete}
-            >
-              {isMutating ? 'Deleting Dataset' : 'Delete Dataset'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <div className="px-2 py-3">
+        <Button
+          variant="ghost"
+          size="lg"
+          className="flex h-9 w-full items-center justify-between p-3 hover:bg-slate-200"
+          onClick={() => setOpen(true)}
+        >
+          <span>Delete this Dataset</span>
+          <Trash2 size={18} />
+        </Button>
+      </div>
+
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title={`Delete “${name}” App?`}
+        description={` Are you sure you want to delete "${name}” Dataset? This action
+        cannot be undone.`}
+        confirmText="Delete Dataset"
+        loadingText="Deleting..."
+        handleConfirm={handelDelete}
+        isLoading={isMutating}
+      />
     </div>
   )
 }

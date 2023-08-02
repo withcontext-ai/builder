@@ -1,5 +1,7 @@
+import { BASE_URL } from './utils'
+
 export const flags = {
-  isPro: process.env.NODE_ENV === 'production',
+  isProd: BASE_URL === 'https://build.withcontext.ai',
   isDev: process.env.NODE_ENV === 'development',
   enabledAuth:
     process.env.IS_DOCKER ||
@@ -8,4 +10,6 @@ export const flags = {
       process.env.CLERK_SECRET_KEY,
     ].every((env) => env != undefined && env !== ''),
   isNeon: process.env.DATABASE_URL?.includes('neon.tech') || false,
+  enabledWorkflow: true,
+  enabledAIService: process.env.AI_SERVICE_API_BASE_URL != null,
 }

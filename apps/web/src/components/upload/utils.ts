@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { CancelTokenSource } from 'axios'
 
 import { nanoid } from '@/lib/utils'
 
@@ -97,9 +97,11 @@ const changeCurrentFile = async (
 
 const handleSuccess = ({
   mergedFileList,
+  fileType,
   onChangeFileList,
 }: {
   mergedFileList: UploadFile[]
+  fileType?: string
   onChangeFileList?: (files: FileProps[]) => void
 }) => {
   const success = mergedFileList?.filter(
@@ -109,7 +111,7 @@ const handleSuccess = ({
     m.push({
       url: item?.url || '',
       uid: nanoid(),
-      type: item?.type,
+      type: fileType || item?.type,
       name: item?.name,
     })
     return m
@@ -120,16 +122,18 @@ const handleSuccess = ({
 export const uploadFile = async ({
   file,
   mergedFileList,
-  fileList = [],
   controller,
+  source,
   onChangeFileList,
   setMergedFileList,
   setIsUploading,
+  fileType,
 }: {
   file: UploadFile
   mergedFileList: UploadFile<any>[]
-  fileList?: FileProps[]
+  fileType?: string
   controller?: AbortController
+  source?: CancelTokenSource
   onChangeFileList?: (files: FileProps[]) => void
   setMergedFileList?: (files: UploadFile<any>[]) => void
   setIsUploading: (s: boolean) => void
@@ -166,6 +170,7 @@ export const uploadFile = async ({
   axios
     .post(upload_url, formData, {
       signal: controller?.signal,
+      cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
@@ -177,13 +182,14 @@ export const uploadFile = async ({
       file.status = 'success'
       file.url = file_url
       setIsUploading(false)
-      handleSuccess({ mergedFileList, onChangeFileList })
+      handleSuccess({ mergedFileList, onChangeFileList, fileType })
       await changeCurrentFile(file, mergedFileList, setMergedFileList)
     })
     .catch((error) => {
       if (axios.isCancel(error)) {
         console.log('Request canceled', error.message)
       }
+      setIsUploading(false)
       file.status = 'error'
       console.error(error)
     })
