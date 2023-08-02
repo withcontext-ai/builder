@@ -82,6 +82,7 @@ const Chat = ({
   const onRestart = () => {
     setMessages([])
     setConfirmReset(false)
+    stop()
   }
 
   const onCancel = () => {
