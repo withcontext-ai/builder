@@ -85,7 +85,7 @@ function DatasetItem({ datasets }: { datasets?: DatasetProps[] }) {
   if (!datasets?.length) return null
   return (
     <div className="space-y-2">
-      <div className="text-base font-medium">data</div>
+      <div className="text-base font-medium">Data</div>
       {datasets?.map((item) => {
         return (
           <div
