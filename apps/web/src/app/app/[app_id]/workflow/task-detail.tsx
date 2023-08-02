@@ -92,7 +92,7 @@ function DatasetItem({ datasets }: { datasets?: DatasetProps[] }) {
             className="flex items-center rounded-md border p-3"
             key={item?.dataset_id}
           >
-            {item?.icon === 'pdf' && <PdfImage />}
+            {item?.icon === 'pdf' && <PdfImage className="h-6" />}
             <div className="truncate text-sm">{item?.name}</div>
           </div>
         )
