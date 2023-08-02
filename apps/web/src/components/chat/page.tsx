@@ -7,12 +7,11 @@ import { useChat } from 'ai/react'
 import { nanoid } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
-import { useToast } from '@/components/ui/use-toast'
 
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
-import ReStartConfirmPage from './restart-confirm'
+import RestartConfirmPage from './restart-confirm'
 
 export interface ChatProps {
   sessionId: string
@@ -38,7 +37,6 @@ const Chat = ({
   const [waiting, setWaiting] = useState<boolean>(false)
   const [confirmReset, setConfirmReset] = useState(false)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
-  const { toast } = useToast()
 
   const {
     messages,
@@ -93,7 +91,7 @@ const Chat = ({
   return (
     <div className="relative h-full w-full">
       {confirmReset && (
-        <ReStartConfirmPage onRestart={onRestart} onCancel={onCancel} />
+        <RestartConfirmPage onRestart={onRestart} onCancel={onCancel} />
       )}
       <div className="flex h-full w-full flex-col">
         <ChatHeader
