@@ -40,7 +40,10 @@ export default function TaskDetail({ value, datasets, onClose }: IProps) {
   const promptTemplate = formValue.prompt?.template
   const retriever = UpCaseStr(formValue?.retriever?.type)
   const keyLabel = `${type}-${key}`
-
+  const data = formValue?.data?.datasets
+  const curDataset = datasets?.filter(
+    (item) => data?.includes(item?.dataset_id)
+  )
   return (
     <div className="space-y-8">
       <div className="-mr-2 -mt-2">
@@ -62,7 +65,7 @@ export default function TaskDetail({ value, datasets, onClose }: IProps) {
       <Item label="Presence Penalty" value={presencePenalty} />
       <Item label="Frequency Penalty" value={frequencyPenalty} />
       <Item label="Retrievers" value={retriever} />
-      <DatasetItem datasets={datasets} />
+      <DatasetItem datasets={curDataset} />
     </div>
   )
 }
