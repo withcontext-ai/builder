@@ -61,7 +61,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       published_workflow_tree_str: JSON.stringify(defaultWorkflowTree),
       published_workflow_data_str: JSON.stringify(defaultWorkflowData),
       api_model_id,
-      created_bys,
+      created_by: userId,
     }
     const newApp = await db.insert(AppsTable).values(appVal).returning()
 
@@ -432,7 +432,6 @@ export async function getDebugSessionId(tasks: WorkflowItem[]) {
       }
     }
     let api_model_id = null
-    console.log(flags.enabledAIService, '---------')
     if (flags.enabledAIService) {
       const chains = tasks.map((task: WorkflowItem) => {
         const chainType = task.subType
