@@ -85,7 +85,10 @@ function DatasetItem({ datasets }: { datasets?: DatasetProps[] }) {
       <div className="text-base font-medium">data</div>
       {datasets?.map((item) => {
         return (
-          <div className="flex rounded-md border p-3" key={item?.dataset_id}>
+          <div
+            className="flex items-center rounded-md border p-3"
+            key={item?.dataset_id}
+          >
             {item?.icon === 'pdf' && <PdfImage />}
             <div className="truncate text-sm">{item?.name}</div>
           </div>
