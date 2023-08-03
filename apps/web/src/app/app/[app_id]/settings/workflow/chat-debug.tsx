@@ -21,22 +21,20 @@ function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
 
 const ChatDebug = (values: { appName: string; appIcon: string }) => {
   const [open, setOpen] = useState(false)
+  const [clicked, setClicked] = useState(false)
   const [sessionId, setSessionId] = useState('')
   const workflowData = useWorkflowContext((state) => state.workflowData)
-  const changedFlow = useWorkflowContext((state) => state.changedFlow)
-  const [clicked, setClicked] = useState(false)
   const { trigger } = useSWRMutation(`/api/debug`, getApiSessionId)
   const [apiSessionId, setApiSessionId] = useState('')
   const handleClick = () => {
-    // workflow changed to generate new session
-    if (changedFlow || !clicked) {
-      trigger(workflowData).then((res) => {
-        setApiSessionId(res?.api_session_id)
-        setOpen(true)
-        setClicked(true)
+    trigger(workflowData).then((res) => {
+      setApiSessionId(res?.api_session_id)
+      setOpen(true)
+      if (!clicked) {
         setSessionId(nanoid())
-      })
-    }
+      }
+      setClicked(true)
+    })
   }
   return (
     <Sheet open={open} onOpenChange={setOpen}>

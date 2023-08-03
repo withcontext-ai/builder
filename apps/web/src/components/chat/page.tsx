@@ -103,6 +103,8 @@ const Chat = ({
           onRestart={() => {
             if (messages?.length) {
               setConfirmReset(true)
+            } else {
+              setSessionId?.(nanoid())
             }
           }}
         />

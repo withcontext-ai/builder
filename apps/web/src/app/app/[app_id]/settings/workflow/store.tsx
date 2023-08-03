@@ -19,7 +19,6 @@ interface WorkflowProps {
   publishedWorkflowData: WorkflowItem[]
   selectedTaskId: string | null
   datasetOptions: SelectOption[]
-  changedFlow: boolean
 }
 
 interface WorkflowState extends WorkflowProps {
@@ -31,7 +30,6 @@ interface WorkflowState extends WorkflowProps {
   editTaskFormValueStr: (id: string, formValue: string) => void
   resetWorkflow: () => void
   publishWorkflow: () => void
-  setChangedFlow: (s: boolean) => void
 }
 
 type WorkflowStore = ReturnType<typeof createWorkflowStore>
@@ -40,7 +38,6 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
   const defaultProps: WorkflowProps = {
     workflowTree: [],
     workflowData: [],
-    changedFlow: false,
     publishedWorkflowTree: [],
     publishedWorkflowData: [],
     selectedTaskId: null,
@@ -123,13 +120,6 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
         produce((draft: WorkflowState) => {
           draft.publishedWorkflowTree = draft.workflowTree
           draft.publishedWorkflowData = draft.workflowData
-        })
-      )
-    },
-    setChangedFlow: (s: boolean) => {
-      set(
-        produce((draft: WorkflowState) => {
-          draft.changedFlow = s
         })
       )
     },
