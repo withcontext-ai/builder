@@ -92,7 +92,12 @@ const ChatCard = (props: IProps) => {
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
         <div className="relative h-14 w-14">
-          <Avatar className={cn('relative h-12 w-12', `bg-${color}-600`)}>
+          <Avatar
+            className={cn(
+              'relative h-12 w-12',
+              icon ? 'bg-white' : `bg-${color}-600`
+            )}
+          >
             <AvatarImage src={icon} alt={name} />
             <AvatarFallback className="bg-transparent text-white">
               {getFirstLetter(name)}
