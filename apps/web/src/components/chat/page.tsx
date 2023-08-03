@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Message } from 'ai'
 import { useChat } from 'ai/react'
 
@@ -22,7 +22,8 @@ export interface ChatProps {
   isDebug?: boolean
   apiSessionId?: string | null
   initialMessages?: Message[]
-  setSessionId?: (s: string) => void
+  setInitialMessages?: (messages: Message[]) => void
+  isConfigChanged?: boolean
 }
 
 const Chat = ({
@@ -33,8 +34,9 @@ const Chat = ({
   appId,
   isDebug = false,
   apiSessionId,
-  setSessionId,
   initialMessages = [],
+  setInitialMessages,
+  isConfigChanged,
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -76,21 +78,28 @@ const Chat = ({
   }
 
   const showResend = useMemo(() => messages?.length > 0, [messages])
+  const shouldConfirmResetRef = useRef(isConfigChanged)
 
   usePageTitle(sessionName)
 
   const onRestart = () => {
     setMessages([])
     setConfirmReset(false)
-    setSessionId?.(nanoid())
     stop()
+    shouldConfirmResetRef.current = false
   }
 
   const onCancel = () => {
     setConfirmReset(false)
   }
 
+  useEffect(() => {
+    if (isDebug && setInitialMessages) setInitialMessages(messages)
+  }, [messages, isDebug, setInitialMessages])
+
+  const disabledRestart = !messages || messages.length === 0
   const disabled = isDebug && !apiSessionId
+
   return (
     <div className="relative h-full w-full">
       {confirmReset && (
@@ -101,12 +110,13 @@ const Chat = ({
           name={sessionName}
           isDebug={isDebug}
           onRestart={() => {
-            if (messages?.length) {
+            if (shouldConfirmResetRef.current) {
               setConfirmReset(true)
             } else {
-              setSessionId?.(nanoid())
+              setMessages([])
             }
           }}
+          disabledRestart={disabledRestart}
         />
         <ChatList
           messages={messages}
