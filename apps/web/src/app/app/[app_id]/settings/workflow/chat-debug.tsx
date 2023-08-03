@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { Message } from 'ai'
 import { Loader2Icon, Play } from 'lucide-react'
-import { nanoid } from 'nanoid'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
