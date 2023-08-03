@@ -1,17 +1,17 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Message } from 'ai'
 import { useChat } from 'ai/react'
 
 import { nanoid } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
-import { useToast } from '@/components/ui/use-toast'
 
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
+import RestartConfirmPage from './restart-confirm'
 
 export interface ChatProps {
   sessionId: string
@@ -22,6 +22,8 @@ export interface ChatProps {
   isDebug?: boolean
   apiSessionId?: string | null
   initialMessages?: Message[]
+  setInitialMessages?: (messages: Message[]) => void
+  isConfigChanged?: boolean
 }
 
 const Chat = ({
@@ -33,10 +35,14 @@ const Chat = ({
   isDebug = false,
   apiSessionId,
   initialMessages = [],
+  setInitialMessages,
+  isConfigChanged,
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
+  const [confirmReset, setConfirmReset] = useState(
+    isConfigChanged && initialMessages?.length !== 0
+  )
   const { scrollRef, setAutoScroll } = useScrollToBottom()
-  const { toast } = useToast()
 
   const {
     messages,
@@ -78,42 +84,66 @@ const Chat = ({
   usePageTitle(sessionName)
 
   const onRestart = () => {
+    handelStop()
     setMessages([])
+    setConfirmReset(false)
   }
 
+  const onCancel = () => {
+    setConfirmReset(false)
+  }
+
+  useEffect(() => {
+    if (isDebug && setInitialMessages) setInitialMessages(messages)
+  }, [messages, isDebug, setInitialMessages])
+
+  const disabledRestart = !messages || messages.length === 0
   return (
-    <div className="flex h-full w-full flex-col">
-      <ChatHeader name={sessionName} isDebug={isDebug} onRestart={onRestart} />
-      <ChatList
-        messages={messages}
-        waiting={waiting}
-        scrollRef={scrollRef}
-        error={error?.message}
-        setAutoScroll={setAutoScroll}
-        appId={appId}
-        appName={appName}
-        appIcon={appIcon}
-        isDebug={isDebug}
-      />
-      <ChatInput
-        input={input}
-        setInput={setInput}
-        onSubmit={async (value) => {
-          setAutoScroll(true)
-          setWaiting(true)
-          await append({
-            id: nanoid(),
-            content: value,
-            role: 'user',
-            createdAt: new Date(),
-          })
-        }}
-        isLoading={isLoading}
-        showResend={showResend}
-        reload={handelReload}
-        stop={handelStop}
-        isDebug={isDebug}
-      />
+    <div className="relative h-full w-full">
+      {confirmReset && (
+        <RestartConfirmPage onRestart={onRestart} onCancel={onCancel} />
+      )}
+      <div className="flex h-full w-full flex-col">
+        <ChatHeader
+          name={sessionName}
+          isDebug={isDebug}
+          onRestart={() => {
+            handelStop()
+            setMessages([])
+          }}
+          disabledRestart={disabledRestart}
+        />
+        <ChatList
+          messages={messages}
+          waiting={waiting}
+          scrollRef={scrollRef}
+          error={error?.message}
+          setAutoScroll={setAutoScroll}
+          appId={appId}
+          appName={appName}
+          appIcon={appIcon}
+          isDebug={isDebug}
+        />
+        <ChatInput
+          input={input}
+          setInput={setInput}
+          onSubmit={async (value) => {
+            setAutoScroll(true)
+            setWaiting(true)
+            await append({
+              id: nanoid(),
+              content: value,
+              role: 'user',
+              createdAt: new Date(),
+            })
+          }}
+          isLoading={isLoading}
+          showResend={showResend}
+          reload={handelReload}
+          stop={handelStop}
+          isDebug={isDebug}
+        />
+      </div>
     </div>
   )
 }
