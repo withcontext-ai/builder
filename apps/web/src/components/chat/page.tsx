@@ -39,7 +39,9 @@ const Chat = ({
   isConfigChanged,
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
-  const [confirmReset, setConfirmReset] = useState(isConfigChanged)
+  const [confirmReset, setConfirmReset] = useState(
+    isConfigChanged && initialMessages?.length !== 0
+  )
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
   const {
