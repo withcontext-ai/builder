@@ -1,6 +1,6 @@
 import { XIcon } from 'lucide-react'
 
-import { safeParse } from '@/lib/utils'
+import { cn, safeParse } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PdfImage } from '@/components/upload/component'
@@ -56,7 +56,7 @@ export default function TaskDetail({ value, onClose }: IProps) {
       </div>
 
       <Item label="Title" value={title} />
-      <Item label="Key" value={apiKey} />
+      <Item label="Key" className="break-all" value={apiKey} />
       <Item label="Model" value={modelName} />
       <Item label="Prompt" value={promptTemplate} />
       <Item label="Temperature" value={temperature} />
@@ -69,13 +69,21 @@ export default function TaskDetail({ value, onClose }: IProps) {
   )
 }
 
-function Item({ label, value }: { label: string; value: string }) {
+function Item({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: string
+  className?: string
+}) {
   if (value == null || value === '') return null
 
   return (
     <div className="space-y-2">
       <div className="text-base font-medium">{label}</div>
-      <div className="text-sm">{value}</div>
+      <div className={cn('text-sm', className)}>{value}</div>
     </div>
   )
 }
