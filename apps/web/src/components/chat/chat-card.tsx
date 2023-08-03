@@ -71,7 +71,7 @@ const formatTime = (time: Date) => {
   }
   if (isYesterday(time)) {
     return `Yesterday at ${format(time, 'hh:mm aa')}`
-  } else return format(time, 'dd/MM/yyyy hh:mm aa')
+  } else return format(time, 'MM/dd/yyyy hh:mm aa')
 }
 
 const ChatCard = (props: IProps) => {
