@@ -3,6 +3,9 @@ import logging
 import uuid
 from typing import List
 import io
+import logging
+from typing import List
+
 import pinecone
 from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
 from langchain.chains.query_constructor.base import AttributeInfo
@@ -11,7 +14,6 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.schema import Document
-from langchain.document_loaders import OnlinePDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
 from pdfminer.converter import TextConverter
@@ -25,9 +27,14 @@ from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
+from pydantic import BaseModel, Field
+from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+
+
+logger = logging.getLogger(__name__)
 
 
 def extract_text_from_pdf(contents: io.BytesIO) -> list:
@@ -46,6 +53,7 @@ def extract_text_from_pdf(contents: io.BytesIO) -> list:
         if len(lines) > 1:  # Ensure there is more than one line
             last_line = lines[-1]
             if last_line.isdigit() or len(last_line) < 5:
+                logger.debug(f"Removing last line: {last_line}")
                 lines = lines[:-1]  # Remove the last line
                 pages[i] = "\n".join(lines)
 

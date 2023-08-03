@@ -4,7 +4,6 @@ import re
 from typing import Any, Dict, List, Optional, cast
 
 from langchain.memory import (
-    ConversationSummaryMemory,
     ChatMessageHistory,
     ConversationBufferMemory,
 )
@@ -55,10 +54,10 @@ class ChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
     async def on_chain_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
     ):
-        await super().on_llm_start(serialized, prompts, **kwargs)
+        await super().on_chain_start(serialized, prompts, **kwargs)
 
     async def on_chain_end(self, response: LLMResult, **kwargs: Any):
-        await super().on_llm_end(response, **kwargs)
+        await super().on_chain_end(response, **kwargs)
 
     async def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
         return await super().on_llm_new_token(token, **kwargs)
@@ -186,7 +185,6 @@ class Workflow:
                 except Exception as e:
                     logger.error(f"Error while creating conversation_chain: {e}")
                     raise e
-
             case _:
                 logger.error(f"Chain type {_chain.chain_type} not supported")
                 raise Exception("Chain type not supported")
