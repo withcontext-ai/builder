@@ -1,6 +1,6 @@
 import { XIcon } from 'lucide-react'
 
-import { cn, safeParse } from '@/lib/utils'
+import { safeParse } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PdfImage } from '@/components/upload/component'
@@ -74,21 +74,13 @@ export default function TaskDetail({ value, onClose }: IProps) {
   )
 }
 
-function Item({
-  label,
-  value,
-  className,
-}: {
-  label: string
-  value: string
-  className?: string
-}) {
+function Item({ label, value }: { label: string; value: string }) {
   if (value == null || value === '') return null
 
   return (
     <div className="space-y-2">
       <div className="text-base font-medium">{label}</div>
-      <div className={cn('text-sm', className)}>{value}</div>
+      <div className="break-words text-sm">{value}</div>
     </div>
   )
 }
