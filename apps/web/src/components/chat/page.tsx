@@ -39,7 +39,7 @@ const Chat = ({
   isConfigChanged,
 }: ChatProps) => {
   const [waiting, setWaiting] = useState<boolean>(false)
-  const [confirmReset, setConfirmReset] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(isConfigChanged)
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
   const {
@@ -78,7 +78,6 @@ const Chat = ({
   }
 
   const showResend = useMemo(() => messages?.length > 0, [messages])
-  const shouldConfirmResetRef = useRef(isConfigChanged)
 
   usePageTitle(sessionName)
 
@@ -86,7 +85,6 @@ const Chat = ({
     handelStop()
     setMessages([])
     setConfirmReset(false)
-    shouldConfirmResetRef.current = false
   }
 
   const onCancel = () => {
@@ -98,7 +96,6 @@ const Chat = ({
   }, [messages, isDebug, setInitialMessages])
 
   const disabledRestart = !messages || messages.length === 0
-  const disabled = isDebug && !apiSessionId
   return (
     <div className="relative h-full w-full">
       {confirmReset && (
@@ -109,12 +106,8 @@ const Chat = ({
           name={sessionName}
           isDebug={isDebug}
           onRestart={() => {
-            if (shouldConfirmResetRef.current) {
-              setConfirmReset(true)
-            } else {
-              handelStop()
-              setMessages([])
-            }
+            handelStop()
+            setMessages([])
           }}
           disabledRestart={disabledRestart}
         />
@@ -130,7 +123,6 @@ const Chat = ({
           isDebug={isDebug}
         />
         <ChatInput
-          disabled={disabled}
           input={input}
           setInput={setInput}
           onSubmit={async (value) => {
