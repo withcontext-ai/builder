@@ -47,6 +47,8 @@ function deployApp(
 
 function useAutoSave(key: string, value: any) {
   const { app_id } = useParams()
+  const setChangedFlow = useWorkflowContext((state) => state.setChangedFlow)
+
   const { trigger } = useSWRMutation(`/api/apps/${app_id}`, editApp)
   const router = useRouter()
 
@@ -59,6 +61,7 @@ function useAutoSave(key: string, value: any) {
         await trigger({ [key]: value })
         latestValue.current = value
         router.refresh()
+        setChangedFlow(true)
       }
     }
 
@@ -78,6 +81,7 @@ function AutoSave() {
 
 function ResetSection() {
   const resetWorkflow = useWorkflowContext((state) => state.resetWorkflow)
+
   const isDisabled = useWorkflowContext(
     (state) =>
       isEqual(state.workflowTree, state.publishedWorkflowTree) &&
