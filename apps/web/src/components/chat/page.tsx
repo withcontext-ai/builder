@@ -83,9 +83,9 @@ const Chat = ({
   usePageTitle(sessionName)
 
   const onRestart = () => {
+    handelStop()
     setMessages([])
     setConfirmReset(false)
-    stop()
     shouldConfirmResetRef.current = false
   }
 
@@ -99,7 +99,6 @@ const Chat = ({
 
   const disabledRestart = !messages || messages.length === 0
   const disabled = isDebug && !apiSessionId
-
   return (
     <div className="relative h-full w-full">
       {confirmReset && (
@@ -113,6 +112,7 @@ const Chat = ({
             if (shouldConfirmResetRef.current) {
               setConfirmReset(true)
             } else {
+              handelStop()
               setMessages([])
             }
           }}
