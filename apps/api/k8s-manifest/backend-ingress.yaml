@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: withcontext-backend-ingress
-  namespace: withcontext-backend-test
+  namespace: withcontext-backend
 spec:
   rules:
     - host: api.withcontext.ai

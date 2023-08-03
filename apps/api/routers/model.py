@@ -31,7 +31,7 @@ def create_model(model: Model):
 @router.patch("/{id}", tags=["models"])
 def update_model(id: str, model: Model):
     model.id = id
-    model_manager.update_model(model)
+    model_manager.upsert_model(model)
     return {"message": "success", "status": 200}
 
 

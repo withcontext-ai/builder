@@ -48,7 +48,7 @@ def create_dataset(dataset: Dataset):
 def update_dataset(id: str, dataset: Dataset):
     try:
         dataset.id = id
-        dataset_manager.update_dataset(dataset)
+        dataset_manager.upsert_dataset(dataset)
         return {"message": "success", "status": 200}
     except Exception as e:
         logger.error(e)

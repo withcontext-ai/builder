@@ -1,23 +1,28 @@
-from typing import List
 import io
+import logging
+from typing import List
+
 import pinecone
 from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
 from langchain.chains.query_constructor.base import AttributeInfo
+from langchain.document_loaders import OnlinePDFLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.retrievers.self_query.base import SelfQueryRetriever
 from langchain.schema import Document
-from langchain.document_loaders import OnlinePDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
-from pydantic import BaseModel, Field
-from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
+from pydantic import BaseModel, Field
+from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+
+
+logger = logging.getLogger(__name__)
 
 
 def extract_text_from_pdf(contents: io.BytesIO) -> list:
@@ -36,6 +41,7 @@ def extract_text_from_pdf(contents: io.BytesIO) -> list:
         if len(lines) > 1:  # Ensure there is more than one line
             last_line = lines[-1]
             if last_line.isdigit() or len(last_line) < 5:
+                logger.debug(f"Removing last line: {last_line}")
                 lines = lines[:-1]  # Remove the last line
                 pages[i] = "\n".join(lines)
 
@@ -88,9 +94,10 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
 
 
 class PDFRetrieverMixin:
-    def create_retriever(self):
+    def load_and_split_documents(self):
         doc = []
         for dataset in self.datasets:
+            logger.info(f"Loading dataset {dataset.id}")
             _doc = []
             options = PDFRetrivalOption(**dataset.retrieval)
 
@@ -115,11 +122,20 @@ class PDFRetrieverMixin:
                                 },
                             )
                         )
+                else:
+                    logger.error(f"Document type {document.type} not supported")
+                    raise Exception("Document type not supported")
             _doc = text_splitter.split_documents(_doc)
+            logger.info(
+                f"got documents: {len(_doc)} while loading dataset {dataset.id}"
+            )
             doc += _doc
+        return doc
+
+    def create_retriever(self):
+        doc = self.load_and_split_documents()
 
         embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
-        # TODO check if this is the right way to do it ⬇️
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         vector_store = Pinecone.from_documents(
             doc,

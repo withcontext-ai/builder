@@ -1,9 +1,12 @@
+import logging
 from typing import Optional, Union
 
 from pydantic import BaseModel, Field
 from sqlalchemy import JSON, Column, String
 
 from .base import Base, BaseManager
+
+logger = logging.getLogger(__name__)
 
 
 class Document(BaseModel):
@@ -33,10 +36,12 @@ class DatasetManager(BaseManager):
 
     @BaseManager.db_session
     def save_dataset(self, dataset: Dataset):
+        logger.info(f"Saving dataset {dataset.id}")
         return self.table.insert().values(dataset.dict())
 
     @BaseManager.db_session
     def update_dataset(self, dataset: Dataset):
+        logger.info(f"Updating dataset {dataset.id}")
         return (
             self.table.update()
             .where(self.table.c.id == dataset.id)
@@ -45,13 +50,16 @@ class DatasetManager(BaseManager):
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
+        logger.info(f"Deleting dataset {dataset_id}")
         return self.table.delete().where(self.table.c.id == dataset_id)
 
     @BaseManager.db_session
     def _get_datasets(self, dataset_id: str = None):
         if dataset_id:
+            logger.info(f"Getting dataset {dataset_id}")
             return self.table.select().where(self.table.c.id == dataset_id)
         else:
+            logger.info("Getting all datasets")
             return self.table.select()
 
     def get_datasets(self, dataset_id: str = None) -> Union[Dataset, list[Dataset]]:
@@ -61,7 +69,23 @@ class DatasetManager(BaseManager):
         dataset_info = dataset_info.fetchall()
         if len(dataset_info) == 0:
             return None
-        return [Dataset(**dataset._mapping) for dataset in dataset_info]
+        # return [Dataset(**dataset._mapping) for dataset in dataset_info]
+        datasets = []
+        for dataset in dataset_info:
+            try:
+                datasets.append(Dataset(**dataset._mapping))
+            except Exception as e:
+                logger.error(
+                    f'Error when parsing dataset {dataset._mapping["id"]}: {e}'
+                )
+        return datasets
+
+    def upsert_dataset(self, dataset: Dataset):
+        dataset_info = self.get_datasets(dataset.id)
+        if dataset_info is None:
+            return self.save_dataset(dataset)
+        else:
+            return self.update_dataset(dataset)
 
 
 dataset_manager = DatasetManager()

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: withcontext-backend
-  namespace: withcontext-backend-test
+  namespace: withcontext-backend
 spec:
   replicas: 1
   selector:
@@ -43,5 +43,5 @@ spec:
                   key: OPENAI_API_KEY
           resources:
             limits:
-              memory: '1024Mi'
-              cpu: '1'
+              memory: '1000Mi'
+              cpu: '2'

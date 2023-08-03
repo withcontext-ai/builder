@@ -16,7 +16,7 @@ app = FastAPI()
 
 @app.exception_handler(Exception)
 async def validation_exception_handler(request: Request, exc: Exception):
-    logger.error(f"unexcepted error: {exc}")
+    logger.error(f"unexcepted error: {exc} \nwith request: {request}")
     return JSONResponse(
         status_code=500,
         content={"message": f"unexcepted error: {exc}"},

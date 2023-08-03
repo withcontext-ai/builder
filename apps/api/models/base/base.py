@@ -1,11 +1,13 @@
+import logging
 from functools import wraps
 
 from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
-from utils.config import DATABASE_URL
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import QueuePool
+from utils.config import DATABASE_URL
+
+logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -14,9 +16,9 @@ class BaseManager:
     engine = create_engine(
         DATABASE_URL,
         poolclass=QueuePool,
-        pool_size=10,
-        max_overflow=20,
-        pool_recycle=300,
+        pool_size=100,
+        max_overflow=50,
+        pool_recycle=100,
         pool_pre_ping=True,
     )
     metadata = MetaData()
@@ -39,6 +41,7 @@ class BaseManager:
                 session.commit()
                 return results
             except SQLAlchemyError as e:
+                logger.error(e)
                 session.rollback()
                 raise e
             finally:

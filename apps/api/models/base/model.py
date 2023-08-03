@@ -1,11 +1,14 @@
 from typing import Optional, Union
 import os
+import logging
 
 from pydantic import BaseModel, Field
 from sqlalchemy import JSON, Column, String
 
 from .base import Base, BaseManager
 from utils import OPENAI_API_KEY
+
+logger = logging.getLogger(__name__)
 
 
 class LLM(BaseModel):
@@ -49,23 +52,28 @@ class ModelManager(BaseManager):
 
     @BaseManager.db_session
     def save_model(self, model: Model):
+        logger.info(f"Saving model {model.id}")
         return self.table.insert().values(model.dict())
 
     @BaseManager.db_session
     def update_model(self, model: Model):
+        logger.info(f"Updating model {model.id}")
         return (
             self.table.update().where(self.table.c.id == model.id).values(model.dict())
         )
 
     @BaseManager.db_session
     def delete_model(self, model_id: str):
+        logger.info(f"Deleting model {model_id}")
         return self.table.delete().where(self.table.c.id == model_id)
 
     @BaseManager.db_session
     def _get_model(self, model_id: str = None):
         if model_id:
+            logger.info(f"Getting model {model_id}")
             return self.table.select().where(self.table.c.id == model_id)
         else:
+            logger.info("Getting all models")
             return self.table.select()
 
     def get_models(self, model_id: str = None) -> Union[Model, list[Model]]:
@@ -75,7 +83,21 @@ class ModelManager(BaseManager):
         model_info = model_info.fetchall()
         if len(model_info) == 0:
             return None
-        return [Model(**model._mapping) for model in model_info]
+
+        models = []
+        for model in model_info:
+            try:
+                models.append(Model(**model._mapping))
+            except Exception as e:
+                logger.error(f"Error when parsing model {model._mapping['id']}: {e}")
+        return models
+
+    def upsert_model(self, model: Model):
+        model_info = self.get_models(model.id)
+        if model_info is None:
+            return self.save_model(model)
+        else:
+            return self.update_model(model)
 
 
 model_manager = ModelManager()

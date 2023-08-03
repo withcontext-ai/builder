@@ -4,13 +4,15 @@ import re
 from typing import Any, Dict, List, Optional, cast
 
 from langchain.memory import (
-    ConversationSummaryMemory,
     ChatMessageHistory,
     ConversationBufferMemory,
 )
 from langchain.callbacks import AsyncIteratorCallbackHandler
-from langchain.callbacks.base import BaseCallbackHandler
-from langchain.chains import ConversationalRetrievalChain, LLMChain, SequentialChain
+from langchain.chains import (
+    ConversationalRetrievalChain,
+    LLMChain,
+    SequentialChain,
+)
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import BaseMessage
@@ -22,6 +24,8 @@ from pydantic import BaseModel, Field
 from utils import CONVERSION_CHAIN, CONVERSIONAL_RETRIEVAL_QA_CHAIN
 
 logger = logging.getLogger(__name__)
+CHAT_HISTORY_KEY = "chat_history"
+QUESTION_KEY = "question"
 
 
 class LLMAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -52,10 +56,10 @@ class ChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
     async def on_chain_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
     ):
-        await super().on_llm_start(serialized, prompts, **kwargs)
+        await super().on_chain_start(serialized, prompts, **kwargs)
 
     async def on_chain_end(self, response: LLMResult, **kwargs: Any):
-        await super().on_llm_end(response, **kwargs)
+        await super().on_chain_end(response, **kwargs)
 
 
 def parse_input_variables_from_template(template: str) -> List[str]:
@@ -102,29 +106,50 @@ class Workflow:
         self.session_id = session_id
         self.model = model
         for index, _chain in enumerate(model.chains):
-            llm = _chain.llm.dict()
-            llm_model = llm.pop("name")
-            max_tokens = llm.pop("max_tokens")
-            temperature = llm.pop("temperature")
-            llm = ChatOpenAI(
-                model=llm_model,
-                model_kwargs=llm,
-                streaming=True,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
-            if index == len(model.chains) - 1:
-                llm.callbacks = [LLMAsyncIteratorCallbackHandler()]
-                self.sequential_chain_callback = llm.callbacks[0]
-            template = replace_dot_with_dash_in_brackets(_chain.prompt.template)
-            template += "\n {question}" if index == 0 else ""
+            llm, prompt_template = self._prepare_llm_and_template(_chain, index)
+            chain = self._prepare_chain(_chain, llm, prompt_template)
+            chain.callbacks = [
+                ChainAsyncIteratorCallbackHandler(
+                    index=index, chain_type=_chain.chain_type
+                ),
+            ]
+            if _chain.key is None:
+                logger.warning(f"Chain key is None. model_id: {model.id}")
+            chain.output_key = f"{_chain.key}-output"
+            chains.append(chain)
+        self.context = SequentialChain(
+            chains=chains,
+            verbose=True,
+            input_variables=[QUESTION_KEY, CHAT_HISTORY_KEY],
+        )
 
-            match _chain.chain_type:
-                case "conversational_retrieval_qa_chain":
-                    prompt_template = PromptTemplate(
-                        template=template,
-                        input_variables=parse_input_variables_from_template(template),
-                    )
+    def _prepare_llm_and_template(self, _chain, index):
+        llm = _chain.llm.dict()
+        llm_model = llm.pop("name")
+        max_tokens = llm.pop("max_tokens")
+        temperature = llm.pop("temperature")
+        llm = ChatOpenAI(
+            model=llm_model,
+            model_kwargs=llm,
+            streaming=True,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        if index == len(self.model.chains) - 1:
+            llm.callbacks = [LLMAsyncIteratorCallbackHandler()]
+            self.sequential_chain_callback = llm.callbacks[0]
+        template = replace_dot_with_dash_in_brackets(_chain.prompt.template)
+        template += "\n {question}" if index == 0 else ""
+        prompt_template = PromptTemplate(
+            template=template,
+            input_variables=parse_input_variables_from_template(template),
+        )
+        return llm, prompt_template
+
+    def _prepare_chain(self, _chain, llm, prompt_template):
+        match _chain.chain_type:
+            case "conversational_retrieval_qa_chain":
+                try:
                     retriever = Retriever(dataset_ids=_chain.datasets).get_retriever()
                     chain = PatchedConversationalRetrievalChain.from_llm(
                         input_keys=prompt_template.input_variables,
@@ -132,35 +157,28 @@ class Workflow:
                         retriever=retriever,
                         condense_question_prompt=prompt_template,
                     )
-
-                case "conversation_chain":
-                    prompt_template = PromptTemplate(
-                        template=template,
-                        input_variables=parse_input_variables_from_template(template),
+                except Exception as e:
+                    logger.error(
+                        f"Error while creating conversational_retrieval_qa_chain: {e}"
                     )
+                    raise e
+
+            case "conversation_chain":
+                try:
                     chain = LLMChain(
                         llm=llm,
                         prompt=prompt_template,
                     )
-                case _:
-                    raise Exception("Chain type not supported")
-            chain.callbacks = [
-                ChainAsyncIteratorCallbackHandler(
-                    index=index, chain_type=_chain.chain_type
-                ),
-            ]
-            chain.output_key = f"{_chain.key}-output"
-            chains.append(chain)
-        self.context = SequentialChain(
-            chains=chains,
-            verbose=True,
-            input_variables=["question"],
-            memory=ConversationBufferMemory(memory_key="chat_history"),
-        )
+                except Exception as e:
+                    logger.error(f"Error while creating conversation_chain: {e}")
+                    raise e
+            case _:
+                logger.error(f"Chain type {_chain.chain_type} not supported")
+                raise Exception("Chain type not supported")
+        return chain
 
     async def agenerate(self, messages: List[BaseMessage]) -> str:
         # TODO buffer size limit
-        # 1k now
         prompt = messages[-1].content
-        # chat_history = get_buffer_string(messages[:-1])
-        await self.context.arun({"question": prompt, "chat_history": messages})
+        chat_history = get_buffer_string(messages[:-1])
+        await self.context.arun({QUESTION_KEY: prompt, CHAT_HISTORY_KEY: chat_history})
