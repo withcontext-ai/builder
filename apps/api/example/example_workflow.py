@@ -15,10 +15,10 @@ async def test_chat():
     async for response in send_message(
         [
             HumanMessage(content="昌平区政务服务中心地址"),
-            AIMessage(content="昌平区政务服务中心的地址是北京市昌平区龙水路22号院14号楼2层。"),
+            AIMessage(content="这是关于昌平区政务服务中心的地址，位于北京市昌平区龙水路22号院。"),
             HumanMessage(content="昌平区政务服务中心电话"),
-            AIMessage(content="昌平区政务服务中心的咨询电话是69740926。"),
-            HumanMessage(content="我们之前聊了什么？"),
+            AIMessage(content="昌平区政务服务中心电话是69740926"),
+            HumanMessage(content="我们之前聊了什么"),
         ],
         session_id,
     ):

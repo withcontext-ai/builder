@@ -3,8 +3,6 @@ import logging
 import uuid
 from typing import List
 import io
-import logging
-from typing import List
 
 import pinecone
 from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
