@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
+  const appId = body.appId as string
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
   const messages = body.messages as Message[]
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
           createdAt: new Date(),
         },
       ] as Message[]
-      updateMessagesToSession(sessionId, payload)
+      updateMessagesToSession(sessionId, payload, appId)
     },
   })
 

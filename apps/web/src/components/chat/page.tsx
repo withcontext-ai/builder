@@ -61,6 +61,7 @@ const Chat = ({
       setWaiting(false)
     },
     body: {
+      appId,
       sessionId,
       apiSessionId,
     },

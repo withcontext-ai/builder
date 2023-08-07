@@ -8,6 +8,7 @@ import { and, desc, eq, sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
+import { logsnag } from '@/lib/logsnag'
 import { serverLog } from '@/lib/posthog'
 import { nanoid } from '@/lib/utils'
 
@@ -266,7 +267,8 @@ function formatTimestamp(message: Message) {
 
 export async function updateMessagesToSession(
   sessionId: string,
-  messages: Message[]
+  messages: Message[],
+  appId?: string
 ) {
   try {
     const { userId } = auth()
@@ -297,8 +299,22 @@ export async function updateMessagesToSession(
       },
     })
 
+    await logsnag?.publish({
+      channel: 'user-chat',
+      event: 'User chat',
+      icon: '💬',
+      tags: {
+        'user-id': userId,
+        'app-id': appId || 'unknown',
+        'session-id': sessionId,
+        'message-count': messages.length,
+      },
+      notify: true,
+    })
+
     return response
   } catch (error: any) {
+    console.log('error:', error)
     return {
       error: error.message,
     }

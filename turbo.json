@@ -19,7 +19,8 @@
     "GOOGLE_APPLICATION_CREDENTIALS",
     "AI_SERVICE_API_BASE_URL",
     "POSTHOG_API_KEY",
-    "SECRET"
+    "SECRET",
+    "LOGSNAG_TOKEN"
   ],
   "pipeline": {
     "build": {

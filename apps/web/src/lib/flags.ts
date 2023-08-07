@@ -12,4 +12,7 @@ export const flags = {
   isNeon: process.env.DATABASE_URL?.includes('neon.tech') || false,
   enabledWorkflow: true,
   enabledAIService: process.env.AI_SERVICE_API_BASE_URL != null,
+  enabledLogSnag:
+    BASE_URL === 'https://build.withcontext.ai' &&
+    process.env.LOGSNAG_TOKEN != null,
 }
