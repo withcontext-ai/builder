@@ -62,7 +62,7 @@ export default function WorkspaceSidebar({ appList }: IProps) {
             return (
               <div
                 key={item?.title}
-                className="group relative flex justify-center"
+                className="group relative flex items-center justify-center"
               >
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -91,7 +91,7 @@ export default function WorkspaceSidebar({ appList }: IProps) {
                 </Tooltip>
                 <div
                   className={cn(
-                    'absolute left-0 top-[20px] h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-10 group-hover:translate-x-0',
+                    'absolute left-0 top-[24px] h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
                     selected && 'h-10 translate-x-0 group-hover:h-10'
                   )}
                 />
