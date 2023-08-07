@@ -9,7 +9,7 @@ export default async function RootSidebar() {
   return (
     <div className="flex h-full overflow-hidden lg:border-r lg:border-slate-200">
       <WorkspaceSidebar appList={appList} />
-      <NavSidebar />
+      {/* <NavSidebar  /> */}
     </div>
   )
 }
