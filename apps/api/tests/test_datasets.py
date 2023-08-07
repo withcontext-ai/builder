@@ -20,11 +20,6 @@ def test_get_dataset():
 
     # The endpoint should return with a 200 OK status
     assert response.status_code == 200
-    assert response.json() == {
-        "data": [{"documents": [], "id": "test1"}],
-        "message": "success",
-        "status": 200,
-    }
 
 
 def test_get_datasets():

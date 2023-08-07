@@ -13,7 +13,7 @@ from utils import OPENAI_API_KEY
 
 llm1 = LLM(
     name="gpt-3.5-turbo",
-    max_tokens=1000,
+    max_tokens=4096,
     temperature=0.9,
     top_p=1,
     frequency_penalty=0,
@@ -28,14 +28,14 @@ document = Document(
     type="pdf",
 )
 template1 = Prompt(
-    template="""The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
+    template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 
-Current conversation:
+Chat History:
 {chat_history}
+Follow Up Input: {question}
 
-
-Human: {question}
-AI:"""
+Do not change the language of the input!
+Standalone question:"""
 )
 dataset = Dataset(
     id="test_dataset_1",
@@ -47,11 +47,11 @@ dataset_manager.update_dataset(dataset)
 chain1 = Chain(
     llm=llm1,
     prompt=template1,
-    chain_type="conversation_chain",
+    chain_type="conversational_retrieval_qa_chain",
     datasets=["test_dataset_1"],
     retrieval={
         "splitter": {"type": "fake", "chunk_size": 100, "chunk_overlap": 0},
-        "embedding": {"model": "text-embedding-ada-003"},
+        "embedding": {"model": "text-embedding-ada-002"},
     },
 )
 

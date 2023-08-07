@@ -13,7 +13,9 @@ class IndexResponse(BaseModel):
     content: str
 
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 router = APIRouter(prefix="/v1/datasets")
 
@@ -33,6 +35,7 @@ def get_datasets():
 
 @router.post("/", tags=["datasets"])
 def create_dataset(dataset: Dataset):
+    logger.info(f"dataset: {dataset}")
     dataset.id = uuid4().hex
     try:
         dataset_manager.save_dataset(dataset)
@@ -46,6 +49,7 @@ def create_dataset(dataset: Dataset):
 
 @router.patch("/{id}", tags=["datasets"])
 def update_dataset(id: str, dataset: Dataset):
+    logger.info(f"dataset: {dataset}")
     try:
         dataset.id = id
         dataset_manager.upsert_dataset(dataset)
@@ -59,6 +63,7 @@ def update_dataset(id: str, dataset: Dataset):
 
 @router.delete("/{id}", tags=["datasets"])
 def delete_dataset(id: str):
+    logger.info(f"dataset: {id}")
     try:
         dataset_manager.delete_dataset(id)
         return {"message": "success", "status": 200}

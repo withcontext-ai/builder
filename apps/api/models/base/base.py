@@ -22,6 +22,7 @@ class BaseManager:
         pool_pre_ping=True,
     )
     metadata = MetaData()
+
     metadata.reflect(bind=engine)
     Session = sessionmaker(bind=engine)
 

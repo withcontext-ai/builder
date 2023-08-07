@@ -20,6 +20,7 @@ from models.base import (
 )
 from models.workflow import Workflow
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/v1/chat")
@@ -41,6 +42,7 @@ async def send_message(
         )
     model = models[0]
     workflow = Workflow(model=model, session_id=session_id)
+
     callback = workflow.sequential_chain_callback
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
@@ -74,6 +76,7 @@ async def send_message(
 
 @router.post("/completions")
 async def stream_completions(body: CompletionsRequest):
+    logger.info(f"completions payload: {body.dict()}")
     # TODO check role
     messages = []
     for message in body.messages:
@@ -93,6 +96,7 @@ async def stream_completions(body: CompletionsRequest):
 
 @router.post("/session")
 async def create_session(body: SessionRequest):
+    logger.info(f"session payload: {body.dict()}")
     try:
         session_id = secrets.token_hex(16)
         session_state_manager.save_session_state(session_id, body.model_id)

@@ -1,5 +1,6 @@
 import io
 import logging
+import uuid
 from typing import List
 
 import pinecone
@@ -20,7 +21,6 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
 from pydantic import BaseModel, Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
-
 
 logger = logging.getLogger(__name__)
 
@@ -137,10 +137,9 @@ class PDFRetrieverMixin:
 
         embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        namespace = uuid.uuid4().hex
         vector_store = Pinecone.from_documents(
-            doc,
-            embeddings,
-            index_name="context-prod",
+            doc, embeddings, index_name="context-prod", namespace=namespace
         )
         vector_store.as_retriever()
 
