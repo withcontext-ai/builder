@@ -6,10 +6,5 @@ import WorkspaceSidebar from './workspace-sidebar'
 export default async function RootSidebar() {
   const appList = await getWorkspace()
 
-  return (
-    <div className="flex h-full overflow-hidden lg:border-r lg:border-slate-200">
-      <WorkspaceSidebar appList={appList} />
-      {/* <NavSidebar  /> */}
-    </div>
-  )
+  return <WorkspaceSidebar appList={appList} />
 }
