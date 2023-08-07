@@ -25,7 +25,7 @@ interface IProps {
 }
 
 const CategoriesNav = [
-  { title: 'Explore', src: '/logo.png', link: '/' },
+  { title: 'Explore', src: '/logo.png', link: '/explore' },
   { title: 'My Space', icon: <Box color="#EA580C" />, link: '/apps' },
 ]
 
@@ -57,44 +57,47 @@ export default function WorkspaceSidebar({ appList }: IProps) {
     <div className="flex h-full">
       <div className="flex h-full w-18 shrink-0 grow flex-col overflow-y-auto bg-slate-900 scrollbar-none">
         <div className="mt-6 flex flex-col space-y-4">
-          {CategoriesNav?.map((item) => (
-            <div
-              key={item?.title}
-              className="group relative flex justify-center"
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link href={item?.link}>
-                    <Avatar
-                      className={cn(
-                        'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-                        isHome && 'rounded-2xl'
-                      )}
-                    >
-                      {item?.src ? (
-                        <img
-                          src="/logo.png"
-                          alt=""
-                          className="aspect-square h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          {item?.icon}
-                        </div>
-                      )}
-                    </Avatar>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">{item?.title}</TooltipContent>
-              </Tooltip>
+          {CategoriesNav?.map((item) => {
+            const selected = item?.link === pathname
+            return (
               <div
-                className={cn(
-                  'absolute left-0 top-[20px] h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
-                  isHome && 'h-10 translate-x-0 group-hover:h-10'
-                )}
-              />
-            </div>
-          ))}
+                key={item?.title}
+                className="group relative flex justify-center"
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href={item?.link}>
+                      <Avatar
+                        className={cn(
+                          'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
+                          selected && 'rounded-2xl'
+                        )}
+                      >
+                        {item?.src ? (
+                          <img
+                            src="/logo.png"
+                            alt=""
+                            className="aspect-square h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            {item?.icon}
+                          </div>
+                        )}
+                      </Avatar>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{item?.title}</TooltipContent>
+                </Tooltip>
+                <div
+                  className={cn(
+                    'absolute left-0 top-[20px] h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-10 group-hover:translate-x-0',
+                    selected && 'h-10 translate-x-0 group-hover:h-10'
+                  )}
+                />
+              </div>
+            )
+          })}
         </div>
         <div className="m-auto mt-6 h-px w-14 shrink-0 bg-slate-200" />
         <nav className="flex-1 py-6">
