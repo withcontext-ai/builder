@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { PlusIcon } from 'lucide-react'
+import { Box, PlusIcon } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
@@ -22,6 +22,11 @@ interface IProps {
   appList?: WorkspaceItem[]
 }
 
+const CategoriesNav = [
+  { title: 'Explore', src: '/logo.png', link: '/' },
+  { title: 'My space', icon: <Box color="#EA580C" />, link: '/apps' },
+]
+
 export default function WorkspaceSidebar({ appList }: IProps) {
   const pathname = usePathname()
   const params = useParams()
@@ -40,37 +45,44 @@ export default function WorkspaceSidebar({ appList }: IProps) {
   // console.log('error:', error)
 
   const isHome =
-    ['/', '/apps', '/datasets', '/explore'].includes(pathname) ||
-    pathname.includes('/explore/')
+    ['/', '/explore'].includes(pathname) || pathname.includes('/explore/')
 
   return (
     <div className="flex w-18 shrink-0 grow flex-col overflow-y-auto bg-slate-900 scrollbar-none">
-      <div className="group relative mt-6 flex shrink-0 items-center justify-center">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/">
-              <Avatar
-                className={cn(
-                  'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-                  isHome && 'rounded-2xl'
-                )}
-              >
-                <img
-                  src="/logo.png"
-                  alt=""
-                  className="aspect-square h-full w-full object-cover"
-                />
-                {/* <AvatarImage src="/logo.png" /> */}
-                {/* <AvatarFallback>CO</AvatarFallback> */}
-              </Avatar>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Explore</TooltipContent>
-        </Tooltip>
+      <div className="group relative mt-6 flex shrink-0 flex-col items-center justify-center gap-4">
+        {CategoriesNav?.map((item) => (
+          <Tooltip key={item?.title}>
+            <TooltipTrigger asChild>
+              <Link href={item?.link}>
+                <Avatar
+                  className={cn(
+                    'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',
+                    isHome && 'rounded-2xl'
+                  )}
+                >
+                  {item?.src ? (
+                    <img
+                      src="/logo.png"
+                      alt=""
+                      className="aspect-square h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      {item?.icon}
+                    </div>
+                  )}
+                </Avatar>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">{item?.title}</TooltipContent>
+          </Tooltip>
+        ))}
+
         <div
           className={cn(
-            'absolute left-0 top-1/2 h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
-            isHome && 'h-10 translate-x-0 group-hover:h-10'
+            'absolute left-0 h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
+            isHome && 'top-[20px] h-10 translate-x-0 group-hover:h-10',
+            !isHome && 'top-[90px]'
           )}
         />
       </div>
@@ -104,28 +116,6 @@ export default function WorkspaceSidebar({ appList }: IProps) {
                             className="aspect-square h-full w-full object-cover"
                           />
                         )}
-                        {/* {appItem.app_icon && (
-                          <AvatarImage src={appItem.app_icon} />
-                        )} */}
-                        {/* <span
-                        className={cn(
-                          'relative flex h-12 w-12 shrink-0 overflow-hidden rounded-3xl bg-white transition-all group-hover:rounded-2xl',
-                          isSelected && 'rounded-2xl',
-                          !appItem.app_icon ? `bg-${color}-600` : ''
-                        )}
-                      >
-                        {appItem.app_icon ? (
-                          <img
-                            src={appItem.app_icon}
-                            alt=""
-                            className="aspect-square h-full w-full"
-                          />
-                        ) : (
-                          <span className="flex h-full w-full items-center justify-center rounded-full text-white">
-                            {getFirstLetter(appItem.app_name || '')}
-                          </span>
-                        )}
-                      </span> */}
                         <AvatarFallback className="bg-transparent text-white">
                           {getFirstLetter(appItem.app_name || '')}
                         </AvatarFallback>
@@ -138,7 +128,7 @@ export default function WorkspaceSidebar({ appList }: IProps) {
                 </Tooltip>
                 <div
                   className={cn(
-                    'absolute left-0 top-1/2 h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
+                    'absolute left-0 top-[20px] h-0 w-1 -translate-x-2 -translate-y-1/2 rounded-r-sm bg-white transition-all group-hover:h-5 group-hover:translate-x-0',
                     isSelected && 'h-10 translate-x-0 group-hover:h-10'
                   )}
                 />
