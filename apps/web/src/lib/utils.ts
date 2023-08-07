@@ -38,8 +38,6 @@ export const BASE_URL =
       }`
     : 'http://localhost:3000'
 
-console.log('BASE_URL:', BASE_URL)
-
 export const fetcher = (...args: Parameters<typeof fetch>) =>
   fetch(...args)
     .then((res) => res.json())

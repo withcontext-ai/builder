@@ -211,31 +211,34 @@ export async function getLatestSessionId(appId: string) {
   }
 }
 
-export async function getSession(sessionId: string) {
+export async function getSession(sessionId: string, appId?: string) {
   try {
     const { userId } = auth()
     if (!userId) {
       throw new Error('Not authenticated')
     }
 
-    const items = await db
+    const [session] = await db
       .select()
       .from(SessionsTable)
       .where(
         and(
           eq(SessionsTable.short_id, sessionId),
-          eq(SessionsTable.created_by, userId)
+          eq(SessionsTable.created_by, userId),
+          eq(SessionsTable.archived, false)
         )
       )
       .leftJoin(AppsTable, eq(SessionsTable.app_id, AppsTable.short_id))
 
-    const sessionDetail = items[0]
-    if (!sessionDetail) {
+    if (!session) {
       throw new Error('Session not found')
     }
 
-    return sessionDetail
+    return session
   } catch (error: any) {
+    if (appId) {
+      redirect(`/app/${appId}`)
+    }
     redirect('/')
   }
 }
