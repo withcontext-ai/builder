@@ -26,7 +26,7 @@ interface IProps {
 
 const CategoriesNav = [
   { title: 'Explore', src: '/logo.png', link: '/' },
-  { title: 'My space', icon: <Box color="#EA580C" />, link: '/apps' },
+  { title: 'My Space', icon: <Box color="#EA580C" />, link: '/apps' },
 ]
 
 export default function WorkspaceSidebar({ appList }: IProps) {
@@ -174,7 +174,6 @@ export default function WorkspaceSidebar({ appList }: IProps) {
             <h1 className="flex h-12 shrink-0 items-center px-4 text-lg font-semibold">
               {isHome ? 'Explore' : 'My space'}
             </h1>
-
             <div className="m-full h-px shrink-0 bg-slate-200" />
             <div className="flex-1 px-2 py-3">
               <div className="space-y-3">
