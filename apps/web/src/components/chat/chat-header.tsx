@@ -24,20 +24,25 @@ interface IProps {
   name: string
   isDebug?: boolean
   onRestart?: () => void
+  disabledRestart?: boolean
 }
 
-const ChatHeader = ({ name, isDebug, onRestart }: IProps) => {
+const ChatHeader = ({ name, isDebug, onRestart, disabledRestart }: IProps) => {
   return (
     <div
       className={cn(
-        ' flex w-full flex-col border-slate-100',
+        ' flex w-full flex-col border-slate-200',
         isDebug ? 'border-0' : 'border-b'
       )}
     >
       {isDebug ? (
         <div className="flex w-full items-center justify-between text-lg font-medium">
           Debug
-          <Button variant="outline" onClick={onRestart}>
+          <Button
+            variant="outline"
+            onClick={onRestart}
+            disabled={disabledRestart}
+          >
             Restart
           </Button>
         </div>
