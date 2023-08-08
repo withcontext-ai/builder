@@ -17,6 +17,8 @@ export default async function Page({ params }: IProps) {
     name: appDetail?.name,
     description: appDetail?.description,
     icon: appDetail?.icon,
+    opening_remarks: appDetail?.opening_remarks || '',
+    enable_video_interaction: appDetail?.enable_video_interaction || false,
   }
 
   return (
