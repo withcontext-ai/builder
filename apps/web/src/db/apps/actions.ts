@@ -194,6 +194,8 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
       }
     }
 
+    // TODO: notify ai service to update model
+
     const response = await db
       .update(AppsTable)
       .set(newValue)
