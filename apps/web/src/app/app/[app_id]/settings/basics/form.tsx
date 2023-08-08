@@ -58,7 +58,12 @@ const formSchema = z.object({
     })
     .optional(),
   icon: z.string().optional(),
-  opening_remarks: z.string().optional(),
+  opening_remarks: z
+    .string()
+    .max(500, {
+      message: 'Opening remarks must be less than 500 characters.',
+    })
+    .optional(),
   enable_video_interaction: z.boolean().optional(),
 })
 
