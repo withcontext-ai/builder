@@ -68,7 +68,7 @@ interface IProps {
     name: string
     description?: string
     icon?: string
-    openingRemarks?: string
+    opening_remarks?: string
     enable_video_interaction?: boolean
   }
 }
