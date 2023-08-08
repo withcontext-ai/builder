@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { isEqual } from 'lodash'
+import { InfoIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
@@ -22,6 +23,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useToast } from '@/components/ui/use-toast'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
@@ -53,7 +59,7 @@ const formSchema = z.object({
     .optional(),
   icon: z.string().optional(),
   opening_remarks: z.string().optional(),
-  enable_video_interaction: z.boolean(),
+  enable_video_interaction: z.boolean().optional(),
 })
 
 interface IProps {
@@ -172,7 +178,20 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
             name="opening_remarks"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Opening Remarks</FormLabel>
+                <div className="flex items-center space-x-2">
+                  <FormLabel>Opening Remarks</FormLabel>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-4 w-4 text-slate-400" />
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p className="max-w-xs">
+                        Set the opening remarks, and the app will actively send
+                        the content you set to improve communication with users.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <FormControl>
                   <Textarea
                     minRows={3}
