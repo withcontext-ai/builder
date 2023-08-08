@@ -8,7 +8,7 @@ import CreateDialog from './create-dataset'
 export default async function Page() {
   const datasets = await getDatasets()
   return (
-    <RootWrapper pageTitle="My Datasets" nav={<MineList />}>
+    <RootWrapper pageTitle="My Space" nav={<MineList />}>
       <div className="flex flex-col">
         {/* desktop version */}
         <div className="hidden h-12 items-center justify-between px-6 lg:flex">

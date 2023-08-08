@@ -11,7 +11,7 @@ export default async function Page() {
   const appList = await getApps()
 
   return (
-    <RootWrapper pageTitle="My Apps" nav={<MineList />}>
+    <RootWrapper pageTitle="My Space" nav={<MineList />}>
       <div className="flex flex-col">
         {/* desktop version */}
         <div className="hidden h-12 items-center justify-between px-6 lg:flex">
