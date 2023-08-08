@@ -38,6 +38,7 @@ const ChatInput = ({
 
   return (
     <div
+      role="chat-input"
       className={cn(
         'relative flex w-full flex-col gap-4',
         isDebug ? '' : 'px-6 pb-4'
@@ -70,6 +71,7 @@ const ChatInput = ({
       >
         <div className="flex justify-between space-x-2">
           <Textarea
+            role="chat-textarea"
             ref={inputRef}
             className="min-h-[40px]"
             placeholder="Type a message"

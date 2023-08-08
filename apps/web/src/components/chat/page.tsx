@@ -99,7 +99,7 @@ const Chat = ({
 
   const disabledRestart = !messages || messages.length === 0
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full" role="chat-page">
       {confirmReset && (
         <RestartConfirmPage onRestart={onRestart} onCancel={onCancel} />
       )}

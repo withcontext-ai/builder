@@ -30,6 +30,7 @@ interface IProps {
 const ChatHeader = ({ name, isDebug, onRestart, disabledRestart }: IProps) => {
   return (
     <div
+      role="chat-header"
       className={cn(
         ' flex w-full flex-col border-slate-200',
         isDebug ? 'border-0' : 'border-b'
