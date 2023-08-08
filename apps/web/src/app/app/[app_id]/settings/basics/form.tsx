@@ -13,12 +13,14 @@ import { fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import Upload from '@/components/upload/upload'
@@ -50,7 +52,8 @@ const formSchema = z.object({
     })
     .optional(),
   icon: z.string().optional(),
-  openingRemarks: z.string().optional(),
+  opening_remarks: z.string().optional(),
+  enable_video_interaction: z.boolean(),
 })
 
 interface IProps {
@@ -60,6 +63,7 @@ interface IProps {
     description?: string
     icon?: string
     openingRemarks?: string
+    enable_video_interaction?: boolean
   }
 }
 
@@ -112,7 +116,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
 
   return (
     <div>
-      <h6 className="mb-6	text-2xl font-semibold leading-8">Basics</h6>
+      <h2 className="mb-6	text-2xl font-semibold leading-8">Basics</h2>
       <Form {...form}>
         <form className="space-y-8">
           <FormField
@@ -165,7 +169,7 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
           </div>
           <FormField
             control={form.control}
-            name="openingRemarks"
+            name="opening_remarks"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Opening Remarks</FormLabel>
@@ -177,6 +181,37 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
                   />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="h-px bg-slate-200" />
+
+          <h3 className="text-xl font-semibold">Video</h3>
+
+          <FormField
+            control={form.control}
+            name="enable_video_interaction"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex space-x-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Video Interaction</FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormDescription>
+                      Once activated, the App will communicate with users
+                      through video and voice.
+                    </FormDescription>
+                  </div>
+                  <div className="h-[170px] w-[250px] shrink-0 rounded-md bg-slate-200" />
+                </div>
               </FormItem>
             )}
           />
