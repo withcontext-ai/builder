@@ -1,17 +1,19 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Message } from 'ai'
 import { useChat } from 'ai/react'
 
 import { nanoid } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
+import useSubscribe from '@/hooks/use-subscribe'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 import RestartConfirmPage from './restart-confirm'
+import useAddMessage from './use-add-message'
 
 export interface ChatProps {
   sessionId: string
@@ -66,6 +68,12 @@ const Chat = ({
     },
     sendExtraMessageFields: true,
   })
+
+  const newMessage = useSubscribe({
+    channelId: `session-${sessionId}`,
+    eventName: 'user-chat',
+  })
+  useAddMessage({ setMessages, oldMessages: messages, newMessage })
 
   const handelReload = () => {
     setAutoScroll(true)

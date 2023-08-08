@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { nanoid } from 'nanoid'
 
 import { initPusher } from '@/lib/pusher-server'
 
@@ -22,9 +23,12 @@ export async function POST(req: NextRequest) {
 }
 
 async function createChat(data: any) {
-  const { message } = data
+  const { channelId, eventName, message } = data
   const pusher = initPusher()
-  pusher?.trigger('my-channel', 'my-event', {
-    message,
+  pusher?.trigger(channelId, eventName, {
+    id: nanoid(),
+    role: 'assistant',
+    content: message,
+    createdAt: new Date(),
   })
 }
