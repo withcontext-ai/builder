@@ -50,6 +50,7 @@ const formSchema = z.object({
     })
     .optional(),
   icon: z.string().optional(),
+  openingRemarks: z.string().optional(),
 })
 
 interface IProps {
@@ -58,6 +59,7 @@ interface IProps {
     name: string
     description?: string
     icon?: string
+    openingRemarks?: string
   }
 }
 
@@ -145,24 +147,41 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
               </FormItem>
             )}
           />
+          <div className="mt-6 space-y-2">
+            <label className="text-sm font-medium">Image</label>
+            <Upload
+              listType="update-image"
+              accept=".png,.jpeg,.webp,.jpg"
+              fileList={image}
+              bgColor={color}
+              listProps={false}
+              bgText={bgText}
+              onChangeFileList={(files) => {
+                const current = files[files?.length - 1]
+                form.setValue('icon', current?.url)
+                setImage(files)
+              }}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="openingRemarks"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Opening Remarks</FormLabel>
+                <FormControl>
+                  <Textarea
+                    minRows={3}
+                    placeholder="Type your message here"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </form>
       </Form>
-      <div className="mt-6">
-        <div className="mb-2">Image</div>
-        <Upload
-          listType="update-image"
-          accept=".png,.jpeg,.webp,.jpg"
-          fileList={image}
-          bgColor={color}
-          listProps={false}
-          bgText={bgText}
-          onChangeFileList={(files) => {
-            const current = files[files?.length - 1]
-            form.setValue('icon', current?.url)
-            setImage(files)
-          }}
-        />
-      </div>
     </div>
   )
 }
