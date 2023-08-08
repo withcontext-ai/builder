@@ -9,7 +9,7 @@ export default async function RootSidebar() {
   return (
     <div className="h-full overflow-hidden lg:border-r lg:border-slate-200">
       <WorkspaceSidebar appList={appList} />
-      <div className="fixed bottom-2 left-[83px]">
+      <div className="fixed bottom-2 left-[72px]">
         <AuthButton />
       </div>
     </div>
