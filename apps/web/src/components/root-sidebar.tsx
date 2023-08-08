@@ -1,17 +1,20 @@
 import { getWorkspace } from '@/db/workspace/actions'
 
-import AuthButton from './auth-button'
+import NavSidebar from './nav-sidebar'
 import WorkspaceSidebar from './workspace-sidebar'
 
-export default async function RootSidebar() {
+interface IProps {
+  title?: string
+  nav?: React.ReactNode
+}
+
+export default async function RootSidebar({ title, nav }: IProps) {
   const appList = await getWorkspace()
 
   return (
-    <div className="h-full overflow-hidden lg:border-r lg:border-slate-200">
+    <div className="flex h-full overflow-hidden lg:border-r lg:border-slate-200">
       <WorkspaceSidebar appList={appList} />
-      <div className="fixed bottom-2 left-[72px]">
-        <AuthButton />
-      </div>
+      <NavSidebar title={title} nav={nav} />
     </div>
   )
 }

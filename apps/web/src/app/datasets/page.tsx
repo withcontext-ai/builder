@@ -1,5 +1,6 @@
 import { getDatasets } from '@/db/datasets/actions'
 import DatasetCard from '@/components/dataset-card'
+import MineList from '@/components/mine-list'
 import RootWrapper from '@/components/root-wrapper'
 
 import CreateDialog from './create-dataset'
@@ -7,7 +8,7 @@ import CreateDialog from './create-dataset'
 export default async function Page() {
   const datasets = await getDatasets()
   return (
-    <RootWrapper pageTitle="My Datasets">
+    <RootWrapper pageTitle="My Datasets" nav={<MineList />}>
       <div className="flex flex-col">
         {/* desktop version */}
         <div className="hidden h-12 items-center justify-between px-6 lg:flex">
