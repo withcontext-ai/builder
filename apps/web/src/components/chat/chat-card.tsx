@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs'
 import { Message } from 'ai'
 import { format, isToday, isYesterday } from 'date-fns'
-import { Loader2, PhoneCallIcon } from 'lucide-react'
+import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
@@ -78,13 +78,27 @@ function EventMessage({ data }: { data: any }) {
   let message
 
   switch (data.type) {
-    case 'call.created':
+    case 'call.created': {
       message = (
         <div className="flex items-center">
           <PhoneCallIcon className="mr-2" />
           Call
         </div>
       )
+      break
+    }
+    case 'call.declined': {
+      message = (
+        <div className="flex items-center">
+          <PhoneIcon className="mr-2" />
+          Declined
+        </div>
+      )
+      break
+    }
+    default: {
+      message = <div>Unknown event</div>
+    }
   }
 
   return message

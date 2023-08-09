@@ -12,20 +12,28 @@ import {
 } from '@/components/ui/dialog'
 
 interface IProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   appId: string
   appName: string
   appIcon?: string
+  onAccept: () => void
+  onDecline: () => void
 }
 
 export default function VideoCallConfirmDialog({
+  open,
+  onOpenChange,
   appId,
   appName,
   appIcon,
+  onAccept,
+  onDecline,
 }: IProps) {
   const color = getAvatarBgColor(appId || '')
 
   return (
-    <Dialog open>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-6 sm:max-w-[268px]">
         <DialogHeader className="space-y-4">
           <DialogTitle>
@@ -49,11 +57,17 @@ export default function VideoCallConfirmDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-between">
-          <Button className="bg-green-600 hover:bg-green-600/90 focus-visible:ring-green-600">
+          <Button
+            className="bg-green-600 hover:bg-green-600/90 focus-visible:ring-green-600"
+            onClick={onAccept}
+          >
             <PhoneCallIcon className="mr-2 h-4 w-4" />
             Accept
           </Button>
-          <Button className="bg-red-600 hover:bg-red-600/90 focus-visible:ring-red-600">
+          <Button
+            className="bg-red-600 hover:bg-red-600/90 focus-visible:ring-red-600"
+            onClick={onDecline}
+          >
             <PhoneIcon className="mr-2 h-4 w-4" />
             Decline
           </Button>
