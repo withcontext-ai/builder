@@ -31,14 +31,14 @@ interface IProps {
 }
 
 export const TemplateInfo = () => (
-  <div className="flex gap-1">
+  <div className="flex items-center gap-1">
     Template
     <Tooltip>
       <TooltipTrigger asChild>
         <Info size={18} color="#94A3B8" />
       </TooltipTrigger>
       <TooltipContent className="relative left-[88px] w-[332px]">
-        <p className="break-words">{`If you want to quote the output results of another chain, please enter {{key.output}}.`}</p>
+        <p className="break-words text-sm font-normal">{`If you want to quote the output results of another chain, please enter {{key.output}}.`}</p>
       </TooltipContent>
     </Tooltip>
   </div>
