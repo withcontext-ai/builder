@@ -21,7 +21,7 @@ class WebhookHandler:
     def forward_data(self, data: FaceToAiWebhookRequest, session_id: str) -> None:
         logger.info(f"Forwarding data to {self.target_url}")
         data.data["session_id"] = session_id
-        response = requests.post(self.target_url, json=json.dumps(data))
+        response = requests.post(self.target_url, json=json.dumps(data.dict()))
         response.raise_for_status()
 
     @retry(
@@ -36,5 +36,5 @@ class WebhookHandler:
             type="call.created",
             data={"session_id": session_id, "room_link": room_link},
         )
-        response = requests.post(self.target_url, json=json.dumps(data))
+        response = requests.post(self.target_url, json=json.dumps(data.dict()))
         response.raise_for_status()

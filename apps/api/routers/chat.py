@@ -142,7 +142,7 @@ async def video_stream_completions_webhook(
         raise HTTPException(status_code=400, detail="duration not found")
     webhook_handler = WebhookHandler()
     try:
-        webhook_handler.forward_data(body.dict(), session_id)
+        webhook_handler.forward_data(body, session_id)
     except Exception as e:
         logger.exception(e)
         raise HTTPException(status_code=500, detail=str(e))
