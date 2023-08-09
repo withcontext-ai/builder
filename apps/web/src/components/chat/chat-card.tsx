@@ -123,7 +123,7 @@ const ChatCard = (props: IProps) => {
   const { message: rawMessage, error = '', isEnd } = props
   const type = rawMessage?.type
   const message = rawMessage?.data
-  const { app, mode } = useChatContext()
+  const { app, mode, isLoading } = useChatContext()
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message?.role === 'user'
   const isEvent = type === 'event'
