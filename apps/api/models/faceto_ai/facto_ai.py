@@ -1,6 +1,11 @@
 import requests
 import logging
-from utils import FACE_TO_AI_ENDPOINT, FACE_TO_CLIENT_ID, FACE_TO_CLIENT_SECRET
+from utils import (
+    FACE_TO_AI_ENDPOINT,
+    FACE_TO_CLIENT_ID,
+    FACE_TO_CLIENT_SECRET,
+    WEBHOOK_KEY,
+)
 import json
 
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +44,7 @@ class FaceToAiManager:
             },
             "chatapi": {
                 "api": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}",
-                "key": 
+                "key": WEBHOOK_KEY,
             },
         }
         headers = {
