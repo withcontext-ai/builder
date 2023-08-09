@@ -191,29 +191,31 @@ const Chat = ({
           />
         </div>
       </div>
-      <VideoCallConfirmDialog
-        open={isOpenCallConfirm}
-        onOpenChange={setIsOpenCallConfirm}
-        appId={appId}
-        appName={appName}
-        appIcon={appIcon}
-        onAccept={() => {
-          window.open(callLinkRef.current, '_blank')
-          setIsOpenCallConfirm(false)
-        }}
-        onDecline={() => {
-          const message: EventMessage = {
-            type: 'event',
-            data: {
-              id: nanoid(),
-              type: 'call.declined',
-              createdAt: Date.now(),
-            },
-          }
-          setEventMessages((prev) => [...prev, message])
-          setIsOpenCallConfirm(false)
-        }}
-      />
+      {isOpenCallConfirm && (
+        <VideoCallConfirmDialog
+          open={isOpenCallConfirm}
+          onOpenChange={setIsOpenCallConfirm}
+          appId={appId}
+          appName={appName}
+          appIcon={appIcon}
+          onAccept={() => {
+            window.open(callLinkRef.current, '_blank')
+            setIsOpenCallConfirm(false)
+          }}
+          onDecline={() => {
+            const message: EventMessage = {
+              type: 'event',
+              data: {
+                id: nanoid(),
+                type: 'call.declined',
+                createdAt: Date.now(),
+              },
+            }
+            setEventMessages((prev) => [...prev, message])
+            setIsOpenCallConfirm(false)
+          }}
+        />
+      )}
     </>
   )
 }

@@ -1,4 +1,6 @@
+import * as React from 'react'
 import { PhoneCallIcon, PhoneIcon } from 'lucide-react'
+import { useCountdown } from 'usehooks-ts'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -31,6 +33,20 @@ export default function VideoCallConfirmDialog({
   onDecline,
 }: IProps) {
   const color = getAvatarBgColor(appId || '')
+
+  const [count, { startCountdown }] = useCountdown({
+    countStart: 5,
+  })
+
+  React.useEffect(() => {
+    if (open) startCountdown()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  React.useEffect(() => {
+    if (count === 0) onDecline()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
