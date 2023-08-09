@@ -21,7 +21,6 @@ function ToolVariableMentions<T extends FieldValues>({
   label,
   name,
 }: ITextareaItem<T>) {
-  const [prompt, setPrompt] = useState('')
   const users = [
     {
       id: 'isaac',
@@ -37,7 +36,8 @@ function ToolVariableMentions<T extends FieldValues>({
     },
   ]
   const form = useFormContext<T>()
-
+  const { getValues } = form
+  const [prompt, setPrompt] = useState(getValues()?.prompt.template)
   return (
     <FormField
       control={form.control}
@@ -48,12 +48,18 @@ function ToolVariableMentions<T extends FieldValues>({
           <FormControl>
             <MentionsInput
               value={prompt}
-              onChange={(e) => setPrompt(e?.target?.value)}
+              onChange={(e) => {
+                setPrompt(e?.target?.value)
+                console.log(e?.target?.value, '-e?.target?.value')
+                // @ts-ignore
+                form.setValue(name, e?.target?.value)
+              }}
               className="mentions"
             >
               <Mention
                 className="mentions__mention"
                 data={users}
+                markup="{__display__}"
                 trigger={'{'}
                 displayTransform={(id, display) => {
                   return `{${display}}`
