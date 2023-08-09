@@ -4,11 +4,7 @@ import re
 from typing import Any, Dict, List, Optional, cast
 
 from langchain.callbacks import AsyncIteratorCallbackHandler
-from langchain.chains import (
-    ConversationalRetrievalChain,
-    LLMChain,
-    SequentialChain,
-)
+from langchain.chains import ConversationalRetrievalChain, LLMChain, SequentialChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import BaseMessage

@@ -39,7 +39,6 @@ class FaceToAiManager:
         url = FACE_TO_AI_ENDPOINT + "/v1/room/link"
         payload = {
             "config": {
-                "duration": 600,
                 "greeting": opening_remarks,
             },
             "chatapi": {

@@ -43,7 +43,7 @@ def wrap_token(token: str, model_id: str, session_id: str, filt: bool = False) -
     if filt:
         content = {"content": token}
         return f"data: {content}\n\n"
-    return f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=model_id, choices=[Choices(index=0, delta={'content': ''})]).dict())}\n\n"
+    return f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=model_id, choices=[Choices(index=0, delta={'content': token})]).dict())}\n\n"
 
 
 async def send_message(
