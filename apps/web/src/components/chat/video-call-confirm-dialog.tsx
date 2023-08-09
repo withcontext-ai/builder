@@ -13,12 +13,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
+import { useChatContext } from './chat-context'
+
 interface IProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  appId: string
-  appName: string
-  appIcon?: string
   onAccept: () => void
   onDecline: () => void
 }
@@ -26,12 +25,11 @@ interface IProps {
 export default function VideoCallConfirmDialog({
   open,
   onOpenChange,
-  appId,
-  appName,
-  appIcon,
   onAccept,
   onDecline,
 }: IProps) {
+  const { app } = useChatContext()
+  const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const color = getAvatarBgColor(appId || '')
 
   const [count, { startCountdown }] = useCountdown({
@@ -61,9 +59,11 @@ export default function VideoCallConfirmDialog({
                 )}
               >
                 <AvatarImage src={appIcon} alt={appName} />
-                <AvatarFallback className="bg-transparent text-white">
-                  {getFirstLetter(appName)}
-                </AvatarFallback>
+                {appName && (
+                  <AvatarFallback className="bg-transparent text-white">
+                    {getFirstLetter(appName)}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div className="font-medium">{appName}</div>
             </div>
@@ -94,9 +94,3 @@ export default function VideoCallConfirmDialog({
     </Dialog>
   )
 }
-
-// <VideoCallConfirmDialog
-//   appId={appId}
-//   appName={appName}
-//   appIcon={appIcon}
-// />
