@@ -99,20 +99,6 @@ class PDFLoader:
         for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
             page_interpreter.process_page(page)
         text = fake_file_handle.getvalue()
-        pages = text.split("\f")
-
-        # Remove the last line of each page if it's a number or its length is less than 5
-        for i in range(len(pages)):
-            lines = pages[i].split("\n")
-            if len(lines) > 1:  # Ensure there is more than one line
-                last_line = lines[-1]
-                if last_line.isdigit() or len(last_line) < 5:
-                    logger.debug(f"Removing last line: {last_line}")
-                    lines = lines[:-1]  # Remove the last line
-                    pages[i] = "\n".join(lines)
-
-        # Join the pages back together
-        text = "\f".join(pages)
 
         converter.close()
         fake_file_handle.close()
