@@ -6,10 +6,17 @@ interface IProps {
   channelId: string
   eventName: string
   onAdd: (val: any) => void
+  enabled?: boolean
 }
 
-export default function useSubscribe({ channelId, eventName, onAdd }: IProps) {
+export default function useSubscribe({
+  channelId,
+  eventName,
+  onAdd,
+  enabled = true,
+}: IProps) {
   React.useEffect(() => {
+    if (!enabled) return
     const pusher = initPusher()
     if (!pusher) return
 
@@ -21,5 +28,5 @@ export default function useSubscribe({ channelId, eventName, onAdd }: IProps) {
       if (channel) channel.unbind(eventName)
       if (pusher) pusher.unsubscribe(channelId)
     }
-  }, [channelId, eventName, onAdd])
+  }, [enabled, channelId, eventName, onAdd])
 }

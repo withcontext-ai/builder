@@ -90,6 +90,7 @@ const Chat = ({
     channelId: `session-${sessionId}`,
     eventName: 'user-chat',
     onAdd,
+    enabled: true, // TODO: enable_video_interaction
   })
 
   const chatMessages = useMemo(() => {
