@@ -10,6 +10,14 @@
       "jinja": true,
       "justMyCode": false,
       "cwd": "${workspaceFolder}/apps/api"
+    },
+    {
+      "name": "Python: test workflow",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-vv", "-s", "tests/test_workflow.py"],
+      "cwd": "${workspaceFolder}/apps/api"
     }
   ]
 }

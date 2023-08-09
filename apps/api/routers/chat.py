@@ -19,9 +19,10 @@ from models.base import (
     session_state_manager,
     VideoCompletionsRequest,
     Messages as MessagesContent,
+    FaceToAiWebhookRequest,
 )
 from models.workflow import Workflow
-from models.faceto_ai import FaceToAiManager
+from models.faceto_ai import FaceToAiManager, WebhookHandler
 from utils import WEBHOOK_KEY
 
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +35,7 @@ def get_token_header(request: Request):
     token = request.headers.get("Authorization")
     if not token:
         raise HTTPException(status_code=400, detail="Token header not found")
-    if token != WEBHOOK_KEY:
+    if token != "Bearer " + WEBHOOK_KEY:
         raise HTTPException(status_code=401, detail="Invalid token")
     return token
 
@@ -109,7 +110,9 @@ async def stream_completions(body: CompletionsRequest):
     model = model_manager.get_models(model_id)[0]
     if model.enable_video_interaction:
         link = FaceToAiManager.get_room_link(model.opening_remarks, body.session_id)
-        return {"data": {"link": link}, "message": "success", "status": 200}
+        webhook_handler = WebhookHandler()
+        webhook_handler.create_video_room_link(body.session_id, link)
+        return {}
     else:
         return StreamingResponse(
             send_message(body.messages, body.session_id), media_type="text/event-stream"
@@ -127,6 +130,23 @@ async def video_stream_completions(
         media_type="text/event-stream",
         filt=True,
     )
+
+
+@router.post("/completions/vedio/{session_id}/webhook")
+async def video_stream_completions_webhook(
+    session_id: str,
+    body: FaceToAiWebhookRequest,
+    token: str = Depends(get_token_header),
+):
+    if body.data.get("duration", None) is None:
+        raise HTTPException(status_code=400, detail="duration not found")
+    webhook_handler = WebhookHandler()
+    try:
+        webhook_handler.forward_data(body.dict(), session_id)
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"message": "success", "status": 200}
 
 
 @router.post("/session")

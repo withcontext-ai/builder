@@ -45,6 +45,10 @@ class FaceToAiManager:
                 "api": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}",
                 "key": WEBHOOK_KEY,
             },
+            "webhook": {
+                "api": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}/webhook",
+                "key": WEBHOOK_KEY,
+            },
         }
         headers = {
             "Content-Type": "application/json",
