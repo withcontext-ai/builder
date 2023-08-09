@@ -50,7 +50,7 @@ export default function Pusher() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await trigger({ type: 'chat.created', data: values })
+    await trigger({ type: 'call.created', data: values })
     // form.reset()
     setTimeout(() => {
       form.setFocus('message', { shouldSelect: true })

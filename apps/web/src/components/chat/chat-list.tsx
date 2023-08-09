@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import ChatCard from './chat-card'
 
 interface IProps {
-  messages: Message[]
+  messages: any[]
   error?: string
   waiting: boolean
   scrollRef: Ref<HTMLDivElement>
@@ -30,6 +30,7 @@ const ChatList = ({
   appIcon,
   isDebug = false,
 }: IProps) => {
+  console.log('messages:', messages)
   return (
     <div
       className={cn(
@@ -39,11 +40,11 @@ const ChatList = ({
       ref={scrollRef}
       onWheel={() => setAutoScroll(false)}
     >
-      {messages?.map((message: Message, index: number) => {
+      {messages?.map((message: any, index: number) => {
         return (
           <ChatCard
             message={message}
-            key={message?.id}
+            key={message?.data?.id}
             error={error}
             isEnd={index === messages.length - 1}
             appName={appName}

@@ -13,7 +13,17 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 import RestartConfirmPage from './restart-confirm'
-import useAddMessage from './use-add-message'
+
+function formatToTimestamp(date?: Date | number | null) {
+  if (!date) return 0
+  if (Object.prototype.toString.call(date) === '[object Date]') {
+    return new Date(date).getTime()
+  }
+  if (typeof date === 'number') {
+    return date
+  }
+  return 0
+}
 
 export interface ChatProps {
   sessionId: string
@@ -69,11 +79,30 @@ const Chat = ({
     sendExtraMessageFields: true,
   })
 
-  const newMessage = useSubscribe({
+  const [eventMessages, setEventMessages] = useState<EventMessage[]>([])
+  const onAdd = useCallback(
+    (newEventMessage: any) => {
+      setEventMessages((prev) => [...prev, newEventMessage])
+    },
+    [setEventMessages]
+  )
+  useSubscribe({
     channelId: `session-${sessionId}`,
     eventName: 'user-chat',
+    onAdd,
   })
-  useAddMessage({ setMessages, oldMessages: messages, newMessage })
+
+  const chatMessages = useMemo(() => {
+    const formattedMessages = messages?.map((message) => ({
+      type: 'chat',
+      data: message,
+    }))
+    return [...formattedMessages, ...eventMessages].sort(
+      (a, b) =>
+        formatToTimestamp(a.data?.createdAt) -
+        formatToTimestamp(b.data?.createdAt)
+    )
+  }, [messages, eventMessages])
 
   const handelReload = () => {
     setAutoScroll(true)
@@ -105,6 +134,7 @@ const Chat = ({
   }, [messages, isDebug, setInitialMessages])
 
   const disabledRestart = !messages || messages.length === 0
+
   return (
     <div className="relative h-full w-full">
       {confirmReset && (
@@ -121,7 +151,7 @@ const Chat = ({
           disabledRestart={disabledRestart}
         />
         <ChatList
-          messages={messages}
+          messages={chatMessages}
           waiting={waiting}
           scrollRef={scrollRef}
           error={error?.message}

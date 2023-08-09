@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs'
 import { Message } from 'ai'
 import { format, isToday, isYesterday } from 'date-fns'
-import { Loader2 } from 'lucide-react'
+import { Loader2, PhoneCallIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
@@ -13,7 +13,7 @@ import Text from '../ui/text'
 import { Markdown } from './markdown/markdown'
 
 interface IProps {
-  message?: Message
+  message?: any
   error?: string
   model_avatar?: string
   user_avatar?: string
@@ -74,9 +74,36 @@ const formatTime = (time: Date) => {
   } else return format(time, 'MM/dd/yyyy hh:mm aa')
 }
 
+function EventMessage({ data }: { data: any }) {
+  let message
+
+  switch (data.type) {
+    case 'call.created':
+      message = (
+        <div className="flex items-center">
+          <PhoneCallIcon className="mr-2" />
+          Call
+        </div>
+      )
+  }
+
+  return message
+}
+
 const ChatCard = (props: IProps) => {
-  const { message, error = '', isEnd, appName, appIcon, appId, isDebug } = props
+  const {
+    message: rawMessage,
+    error = '',
+    isEnd,
+    appName,
+    appIcon,
+    appId,
+    isDebug,
+  } = props
+  const type = rawMessage?.type
+  const message = rawMessage?.data
   const isUser = message?.role === 'user'
+  const isEvent = type === 'event'
   const showError = isEnd && error && !isUser
 
   const { user } = useUser()
@@ -126,7 +153,9 @@ const ChatCard = (props: IProps) => {
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
               )}
             >
-              {message?.content ? (
+              {isEvent ? (
+                <EventMessage data={message} />
+              ) : message?.content ? (
                 <Markdown className={cn(isUser ? 'text-white' : 'text-black	')}>
                   {message?.content}
                 </Markdown>
