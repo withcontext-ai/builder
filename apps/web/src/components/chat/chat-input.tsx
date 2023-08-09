@@ -71,7 +71,7 @@ const ChatInput = ({
       >
         <div className="flex justify-between space-x-2">
           <Textarea
-            role="chat-textarea"
+            id="chat-textarea"
             ref={inputRef}
             className="min-h-[40px]"
             placeholder="Type a message"
