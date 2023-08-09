@@ -16,28 +16,25 @@ import {
 } from '@/components/ui/form'
 
 import { ITextareaItem } from './form-item'
+import { useWorkflowContext } from './store'
+import { WorkflowItem } from './type'
 
 function ToolVariableMentions<T extends FieldValues>({
   label,
   name,
 }: ITextareaItem<T>) {
-  const users = [
-    {
-      id: 'isaac',
-      display: 'Isaac Newton',
-    },
-    {
-      id: 'sam',
-      display: 'Sam Victor',
-    },
-    {
-      id: 'emma',
-      display: 'emmanuel@nobody.com',
-    },
-  ]
   const form = useFormContext<T>()
   const { getValues } = form
   const [prompt, setPrompt] = useState(getValues()?.prompt.template)
+  const workflowData = useWorkflowContext((state) => state.workflowData)
+  const data = workflowData?.reduce(
+    (m: { id: string; display: string }[], item: WorkflowItem) => {
+      const key = `${item?.type}-${item?.key}.output`
+      m?.push({ id: key, display: key })
+      return m
+    },
+    []
+  )
   return (
     <FormField
       control={form.control}
@@ -50,7 +47,6 @@ function ToolVariableMentions<T extends FieldValues>({
               value={prompt}
               onChange={(e) => {
                 setPrompt(e?.target?.value)
-                console.log(e?.target?.value, '-e?.target?.value')
                 // @ts-ignore
                 form.setValue(name, e?.target?.value)
               }}
@@ -58,7 +54,7 @@ function ToolVariableMentions<T extends FieldValues>({
             >
               <Mention
                 className="mentions__mention"
-                data={users}
+                data={data}
                 markup="{__display__}"
                 trigger={'{'}
                 displayTransform={(id, display) => {
