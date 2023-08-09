@@ -73,7 +73,7 @@ const formatTime = (time: Date) => {
 
 const ChatCard = (props: IProps) => {
   const { message, error = '', isEnd } = props
-  const { app, mode, isLoading } = useChatContext()
+  const { app, mode } = useChatContext()
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message?.role === 'user'
   const showError = isEnd && error && !isUser
