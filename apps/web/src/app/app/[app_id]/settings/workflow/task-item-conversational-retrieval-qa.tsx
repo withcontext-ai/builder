@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronRightIcon } from 'lucide-react'
+import { ChevronRightIcon, Info } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -22,6 +22,7 @@ import {
 } from './form-item'
 import { useWorkflowContext } from './store'
 import { TaskDefaultValueMap } from './task-default-value'
+import { TemplateInfo } from './task-item-conversation-chain'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
 
@@ -228,7 +229,7 @@ function FormItemPrompt() {
           name="prompt.template"
           label={
             <div className="flex items-center justify-between ">
-              Template
+              <TemplateInfo />
               <AddTemplateButton />
             </div>
           }
