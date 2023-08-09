@@ -21,6 +21,7 @@ import { MAX_MAX_TOKENS } from './const'
 import { InputItem, SelectItem, SlideItem, TextareaItem } from './form-item'
 import { useWorkflowContext } from './store'
 import { TaskDefaultValueMap } from './task-default-value'
+import ToolVariableMentions from './tool-variable-output'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
 
@@ -125,6 +126,7 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
           <FormItemLLM />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <FormItemPrompt />
+          <ToolVariableMentions />
         </div>
       </div>
     </div>
