@@ -33,6 +33,7 @@ interface BaseChatProps {
   app: ChatApp | null
   mode: ChatMode
   initialMessages?: Message[]
+  initialEvents?: EventMessage[]
 }
 
 interface DebugChatProps extends BaseChatProps {
@@ -48,7 +49,7 @@ interface LiveChatProps extends BaseChatProps {
 export type ChatProps = LiveChatProps | DebugChatProps
 
 const Chat = (props: ChatProps) => {
-  const { app, session, mode, initialMessages } = props
+  const { app, session, mode, initialMessages = [], initialEvents = [] } = props
   const {
     short_id: sessionId,
     name: sessionName,
@@ -85,7 +86,8 @@ const Chat = (props: ChatProps) => {
     },
   })
 
-  const [eventMessages, setEventMessages] = useState<EventMessage[]>([])
+  const [eventMessages, setEventMessages] =
+    useState<EventMessage[]>(initialEvents)
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
   const callLinkRef = useRef()
   const onAdd = useCallback(
@@ -102,7 +104,7 @@ const Chat = (props: ChatProps) => {
     channelId: `session-${sessionId}`,
     eventName: 'user-chat',
     onAdd,
-    enabled: true, // TODO: enable_video_interaction
+    enabled: !!app?.enable_video_interaction,
   })
 
   const chatMessages = useMemo(() => {
@@ -195,7 +197,7 @@ const Chat = (props: ChatProps) => {
               type: 'event',
               data: {
                 id: nanoid(),
-                type: 'call.declined',
+                type: 'call.canceled',
                 createdAt: Date.now(),
               },
             }

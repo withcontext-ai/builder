@@ -1,7 +1,6 @@
 'use client'
 
 import { useUser } from '@clerk/nextjs'
-import { Message } from 'ai'
 import { format, isToday, isYesterday } from 'date-fns'
 import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
@@ -89,6 +88,24 @@ function EventMessage({ data }: { data: any }) {
         <div className="flex items-center">
           <PhoneIcon className="mr-2" />
           Declined
+        </div>
+      )
+      break
+    }
+    case 'call.ended': {
+      message = (
+        <div className="flex items-center">
+          <PhoneIcon className="mr-2" />
+          Call Ended {data.duration}
+        </div>
+      )
+      break
+    }
+    case 'call.cancelled': {
+      message = (
+        <div className="flex items-center">
+          <PhoneIcon className="mr-2" />
+          Call Cancelled
         </div>
       )
       break
