@@ -126,7 +126,6 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
           <FormItemLLM />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <FormItemPrompt />
-          <ToolVariableMentions />
         </div>
       </div>
     </div>
@@ -223,7 +222,7 @@ function FormItemPrompt() {
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">PROMPT</div>
       <div className="space-y-8">
-        <TextareaItem<IFormSchema>
+        <ToolVariableMentions<IFormSchema>
           name="prompt.template"
           label={
             <div className="flex items-center justify-between ">

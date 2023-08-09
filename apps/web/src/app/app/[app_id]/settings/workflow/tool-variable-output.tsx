@@ -3,11 +3,24 @@
 import { useState } from 'react'
 import { Mention, MentionsInput } from 'react-mentions'
 
-import MentionInputStyle from './mention-style/mentionsInputStyle'
-
 import './mention-style/mentionInput.css'
 
-const ToolVariableMentions = () => {
+import { FieldValues, useFormContext } from 'react-hook-form'
+
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+
+import { ITextareaItem } from './form-item'
+
+function ToolVariableMentions<T extends FieldValues>({
+  label,
+  name,
+}: ITextareaItem<T>) {
   const [prompt, setPrompt] = useState('')
   const users = [
     {
@@ -23,24 +36,35 @@ const ToolVariableMentions = () => {
       display: 'emmanuel@nobody.com',
     },
   ]
+  const form = useFormContext<T>()
 
   return (
-    <MentionsInput
-      value={prompt}
-      onChange={(e) => setPrompt(e?.target?.value)}
-      // style={MentionInputStyle}
-      className="mentions"
-      // className="flex min-h-[80px] w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      <Mention
-        className="mentions__mention"
-        data={users}
-        trigger={'{'}
-        displayTransform={(id, display) => {
-          return `{${display}}`
-        }}
-      />
-    </MentionsInput>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <MentionsInput
+              value={prompt}
+              onChange={(e) => setPrompt(e?.target?.value)}
+              className="mentions"
+            >
+              <Mention
+                className="mentions__mention"
+                data={users}
+                trigger={'{'}
+                displayTransform={(id, display) => {
+                  return `{${display}}`
+                }}
+              />
+            </MentionsInput>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   )
 }
 
