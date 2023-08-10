@@ -27,8 +27,6 @@ const ChatFeedbackButtons = (props: Props) => {
 
   const { toggleFeedback, feedbacked } = useChatFeedbackContext()
 
-  const [dialogOpen, setDialogOpen] = useState(false)
-
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
 
   const handleClick = useCallback(
@@ -89,7 +87,7 @@ const ChatFeedbackButtons = (props: Props) => {
   const status = feedbacked[messageId]
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={(open) => setDialogOpen(open)}>
+    <>
       {!status && (
         <>
           {renderButton('positive', true)}
@@ -98,7 +96,7 @@ const ChatFeedbackButtons = (props: Props) => {
       )}
       {status === 'positive' && renderButton('positive', false)}
       {status === 'negative' && renderButton('negative', false)}
-    </Dialog>
+    </>
   )
 }
 
