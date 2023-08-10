@@ -1,4 +1,3 @@
-import { useUser } from '@clerk/nextjs'
 import { PlusIcon } from 'lucide-react'
 
 import { getApps } from '@/db/apps/actions'

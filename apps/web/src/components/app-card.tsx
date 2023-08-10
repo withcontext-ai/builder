@@ -1,7 +1,4 @@
-'use client'
-
 import Link from 'next/link'
-import { useUser } from '@clerk/nextjs'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import {
@@ -27,8 +24,6 @@ export default function AppCard({
   creator,
 }: IProps) {
   const color = getAvatarBgColor(id || '')
-  const { user } = useUser()
-  const username = user?.primaryEmailAddress?.emailAddress
 
   return (
     <Link href={`/app/${id}`}>
@@ -53,7 +48,7 @@ export default function AppCard({
               </div>
             )}
             <CardDescription className="text-sm font-normal">
-              {creator || username}
+              {creator}
             </CardDescription>
           </div>
           <CardTitle className="truncate text-xl">{name}</CardTitle>
