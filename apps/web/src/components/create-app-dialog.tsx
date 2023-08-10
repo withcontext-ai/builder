@@ -122,7 +122,7 @@ const CreateAppDialog = (props: IProps) => {
   }
 
   return (
-    <Dialog onOpenChange={(open) => onCancel(open)} open={open}>
+    <Dialog onOpenChange={(open) => open && setOpen(open)} open={open}>
       <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[488px]">
         <DialogHeader>
