@@ -110,8 +110,8 @@ const CreateAppDialog = (props: IProps) => {
       })
     }
   }
-  const onCancel = (open: boolean) => {
-    setOpen(open)
+  const handleCancel = () => {
+    setOpen(false)
     reset()
     setImage([])
   }
@@ -122,7 +122,7 @@ const CreateAppDialog = (props: IProps) => {
   }
 
   return (
-    <AlertDialog onOpenChange={(open) => open && setOpen(open)} open={open}>
+    <AlertDialog open={open} onOpenChange={(open) => open && setOpen(open)}>
       <AlertDialogTrigger asChild>{dialogTrigger}</AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[488px]">
         <AlertDialogHeader>
@@ -185,11 +185,7 @@ const CreateAppDialog = (props: IProps) => {
               }}
             />
             <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onCancel(false)}
-              >
+              <Button type="button" variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isMutating || uploading}>

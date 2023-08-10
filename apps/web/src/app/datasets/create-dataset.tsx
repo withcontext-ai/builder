@@ -79,12 +79,13 @@ const CreateDialog = () => {
     }
   }
 
-  const handleCancel = (open = false) => {
+  const handleCancel = () => {
     if (!isMutating) {
-      setOpen(open)
+      setOpen(false)
       form.reset()
     }
   }
+
   return (
     <AlertDialog open={open} onOpenChange={(open) => open && setOpen(true)}>
       <AlertDialogTrigger asChild>
@@ -122,7 +123,7 @@ const CreateDialog = () => {
                 type="reset"
                 variant="outline"
                 disabled={isMutating}
-                onClick={() => handleCancel(false)}
+                onClick={handleCancel}
               >
                 Cancel
               </Button>
