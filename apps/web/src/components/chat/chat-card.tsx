@@ -9,7 +9,9 @@ import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Text from '../ui/text'
+import ChatActions from './chat-actions'
 import { useChatContext } from './chat-context'
+import ChatFeedbackButtons from './feedback/chat-feedback-buttons'
 import { Markdown } from './markdown/markdown'
 
 interface IProps {
@@ -170,7 +172,7 @@ const ChatCard = (props: IProps) => {
           <div className="flex items-end">
             <div
               className={cn(
-                'max-w-[280px] rounded-lg p-4 sm:max-w-xs md:max-w-lg	lg:max-w-3xl xl:max-w-3xl',
+                'relative max-w-[280px] rounded-lg p-4 sm:max-w-xs md:max-w-lg	lg:max-w-3xl xl:max-w-3xl',
                 mode === 'debug' &&
                   'max-w-[240px] md:max-w-md lg:max-w-md xl:max-w-md',
                 isUser ? 'bg-primary' : 'bg-gray-100',
@@ -186,6 +188,15 @@ const ChatCard = (props: IProps) => {
               ) : (
                 <Loader2 className="h-3 w-3 animate-spin" />
               )}
+              {mode !== 'debug' &&
+                !isUser &&
+                // last message finished loading
+                // or any other messages
+                ((isEnd && !isLoading) || !isEnd) && (
+                  <ChatActions>
+                    <ChatFeedbackButtons messageId={message?.id} />
+                  </ChatActions>
+                )}
             </div>
           </div>
         </div>
