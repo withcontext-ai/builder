@@ -45,7 +45,7 @@ Standalone question:"""
         documents=[document],
     )
 
-    dataset_manager.update_dataset(dataset)
+    dataset_manager.update_dataset(dataset.id, dataset.dict())
 
     chain1 = Chain(
         llm=llm1,
@@ -60,7 +60,7 @@ Standalone question:"""
 
     model = Model(id="test_model_2", chains=[chain1])
 
-    model_manager.update_model(model)
+    model_manager.update_model(model.id, model.dict())
     return model.id
 
 
@@ -106,7 +106,7 @@ AI:"""
         chain_type="conversation_chain",
     )
     model = Model(id="test_model_3", chains=[chain])
-    model_manager.upsert_model(model)
+    model_manager.upsert_model(model.id, model.dict())
     return model.id
 
 

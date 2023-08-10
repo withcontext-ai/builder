@@ -10,7 +10,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 class WebhookHandler:
-    target_url = "https://build.withcontext.ai/api/webhook/chat"
+    target_url = (
+        "https://builder-git-fork-lzl-websocket-withcontext.vercel.app/api/webhook/chat"
+    )
 
     @retry(
         stop=stop_after_attempt(3),
