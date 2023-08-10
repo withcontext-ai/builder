@@ -23,6 +23,7 @@ import {
 import { useWorkflowContext } from './store'
 import { TaskDefaultValueMap } from './task-default-value'
 import { TemplateInfo } from './task-item-conversation-chain'
+import ToolVariableMentions from './tool-variable-output'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
 
@@ -225,7 +226,7 @@ function FormItemPrompt() {
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">PROMPT</div>
       <div className="space-y-8">
-        <TextareaItem<IFormSchema>
+        <ToolVariableMentions<IFormSchema>
           name="prompt.template"
           label={
             <div className="flex items-center justify-between ">

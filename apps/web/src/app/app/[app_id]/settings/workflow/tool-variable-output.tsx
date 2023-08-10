@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Mention, MentionsInput } from 'react-mentions'
 
 import './mention-style/mentionInput.css'
 
 import { FieldValues, useFormContext } from 'react-hook-form'
 
+import useMentionsValue from '@/hooks/use-mention-value'
 import {
   FormControl,
   FormField,
@@ -24,9 +25,11 @@ function ToolVariableMentions<T extends FieldValues>({
   name,
 }: ITextareaItem<T>) {
   const form = useFormContext<T>()
-  const { getValues } = form
-  const [prompt, setPrompt] = useState(getValues()?.prompt.template)
+  const { watch } = form
+  const prompt = watch()?.prompt.template
+  const { value, onChange } = useMentionsValue(prompt)
   const workflowData = useWorkflowContext((state) => state.workflowData)
+
   const data = workflowData?.reduce(
     (m: { id: string; display: string }[], item: WorkflowItem) => {
       const key = `${item?.type}-${item?.key}.output`
@@ -35,6 +38,11 @@ function ToolVariableMentions<T extends FieldValues>({
     },
     []
   )
+
+  useEffect(() => {
+    onChange(prompt)
+  }, [prompt])
+
   return (
     <FormField
       control={form.control}
@@ -44,9 +52,9 @@ function ToolVariableMentions<T extends FieldValues>({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <MentionsInput
-              value={prompt}
+              value={value}
               onChange={(e) => {
-                setPrompt(e?.target?.value)
+                onChange(e.target.value)
                 // @ts-ignore
                 form.setValue(name, e?.target?.value)
               }}
