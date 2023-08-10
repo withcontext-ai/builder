@@ -16,6 +16,7 @@ export const TaskDefaultValueMap = {
     },
     prompt: {
       template: '',
+      input_variables: [],
     },
   },
   conversational_retrieval_qa_chain: {
@@ -30,6 +31,7 @@ export const TaskDefaultValueMap = {
     },
     prompt: {
       template: '',
+      input_variables: [],
     },
     retriever: {
       type: 'pinecone_hybrid_search',
@@ -50,6 +52,6 @@ export const defaultWorkflowData: WorkflowItem[] = [
     id: 'default_conversation_chain_id',
     type: 'tool',
     subType: 'conversation_chain',
-    formValueStr: `{"llm":{"name":"gpt-3.5-turbo","api_key":"","temperature":0.9,"max_tokens":${DEFAULT_MAX_TOKENS},"top_p":1,"frequency_penalty":0,"presence_penalty":0},"prompt":{"template":""}}`,
+    formValueStr: `{"llm":{"name":"gpt-3.5-turbo","api_key":"","temperature":0.9,"max_tokens":${DEFAULT_MAX_TOKENS},"top_p":1,"frequency_penalty":0,"presence_penalty":0},"prompt":{"template":"","input_variables":"[]"}}`,
   },
 ]

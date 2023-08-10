@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { findIndex } from 'lodash'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { Mention, MentionsInput } from 'react-mentions'
 
@@ -39,8 +40,16 @@ function PromptMentions<T extends FieldValues>({
 
   useEffect(() => {
     onChange(prompt)
+    const reg = /{(.*?)}/
+    const selectedOutput = prompt.split(reg)?.filter(
+      (item: string) =>
+        findIndex(data, function (o) {
+          return o.display === item
+        }) !== -1
+    )
+    // @ts-ignore
+    form.setValue('prompt.input_variables', selectedOutput)
   }, [prompt])
-
   return (
     <FormField
       control={form.control}
@@ -53,6 +62,7 @@ function PromptMentions<T extends FieldValues>({
               value={value}
               onChange={(e) => {
                 onChange(e.target.value)
+
                 // @ts-ignore
                 form.setValue(name, e?.target?.value)
               }}
