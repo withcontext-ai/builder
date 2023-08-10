@@ -3,8 +3,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Message } from 'ai'
 import { useChat } from 'ai/react'
+import useSWRMutation from 'swr/mutation'
 
-import { nanoid } from '@/lib/utils'
+import { fetcher, nanoid } from '@/lib/utils'
 import usePageTitle from '@/hooks/use-page-title'
 import useSubscribe from '@/hooks/use-subscribe'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
@@ -37,6 +38,16 @@ function eventMessageBuilder(type: string): EventMessage {
       createdAt: Date.now(),
     },
   }
+}
+
+function addEvent(
+  url: string,
+  { arg }: { arg: { session_id: string; event: EventMessage } }
+) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
 }
 
 interface BaseChatProps {
@@ -183,17 +194,24 @@ const Chat = (props: ChatProps) => {
     setIsOpenCallConfirm(false)
   }, [])
 
+  const { trigger: addEventTrigger } = useSWRMutation(
+    `/api/chat/event`,
+    addEvent
+  )
+
   const handleDecline = useCallback(() => {
     const message = eventMessageBuilder('call.declined')
     setEventMessages((prev) => [...prev, message])
     setIsOpenCallConfirm(false)
-  }, [])
+    addEventTrigger({ session_id: sessionId, event: message })
+  }, [sessionId, addEventTrigger])
 
   const handleCancel = useCallback(() => {
     const message = eventMessageBuilder('call.canceled')
     setEventMessages((prev) => [...prev, message])
     setIsOpenCallConfirm(false)
-  }, [])
+    addEventTrigger({ session_id: sessionId, event: message })
+  }, [sessionId, addEventTrigger])
 
   return (
     <ChatContextProvider
