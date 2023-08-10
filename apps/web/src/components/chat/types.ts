@@ -5,7 +5,7 @@ export type ChatSession = Pick<Session, 'short_id' | 'api_session_id' | 'name'>
 
 export type ChatApp = Pick<
   App,
-  'short_id' | 'icon' | 'name' | 'enable_video_interaction'
+  'short_id' | 'icon' | 'name' | 'opening_remarks' | 'enable_video_interaction'
 >
 
 export interface EventMessage {

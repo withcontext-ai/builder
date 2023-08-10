@@ -107,17 +107,35 @@ const Chat = (props: ChatProps) => {
     enabled: !!app?.enable_video_interaction,
   })
 
+  const openingRemarksMessages = useMemo(() => {
+    if (!app?.opening_remarks) return []
+    return [
+      {
+        type: 'chat',
+        data: {
+          id: nanoid(),
+          role: 'assistant',
+          content: app?.opening_remarks,
+        },
+      },
+    ]
+  }, [app?.opening_remarks])
+
   const chatMessages = useMemo(() => {
     const formattedMessages = messages?.map((message) => ({
       type: 'chat',
       data: message,
     }))
-    return [...formattedMessages, ...eventMessages].sort(
+    return [
+      ...openingRemarksMessages,
+      ...formattedMessages,
+      ...eventMessages,
+    ].sort(
       (a, b) =>
         formatToTimestamp(a.data?.createdAt) -
         formatToTimestamp(b.data?.createdAt)
     )
-  }, [messages, eventMessages])
+  }, [messages, eventMessages, openingRemarksMessages])
 
   const handelReload = () => {
     setAutoScroll(true)
