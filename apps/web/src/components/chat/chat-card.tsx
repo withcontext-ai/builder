@@ -70,52 +70,49 @@ const formatTime = (time: Date) => {
   } else return format(time, 'MM/dd/yyyy hh:mm aa')
 }
 
+function formatSeconds(seconds: number) {
+  if (seconds < 3600) {
+    return new Date(seconds * 1000).toISOString().substring(14, 19)
+  }
+  return new Date(seconds * 1000).toISOString().slice(11, 19)
+}
+
 function EventMessage({ data }: { data: any }) {
+  let icon
   let message
 
   switch (data.type) {
     case 'call.created': {
-      message = (
-        <div className="flex items-center">
-          <PhoneCallIcon className="mr-2" />
-          Call
-        </div>
-      )
+      icon = <PhoneCallIcon className="mr-4" />
+      message = 'Call Requested'
       break
     }
     case 'call.declined': {
-      message = (
-        <div className="flex items-center">
-          <PhoneIcon className="mr-2" />
-          Declined
-        </div>
-      )
+      icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
+      message = 'Call Declined'
       break
     }
     case 'call.ended': {
-      message = (
-        <div className="flex items-center">
-          <PhoneIcon className="mr-2" />
-          Call Ended {data.duration}
-        </div>
-      )
+      icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
+      message = `Call Ended ${formatSeconds(+data.duration || 0)}`
       break
     }
-    case 'call.cancelled': {
-      message = (
-        <div className="flex items-center">
-          <PhoneIcon className="mr-2" />
-          Call Cancelled
-        </div>
-      )
+    case 'call.canceled': {
+      icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
+      message = 'Call Canceled'
       break
     }
     default: {
-      message = <div>Unknown event</div>
+      message = 'Unknown event'
     }
   }
 
-  return message
+  return (
+    <div className="flex items-center text-sm">
+      {icon}
+      {message}
+    </div>
+  )
 }
 
 const ChatCard = (props: IProps) => {

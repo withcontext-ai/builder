@@ -28,6 +28,17 @@ function formatToTimestamp(date?: Date | number | null) {
   return 0
 }
 
+function eventMessageBuilder(type: string): EventMessage {
+  return {
+    type: 'event',
+    data: {
+      id: nanoid(),
+      type,
+      createdAt: Date.now(),
+    },
+  }
+}
+
 interface BaseChatProps {
   session: ChatSession
   app: ChatApp | null
@@ -167,6 +178,23 @@ const Chat = (props: ChatProps) => {
 
   const disabledRestart = !messages || messages.length === 0
 
+  const handleAccept = useCallback(() => {
+    window.open(callLinkRef.current, '_blank')
+    setIsOpenCallConfirm(false)
+  }, [])
+
+  const handleDecline = useCallback(() => {
+    const message = eventMessageBuilder('call.declined')
+    setEventMessages((prev) => [...prev, message])
+    setIsOpenCallConfirm(false)
+  }, [])
+
+  const handleCancel = useCallback(() => {
+    const message = eventMessageBuilder('call.canceled')
+    setEventMessages((prev) => [...prev, message])
+    setIsOpenCallConfirm(false)
+  }, [])
+
   return (
     <ChatContextProvider
       app={app}
@@ -202,28 +230,13 @@ const Chat = (props: ChatProps) => {
           />
         </div>
       </div>
-      {isOpenCallConfirm && (
-        <VideoCallConfirmDialog
-          open={isOpenCallConfirm}
-          onOpenChange={setIsOpenCallConfirm}
-          onAccept={() => {
-            window.open(callLinkRef.current, '_blank')
-            setIsOpenCallConfirm(false)
-          }}
-          onDecline={() => {
-            const message: EventMessage = {
-              type: 'event',
-              data: {
-                id: nanoid(),
-                type: 'call.canceled',
-                createdAt: Date.now(),
-              },
-            }
-            setEventMessages((prev) => [...prev, message])
-            setIsOpenCallConfirm(false)
-          }}
-        />
-      )}
+      <VideoCallConfirmDialog
+        open={isOpenCallConfirm}
+        onOpenChange={setIsOpenCallConfirm}
+        onAccept={handleAccept}
+        onDecline={handleDecline}
+        onCancel={handleCancel}
+      />
     </ChatContextProvider>
   )
 }

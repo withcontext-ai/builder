@@ -23,7 +23,13 @@ function formatChannelId(session_id: string) {
 
 async function updateEvents(session: Session, newEvent: any) {
   const oldEvents = safeParse(session.events_str, [])
-  const newEvents = [...oldEvents, newEvent]
+  const newEvents = [
+    ...oldEvents,
+    {
+      type: 'event',
+      data: newEvent,
+    },
+  ]
 
   await db
     .update(SessionsTable)
@@ -61,19 +67,6 @@ export async function POST(req: NextRequest) {
 }
 
 async function createCall(type: string, data: any) {
-  // const { channelId, message } = data
-
-  // const pusher = initPusher()
-  // pusher?.trigger(channelId, 'user-chat', {
-  //   type: 'event',
-  //   data: {
-  //     id: nanoid(),
-  //     type,
-  //     link: message,
-  //     createdAt: Date.now(),
-  //   },
-  // })
-
   const { session_id: api_session_id, link } = data
   const session = await getSession(api_session_id)
   if (!session) return
@@ -82,7 +75,7 @@ async function createCall(type: string, data: any) {
     id: nanoid(),
     type,
     link,
-    createdAt: new Date(),
+    createdAt: Date.now(),
   }
 
   const channelId = formatChannelId(session.short_id)
@@ -104,7 +97,7 @@ async function endCall(type: string, data: any) {
     id: nanoid(),
     type,
     duration,
-    createdAt: new Date(),
+    createdAt: Date.now(),
   }
 
   const channelId = formatChannelId(session.short_id)
