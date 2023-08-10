@@ -1,11 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Mention, MentionsInput } from 'react-mentions'
-
-import './mention-style/mentionInput.css'
-
 import { FieldValues, useFormContext } from 'react-hook-form'
+import { Mention, MentionsInput } from 'react-mentions'
 
 import useMentionsValue from '@/hooks/use-mention-value'
 import {
@@ -17,6 +14,7 @@ import {
 } from '@/components/ui/form'
 
 import { ITextareaItem } from './form-item'
+import styles from './mention-style/mentionInput.module.css'
 import { useWorkflowContext } from './store'
 import { WorkflowItem } from './type'
 
@@ -27,7 +25,7 @@ function ToolVariableMentions<T extends FieldValues>({
   const form = useFormContext<T>()
   const { watch } = form
   const prompt = watch()?.prompt.template
-  const { value, onChange } = useMentionsValue(prompt)
+  const { value, onChange, onAdd } = useMentionsValue(prompt)
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
   const data = workflowData?.reduce(
@@ -58,13 +56,20 @@ function ToolVariableMentions<T extends FieldValues>({
                 // @ts-ignore
                 form.setValue(name, e?.target?.value)
               }}
-              className="mentions"
+              customSuggestionsContainer={(children) => (
+                <div className="w-[212px] rounded-md border bg-white p-2 text-sm font-medium shadow-sm">
+                  {children}
+                </div>
+              )}
+              classNames={styles}
             >
               <Mention
-                className="mentions__mention"
+                className={styles.mentions__mention}
                 data={data}
                 markup="{__display__}"
                 trigger={'{'}
+                appendSpaceOnAdd
+                onAdd={onAdd}
                 displayTransform={(id, display) => {
                   return `{${display}}`
                 }}

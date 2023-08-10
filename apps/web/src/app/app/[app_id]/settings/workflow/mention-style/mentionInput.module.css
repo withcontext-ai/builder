@@ -19,6 +19,7 @@
 .mentions--multiLine .mentions__control {
   font-size: 14px;
   font-weight: inherit;
+  overflow-wrap: break-word
 }
 .mentions--multiLine .mentions__highlighter {
   padding: 8px 12px;
@@ -39,10 +40,8 @@
 
 .mentions__suggestions__list {
   background-color: white;
-  font-size: 10pt;
-  border-radius: 6px;
-  border: 1px solid var(--slate-100, #F1F5F9);
-  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.09);
+  width: 194px;
+  border: 0;
 }
 
 .mentions__suggestions__item {
@@ -52,14 +51,16 @@
 .mentions__suggestions__item--focused {
   background-color: #F1F5F9;
   border-radius: 6px;
-  margin: 0 4px;
 }
 
 .mentions__mention {
   position: relative;
+  font-weight: 500;
   z-index: 1;
   color: #1D4ED8;
   background: #EFF6FF;
   border-radius: 4px;
   line-height: 20px;
+  padding: 2px 0px;
+  overflow-wrap: break-word
 }
