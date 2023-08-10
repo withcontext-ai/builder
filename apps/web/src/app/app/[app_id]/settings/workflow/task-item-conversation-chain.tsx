@@ -19,9 +19,9 @@ import {
 import AddTemplateButton from './add-template-button'
 import { MAX_MAX_TOKENS } from './const'
 import { InputItem, SelectItem, SlideItem, TextareaItem } from './form-item'
+import PromptMentions from './prompt-mentions'
 import { useWorkflowContext } from './store'
 import { TaskDefaultValueMap } from './task-default-value'
-import ToolVariableMentions from './tool-variable-output'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
 
@@ -222,7 +222,7 @@ function FormItemPrompt() {
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">PROMPT</div>
       <div className="space-y-8">
-        <ToolVariableMentions<IFormSchema>
+        <PromptMentions<IFormSchema>
           name="prompt.template"
           label={
             <div className="flex items-center justify-between ">

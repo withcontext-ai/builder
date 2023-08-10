@@ -18,7 +18,7 @@ import styles from './mention-style/mentionInput.module.css'
 import { useWorkflowContext } from './store'
 import { WorkflowItem } from './type'
 
-function ToolVariableMentions<T extends FieldValues>({
+function PromptMentions<T extends FieldValues>({
   label,
   name,
 }: ITextareaItem<T>) {
@@ -83,4 +83,4 @@ function ToolVariableMentions<T extends FieldValues>({
   )
 }
 
-export default ToolVariableMentions
+export default PromptMentions
