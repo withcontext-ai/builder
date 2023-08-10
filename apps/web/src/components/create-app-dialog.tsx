@@ -9,14 +9,14 @@ import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
 import { fetcher } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 import {
   Form,
@@ -122,12 +122,12 @@ const CreateAppDialog = (props: IProps) => {
   }
 
   return (
-    <Dialog onOpenChange={(open) => open && setOpen(open)} open={open}>
-      <DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[488px]">
-        <DialogHeader>
-          <DialogTitle>Create App</DialogTitle>
-        </DialogHeader>
+    <AlertDialog onOpenChange={(open) => open && setOpen(open)} open={open}>
+      <AlertDialogTrigger asChild>{dialogTrigger}</AlertDialogTrigger>
+      <AlertDialogContent className="sm:max-w-[488px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create App</AlertDialogTitle>
+        </AlertDialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
@@ -198,8 +198,8 @@ const CreateAppDialog = (props: IProps) => {
             </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 export default CreateAppDialog
