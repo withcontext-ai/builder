@@ -67,7 +67,7 @@ function ToolVariableMentions<T extends FieldValues>({
                 className={styles.mentions__mention}
                 data={data}
                 markup="{__display__}"
-                trigger={'{'}
+                trigger={/(?:^|.)({([^.{]*))$/}
                 appendSpaceOnAdd
                 onAdd={onAdd}
                 displayTransform={(id, display) => {
