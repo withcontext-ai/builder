@@ -39,7 +39,7 @@ export const TemplateInfo = () => (
         <Info size={18} color="#94A3B8" />
       </TooltipTrigger>
       <TooltipContent className="relative left-[88px] w-[332px]">
-        <p className="break-words text-sm font-normal">{`If you want to quote the output results of another chain, please enter {{key.output}}.`}</p>
+        <p className="break-words text-sm font-normal">{`If you want to quote the output results of another chain, please enter {key.output}.`}</p>
       </TooltipContent>
     </Tooltip>
   </div>
