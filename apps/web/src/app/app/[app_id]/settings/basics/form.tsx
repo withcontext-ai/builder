@@ -234,7 +234,11 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
                       through video and voice.
                     </FormDescription>
                   </div>
-                  <div className="h-[170px] w-[250px] shrink-0 rounded-md bg-slate-200" />
+                  <img
+                    alt=""
+                    src="https://storage.googleapis.com/context-builder/public-tmp/rpzyVShaSqc8.jpeg"
+                    className="h-[170px] w-[250px] shrink-0 rounded-md"
+                  />
                 </div>
               </FormItem>
             )}
