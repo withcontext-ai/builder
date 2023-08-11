@@ -62,7 +62,6 @@ function PromptMentions<T extends FieldValues>({
               value={value}
               onChange={(e) => {
                 onChange(e.target.value)
-
                 // @ts-ignore
                 form.setValue(name, e?.target?.value)
               }}
@@ -76,7 +75,7 @@ function PromptMentions<T extends FieldValues>({
               <Mention
                 className={styles.mentions__mention}
                 data={data}
-                markup="{__display__}"
+                markup="[{__display__}]"
                 trigger={/(?:^|.)({([^.{]*))$/}
                 appendSpaceOnAdd
                 onAdd={onAdd}
