@@ -4,7 +4,7 @@ import { revalidateTag, unstable_cache } from 'next/cache'
 import { redirect } from 'next/navigation'
 import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'
-import { difference, pick } from 'lodash'
+import { difference, isEmpty, pick } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
@@ -203,21 +203,23 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
         'opening_remarks',
         'enable_video_interaction',
       ])
-      let { data: res } = await axios.patch(
-        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-        payload
-      )
-      if (res.status !== 200) {
-        serverLog.capture({
-          distinctId: userId,
-          event: 'ai_service_error:edit_app',
-          properties: {
-            app_id: appId,
-            api_model_id,
-            message: res.message,
-          },
-        })
-        throw new Error(`AI service error: ${res.message}`)
+      if (!isEmpty(payload)) {
+        let { data: res } = await axios.patch(
+          `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
+          payload
+        )
+        if (res.status !== 200) {
+          serverLog.capture({
+            distinctId: userId,
+            event: 'ai_service_error:edit_app',
+            properties: {
+              app_id: appId,
+              api_model_id,
+              message: res.message,
+            },
+          })
+          throw new Error(`AI service error: ${res.message}`)
+        }
       }
     }
 
