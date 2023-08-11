@@ -281,10 +281,10 @@ export async function updateMessagesToSession(
 
     console.log(
       'BEGIN updateMessagesToSession db update:',
+      userId,
       formattedMessages.length
     )
-    const response = await db
-      .update(SessionsTable)
+    db.update(SessionsTable)
       .set({
         messages_str: JSON.stringify(formattedMessages),
       })
@@ -294,6 +294,12 @@ export async function updateMessagesToSession(
           eq(SessionsTable.created_by, userId)
         )
       )
+      .then(() => {
+        console.log('db updated')
+      })
+      .catch((error: any) => {
+        console.error('db error:', error.message)
+      })
     console.log('END updateMessagesToSession db update')
 
     serverLog.capture({
@@ -304,8 +310,6 @@ export async function updateMessagesToSession(
         messages,
       },
     })
-
-    return response
   } catch (error: any) {
     console.error('updateMessagesToSession error:', error.message)
 
