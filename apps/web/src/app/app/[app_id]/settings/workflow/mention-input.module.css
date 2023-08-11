@@ -1,7 +1,7 @@
 .mentions {
   margin: 1em 0;
 }
-/*  */
+
 .mentions--singleLine .mentions__control {
   display: inline-block;
   width: 130px;
@@ -19,7 +19,7 @@
 .mentions--multiLine .mentions__control {
   font-size: 14px;
   font-weight: inherit;
-  overflow-wrap: break-word
+  overflow-wrap: break-word;
 }
 .mentions--multiLine .mentions__highlighter {
   padding: 8px 12px;
@@ -29,11 +29,11 @@
 .mentions--multiLine .mentions__input {
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #e2e8f0;
   outline: 0;
 }
-.mentions--multiLine .mentions__input:focus-visible{
-  outline: 2px solid rgb(148,163,184);
+.mentions--multiLine .mentions__input:focus-visible {
+  outline: 2px solid rgb(148, 163, 184);
   outline-offset: 2px;
   border-radius: 8px;
 }
@@ -49,7 +49,7 @@
 }
 
 .mentions__suggestions__item--focused {
-  background-color: #F1F5F9;
+  background-color: #f1f5f9;
   border-radius: 6px;
 }
 
@@ -57,10 +57,10 @@
   position: relative;
   font-weight: 500;
   z-index: 1;
-  color: #1D4ED8;
-  background: #EFF6FF;
+  color: #1d4ed8;
+  background: #eff6ff;
   border-radius: 4px;
   line-height: 20px;
   padding: 2px 0px;
-  overflow-wrap: break-word
+  overflow-wrap: break-word;
 }
