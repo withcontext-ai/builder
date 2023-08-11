@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
             ]
           : []),
       ] as Message[]
-      updateMessagesToSession(sessionId, payload)
+      await updateMessagesToSession(sessionId, payload)
     },
   })
 
