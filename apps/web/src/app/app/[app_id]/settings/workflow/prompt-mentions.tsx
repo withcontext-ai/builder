@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { findIndex } from 'lodash'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { Mention, MentionsInput } from 'react-mentions'
@@ -15,9 +15,20 @@ import {
 } from '@/components/ui/form'
 
 import { ITextareaItem } from './form-item'
-import styles from './mention-style/mentionInput.module.css'
+import styles from './mention-input.module.css'
 import { useWorkflowContext } from './store'
 import { WorkflowItem } from './type'
+
+const getToolKeys = (workflowData: WorkflowItem[]) => {
+  return workflowData?.reduce(
+    (m: { id: string; display: string }[], item: WorkflowItem) => {
+      const key = `${item?.type}-${item?.key}.output`
+      m?.push({ id: key, display: key })
+      return m
+    },
+    []
+  )
+}
 
 function PromptMentions<T extends FieldValues>({
   label,
@@ -26,29 +37,13 @@ function PromptMentions<T extends FieldValues>({
   const form = useFormContext<T>()
   const { watch } = form
   const prompt = watch()?.prompt.template
-  const { value, onChange, onAdd } = useMentionsValue(prompt)
+  const { value, onChange } = useMentionsValue(prompt)
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
-  const data = workflowData?.reduce(
-    (m: { id: string; display: string }[], item: WorkflowItem) => {
-      const key = `${item?.type}-${item?.key}.output`
-      m?.push({ id: key, display: key })
-      return m
-    },
-    []
-  )
+  const data = useMemo(() => getToolKeys(workflowData), [workflowData])
 
   useEffect(() => {
     onChange(prompt)
-    const reg = /{(.*?)}/
-    const selectedOutput = prompt.split(reg)?.filter(
-      (item: string) =>
-        findIndex(data, function (o) {
-          return o.display === item
-        }) !== -1
-    )
-    // @ts-ignore
-    form.setValue('prompt.input_variables', selectedOutput)
   }, [prompt])
   return (
     <FormField
@@ -75,11 +70,10 @@ function PromptMentions<T extends FieldValues>({
               <Mention
                 className={styles.mentions__mention}
                 data={data}
-                markup="[{__display__}]"
+                markup="{__display__}"
                 trigger={/(?:^|.)({([^.{]*))$/}
                 appendSpaceOnAdd
-                onAdd={onAdd}
-                displayTransform={(id, display) => {
+                displayTransform={(_, display) => {
                   return `{${display}}`
                 }}
               />

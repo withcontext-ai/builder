@@ -75,7 +75,6 @@ const FormSchema = z.object({
   }),
   prompt: z.object({
     template: z.string().optional(),
-    input_variables: z.string().array().optional(),
   }),
 })
 
