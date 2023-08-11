@@ -126,7 +126,8 @@ const Chat = (props: ChatProps) => {
     channelId: `session-${sessionId}`,
     eventName: 'user-chat',
     onAdd,
-    enabled: !!apiSessionId && !!app?.enable_video_interaction,
+    enabled:
+      mode === 'live' && !!apiSessionId && !!app?.enable_video_interaction,
   })
 
   const openingRemarksMessages = useMemo(() => {
