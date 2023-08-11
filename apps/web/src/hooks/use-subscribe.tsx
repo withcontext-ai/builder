@@ -27,6 +27,7 @@ export default function useSubscribe({
     return () => {
       if (channel) channel.unbind(eventName)
       if (pusher) pusher.unsubscribe(channelId)
+      if (pusher) pusher.disconnect()
     }
   }, [enabled, channelId, eventName, onAdd])
 }
