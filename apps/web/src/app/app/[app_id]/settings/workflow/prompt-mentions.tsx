@@ -58,7 +58,7 @@ function PromptMentions<T extends FieldValues>({
               onChange={(e) => {
                 onChange(e.target.value)
                 // @ts-ignore
-                form.setValue(name, e?.target?.value)
+                form.setValue(name, e?.target?.value?.replaceAll(' ', ''))
               }}
               customSuggestionsContainer={(children) => (
                 <div className="w-[212px] rounded-md border bg-white p-2 text-sm font-medium shadow-sm">
