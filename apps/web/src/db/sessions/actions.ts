@@ -307,6 +307,8 @@ export async function updateMessagesToSession(
 
     return response
   } catch (error: any) {
+    console.error('updateMessagesToSession error:', error.message)
+
     if (userId) {
       serverLog.capture({
         distinctId: userId,
