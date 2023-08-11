@@ -30,6 +30,7 @@ export async function OpenAIStream(
         if (event.type === 'event') {
           const data = event.data
           if (data === '[DONE]') {
+            console.log('[DONE]:', data)
             if (callback?.onCompletion) {
               callback.onCompletion(completion)
             }

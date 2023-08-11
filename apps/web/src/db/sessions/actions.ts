@@ -279,6 +279,10 @@ export async function updateMessagesToSession(
 
     const formattedMessages = messages.map(formatId).map(formatTimestamp)
 
+    console.log(
+      'BEGIN updateMessagesToSession db update:',
+      formattedMessages.length
+    )
     const response = await db
       .update(SessionsTable)
       .set({
@@ -290,6 +294,7 @@ export async function updateMessagesToSession(
           eq(SessionsTable.created_by, userId)
         )
       )
+    console.log('END updateMessagesToSession db update')
 
     serverLog.capture({
       distinctId: userId,
