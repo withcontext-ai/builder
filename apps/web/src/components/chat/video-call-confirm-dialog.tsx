@@ -3,15 +3,15 @@ import { PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useCountdown } from 'usehooks-ts'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 
 import { useChatContext } from './chat-context'
 
@@ -50,9 +50,9 @@ function Content({
   }, [count])
 
   return (
-    <DialogContent className="gap-6 sm:max-w-[268px]">
-      <DialogHeader className="space-y-4">
-        <DialogTitle>
+    <AlertDialogContent className="gap-6 sm:max-w-[268px]">
+      <AlertDialogHeader className="space-y-4">
+        <AlertDialogTitle>
           <div className="flex items-center space-x-4">
             <Avatar
               className={cn(
@@ -69,11 +69,11 @@ function Content({
             </Avatar>
             <div className="font-medium">{appName}</div>
           </div>
-        </DialogTitle>
-        <DialogDescription>
+        </AlertDialogTitle>
+        <AlertDialogDescription>
           I want to communicate with you via video call, please accept.
-        </DialogDescription>
-      </DialogHeader>
+        </AlertDialogDescription>
+      </AlertDialogHeader>
       <div className="flex justify-between">
         <Button
           className="bg-green-600 hover:bg-green-600/90 focus-visible:ring-green-600"
@@ -90,9 +90,7 @@ function Content({
           Decline
         </Button>
       </div>
-
-      <div className="absolute right-4 top-4 z-10 h-4 w-4 bg-white" />
-    </DialogContent>
+    </AlertDialogContent>
   )
 }
 
@@ -104,7 +102,10 @@ export default function VideoCallConfirmDialog({
   onCancel,
 }: IProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(open) => open && onOpenChange(open)}
+    >
       {open && (
         <Content
           open={open}
@@ -113,6 +114,6 @@ export default function VideoCallConfirmDialog({
           onCancel={onCancel}
         />
       )}
-    </Dialog>
+    </AlertDialog>
   )
 }
