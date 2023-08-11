@@ -1,108 +1,161 @@
 import asyncio
+import json
 import logging
 import os
+import secrets
 import uuid
-import json
-from typing import AsyncIterable, Awaitable, List, Optional
+from typing import AsyncIterable, Awaitable, List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import StreamingResponse
-from langchain.callbacks import AsyncIteratorCallbackHandler
-from langchain.chat_models import ChatOpenAI
 from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
-from pydantic import BaseModel
 
+from models.base import (
+    Choices,
+    CompletionsRequest,
+    CompletionsResponse,
+    SessionRequest,
+    model_manager,
+    session_state_manager,
+    VideoCompletionsRequest,
+    Messages as MessagesContent,
+    FaceToAiWebhookRequest,
+)
+from models.workflow import Workflow
+from models.faceto_ai import FaceToAiManager, WebhookHandler
+from utils import WEBHOOK_KEY
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-if "OPENAI_API_KEY" not in os.environ:
-    os.environ["OPENAI_API_KEY"] = ""
 
 router = APIRouter(prefix="/v1/chat")
 
 
-class Messages(BaseModel):
-    role: str
-    content: str
+def get_token_header(request: Request):
+    token = request.headers.get("Authorization")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token header not found")
+    if token != "Bearer " + WEBHOOK_KEY:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return token
 
 
-class CompletionsRequest(BaseModel):
-    model: str
-    messages: List[Messages]
-
-
-class Choices(BaseModel):
-    index: int
-    finish_reason: Optional[str]
-    delta: dict
-
-
-class CompletionsResponse(BaseModel):
-    id: str
-    object: str
-    model: str
-    choices: List[Choices]
+def wrap_token(token: str, model_id: str, session_id: str, filt: bool = False) -> str:
+    if filt:
+        content = {"content": token}
+        return f"data: {content}\n\n"
+    return f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=model_id, choices=[Choices(index=0, delta={'content': token})]).dict())}\n\n"
 
 
 async def send_message(
-    messages: List[BaseMessage], model_name: str
+    messages_contents: List[MessagesContent], session_id: str, filt=False
 ) -> AsyncIterable[str]:
-    callback = AsyncIteratorCallbackHandler()
-    # TODO choose a model
-    model = ChatOpenAI(
-        streaming=True,
-        verbose=True,
-        callbacks=[callback],
-    )
-    completion_id = model_name + "-" + str(uuid.uuid4())
+    messages = []
+    for message_content in messages_contents:
+        if message_content.role == "user":
+            messages.append(HumanMessage(content=message_content.content))
+        elif message_content.role == "system":
+            messages.append(SystemMessage(content=message_content.content))
+        elif message_content.role == "assistant":
+            messages.append(AIMessage(content=message_content.content))
+        else:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid role: {message_content.role}"
+            )
+
+    model_id = session_state_manager.get_model_id(session_id)
+    models = model_manager.get_models(model_id)
+    if not models:
+        raise HTTPException(
+            status_code=400, detail=f"Model {model_id} not found in model manager"
+        )
+    if len(models) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Model {model_id} has {len(models)} models in model manager",
+        )
+    model = models[0]
+    workflow = Workflow(model=model, session_id=session_id)
+
+    callback = workflow.sequential_chain_callback
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
             await fn
+
         except Exception as e:
-            # TODO stream error
-            logger.error(f"Error in stream: {e}")
-            return f"data: {e}\n\n"
+            logger.exception(e)
+            raise e
         finally:
             event.set()
 
-    task = asyncio.create_task(
-        wrap_done(
-            model.agenerate(messages=[messages]),
-            callback.done,
-        )
-    )
-    async for token in callback.aiter():
-        resp = CompletionsResponse(
-            id=completion_id,
-            object="chat.completion.chunk",
-            model=model_name,
-            choices=[Choices(index=0, finish_reason=None, delta={"content": token})],
-        )
-        yield f"data: {json.dumps(resp.dict())}\n\n"
+    task = asyncio.create_task(wrap_done(workflow.agenerate(messages), callback.done))
 
-    yield f"data: {json.dumps(CompletionsResponse(id=completion_id, object='chat.completion.chunk', model=model_name, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict())}\n\n"
+    yield wrap_token("", model_id, session_id, filt=filt)
+
+    async for token in callback.aiter():
+        yield wrap_token(token, model_id, session_id, filt=filt)
+
+    if not filt:
+        yield f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=workflow.model.id, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict())}\n\n"
     yield "data: [DONE]\n\n"
 
     await task
 
 
 @router.post("/completions")
-def stream_completions(body: CompletionsRequest):
-    # TODO check role
-    if body.model != "OpenAI-GPT-3.5-Turbo":
-        raise HTTPException(
-            status_code=400, detail="Custom model functionality is not yet implemented."
+async def stream_completions(body: CompletionsRequest):
+    logger.info(f"completions payload: {body.dict()}")
+    model_id = session_state_manager.get_model_id(body.session_id)
+    model = model_manager.get_models(model_id)[0]
+    if model.enable_video_interaction:
+        link = FaceToAiManager.get_room_link(model.opening_remarks, body.session_id)
+        webhook_handler = WebhookHandler()
+        webhook_handler.create_video_room_link(body.session_id, link)
+        return {}
+    else:
+        return StreamingResponse(
+            send_message(body.messages, body.session_id), media_type="text/event-stream"
         )
-    messages = []
-    for message in body.messages:
-        if message.role == "user":
-            messages.append(HumanMessage(content=message.content))
-        elif message.role == "system":
-            messages.append(SystemMessage(content=message.content))
-        elif message.role == "assistant":
-            messages.append(AIMessage(content=message.content))
-        else:
-            raise HTTPException(status_code=400, detail=f"Invalid role: {message.role}")
+
+
+@router.post("/completions/vedio/{session_id}")
+async def video_stream_completions(
+    session_id: str,
+    body: VideoCompletionsRequest,
+    token: str = Depends(get_token_header),
+):
     return StreamingResponse(
-        send_message(messages, body.model), media_type="text/event-stream"
+        send_message(body.messages, session_id),
+        media_type="text/event-stream",
+        filt=True,
     )
+
+
+@router.post("/completions/vedio/{session_id}/webhook")
+async def video_stream_completions_webhook(
+    session_id: str,
+    body: FaceToAiWebhookRequest,
+    token: str = Depends(get_token_header),
+):
+    if body.data.get("duration", None) is None:
+        raise HTTPException(status_code=400, detail="duration not found")
+    webhook_handler = WebhookHandler()
+    try:
+        webhook_handler.forward_data(body, session_id)
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"message": "success", "status": 200}
+
+
+@router.post("/session")
+async def create_session(body: SessionRequest):
+    logger.info(f"session payload: {body.dict()}")
+    try:
+        session_id = secrets.token_hex(16)
+        session_state_manager.save_session_state(session_id, body.model_id)
+        return {"data": {"session_id": session_id}, "message": "success", "status": 200}
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(status_code=500, detail=str(e))
