@@ -271,15 +271,20 @@ export async function updateMessagesToSession(
   sessionId: string,
   messages: Message[]
 ) {
+  const { userId } = auth()
   try {
-    const { userId } = auth()
     if (!userId) {
       throw new Error('Not authenticated')
     }
 
     const formattedMessages = messages.map(formatId).map(formatTimestamp)
 
-    const response = await db
+    console.log(
+      'BEGIN updateMessagesToSession db update:',
+      userId,
+      formattedMessages.length
+    )
+    await db
       .update(SessionsTable)
       .set({
         messages_str: JSON.stringify(formattedMessages),
@@ -290,6 +295,7 @@ export async function updateMessagesToSession(
           eq(SessionsTable.created_by, userId)
         )
       )
+    console.log('END updateMessagesToSession db update')
 
     serverLog.capture({
       distinctId: userId,
@@ -299,9 +305,21 @@ export async function updateMessagesToSession(
         messages,
       },
     })
-
-    return response
   } catch (error: any) {
+    console.error('updateMessagesToSession error:', error.message)
+
+    if (userId) {
+      serverLog.capture({
+        distinctId: userId,
+        event: 'error:update_messages_to_session',
+        properties: {
+          sessionId,
+          messages,
+          error: error.message,
+        },
+      })
+    }
+
     return {
       error: error.message,
     }
