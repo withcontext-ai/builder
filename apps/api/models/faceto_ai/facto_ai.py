@@ -42,11 +42,11 @@ class FaceToAiManager:
                 "greeting": opening_remarks,
             },
             "chatapi": {
-                "api": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}",
+                "api": f"http://api.withcontext.ai/v1/chat/completions/video/{session_id}",
                 "key": WEBHOOK_KEY,
             },
             "webhook": {
-                "api": f"http://api-test.withcontext.ai/v1/chat/completions/vedio/{session_id}/webhook",
+                "api": f"http://api.withcontext.ai/v1/chat/completions/video/{session_id}/webhook",
                 "key": WEBHOOK_KEY,
             },
         }

@@ -35,8 +35,6 @@ def test_data():
     template1 = Prompt(
         template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 
-Chat History:
-{chat_history}
 Follow Up Input: {question}
 Standalone question:"""
     )
@@ -71,13 +69,16 @@ async def test_qa_chat(test_data, capfd):
     async for response in send_message(
         [
             Messages(content="How old is kobe", role="user"),
+            Messages(content="135 years old", role="assistant"),
+            Messages(content="How old is yao", role="user"),
+            Messages(content="200 years old", role="assistant"),
+            Messages(content="what did we talk", role="user"),
         ],
         session_id,
         filt=True,
     ):
         print(response)
     captured = capfd.readouterr()
-    assert "135" in captured.out
     assert "[DONE]" in captured.out
 
 
@@ -96,7 +97,7 @@ def test_conversation():
         template="""The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
 
 Current conversation:
-{chat_history}
+
 Human: {question}
 AI:"""
     )

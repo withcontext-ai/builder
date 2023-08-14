@@ -52,7 +52,7 @@ def test_update_dataset():
     The endpoint is supposed to update an existing dataset.
     """
     # Update the dataset created in the test_create_dataset test
-    dataset_manager.save_dataset(Dataset(documents=[], id="test2"))
+    dataset_manager.upsert_dataset(dataset_id="test2", dataset={"documents": []})
     response = client.patch(
         "/v1/datasets/test2",
         json={

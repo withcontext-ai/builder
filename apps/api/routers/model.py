@@ -33,6 +33,8 @@ def create_model(model: Model):
 @router.patch("/{id}", tags=["models"])
 def update_model(id: str, model: dict):
     logger.info(f"model: {model}")
+    if model == {}:
+        raise HTTPException(status_code=444, detail="Model is empty")
     model_manager.upsert_model(id, model)
     return {"message": "success", "status": 200}
 
