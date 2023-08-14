@@ -14,6 +14,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -52,6 +53,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
               Help document
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <SignOutButton>
             <DropdownMenuItem
               className="cursor-pointer"
