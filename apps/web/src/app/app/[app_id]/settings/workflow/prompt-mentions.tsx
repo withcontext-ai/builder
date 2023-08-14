@@ -70,7 +70,7 @@ function PromptMentions<T extends FieldValues>({
               <Mention
                 className={styles.mentions__mention}
                 data={data}
-                markup="{__display__}"
+                markup="[{__display__}]"
                 trigger={/(?:^|.)({([^.{]*))$/}
                 appendSpaceOnAdd
                 displayTransform={(_, display) => {
