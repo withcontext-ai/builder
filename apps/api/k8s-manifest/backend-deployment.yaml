@@ -61,6 +61,8 @@ spec:
                 secretKeyRef:
                   name: withcontext-backend-env
                   key: WEBHOOK_KEY
+            - name: WEBHOOK_ENDPOINT
+              value: https://build.withcontext.ai/api/webhook/chat
           resources:
             limits:
               memory: '2000Mi'

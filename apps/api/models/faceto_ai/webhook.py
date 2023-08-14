@@ -4,13 +4,19 @@ import json
 import time
 from tenacity import retry, stop_after_attempt, wait_fixed, after_log
 from models.base import FaceToAiWebhookRequest
+from utils.config import WEBHOOK_ENDPOINT
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
 class WebhookHandler:
-    target_url = "https://build.withcontext.ai/api/webhook/chat"
+    def __init__(self) -> None:
+        self.target_url = (
+            WEBHOOK_ENDPOINT
+            if WEBHOOK_ENDPOINT is not None
+            else "https://build.withcontext.ai/api/webhook/chat"
+        )
 
     @retry(
         stop=stop_after_attempt(3),
