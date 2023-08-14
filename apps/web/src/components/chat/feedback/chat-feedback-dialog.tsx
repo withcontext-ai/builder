@@ -15,39 +15,44 @@ type Remark = {
   label: string
 }
 
+// remarks might be dynamic
+const remarks = [
+  {
+    id: 'harmful',
+    label: 'This is harmful',
+  },
+  {
+    id: 'wrong',
+    label: 'This is not true',
+  },
+  {
+    id: 'unhelpful',
+    label: 'This is not helpful',
+  },
+] as const
+
 const ChatFeedbackDialog = () => {
   const { messageId, type, reset } = useChatFeedbackContext()
   const { session } = useChatContext()
   const { short_id: session_id } = session
 
-  const { register, getValues, control } = useForm<
-    {
-      content: string
-    } & {
-      [key: string]: boolean
-    }
-  >()
+  const {
+    register,
+    getValues,
+    control,
+    reset: resetForm,
+  } = useForm<{
+    content: string
+    harmful: boolean
+    wrong: boolean
+    unhelpful: boolean
+  }>()
+
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
 
   if (!messageId || !type) {
     return null
   }
-
-  // remarks can be dynamic
-  const remarks: Remark[] = [
-    {
-      id: 'harmful',
-      label: 'This is harmful',
-    },
-    {
-      id: 'wrong',
-      label: 'This is not true',
-    },
-    {
-      id: 'unhelpful',
-      label: 'This is not helpful',
-    },
-  ]
 
   const negative = type === 'negative'
 
@@ -55,8 +60,9 @@ const ChatFeedbackDialog = () => {
     ? 'What was the issue with the response? How could it be improved?'
     : 'What do you like about the response?'
 
-  const renderOption = ({ id, label }: Remark) => (
+  const renderOptions = remarks.map(({ id, label }) => (
     <Controller
+      key={id}
       name={id}
       control={control}
       render={({ field }) => (
@@ -75,7 +81,7 @@ const ChatFeedbackDialog = () => {
         </div>
       )}
     />
-  )
+  ))
 
   const onSubmit = async () => {
     const values = getValues()
@@ -91,6 +97,10 @@ const ChatFeedbackDialog = () => {
     })
 
     reset()
+
+    resetForm({
+      content: '',
+    })
 
     const trimmed = content.trim()
 
@@ -110,7 +120,7 @@ const ChatFeedbackDialog = () => {
     <DialogContent>
       <DialogHeader>Provide additional feedback</DialogHeader>
       <Textarea placeholder={placeholder} {...register('content')} />
-      {negative && <>{remarks.map(renderOption)}</>}
+      {negative && renderOptions}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="default" onClick={onSubmit}>
           Submit Feedback
