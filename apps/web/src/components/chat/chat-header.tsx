@@ -30,6 +30,7 @@ const ChatHeader = ({ onRestart, disabledRestart }: IProps) => {
   const { name } = session
   return (
     <div
+      data-testid="chat-header"
       className={cn(
         'w-full flex-col border-slate-200 max-md:hidden sm:hidden lg:flex',
         mode === 'debug' ? 'border-0' : 'border-b'

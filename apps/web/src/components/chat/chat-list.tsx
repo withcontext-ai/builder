@@ -21,6 +21,7 @@ const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
 
   return (
     <div
+      data-testid="chat-list"
       className={cn(
         'flex flex-1 flex-col gap-12 overflow-auto px-6 pb-24 pt-6 scrollbar-none',
         isDebug && 'px-0'

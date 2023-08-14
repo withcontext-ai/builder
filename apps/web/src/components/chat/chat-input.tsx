@@ -37,6 +37,7 @@ const ChatInput = ({
 
   return (
     <div
+      data-testid="chat-input"
       className={cn(
         'relative flex w-full flex-col gap-4',
         isDebug ? '' : 'px-6 pb-4'
