@@ -22,21 +22,25 @@ test('test chat show the default UI', () => {
   const chatList = expect(getByTestId('chat-list'))
   expect(getByTestId('chat-header')).toBeTruthy
   expect(getByTestId('chat-input')).toBeTruthy
-  console.log(chatList, '---chatList')
+  chatList.toBeTruthy
+  // TODD: check the chatList heigh
 })
 
-// test('test chat when enter to send msg', () => {
-//   // const messages:Message[] = [{
-//   //   id:nanoid(),
-//   //   role:"user",
-//   //   createdAt:new Date(),
-//   //   content:'hello'
-//   // }]
-//   const { queryByText, getByRole } = render(<Chat {...values} />)
-//   const textarea = getByRole('textarea', { name: 'chat-textarea' })
-//   fireEvent.change(textarea, {
-//     target: { value: 'hello, to test the textarea keypress' },
-//   })
-//   fireEvent.keyPress(textarea, { key: 'Enter', code: 13, charCode: 13 })
-//   expect(queryByText('hello, to test the textarea keypress')).toBeDefined()
-// })
+test('test chat when enter to send msg', () => {
+  // const messages:Message[] = [{
+  //   id:nanoid(),
+  //   role:"user",
+  //   createdAt:new Date(),
+  //   content:'hello'
+  // }]
+  const { getAllByPlaceholderText } = render(<Chat {...values} />)
+  const textarea = getAllByPlaceholderText('Type a message')
+  const input = 'hello, to test the textarea keypress'
+
+  fireEvent.keyPress(textarea?.[0], {
+    key: 'Enter',
+    code: 13,
+    charCode: 13,
+    target: { value: input },
+  })
+})
