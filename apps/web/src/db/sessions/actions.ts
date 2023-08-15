@@ -8,7 +8,6 @@ import { and, desc, eq, sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
-import { logsnag } from '@/lib/logsnag'
 import { serverLog } from '@/lib/posthog'
 import { nanoid } from '@/lib/utils'
 
@@ -319,8 +318,7 @@ export async function updateMessagesToSession(
         )
       )
     console.log('END updateMessagesToSession db update')
-
-    serverLog.capture({
+    await serverLog.capture({
       distinctId: userId,
       event: 'success:update_messages_to_session',
       properties: {
@@ -328,24 +326,11 @@ export async function updateMessagesToSession(
         messages,
       },
     })
-
-    await logsnag?.publish({
-      channel: 'user-chat',
-      event: 'User chat',
-      icon: '💬',
-      tags: {
-        'user-id': userId,
-        'app-id': appId || 'unknown',
-        'session-id': sessionId,
-        'message-count': messages.length,
-      },
-      notify: true,
-    })
   } catch (error: any) {
     console.error('updateMessagesToSession error:', error.message)
 
     if (userId) {
-      serverLog.capture({
+      await serverLog.capture({
         distinctId: userId,
         event: 'error:update_messages_to_session',
         properties: {
