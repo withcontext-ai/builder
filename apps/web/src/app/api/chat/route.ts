@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       await logsnag?.publish({
         channel: 'chat',
         event: 'Chat Response',
-        icon: '➡️',
+        icon: '⬅️',
         description: `${email} get a response within ${latencyMs}ms`,
         tags: {
           'request-id': requestId,
