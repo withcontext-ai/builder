@@ -27,13 +27,8 @@ test('test chat show the default UI', () => {
 })
 
 test('test chat when enter to send msg', () => {
-  // const messages:Message[] = [{
-  //   id:nanoid(),
-  //   role:"user",
-  //   createdAt:new Date(),
-  //   content:'hello'
-  // }]
-  const { getAllByPlaceholderText } = render(<Chat {...values} />)
+  // TODO: why multi textarea
+  const { getAllByPlaceholderText, getAllByText } = render(<Chat {...values} />)
   const textarea = getAllByPlaceholderText('Type a message')
   const input = 'hello, to test the textarea keypress'
 
@@ -43,4 +38,7 @@ test('test chat when enter to send msg', () => {
     charCode: 13,
     target: { value: input },
   })
+
+  // add a new message
+  expect(getAllByText(input)).toBeDefined
 })
