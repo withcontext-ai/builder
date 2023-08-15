@@ -67,7 +67,6 @@ export default function TaskDetail({ value, onClose }: IProps) {
       </div>
 
       <Item label="Model" value={modelName} />
-      {/* <Item label="Prompt" value={promptTemplate} /> */}
       <PromptItem promptTemplate={promptTemplate || ''} />
 
       <Item label="Temperature" value={temperature} />
@@ -87,18 +86,12 @@ const PromptItem = ({ promptTemplate }: { promptTemplate: string }) => {
   return (
     <div className="space-y-2">
       <div className="text-base font-medium">Prompt</div>
-      <MentionsInput
-        value={promptTemplate}
-        // style={defaultStyle}
-        disabled
-        classNames={styles}
-      >
+      <MentionsInput value={promptTemplate} disabled classNames={styles}>
         <Mention
           data={data}
           markup="[__display__]"
           className={styles.mentions__mention}
           trigger="{"
-          // style={defaultMentionStyle}
         />
       </MentionsInput>
     </div>
