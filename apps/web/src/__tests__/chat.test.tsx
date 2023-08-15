@@ -27,9 +27,11 @@ test('test chat show the default UI', () => {
   expect(getByTestId('chat-list')).toBeVisible()
 })
 
-test('test chat when enter to send msg', () => {
+test('test chat when enter press to send msg', () => {
   // TODO: why multi textarea
-  const { getAllByPlaceholderText, getAllByText } = render(<Chat {...values} />)
+  const { getAllByPlaceholderText, queryByText, getByRole } = render(
+    <Chat {...values} />
+  )
   const textarea = getAllByPlaceholderText('Type a message')
   const input = 'hello, to test the textarea keypress'
 
@@ -41,5 +43,33 @@ test('test chat when enter to send msg', () => {
   })
 
   // add a new message
-  // expect(getAllByText(input)).toBeDefined
+  expect(queryByText(input)).toBeDefined
+
+  // show the message card
+  expect(queryByText(values.app?.name || ''))?.toBeInTheDocument
+
+  // loading status: waiting for response, can't keypress
+  expect(getByRole('button')).toBeDisabled
+})
+
+test('test chat when click button to send msg', () => {
+  // TODO: why multi textarea
+  const { getAllByPlaceholderText, queryByText, getByRole } = render(
+    <Chat {...values} />
+  )
+  const textarea = getAllByPlaceholderText('Type a message')
+  const button = getByRole('button')
+  const input = 'hello, to test the click button'
+
+  fireEvent.change(textarea?.[0], {
+    target: { value: input },
+  })
+
+  fireEvent.click(button)
+
+  // loading status: waiting for response, can't keypress
+  expect(getByRole('button')).toBeDisabled
+
+  // add a new message
+  // expect(queryByText(input)).toBeDefined
 })
