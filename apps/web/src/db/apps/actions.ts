@@ -1,13 +1,11 @@
 import 'server-only'
 
-import { revalidateTag, unstable_cache } from 'next/cache'
 import { redirect } from 'next/navigation'
 import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { difference, isEmpty, pick } from 'lodash'
 
 import { auth } from '@/lib/auth'
-// import { db } from '@/lib/drizzle'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { serverLog } from '@/lib/posthog'
@@ -141,7 +139,6 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     })
 
     await addToWorkspace(appId)
-    // await revalidateTag(`user:${userId}:apps`)
 
     return { appId, sessionId: newSession[0]?.short_id }
   } catch (error: any) {
@@ -169,34 +166,6 @@ export async function getApps() {
     redirect('/')
   }
 }
-// export async function getApps() {
-//   const { userId } = auth()
-
-//   return await unstable_cache(
-//     async () => {
-//       try {
-//         if (!userId) {
-//           throw new Error('Not authenticated')
-//         }
-
-//         return db
-//           .select()
-//           .from(AppsTable)
-//           .orderBy(desc(AppsTable.created_at))
-//           .where(
-//             and(eq(AppsTable.created_by, userId), eq(AppsTable.archived, false))
-//           )
-//       } catch (error) {
-//         redirect('/')
-//       }
-//     },
-//     [`user:${userId}:apps`],
-//     {
-//       revalidate: 15 * 60,
-//       tags: [`user:${userId}:apps`],
-//     }
-//   )()
-// }
 
 export async function getApp(appId: string) {
   try {
@@ -215,32 +184,6 @@ export async function getApp(appId: string) {
     redirect('/')
   }
 }
-// export async function getApp(appId: string) {
-//   return await unstable_cache(
-//     async () => {
-//       try {
-//         const items = await db
-//           .select()
-//           .from(AppsTable)
-//           .where(eq(AppsTable.short_id, appId))
-
-//         const appDetail = items[0]
-//         if (!appDetail) {
-//           throw new Error('App not found')
-//         }
-
-//         return appDetail
-//       } catch (error) {
-//         redirect('/')
-//       }
-//     },
-//     [`app:${appId}`],
-//     {
-//       revalidate: 15 * 60, // revalidate in 15 minutes
-//       tags: [`app:${appId}`],
-//     }
-//   )()
-// }
 
 export async function editApp(appId: string, newValue: Partial<NewApp>) {
   try {
@@ -298,9 +241,6 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
         value: newValue,
       },
     })
-
-    // await revalidateTag(`app:${appId}`)
-    // await revalidateTag(`user:${userId}:apps`)
 
     return response
   } catch (error: any) {
@@ -430,7 +370,6 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
     }
     if (queue.length > 0) {
       await Promise.all(queue)
-      // await revalidateTag(`user:${userId}:datasets`)
     }
     // END link datasets to this app
 
@@ -448,9 +387,6 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
         value: newValue,
       },
     })
-
-    // await revalidateTag(`app:${appId}`)
-    // await revalidateTag(`user:${userId}:apps`)
 
     return response
   } catch (error: any) {
@@ -481,8 +417,6 @@ export async function removeApp(appId: string) {
       },
     })
 
-    // await revalidateTag(`user:${userId}:apps`)
-
     return response
   } catch (error: any) {
     return {
@@ -504,30 +438,6 @@ export async function getAppsBasedOnIds(ids: string[]) {
     redirect('/')
   }
 }
-// export async function getAppsBasedOnIds(ids: string[]) {
-//   const tags = [`apps:${ids.join(',')}`]
-
-//   return await unstable_cache(
-//     async () => {
-//       try {
-//         const apps = await db
-//           .select()
-//           .from(AppsTable)
-//           .where(inArray(AppsTable.short_id, ids))
-//           .orderBy(desc(AppsTable.created_at))
-
-//         return apps
-//       } catch (error) {
-//         redirect('/')
-//       }
-//     },
-//     tags,
-//     {
-//       revalidate: 15 * 60, // revalidate in 15 minutes
-//       tags,
-//     }
-//   )()
-// }
 
 export async function addDebugSession(api_model_id: string) {
   const { userId } = auth()
