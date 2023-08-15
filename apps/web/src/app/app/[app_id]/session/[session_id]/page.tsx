@@ -9,6 +9,9 @@ interface IProps {
   params: { app_id: string; session_id: string }
 }
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
 export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { session, app } = await getSession(session_id, app_id)
