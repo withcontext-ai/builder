@@ -1,27 +1,23 @@
 'use client'
 
 import { useUser } from '@clerk/nextjs'
-import { Message } from 'ai'
 import { format, isToday, isYesterday } from 'date-fns'
-import { Loader2 } from 'lucide-react'
+import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Text from '../ui/text'
+import { useChatContext } from './chat-context'
 import { Markdown } from './markdown/markdown'
 
 interface IProps {
-  message?: Message
+  message?: any
   error?: string
   model_avatar?: string
   user_avatar?: string
   isEnd?: boolean
-  appId: string
-  appName: string
-  appIcon: string
-  isDebug?: boolean
 }
 
 const AlertErrorIcon = ({ className }: { className: string }) => (
@@ -74,9 +70,63 @@ const formatTime = (time: Date) => {
   } else return format(time, 'MM/dd/yyyy hh:mm aa')
 }
 
+function formatSeconds(seconds: number) {
+  if (seconds < 3600) {
+    return new Date(seconds * 1000).toISOString().substring(14, 19)
+  }
+  return new Date(seconds * 1000).toISOString().slice(11, 19)
+}
+
+function EventMessage({ data }: { data: any }) {
+  let icon
+  let message
+
+  switch (data.type) {
+    case 'call.created': {
+      icon = <PhoneCallIcon className="mr-4" />
+      message = 'Call Requested'
+      break
+    }
+    case 'call.declined': {
+      icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
+      message = 'Call Declined'
+      break
+    }
+    case 'call.ended': {
+      icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
+      message = `Call Ended ${formatSeconds(+data.duration || 0)}`
+      break
+    }
+    case 'call.canceled': {
+      icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
+      message = 'Call Canceled'
+      break
+    }
+    default: {
+      message = data.content ? data.content : 'Unknown event'
+    }
+  }
+
+  if (icon) {
+    return (
+      <div className="flex items-center text-sm">
+        {icon}
+        {message}
+      </div>
+    )
+  }
+
+  return <Markdown className="text-black">{message}</Markdown>
+}
+
 const ChatCard = (props: IProps) => {
-  const { message, error = '', isEnd, appName, appIcon, appId, isDebug } = props
+  const { message: rawMessage, error = '', isEnd } = props
+  const type = rawMessage?.type
+  const message = rawMessage?.data
+  const { app, mode } = useChatContext()
+  const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message?.role === 'user'
+  const isEvent = type === 'event'
   const showError = isEnd && error && !isUser
 
   const { user } = useUser()
@@ -121,12 +171,15 @@ const ChatCard = (props: IProps) => {
             <div
               className={cn(
                 'max-w-[280px] rounded-lg p-4 sm:max-w-xs md:max-w-lg	lg:max-w-3xl xl:max-w-3xl',
-                isDebug && 'max-w-[240px] md:max-w-md lg:max-w-md xl:max-w-md',
+                mode === 'debug' &&
+                  'max-w-[240px] md:max-w-md lg:max-w-md xl:max-w-md',
                 isUser ? 'bg-primary' : 'bg-gray-100',
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
               )}
             >
-              {message?.content ? (
+              {isEvent ? (
+                <EventMessage data={message} />
+              ) : message?.content ? (
                 <Markdown className={cn(isUser ? 'text-white' : 'text-black	')}>
                   {message?.content}
                 </Markdown>

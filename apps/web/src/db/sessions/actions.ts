@@ -21,11 +21,12 @@ export async function addSession(appId: string) {
     throw new Error('Not authenticated')
   }
 
-  const foundApp = await db
+  const [foundApp] = await db
     .select()
     .from(AppsTable)
     .where(eq(AppsTable.short_id, appId))
-  if (!foundApp?.[0]) {
+    .limit(1)
+  if (!foundApp) {
     throw new Error('App not found')
   }
 
@@ -33,7 +34,7 @@ export async function addSession(appId: string) {
   if (flags.enabledAIService) {
     let { data: res } = await axios.post(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-      { model_id: foundApp?.[0]?.api_model_id }
+      { model_id: foundApp?.api_model_id }
     )
     if (res.status !== 200) {
       serverLog.capture({
@@ -57,12 +58,32 @@ export async function addSession(appId: string) {
     )
   const sessionCount = Number(allSessions[0]?.count) || 0
 
+  let eventMessageContent = null
+  if (foundApp.opening_remarks) {
+    eventMessageContent = foundApp.opening_remarks
+  }
+  if (foundApp.enable_video_interaction) {
+    eventMessageContent = null
+  }
   const sessionVal = {
     short_id: nanoid(),
     name: `Chat ${sessionCount + 1}`,
     app_id: appId,
     api_session_id,
     created_by: userId,
+    events_str: eventMessageContent
+      ? JSON.stringify([
+          {
+            type: 'event',
+            data: {
+              id: nanoid(),
+              role: 'assistant',
+              content: eventMessageContent,
+              createdAt: Date.now(),
+            },
+          },
+        ])
+      : null,
   }
   const newSession = await db
     .insert(SessionsTable)
@@ -235,7 +256,10 @@ export async function getSession(sessionId: string, appId?: string) {
       throw new Error('Session not found')
     }
 
-    return session
+    return {
+      session: session.sessions,
+      app: session.apps,
+    }
   } catch (error: any) {
     if (appId) {
       redirect(`/app/${appId}`)
@@ -270,15 +294,20 @@ export async function updateMessagesToSession(
   messages: Message[],
   appId?: string
 ) {
+  const { userId } = auth()
   try {
-    const { userId } = auth()
     if (!userId) {
       throw new Error('Not authenticated')
     }
 
     const formattedMessages = messages.map(formatId).map(formatTimestamp)
 
-    const response = await db
+    console.log(
+      'BEGIN updateMessagesToSession db update:',
+      userId,
+      formattedMessages.length
+    )
+    await db
       .update(SessionsTable)
       .set({
         messages_str: JSON.stringify(formattedMessages),
@@ -289,6 +318,7 @@ export async function updateMessagesToSession(
           eq(SessionsTable.created_by, userId)
         )
       )
+    console.log('END updateMessagesToSession db update')
 
     serverLog.capture({
       distinctId: userId,
@@ -314,7 +344,20 @@ export async function updateMessagesToSession(
 
     return response
   } catch (error: any) {
-    console.log('error:', error)
+    console.error('updateMessagesToSession error:', error.message)
+
+    if (userId) {
+      serverLog.capture({
+        distinctId: userId,
+        event: 'error:update_messages_to_session',
+        properties: {
+          sessionId,
+          messages,
+          error: error.message,
+        },
+      })
+    }
+
     return {
       error: error.message,
     }

@@ -4,7 +4,7 @@ import { revalidateTag, unstable_cache } from 'next/cache'
 import { redirect } from 'next/navigation'
 import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'
-import { difference } from 'lodash'
+import { difference, isEmpty, pick } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle'
@@ -63,9 +63,9 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       api_model_id,
       created_by: userId,
     }
-    const newApp = await db.insert(AppsTable).values(appVal).returning()
+    const [newApp] = await db.insert(AppsTable).values(appVal).returning()
 
-    const appId = newApp[0]?.short_id
+    const appId = newApp?.short_id
 
     serverLog.capture({
       distinctId: userId,
@@ -96,12 +96,33 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       api_session_id = res?.data?.session_id
     }
 
+    let eventMessageContent = null
+    if (newApp.opening_remarks) {
+      eventMessageContent = newApp.opening_remarks
+    }
+    if (newApp.enable_video_interaction) {
+      eventMessageContent = null
+    }
+
     const sessionVal = {
       short_id: nanoid(),
       name: 'Chat 1',
       app_id: appId,
       created_by: userId,
       api_session_id,
+      events_str: eventMessageContent
+        ? JSON.stringify([
+            {
+              type: 'event',
+              data: {
+                id: nanoid(),
+                role: 'assistant',
+                content: eventMessageContent,
+                createdAt: Date.now(),
+              },
+            },
+          ])
+        : null,
     }
     const newSession = await db
       .insert(SessionsTable)
@@ -191,6 +212,38 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
     if (!userId) {
       return {
         error: 'Not authenticated',
+      }
+    }
+
+    if (flags.enabledAIService) {
+      const { api_model_id } = await getApp(appId)
+      if (!api_model_id) {
+        throw new Error('api_model_id is not found')
+      }
+
+      if (flags.enabledVideoInteraction) {
+        const payload = pick(newValue, [
+          'opening_remarks',
+          'enable_video_interaction',
+        ])
+        if (!isEmpty(payload)) {
+          let { data: res } = await axios.patch(
+            `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
+            payload
+          )
+          if (res.status !== 200) {
+            serverLog.capture({
+              distinctId: userId,
+              event: 'ai_service_error:edit_app',
+              properties: {
+                app_id: appId,
+                api_model_id,
+                message: res.message,
+              },
+            })
+            throw new Error(`AI service error: ${res.message}`)
+          }
+        }
       }
     }
 
