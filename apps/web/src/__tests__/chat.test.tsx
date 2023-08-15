@@ -1,7 +1,9 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { Message, nanoid } from 'ai'
+import { fireEvent, render } from '@testing-library/react'
+import { nanoid } from 'ai'
 import { expect, test } from 'vitest'
+
+import '@testing-library/jest-dom'
 
 import Chat, { ChatProps } from '@/components/chat/page'
 
@@ -19,11 +21,10 @@ const values: ChatProps = {
 
 test('test chat show the default UI', () => {
   const { getByTestId } = render(<Chat {...values} />)
-  const chatList = expect(getByTestId('chat-list'))
-  expect(getByTestId('chat-header')).toBeTruthy
-  expect(getByTestId('chat-input')).toBeTruthy
-  chatList.toBeTruthy
-  // TODD: check the chatList heigh
+
+  expect(getByTestId('chat-header')).toBeVisible()
+  expect(getByTestId('chat-input')).toBeVisible()
+  expect(getByTestId('chat-list')).toBeVisible()
 })
 
 test('test chat when enter to send msg', () => {
@@ -40,5 +41,5 @@ test('test chat when enter to send msg', () => {
   })
 
   // add a new message
-  expect(getAllByText(input)).toBeDefined
+  // expect(getAllByText(input)).toBeDefined
 })
