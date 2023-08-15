@@ -341,8 +341,6 @@ export async function updateMessagesToSession(
       },
       notify: true,
     })
-
-    return response
   } catch (error: any) {
     console.error('updateMessagesToSession error:', error.message)
 
