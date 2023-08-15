@@ -10,7 +10,7 @@ interface IProps {
 }
 
 export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+// export const runtime = 'edge'
 
 export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
