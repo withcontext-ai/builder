@@ -54,7 +54,7 @@ const ChatFeedbackDialog = () => {
     return null
   }
 
-  const negative = type === 'negative'
+  const negative = type === 'bad'
 
   const placeholder = negative
     ? 'What was the issue with the response? How could it be improved?'

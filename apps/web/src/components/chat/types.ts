@@ -26,6 +26,8 @@ export interface EventMessage extends BaseMessage {
 
 export interface ChatMessage extends BaseMessage, RawMessage {
   type: 'chat'
+  feedback?: ChatFeedbackType
+  feedback_content?: string
   content: string
 }
 

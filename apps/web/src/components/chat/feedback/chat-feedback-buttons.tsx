@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
+import { cn } from '@/lib/utils'
 import { Dialog } from '@/components/ui/dialog'
 
 import { useChatContext } from '../chat-context'
@@ -47,25 +48,28 @@ const ChatFeedbackButtons = (props: Props) => {
   const renderButton = useCallback(
     (type: ChatFeedbackType, clickable: boolean) => {
       const compMap = {
-        positive: ThumbsUp,
-        negative: ThumbsDown,
+        good: ThumbsUp,
+        bad: ThumbsDown,
       } as const
 
       const Comp = compMap[type]
 
       let color = 'stroke-slate-400'
       if (!clickable) {
-        if (type === 'positive') {
+        if (type === 'good') {
           color = 'stroke-green-500'
         }
-        if (type === 'negative') {
+        if (type === 'bad') {
           color = 'stroke-red-500'
         }
       }
 
       return (
         <div
-          className="ml-1 cursor-pointer rounded-md border bg-white p-2 hover:bg-slate-100 active:bg-slate-300"
+          className={cn(
+            'ml-1 rounded-md border bg-white p-2',
+            clickable && 'cursor-pointer hover:bg-slate-100 active:bg-slate-300'
+          )}
           {...(clickable
             ? {
                 onClick: handleClick(type),
@@ -89,12 +93,12 @@ const ChatFeedbackButtons = (props: Props) => {
     <>
       {!status && (
         <>
-          {renderButton('positive', true)}
-          {renderButton('negative', true)}
+          {renderButton('good', true)}
+          {renderButton('bad', true)}
         </>
       )}
-      {status === 'positive' && renderButton('positive', false)}
-      {status === 'negative' && renderButton('negative', false)}
+      {status === 'good' && renderButton('good', false)}
+      {status === 'bad' && renderButton('bad', false)}
     </>
   )
 }

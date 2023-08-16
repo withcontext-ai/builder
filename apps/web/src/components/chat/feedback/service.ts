@@ -1,18 +1,12 @@
 import { fetcher } from '@/lib/utils'
-
-import { ChatFeedbackType } from './types'
+import { ChatFeedbackRequest } from '@/app/api/chat/feedback/route'
 
 export default function submitFeedback(
   url: string,
   {
     arg,
   }: {
-    arg: {
-      session_id: string
-      message_id: string
-      content?: string
-      type: ChatFeedbackType
-    }
+    arg: ChatFeedbackRequest
   }
 ) {
   fetcher(url, {

@@ -1,1 +1,1 @@
-export type ChatFeedbackType = 'positive' | 'negative'
+export type ChatFeedbackType = 'good' | 'bad'
