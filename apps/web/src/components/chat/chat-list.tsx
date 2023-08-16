@@ -43,6 +43,9 @@ const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
         })}
         <ChatFeedbackDialog />
       </ChatFeedbackContextProvider>
+      {isLoading && messages[messages.length - 1]?.data?.role === 'user' && (
+        <ChatCard message={{ id: '', content: '', role: 'assistant' }} />
+      )}
     </div>
   )
 }

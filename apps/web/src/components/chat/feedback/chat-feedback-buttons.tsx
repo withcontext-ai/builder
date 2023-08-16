@@ -31,7 +31,6 @@ const ChatFeedbackButtons = (props: Props) => {
 
   const handleClick = useCallback(
     (type: ChatFeedbackType) => () => {
-      console.log('handleClick', messageId, type)
       if (messageId) {
         trigger({
           message_id: messageId,
