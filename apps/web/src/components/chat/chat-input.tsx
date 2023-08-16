@@ -42,10 +42,7 @@ const ChatInput = ({
         isDebug ? '' : 'px-6 pb-4'
       )}
     >
-      <div
-        className="absolute top-[-60px] flex w-full items-center justify-center"
-        data-testid="stop-generate-button"
-      >
+      <div className="absolute top-[-60px] flex w-full items-center justify-center">
         {showResend && !isLoading && (
           <Button className=" bg-white" onClick={reload} variant="outline">
             <RefreshCw size={16} className="mr-2" />
