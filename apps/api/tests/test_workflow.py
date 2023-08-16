@@ -4,13 +4,12 @@ from models.base import (
     LLM,
     Prompt,
     Chain,
-    model_manager,
     Dataset,
     Document,
-    dataset_manager,
     session_state_manager,
     Messages,
 )
+from models.controller import model_manager, dataset_manager
 from utils import OPENAI_API_KEY
 from routers.chat import send_message
 import uuid
@@ -31,7 +30,9 @@ def test_data():
         uid="test_document_1",
         url="https://storage.googleapis.com/context-builder/public-tmp/kxPvcLZ1BzRC.pdf",
         type="pdf",
+        page_size=2,
     )
+    document.page_size = 2
     template1 = Prompt(
         template="""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 
@@ -69,16 +70,13 @@ async def test_qa_chat(test_data, capfd):
     async for response in send_message(
         [
             Messages(content="How old is kobe", role="user"),
-            Messages(content="135 years old", role="assistant"),
-            Messages(content="How old is yao", role="user"),
-            Messages(content="200 years old", role="assistant"),
-            Messages(content="what did we talk", role="user"),
         ],
         session_id,
         filt=True,
     ):
         print(response)
     captured = capfd.readouterr()
+    assert "135" in captured.out
     assert "[DONE]" in captured.out
 
 
@@ -94,7 +92,8 @@ def test_conversation():
         api_key=OPENAI_API_KEY,
     )
     template = Prompt(
-        template="""The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
+        template="""The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context.
+        If the AI does not know the answer to a question, it truthfully says it does not know.
 
 Current conversation:
 

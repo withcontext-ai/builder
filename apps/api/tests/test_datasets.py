@@ -1,7 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
 from app import app  # Assuming your FastAPI application is named app
-from models.base import Dataset, dataset_manager
+from models.base import Dataset
+from models.controller import dataset_manager
 import uuid
 
 client = TestClient(app)
@@ -13,7 +14,16 @@ def test_get_dataset():
     The endpoint is supposed to return a specific dataset given its id.
     """
     # Insert a dataset into the system for testing
-    test_dataset = Dataset(documents=[], id="test1")
+    test_dataset = Dataset(
+        documents=[
+            {
+                "url": "https://storage.googleapis.com/context-builder/public-tmp/0wpj5TqcnFRM.pdf",
+                "type": "pdf",
+                "uid": "IQtABa9mZxfm",
+            }
+        ],
+        id="test1",
+    )
     dataset_manager.save_dataset(test_dataset)
 
     response = client.get("/v1/datasets/test1")

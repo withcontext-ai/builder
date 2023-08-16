@@ -15,7 +15,6 @@ from models.base import (
     CompletionsRequest,
     CompletionsResponse,
     SessionRequest,
-    model_manager,
     session_state_manager,
     VideoCompletionsRequest,
     Messages as MessagesContent,
@@ -23,6 +22,7 @@ from models.base import (
 )
 from models.workflow import Workflow
 from models.faceto_ai import FaceToAiManager, WebhookHandler
+from models.controller import model_manager
 from utils import WEBHOOK_KEY
 
 logging.basicConfig(level=logging.INFO)
@@ -92,8 +92,6 @@ async def send_message(
 
     task = asyncio.create_task(wrap_done(workflow.agenerate(messages), callback.done))
 
-    yield wrap_token("loading\n", model_id, session_id, filt=filt)
-
     async for token in callback.aiter():
         yield wrap_token(token, model_id, session_id, filt=filt)
 
@@ -114,7 +112,11 @@ async def stream_completions(body: CompletionsRequest):
     model_id = session_state_manager.get_model_id(body.session_id)
     model = model_manager.get_models(model_id)[0]
     if model.enable_video_interaction:
-        link = FaceToAiManager.get_room_link(model.opening_remarks, body.session_id)
+        link = FaceToAiManager.get_room_link(
+            model.opening_remarks,
+            body.session_id,
+            model_id == "24a683074e7c4c6f881b747296aabbae",
+        )
         webhook_handler = WebhookHandler()
         webhook_handler.create_video_room_link(body.session_id, link)
         return StreamingResponse(send_done_message(), media_type="text/event-stream")

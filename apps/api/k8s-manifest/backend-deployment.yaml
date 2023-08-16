@@ -63,6 +63,8 @@ spec:
                   key: WEBHOOK_KEY
             - name: WEBHOOK_ENDPOINT
               value: https://build.withcontext.ai/api/webhook/chat
+            - name: BACKEND_URL
+              value: http://api.withcontext.ai
           resources:
             limits:
               memory: '2000Mi'
