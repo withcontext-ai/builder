@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { expect, test } from 'vitest'
 
 import '@testing-library/jest-dom'
@@ -30,22 +30,26 @@ test('test chat when enter press to send msg', () => {
   // add a new message
   expect(queryByText(input)).toBeDefined
 
-  // show the message card
-  // expect(queryByText())?.toBeInTheDocument
+  // show the message card  app_name: chat-app
+  expect(queryByText('chat-app'))?.toBeInTheDocument
 
   // loading status: waiting for response, can't keypress
   expect(getByRole('button')).toBeDisabled
 
   // show the stop generate button
-  const stopButton = getByTestId('stop-generate-button')
-  expect(stopButton).toBeVisible()
+  const stopButton = queryByText('Stop generating')
+  expect(stopButton).not.toBeDisabled
 })
 
-// test('test chat when click button to send msg', async () => {
-//   const { getByRole } = render(<Chat {...values} />)
-//   const button = getByRole('button')
+test('test chat when click button to send msg', async () => {
+  const { getByRole, queryByText } = render(<TestChat />)
+  const button = getByRole('button')
 
-//   fireEvent.click(button)
-//   // loading status: waiting for response, can't keypress
-//   expect(getByRole('button')).toBeDisabled
-// })
+  fireEvent.click(button)
+  // loading status: waiting for response, can't keypress
+  expect(getByRole('button')).toBeDisabled
+
+  // show the stop generate button
+  const stopButton = queryByText('Stop generating')
+  expect(stopButton).not.toBeDisabled
+})
