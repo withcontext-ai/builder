@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import { db } from '@/lib/drizzle-edge'
 import { initPusher } from '@/lib/pusher-server'
 import { safeParse } from '@/lib/utils'
+import { DatasetsTable } from '@/db/datasets/schema'
 import { Session, SessionsTable } from '@/db/sessions/schema'
 
 async function getSession(api_session_id: string) {
@@ -50,6 +51,10 @@ export async function POST(req: NextRequest) {
       }
       case 'call.ended': {
         await endCall(event.type, event.data)
+        break
+      }
+      case 'dataset.updated': {
+        await updateDataset(event.data)
         break
       }
       default: {
@@ -109,4 +114,12 @@ async function endCall(type: string, data: any) {
   })
 
   await updateEvents(session, newEvent)
+}
+
+async function updateDataset(data: any) {
+  const { api_dataset_id, status } = data
+  await db
+    .update(DatasetsTable)
+    .set({ status })
+    .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
 }
