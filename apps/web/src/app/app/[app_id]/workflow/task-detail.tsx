@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PdfImage } from '@/components/upload/component'
 
-import { WorkflowItem } from '../settings/workflow/type'
+import { WorkflowItem } from '../(manage)/settings/workflow/type'
 import { DatasetProps } from './page'
 import { useWorkflowContext } from './store'
 

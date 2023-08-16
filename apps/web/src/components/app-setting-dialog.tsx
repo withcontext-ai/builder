@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
+  Activity,
   ChevronDown,
   ChevronUp,
   LogOutIcon,
@@ -49,6 +50,12 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
           },
         ]
       : []),
+    {
+      id: 'analysis',
+      name: 'App Analysis',
+      icon: <Activity size={16} />,
+      link: `/app/${appId}/analysis/monitoring`,
+    },
     {
       id: 'share',
       name: 'Share',
