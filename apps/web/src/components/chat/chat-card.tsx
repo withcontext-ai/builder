@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { format, isToday, isYesterday } from 'date-fns'
 import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
@@ -13,9 +14,10 @@ import ChatActions from './chat-actions'
 import { useChatContext } from './chat-context'
 import ChatFeedbackButtons from './feedback/chat-feedback-buttons'
 import { Markdown } from './markdown/markdown'
+import { Message } from './types'
 
 interface IProps {
-  message?: any
+  message?: Message
   error?: string
   model_avatar?: string
   user_avatar?: string
@@ -122,13 +124,10 @@ function EventMessage({ data }: { data: any }) {
 }
 
 const ChatCard = (props: IProps) => {
-  const { message: rawMessage, error = '', isEnd } = props
-  const type = rawMessage?.type
-  const message = rawMessage?.data
+  const { message, error = '', isEnd } = props
   const { app, mode, isLoading } = useChatContext()
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message?.role === 'user'
-  const isEvent = type === 'event'
   const showError = isEnd && error && !isUser
 
   const { user } = useUser()
@@ -139,6 +138,25 @@ const ChatCard = (props: IProps) => {
   const name = (isUser ? username : appName) || ''
 
   const isClient = useIsClient()
+
+  const renderContent = useMemo(() => {
+    if (!message) {
+      return null
+    }
+    const { type } = message
+    if (type === 'event') {
+      return <EventMessage data={message} />
+    }
+    const { content } = message
+    if (!content) {
+      return <Loader2 className="h-3 w-3 animate-spin" />
+    }
+    return (
+      <Markdown className={cn(isUser ? 'text-white' : 'text-black	')}>
+        {content}
+      </Markdown>
+    )
+  }, [isUser, message])
 
   return (
     <div className="flex flex-col ">
@@ -179,15 +197,7 @@ const ChatCard = (props: IProps) => {
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
               )}
             >
-              {isEvent ? (
-                <EventMessage data={message} />
-              ) : message?.content ? (
-                <Markdown className={cn(isUser ? 'text-white' : 'text-black	')}>
-                  {message?.content}
-                </Markdown>
-              ) : (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              )}
+              {renderContent}
               {mode !== 'debug' &&
                 !isUser &&
                 // last message finished loading
