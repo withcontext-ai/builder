@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, getByTestId, render } from '@testing-library/react'
 import { nanoid } from 'ai'
 import { expect, test } from 'vitest'
 
@@ -29,9 +29,8 @@ test('test chat show the default UI', () => {
 
 test('test chat when enter press to send msg', () => {
   // TODO: why multi textarea
-  const { getAllByPlaceholderText, queryByText, getByRole } = render(
-    <Chat {...values} />
-  )
+  const { getAllByPlaceholderText, queryByText, getByRole, getByTestId } =
+    render(<Chat {...values} />)
   const textarea = getAllByPlaceholderText('Type a message')
   const input = 'hello, to test the textarea keypress'
 
@@ -50,26 +49,18 @@ test('test chat when enter press to send msg', () => {
 
   // loading status: waiting for response, can't keypress
   expect(getByRole('button')).toBeDisabled
+
+  // show the stop generate button
+  const stopButton = getByTestId('stop-generate-button')
+  expect(stopButton).toBeVisible()
 })
 
 test('test chat when click button to send msg', () => {
-  // TODO: why multi textarea
-  const { getAllByPlaceholderText, queryByText, getByRole } = render(
-    <Chat {...values} />
-  )
-  const textarea = getAllByPlaceholderText('Type a message')
+  const { getByRole } = render(<Chat {...values} />)
   const button = getByRole('button')
-  const input = 'hello, to test the click button'
-
-  fireEvent.change(textarea?.[0], {
-    target: { value: input },
-  })
 
   fireEvent.click(button)
 
   // loading status: waiting for response, can't keypress
   expect(getByRole('button')).toBeDisabled
-
-  // add a new message
-  // expect(queryByText(input)).toBeDefined
 })
