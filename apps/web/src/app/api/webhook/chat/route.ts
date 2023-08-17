@@ -8,8 +8,6 @@ import { safeParse } from '@/lib/utils'
 import { DatasetsTable } from '@/db/datasets/schema'
 import { Session, SessionsTable } from '@/db/sessions/schema'
 
-export const runtime = 'edge'
-
 async function getSession(api_session_id: string) {
   const [session] = await db
     .select()
