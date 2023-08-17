@@ -5,16 +5,16 @@ import {
   renderHook,
   screen,
 } from '@testing-library/react'
-import { enableFetchMocks } from 'jest-fetch-mock'
+// import { enableFetchMocks } from 'jest-fetch-mock'
 import { beforeEach, expect, test } from 'vitest'
 
 import '@testing-library/jest-dom'
 
 import { useChat } from 'ai/react'
 
-import TestChat from '@/components/test-chat/page'
+import TestChat from '@/app/demo/test-chat/page'
 
-enableFetchMocks()
+// enableFetchMocks()
 
 test('test chat show the default UI', () => {
   const { queryByText, getByPlaceholderText } = render(<TestChat />)
