@@ -9,13 +9,13 @@ import TestChat from '@/app/demo/test-chat/page'
 test('test chat show the default UI', () => {
   const { queryByText, getByPlaceholderText } = render(<TestChat />)
   // chat header, session-name
-  expect(queryByText('test-chat-session')).toBeDisabled()
+  expect(queryByText('test-chat-session')).toBeDisabled
 
   // chat list
 
   // chat input
-  expect(getByPlaceholderText('Type a message')).toBeInTheDocument()
-  expect(queryByText('send')).toBeInTheDocument()
+  expect(getByPlaceholderText('Type a message')).toBeInTheDocument
+  expect(queryByText('send')).toBeInTheDocument
 })
 
 test('test chat when enter press to send msg', () => {
