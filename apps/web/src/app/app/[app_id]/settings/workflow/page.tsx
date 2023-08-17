@@ -9,6 +9,8 @@ import { WorkflowProvider } from './store'
 import TaskDetail from './task-detail'
 import TaskList from './task-list'
 
+export const runtime = 'edge'
+
 interface IProps {
   params: {
     app_id: string
@@ -24,8 +26,6 @@ export default async function Page({ params }: IProps) {
     workflow_data_str,
     published_workflow_tree_str,
     published_workflow_data_str,
-    name,
-    icon,
   } = appDetail
 
   const defaultWorkflowTree = safeParse(workflow_tree_str, [])
