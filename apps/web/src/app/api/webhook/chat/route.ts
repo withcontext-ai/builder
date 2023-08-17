@@ -8,6 +8,8 @@ import { safeParse } from '@/lib/utils'
 import { DatasetsTable } from '@/db/datasets/schema'
 import { Session, SessionsTable } from '@/db/sessions/schema'
 
+export const runtime = 'edge'
+
 async function getSession(api_session_id: string) {
   const [session] = await db
     .select()
@@ -64,6 +66,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: event.type })
   } catch (error: any) {
+    console.log('webhook chat error:', error.message)
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }
