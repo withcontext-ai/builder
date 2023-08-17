@@ -119,7 +119,9 @@ async function endCall(type: string, data: any) {
 
 async function updateDataset(data: any) {
   const { api_dataset_id, status } = data
-  console.log('updateDataset status:', status)
+  console.log('updateDataset data:', data)
+  console.log('updateDataset id:', api_dataset_id)
+  console.log('updateDataset status:', status, typeof status)
   await db
     .update(DatasetsTable)
     .set({ status })
