@@ -11,8 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import Chat from '@/components/chat/page'
 
-import { useWorkflowContext } from './store'
-import { WorkflowItem } from './type'
+import { useWorkflowContext } from '../workflow/store'
+import { WorkflowItem } from '../workflow/type'
 
 function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
   return fetcher(url, {
