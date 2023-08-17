@@ -1,7 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { findIndex } from 'lodash'
+import { useEffect, useMemo } from 'react'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { Mention, MentionsInput } from 'react-mentions'
 

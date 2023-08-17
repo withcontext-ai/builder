@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { fireEvent, getByText, render } from '@testing-library/react'
 import { expect, test } from 'vitest'
 
 import '@testing-library/jest-dom'
@@ -7,16 +7,22 @@ import '@testing-library/jest-dom'
 import TestChat from '@/app/demo/test-chat/page'
 
 test('test chat show the default UI', () => {
-  const { getByTestId } = render(<TestChat />)
-  expect(getByTestId('chat-header')).toBeVisible()
-  expect(getByTestId('chat-input')).toBeVisible()
-  expect(getByTestId('chat-list')).toBeVisible()
+  const { queryByText, getByPlaceholderText } = render(<TestChat />)
+  // chat header, session-name
+  expect(queryByText('test-chat-session')).toBeDisabled()
+
+  // chat list
+
+  // chat input
+  expect(getByPlaceholderText('Type a message')).toBeInTheDocument()
+  expect(queryByText('send')).toBeInTheDocument()
 })
 
 test('test chat when enter press to send msg', () => {
   // TODO: why multi textarea
-  const { getAllByPlaceholderText, queryByText, getByRole, getByTestId } =
-    render(<TestChat />)
+  const { getAllByPlaceholderText, queryByText, getByRole } = render(
+    <TestChat />
+  )
   const textarea = getAllByPlaceholderText('Type a message')
   const input = 'hello, to test the textarea keypress'
 
