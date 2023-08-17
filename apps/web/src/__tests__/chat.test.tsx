@@ -1,26 +1,42 @@
-import { fireEvent, getByText, render, screen } from '@testing-library/react'
-import { expect, test } from 'vitest'
+import {
+  fireEvent,
+  getByText,
+  render,
+  renderHook,
+  screen,
+} from '@testing-library/react'
+import { beforeEach, expect, test } from 'vitest'
 
 import '@testing-library/jest-dom'
 
+import { useChat } from 'ai/react'
+
 import TestChat from '@/app/demo/test-chat/page'
 
-test('Demo', () => {
-  render(<div>testing</div>)
-  expect(screen.getByText('testing')).toBeDefined()
+test('test chat show the default UI', () => {
+  const { queryByText, getByPlaceholderText } = render(<TestChat />)
+
+  const { result } = renderHook(() =>
+    useChat({
+      id: 'test-chat',
+      body: {
+        appId: 'YhTq4Xx29aDZ',
+        sessionId: 'srQuAKvgZR7W',
+        apiSessionId: '21486acbbd393f8a6131a9009d6aae4d',
+      },
+    })
+  )
+
+  console.log(result, '----result')
+  // chat header, session-name
+  expect(queryByText('test-chat-session')).toBeDisabled
+
+  // chat list
+
+  // chat input
+  expect(getByPlaceholderText('Type a message')).toBeInTheDocument
+  expect(queryByText('send')).toBeInTheDocument
 })
-
-// test('test chat show the default UI', () => {
-//   const { queryByText, getByPlaceholderText } = render(<TestChat />)
-//   // chat header, session-name
-//   expect(queryByText('test-chat-session')).toBeDisabled
-
-//   // chat list
-
-//   // chat input
-//   expect(getByPlaceholderText('Type a message')).toBeInTheDocument
-//   expect(queryByText('send')).toBeInTheDocument
-// })
 
 // test('test chat when enter press to send msg', () => {
 //   // TODO: why multi textarea
