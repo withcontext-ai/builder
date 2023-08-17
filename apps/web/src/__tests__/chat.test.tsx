@@ -12,7 +12,7 @@ import '@testing-library/jest-dom'
 
 import { useChat } from 'ai/react'
 
-import TestChat from '@/app/demo/test-chat/page'
+import TestChat from '@/components/test-chat/page'
 
 enableFetchMocks()
 
