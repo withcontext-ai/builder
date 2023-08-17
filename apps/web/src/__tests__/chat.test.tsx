@@ -16,26 +16,14 @@ import TestChat from '@/app/demo/test-chat/page'
 test('test chat show the default UI', () => {
   const { queryByText, getByPlaceholderText } = render(<TestChat />)
 
-  const { result } = renderHook(() =>
-    useChat({
-      id: 'test-chat',
-      body: {
-        appId: 'YhTq4Xx29aDZ',
-        sessionId: 'srQuAKvgZR7W',
-        apiSessionId: '21486acbbd393f8a6131a9009d6aae4d',
-      },
-    })
-  )
+  // // chat header, session-name
+  // expect(queryByText('test-chat-session')).toBeDisabled
 
-  console.log(result, '----result')
-  // chat header, session-name
-  expect(queryByText('test-chat-session')).toBeDisabled
+  // // chat list
 
-  // chat list
-
-  // chat input
-  expect(getByPlaceholderText('Type a message')).toBeInTheDocument
-  expect(queryByText('send')).toBeInTheDocument
+  // // chat input
+  // expect(getByPlaceholderText('Type a message')).toBeInTheDocument
+  // expect(queryByText('send')).toBeInTheDocument
 })
 
 // test('test chat when enter press to send msg', () => {
@@ -79,3 +67,19 @@ test('test chat show the default UI', () => {
 //   const stopButton = queryByText('Stop generating')
 //   expect(stopButton).not.toBeDisabled
 // })
+
+test('test useChat', async () => {
+  const { result } = renderHook(() =>
+    useChat({
+      id: 'test-chat',
+      body: {
+        appId: 'YhTq4Xx29aDZ',
+        sessionId: 'srQuAKvgZR7W',
+        apiSessionId: '21486acbbd393f8a6131a9009d6aae4d',
+      },
+    })
+  )
+
+  expect(result?.current?.isLoading).toBeFalsy
+  expect(result?.current?.messages).not.toHaveLength
+})

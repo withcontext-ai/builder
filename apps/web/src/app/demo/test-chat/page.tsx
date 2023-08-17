@@ -1,10 +1,8 @@
-'use client'
-
 import { useMemo } from 'react'
 import { useChat } from 'ai/react'
 
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
-import { ChatContextProvider, ChatMode } from '@/components/chat/chat-context'
+import { ChatContextProvider } from '@/components/chat/chat-context'
 import ChatHeader from '@/components/chat/chat-header'
 import ChatInput from '@/components/chat/chat-input'
 import ChatList from '@/components/chat/chat-list'
@@ -30,30 +28,29 @@ const app = {
 const session = { api_session_id: '', name: 'test-chat-session', short_id: '' }
 
 const TestChat = () => {
-  // const {
-  //   messages,
-  //   input,
-  //   isLoading,
-  //   reload,
-  //   stop,
-  //   handleSubmit,
-  //   handleInputChange,
-  // } = useChat({
-  //   id: 'test-chat',
-  //   body: {
-  //     appId: 'YhTq4Xx29aDZ',
-  //     sessionId: 'srQuAKvgZR7W',
-  //     apiSessionId: '21486acbbd393f8a6131a9009d6aae4d',
-  //   },
-  // })
+  const {
+    messages,
+    input,
+    isLoading,
+    reload,
+    stop,
+    handleSubmit,
+    handleInputChange,
+  } = useChat({
+    id: 'test-chat',
+    body: {
+      appId: 'YhTq4Xx29aDZ',
+      sessionId: 'srQuAKvgZR7W',
+      apiSessionId: '21486acbbd393f8a6131a9009d6aae4d',
+    },
+  })
 
   const { scrollRef, setAutoScroll } = useScrollToBottom()
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // handleSubmit(e)
+    handleSubmit(e)
     setAutoScroll(true)
   }
-  const messages: any[] = []
-  const isLoading = false
+
   const showResend = useMemo(() => messages?.length > 0, [messages])
   const chatMessages = useMemo(() => {
     const formattedMessages = messages?.map((message) => ({
@@ -83,12 +80,12 @@ const TestChat = () => {
             setAutoScroll={setAutoScroll}
           />
           <ChatInput
-            input={''}
+            input={input}
             onSubmit={onSubmit}
             stop={stop}
             showResend={showResend}
-            handleInputChange={() => {}}
-            reload={() => {}}
+            handleInputChange={handleInputChange}
+            reload={reload}
           />
         </div>
       </div>
