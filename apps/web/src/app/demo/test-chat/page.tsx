@@ -29,7 +29,7 @@ const app = {
 }
 const session = { api_session_id: '', name: 'test-chat-session', short_id: '' }
 
-const TestChat = ({ mode = 'live' }: { mode?: ChatMode }) => {
+const TestChat = () => {
   const {
     messages,
     input,
@@ -69,7 +69,7 @@ const TestChat = ({ mode = 'live' }: { mode?: ChatMode }) => {
     <ChatContextProvider
       app={app}
       session={session}
-      mode={mode}
+      mode="live"
       isLoading={isLoading}
     >
       <div className="relative h-full w-full">
