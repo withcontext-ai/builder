@@ -1,10 +1,10 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
-import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { difference, isEmpty, pick } from 'lodash'
 
+import { api } from '@/lib/api'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
@@ -31,12 +31,9 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     let api_model_id = null
     if (flags.enabledAIService) {
       const chains = defaultWorkflowData.map(taskToApiFormatter)
-      const { data: res } = await axios.post(
-        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
-        {
-          chains,
-        }
-      )
+      let res = await api.post<any, any>('/v1/models', {
+        chains,
+      })
       if (res.status !== 200) {
         serverLog.capture({
           distinctId: userId,
@@ -139,8 +136,8 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
           'enable_video_interaction',
         ])
         if (!isEmpty(payload)) {
-          let { data: res } = await axios.patch(
-            `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
+          let res = await api.patch<any, any>(
+            `/v1/models/${api_model_id}`,
             payload
           )
           if (res.status !== 200) {
@@ -199,10 +196,9 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
       const workflow = safeParse(newValue.published_workflow_data_str, [])
       const chains = workflow.map(taskToApiFormatter)
       console.log('deploy chains:', chains)
-      let { data: res } = await axios.patch(
-        `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-        { chains }
-      )
+      let res = await api.patch<any, any>(`/v1/models/${api_model_id}`, {
+        chains,
+      })
       if (res.status !== 200) {
         serverLog.capture({
           distinctId: userId,
@@ -376,10 +372,9 @@ export async function addDebugSession(api_model_id: string) {
   const { userId } = auth()
   if (!userId || !flags.enabledAIService) return null
 
-  let { data: res } = await axios.post(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-    { model_id: api_model_id }
-  )
+  let res = await api.post<any, any>('/v1/chat/session', {
+    model_id: api_model_id,
+  })
 
   if (res.status !== 200) {
     serverLog.capture({
@@ -400,12 +395,9 @@ export async function getDebugSessionId(tasks: WorkflowItem[]) {
   if (!userId || !flags.enabledAIService) return null
 
   const chains = tasks.map(taskToApiFormatter)
-  const { data: res } = await axios.post(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
-    {
-      chains,
-    }
-  )
+  let res = await api.post<any, any>('/v1/models', {
+    chains,
+  })
 
   if (res.status !== 200) {
     serverLog.capture({

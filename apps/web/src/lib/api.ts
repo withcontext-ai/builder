@@ -29,17 +29,23 @@ async function post<T, U>(
   return await http<U>(path, init)
 }
 
-async function put<T, U>(
+async function patch<T, U>(
   path: string,
   body: T,
   config?: RequestInit
 ): Promise<U> {
-  const init = { method: 'put', body: JSON.stringify(body), ...config }
+  const init = { method: 'patch', body: JSON.stringify(body), ...config }
+  return await http<U>(path, init)
+}
+
+async function _delete<T, U>(path: string, config?: RequestInit): Promise<U> {
+  const init = { method: 'delete', ...config }
   return await http<U>(path, init)
 }
 
 export const api = {
   get,
   post,
-  put,
+  patch,
+  delete: _delete,
 }
