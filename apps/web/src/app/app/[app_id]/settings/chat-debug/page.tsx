@@ -14,7 +14,7 @@ import Chat from '@/components/chat/page'
 
 import { useWorkflowContext } from '../workflow/store'
 import { WorkflowItem } from '../workflow/type'
-import { ChatSession, useChatStore } from './store'
+import { useChatStore } from './store'
 
 function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
   return fetcher(url, {
@@ -29,13 +29,11 @@ interface IProps {
 
 const ChatDebug = ({ app }: IProps) => {
   const { short_id: appId, opening_remarks } = app
-
   const [open, setOpen] = React.useState(false)
   const [apiSessionId, setApiSessionId] = React.useState(null)
 
   const chatStore = useChatStore()
   const { sessions } = chatStore
-  const currentSession = chatStore.currentSession()
 
   const sessionIdRef = React.useRef(`debug-${appId}`)
 
@@ -79,13 +77,10 @@ const ChatDebug = ({ app }: IProps) => {
     [apiSessionId]
   )
 
-  const getMessageHistory = React.useCallback(() => {
-    const isExisted = sessions?.find((item) => item?.id === appId)
-    if (!isExisted?.id) {
-      // add new session
-      let messages: Message[] = []
-      if (opening_remarks) {
-        messages = [
+  const initialMessages: Message[] = React.useMemo(() => {
+    const current = chatStore.currentSession()
+    return opening_remarks
+      ? [
           {
             id: nanoid(),
             role: 'assistant',
@@ -93,17 +88,38 @@ const ChatDebug = ({ app }: IProps) => {
             content: opening_remarks,
           },
         ]
-      }
-      chatStore.newSession(appId, messages)
+      : []
+  }, [chatStore, opening_remarks])
+
+  const getMessageHistory = React.useCallback(() => {
+    const isExisted = sessions?.find((item) => item?.id === appId)
+    if (!isExisted?.id) {
+      chatStore.newSession(appId, initialMessages)
+    } else {
+      chatStore.updateCurrentSession((session) => {
+        session.messages = initialMessages
+        session.lastUpdate = Date.now()
+      })
     }
     chatStore.currentSessionId = appId
-  }, [appId, chatStore, opening_remarks, sessions])
+  }, [appId, chatStore, initialMessages, sessions])
 
   const handleMessage = (messages: Message[]) => {
-    chatStore.updateCurrentSession((session) => (session.messages = messages))
+    chatStore.updateCurrentSession((session) => {
+      session.messages = messages
+      session.lastUpdate = Date.now()
+    })
+  }
+
+  const onRestart = () => {
+    chatStore.updateCurrentSession((session) => {
+      session.messages = []
+      session.lastUpdate = Date.now()
+    })
   }
 
   const current = chatStore.currentSession()
+  console.log(current, '--current')
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
@@ -125,6 +141,7 @@ md:max-w-xl"
           session={session}
           initialMessages={current?.messages}
           setInitialMessages={handleMessage}
+          onRestart={onRestart}
         />
       </SheetContent>
     </Sheet>

@@ -64,6 +64,7 @@ interface DebugChatProps extends BaseChatProps {
   mode: 'debug'
   isConfigChanged?: boolean
   setInitialMessages?: (messages: Message[]) => void
+  onRestart: () => void
 }
 
 interface LiveChatProps extends BaseChatProps {
@@ -128,6 +129,7 @@ const Chat = (props: ChatProps) => {
     id: sessionId,
     initialEvents,
   })
+
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
   const callLinkRef = useRef('')
   const configStr = useConfigBase64({ appName })
@@ -181,6 +183,7 @@ const Chat = (props: ChatProps) => {
     handelStop()
     setMessages([])
     setConfirmReset(false)
+    mode === 'debug' && props?.onRestart()
   }
 
   const onCancel = () => {
@@ -192,7 +195,10 @@ const Chat = (props: ChatProps) => {
     setAutoScroll(true)
   }
 
-  const disabledRestart = !messages || messages.length === 0
+  const disabledRestart =
+    !messages ||
+    messages.length === 0 ||
+    (app?.opening_remarks && messages?.length == 1)
 
   const handleAccept = useCallback(() => {
     window.open(callLinkRef.current, '_blank')
@@ -234,6 +240,7 @@ const Chat = (props: ChatProps) => {
             onRestart={() => {
               handelStop()
               setMessages([])
+              mode === 'debug' && props?.onRestart()
             }}
             disabledRestart={disabledRestart}
           />
