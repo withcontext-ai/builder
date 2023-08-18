@@ -31,6 +31,7 @@ export async function OpenAIStream(
   const stream = new ReadableStream({
     async start(controller) {
       async function onParse(event: ParsedEvent | ReconnectInterval) {
+        console.log('event:', event)
         if (event.type === 'event') {
           const data = event.data
           if (data === '[DONE]') {
