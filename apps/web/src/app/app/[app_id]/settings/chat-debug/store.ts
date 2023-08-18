@@ -32,10 +32,11 @@ interface ChatStore {
   selectSession: (index: string) => void
   newSession: (id: string) => void
   removeSession: (id: string) => void
+  clearAllData: () => void
+
   currentSession: () => ChatSession
   onNewMessage: (message: Message[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
-  clearAllData: () => void
 }
 
 export const useChatStore = create<ChatStore>()(
@@ -94,8 +95,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       clearAllData() {
-        localStorage.clear()
-        location.reload()
+        set({ sessions: [], currentSessionId: '' })
       },
     }),
     {

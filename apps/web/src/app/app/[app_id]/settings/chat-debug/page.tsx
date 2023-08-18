@@ -79,7 +79,7 @@ const ChatDebug = ({ app }: IProps) => {
   )
 
   React.useEffect(() => {
-    setChatMessages(chatStore.currentSession().messages)
+    setChatMessages(chatStore.currentSession()?.messages)
     const isExisted = sessions?.find((item) => item?.id === appId)
     if (!isExisted?.id) {
       // add new session
@@ -94,7 +94,7 @@ const ChatDebug = ({ app }: IProps) => {
         (session.messages = [...currentSession.messages, ...messages])
     )
   }
-  console.log(chatStore.currentSession().messages, '--initMessages')
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
