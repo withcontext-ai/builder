@@ -58,7 +58,7 @@ export default async function Page({ params }: IProps) {
       datasetOptions={datasetOptions}
     >
       <div className="flex h-full">
-        <div className="flex-1 overflow-auto px-14 pt-16">
+        <div className="flex-1 overflow-auto px-14 pb-28 pt-16">
           <h1 className="text-2xl font-semibold">Workflow</h1>
           <div className="mt-6">
             <TaskList />
