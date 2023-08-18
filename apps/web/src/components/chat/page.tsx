@@ -87,6 +87,16 @@ const Chat = (props: ChatProps) => {
   )
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
+  const createInputMessage = () => {
+    const inputMsg: Message = {
+      id: nanoid(),
+      content: input,
+      createdAt: new Date(),
+      role: 'user',
+    }
+    return inputMsg
+  }
+
   const {
     messages,
     input,
@@ -108,8 +118,8 @@ const Chat = (props: ChatProps) => {
     sendExtraMessageFields: true,
     onFinish: (message) => {
       if (mode === 'debug') {
-        props.setInitialMessages?.([...messages, message])
-        console.log([...messages, message], '---onresponse')
+        const inputMsg = createInputMessage()
+        props.setInitialMessages?.([...messages, inputMsg, message])
       }
     },
   })
@@ -180,15 +190,6 @@ const Chat = (props: ChatProps) => {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     handleSubmit(e)
     setAutoScroll(true)
-    if (mode === 'debug') {
-      const inputMsg: Message = {
-        id: nanoid(),
-        content: input,
-        createdAt: new Date(),
-        role: 'user',
-      }
-      props.setInitialMessages?.([...messages, inputMsg])
-    }
   }
 
   const disabledRestart = !messages || messages.length === 0

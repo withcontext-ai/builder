@@ -100,10 +100,7 @@ const ChatDebug = ({ app }: IProps) => {
   }, [appId, chatStore, opening_remarks, sessions])
 
   const handleMessage = (messages: Message[]) => {
-    chatStore.updateCurrentSession(
-      (session) =>
-        (session.messages = [...currentSession.messages, ...messages])
-    )
+    chatStore.updateCurrentSession((session) => (session.messages = messages))
   }
 
   const current = chatStore.currentSession()
