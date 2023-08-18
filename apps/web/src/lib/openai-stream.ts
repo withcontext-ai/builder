@@ -38,7 +38,7 @@ export async function OpenAIStream({
     async start(controller) {
       // prevent the stream from closing when the initial response is too long
       const waitingId = setInterval(() => {
-        const queue = encoder.encode('waiting...')
+        const queue = encoder.encode('waiting...\n')
         controller.enqueue(queue)
       }, 20 * 1000)
 
