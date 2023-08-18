@@ -85,7 +85,7 @@ function EventMessage({ data }: { data: any }) {
   let icon
   let message
 
-  switch (data.type) {
+  switch (data.eventType) {
     case 'call.created': {
       icon = <PhoneCallIcon className="mr-4" />
       message = 'Call Requested'
