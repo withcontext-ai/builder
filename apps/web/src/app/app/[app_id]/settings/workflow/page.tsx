@@ -2,7 +2,7 @@ import { safeParse } from '@/lib/utils'
 import { getApp } from '@/db/apps/actions'
 import { getDatasets } from '@/db/datasets/actions'
 
-import ChatDebug from '../chat-debug/chat-debug'
+import ChatDebug from '../chat-debug/page'
 import AddTaskButton from './add-task-button'
 import FormActions from './form-actions'
 import { WorkflowProvider } from './store'

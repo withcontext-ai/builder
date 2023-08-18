@@ -179,6 +179,15 @@ const Chat = (props: ChatProps) => {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     handleSubmit(e)
     setAutoScroll(true)
+    if (mode === 'debug') {
+      const inputMsg: Message = {
+        id: nanoid(),
+        content: input,
+        createdAt: new Date(),
+        role: 'user',
+      }
+      props.setInitialMessages?.([...messages, inputMsg])
+    }
   }
 
   const disabledRestart = !messages || messages.length === 0

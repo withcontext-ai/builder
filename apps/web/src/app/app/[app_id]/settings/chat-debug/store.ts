@@ -18,9 +18,9 @@ export interface ChatSession {
   lastUpdate: number
 }
 
-function createEmptySession(): ChatSession {
+function createEmptySession(id: string): ChatSession {
   return {
-    id: nanoid(),
+    id,
     messages: [],
     lastUpdate: Date.now(),
   }
@@ -28,12 +28,11 @@ function createEmptySession(): ChatSession {
 
 interface ChatStore {
   sessions: ChatSession[]
-  currentSessionIndex: number
-  clearSessions: () => void
-  selectSession: (index: number) => void
-  newSession: () => void
+  currentSessionId: string
+  selectSession: (index: string) => void
+  newSession: (id: string) => void
   currentSession: () => ChatSession
-  onNewMessage: (message: Message) => void
+  onNewMessage: (message: Message[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
   clearAllData: () => void
 }
@@ -41,48 +40,37 @@ interface ChatStore {
 export const useChatStore = create<ChatStore>()(
   persist(
     (set, get) => ({
-      sessions: [createEmptySession()],
-      currentSessionIndex: 0,
+      sessions: [],
+      currentSessionId: '',
 
-      clearSessions() {
-        set(() => ({}))
-      },
-
-      selectSession(index: number) {
+      selectSession(id: string) {
         set({
-          currentSessionIndex: index,
+          currentSessionId: id,
         })
       },
 
-      newSession() {},
-
-      deleteSession(index: number) {},
+      newSession(id: string) {
+        const session = createEmptySession(id)
+        set((state) => ({
+          currentSessionId: id,
+          sessions: [session].concat(state.sessions),
+        }))
+      },
 
       currentSession() {
-        let index = get().currentSessionIndex
+        let id = get().currentSessionId
         const sessions = get().sessions
-
-        if (index < 0 || index >= sessions.length) {
-          index = Math.min(sessions.length - 1, Math.max(0, index))
-          set(() => ({ currentSessionIndex: index }))
-        }
-
-        const session = sessions[index]
-
+        console.log(sessions, '----')
+        const session = sessions?.find((item) => item?.id === id) as ChatSession
         return session
       },
 
       onNewMessage(message) {
         get().updateCurrentSession((session) => {
-          session.messages = session.messages.concat()
+          session.messages = message
           session.lastUpdate = Date.now()
         })
       },
-      updateMessage(
-        sessionIndex: number,
-        messageIndex: number,
-        updater: (message?: Message) => void
-      ) {},
 
       resetSession() {
         get().updateCurrentSession((session) => {
@@ -92,7 +80,8 @@ export const useChatStore = create<ChatStore>()(
 
       updateCurrentSession(updater) {
         const sessions = get().sessions
-        const index = get().currentSessionIndex
+        const id = get().currentSessionId
+        const index = sessions?.findIndex((item) => item?.id === id)
         updater(sessions[index])
         set(() => ({ sessions }))
       },
