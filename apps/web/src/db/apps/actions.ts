@@ -19,8 +19,6 @@ import { taskToApiFormatter } from '@/app/app/[app_id]/settings/workflow/utils'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable } from '../datasets/schema'
-import { SessionsTable } from '../sessions/schema'
-import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
 export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
@@ -75,72 +73,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       },
     })
 
-    let api_session_id = null
-    if (flags.enabledAIService) {
-      let { data: res } = await axios.post(
-        `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-        { model_id: api_model_id }
-      )
-      if (res.status !== 200) {
-        serverLog.capture({
-          distinctId: userId,
-          event: 'ai_service_error:add_session',
-          properties: {
-            message: res.message,
-            app_id: appId,
-          },
-        })
-        throw new Error(`AI service error: ${res.message}`)
-      }
-      api_session_id = res?.data?.session_id
-    }
-
-    let eventMessageContent = null
-    if (newApp.opening_remarks) {
-      eventMessageContent = newApp.opening_remarks
-    }
-    if (newApp.enable_video_interaction) {
-      eventMessageContent = null
-    }
-
-    const sessionVal = {
-      short_id: nanoid(),
-      name: 'Chat 1',
-      app_id: appId,
-      created_by: userId,
-      api_session_id,
-      events_str: eventMessageContent
-        ? JSON.stringify([
-            {
-              type: 'event',
-              data: {
-                id: nanoid(),
-                role: 'assistant',
-                content: eventMessageContent,
-                createdAt: Date.now(),
-              },
-            },
-          ])
-        : null,
-    }
-    const newSession = await db
-      .insert(SessionsTable)
-      .values(sessionVal)
-      .returning()
-
-    serverLog.capture({
-      distinctId: userId,
-      event: 'success:add_session',
-      properties: {
-        app_id: appId,
-        session_id: newSession[0]?.short_id,
-        api_session_id,
-      },
-    })
-
-    await addToWorkspace(appId)
-
-    return { appId, sessionId: newSession[0]?.short_id }
+    return { appId }
   } catch (error: any) {
     return {
       error: error.message,

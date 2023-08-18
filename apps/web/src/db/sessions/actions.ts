@@ -2,9 +2,9 @@ import 'server-only'
 
 import { redirect } from 'next/navigation'
 import { Message } from 'ai'
-import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
 
+import { api } from '@/lib/api'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
@@ -32,10 +32,9 @@ export async function addSession(appId: string) {
 
   let api_session_id = null
   if (flags.enabledAIService) {
-    let { data: res } = await axios.post(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-      { model_id: foundApp?.api_model_id }
-    )
+    let res = await api.post<any, any>('/v1/chat/session', {
+      model_id: foundApp.api_model_id,
+    })
     if (res.status !== 200) {
       serverLog.capture({
         distinctId: userId,
@@ -75,12 +74,10 @@ export async function addSession(appId: string) {
       ? JSON.stringify([
           {
             type: 'event',
-            data: {
-              id: nanoid(),
-              role: 'assistant',
-              content: eventMessageContent,
-              createdAt: Date.now(),
-            },
+            id: nanoid(),
+            role: 'assistant',
+            content: eventMessageContent,
+            createdAt: Date.now(),
           },
         ])
       : null,
@@ -180,15 +177,16 @@ export async function getLatestSessionId(appId: string) {
       throw new Error('Not authenticated')
     }
 
-    const foundApp = await db
+    const [foundApp] = await db
       .select()
       .from(AppsTable)
       .where(eq(AppsTable.short_id, appId))
-    if (!foundApp?.[0]) {
+      .limit(1)
+    if (!foundApp) {
       throw new Error('App not found')
     }
 
-    const foundSession = await db
+    const [foundSession] = await db
       .select()
       .from(SessionsTable)
       .where(
@@ -200,34 +198,59 @@ export async function getLatestSessionId(appId: string) {
       )
       .orderBy(desc(SessionsTable.created_at))
       .limit(1)
-    if (!foundSession?.[0]) {
+
+    if (!foundSession) {
       let api_session_id = null
       if (flags.enabledAIService) {
-        let { data: res } = await axios.post(
-          `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-          { model_id: foundApp?.[0]?.api_model_id }
-        )
+        let res = await api.post<any, any>('/v1/chat/session', {
+          model_id: foundApp.api_model_id,
+        })
         if (res.status !== 200) {
+          serverLog.capture({
+            distinctId: userId,
+            event: 'ai_service_error:add_session',
+            properties: {
+              message: res.message,
+              app_id: appId,
+            },
+          })
           throw new Error(`AI service error: ${res.message}`)
         }
         api_session_id = res?.data?.session_id
       }
-
+      let eventMessageContent = null
+      if (foundApp.opening_remarks) {
+        eventMessageContent = foundApp.opening_remarks
+      }
+      if (foundApp.enable_video_interaction) {
+        eventMessageContent = null
+      }
       const sessionVal = {
         short_id: nanoid(),
         name: 'Chat 1',
         app_id: appId,
         created_by: userId,
         api_session_id,
+        events_str: eventMessageContent
+          ? JSON.stringify([
+              {
+                type: 'event',
+                id: nanoid(),
+                role: 'assistant',
+                content: eventMessageContent,
+                createdAt: Date.now(),
+              },
+            ])
+          : null,
       }
-      const newSession = await db
+      const [newSession] = await db
         .insert(SessionsTable)
         .values(sessionVal)
         .returning()
-      return newSession[0].short_id
+      return newSession.short_id
     }
 
-    return foundSession[0].short_id
+    return foundSession.short_id
   } catch (error: any) {
     redirect('/')
   }
