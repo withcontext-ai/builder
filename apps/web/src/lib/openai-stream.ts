@@ -4,14 +4,20 @@ import {
   ReconnectInterval,
 } from 'eventsource-parser'
 
-export async function OpenAIStream(
-  baseUrl: string,
-  payload: any,
+export async function OpenAIStream({
+  baseUrl,
+  payload,
+  callback,
+  data,
+}: {
+  baseUrl: string
+  payload: any
   callback?: {
     onStart?: () => Promise<void> | void
     onCompletion?: (completion: string) => Promise<void> | void
   }
-) {
+  data: Record<string, unknown>
+}) {
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
 
@@ -30,10 +36,13 @@ export async function OpenAIStream(
 
   const stream = new ReadableStream({
     async start(controller) {
+      // prevent the stream from closing when the initial response is too long
       const waitingId = setInterval(() => {
         const queue = encoder.encode('waiting...')
         controller.enqueue(queue)
       }, 20 * 1000)
+
+      controller.enqueue(encoder.encode(`[DATA]${JSON.stringify(data)}`))
 
       async function onParse(event: ParsedEvent | ReconnectInterval) {
         if (event.type === 'event') {
