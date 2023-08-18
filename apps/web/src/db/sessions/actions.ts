@@ -253,6 +253,7 @@ export async function getLatestSessionId(appId: string) {
 
     return foundSession.short_id
   } catch (error: any) {
+    console.log('error:', error)
     redirect('/')
   }
 }

@@ -2,7 +2,8 @@ import RootLayout from '@/components/root-layout'
 
 import Sidebar from './sidebar'
 
-export const runtime = 'edge'
+// TODO: remove axios
+// export const runtime = 'edge'
 
 interface IProps {
   children: React.ReactNode
