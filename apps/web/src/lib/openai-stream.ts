@@ -33,7 +33,7 @@ export async function OpenAIStream(
       const waitingId = setInterval(() => {
         const queue = encoder.encode('waiting...')
         controller.enqueue(queue)
-      }, 10 * 1000)
+      }, 20 * 1000)
 
       async function onParse(event: ParsedEvent | ReconnectInterval) {
         if (event.type === 'event') {
