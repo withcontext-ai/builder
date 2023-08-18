@@ -2,9 +2,9 @@ import 'server-only'
 
 import { redirect } from 'next/navigation'
 import { Message } from 'ai'
+import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
 
-import { api } from '@/lib/api'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
@@ -32,9 +32,10 @@ export async function addSession(appId: string) {
 
   let api_session_id = null
   if (flags.enabledAIService) {
-    let res = await api.post<any, any>('/v1/chat/session', {
-      model_id: foundApp.api_model_id,
-    })
+    let { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+      { model_id: foundApp?.api_model_id }
+    )
     if (res.status !== 200) {
       serverLog.capture({
         distinctId: userId,
@@ -49,13 +50,13 @@ export async function addSession(appId: string) {
     api_session_id = res?.data?.session_id
   }
 
-  const allSessions = await db
+  const [allSessions] = await db
     .select({ count: sql<number>`count(*)` })
     .from(SessionsTable)
     .where(
       and(eq(SessionsTable.app_id, appId), eq(SessionsTable.created_by, userId))
     )
-  const sessionCount = Number(allSessions[0]?.count) || 0
+  const sessionCount = Number(allSessions?.count) || 0
 
   let eventMessageContent = null
   if (foundApp.opening_remarks) {
@@ -82,7 +83,7 @@ export async function addSession(appId: string) {
         ])
       : null,
   }
-  const newSession = await db
+  const [newSession] = await db
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
@@ -92,12 +93,12 @@ export async function addSession(appId: string) {
     event: 'success:add_session',
     properties: {
       app_id: appId,
-      session_id: newSession[0]?.short_id,
+      session_id: newSession.short_id,
       api_session_id,
     },
   })
 
-  return { sessionId: newSession[0]?.short_id }
+  return { sessionId: newSession.short_id }
 }
 
 export async function getSessions(appId: string) {
@@ -127,7 +128,7 @@ export async function removeSession(appId: string, sessionId: string) {
   const { userId } = auth()
   if (!userId) return null
 
-  const foundSession = await db
+  const [foundSession] = await db
     .select()
     .from(SessionsTable)
     .where(
@@ -136,8 +137,8 @@ export async function removeSession(appId: string, sessionId: string) {
         eq(SessionsTable.created_by, userId)
       )
     )
-  if (!foundSession?.[0]) return null
-  if (foundSession[0].app_id !== appId) return null
+  if (!foundSession) return null
+  if (foundSession.app_id !== appId) return null
 
   // await db.delete(SessionsTable).where(eq(SessionsTable.short_id, sessionId))
   await db
@@ -154,7 +155,7 @@ export async function removeSession(appId: string, sessionId: string) {
     },
   })
 
-  const latestSession = await db
+  const [latestSession] = await db
     .select()
     .from(SessionsTable)
     .where(
@@ -167,7 +168,7 @@ export async function removeSession(appId: string, sessionId: string) {
     .orderBy(desc(SessionsTable.created_at))
     .limit(1)
 
-  return { deletedId: sessionId, latestId: latestSession[0]?.short_id }
+  return { deletedId: sessionId, latestId: latestSession?.short_id }
 }
 
 export async function getLatestSessionId(appId: string) {
@@ -198,13 +199,13 @@ export async function getLatestSessionId(appId: string) {
       )
       .orderBy(desc(SessionsTable.created_at))
       .limit(1)
-
     if (!foundSession) {
       let api_session_id = null
       if (flags.enabledAIService) {
-        let res = await api.post<any, any>('/v1/chat/session', {
-          model_id: foundApp.api_model_id,
-        })
+        let { data: res } = await axios.post(
+          `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+          { model_id: foundApp?.api_model_id }
+        )
         if (res.status !== 200) {
           serverLog.capture({
             distinctId: userId,
