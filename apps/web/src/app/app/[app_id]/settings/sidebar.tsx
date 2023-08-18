@@ -40,6 +40,7 @@ export default function Sidebar({ appId, appName }: IProps) {
 
   const handelDelete = () => {
     chatStore.removeSession(appId)
+    // chatStore.clearAllData()
   }
 
   return (

@@ -1,4 +1,5 @@
 import { Message } from 'ai'
+import { MessagesSquare } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -18,10 +19,10 @@ export interface ChatSession {
   lastUpdate: number
 }
 
-function createEmptySession(id: string): ChatSession {
+function createEmptySession(id: string, messages?: Message[]): ChatSession {
   return {
     id,
-    messages: [],
+    messages: messages || [],
     lastUpdate: Date.now(),
   }
 }
@@ -30,7 +31,7 @@ interface ChatStore {
   sessions: ChatSession[]
   currentSessionId: string
   selectSession: (index: string) => void
-  newSession: (id: string) => void
+  newSession: (id: string, message?: Message[]) => void
   removeSession: (id: string) => void
   clearAllData: () => void
 
@@ -51,8 +52,8 @@ export const useChatStore = create<ChatStore>()(
         })
       },
 
-      newSession(id: string) {
-        const session = createEmptySession(id)
+      newSession(id: string, messages?: Message[]) {
+        const session = createEmptySession(id, messages)
         set((state) => ({
           currentSessionId: id,
           sessions: [session].concat(state.sessions),
@@ -63,7 +64,7 @@ export const useChatStore = create<ChatStore>()(
         const sessions = get().sessions
         const index = sessions.findIndex((item) => item?.id === id)
         sessions.splice(index, 1)
-        set({ sessions })
+        // set({ sessions })
       },
 
       currentSession() {
