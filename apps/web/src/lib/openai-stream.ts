@@ -31,7 +31,6 @@ export async function OpenAIStream(
   const stream = new ReadableStream({
     async start(controller) {
       async function onParse(event: ParsedEvent | ReconnectInterval) {
-        console.log('event:', event)
         if (event.type === 'event') {
           const data = event.data
           if (data === '[DONE]') {
@@ -69,6 +68,11 @@ export async function OpenAIStream(
           }
         }
       }
+
+      setInterval(() => {
+        const queue = encoder.encode('waiting...')
+        controller.enqueue(queue)
+      }, 10 * 1000)
 
       // stream response (SSE) from OpenAI may be fragmented into multiple chunks
       // this ensures we properly read chunks & invoke an event for each SSE event stream
