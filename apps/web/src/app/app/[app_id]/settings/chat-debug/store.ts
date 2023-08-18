@@ -31,6 +31,7 @@ interface ChatStore {
   currentSessionId: string
   selectSession: (index: string) => void
   newSession: (id: string) => void
+  removeSession: (id: string) => void
   currentSession: () => ChatSession
   onNewMessage: (message: Message[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
@@ -57,10 +58,16 @@ export const useChatStore = create<ChatStore>()(
         }))
       },
 
+      removeSession(id: string) {
+        const sessions = get().sessions
+        const index = sessions.findIndex((item) => item?.id === id)
+        sessions.splice(index, 1)
+        set({ sessions })
+      },
+
       currentSession() {
         let id = get().currentSessionId
         const sessions = get().sessions
-        console.log(sessions, '----')
         const session = sessions?.find((item) => item?.id === id) as ChatSession
         return session
       },

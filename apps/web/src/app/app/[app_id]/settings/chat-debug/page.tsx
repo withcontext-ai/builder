@@ -36,7 +36,7 @@ const ChatDebug = ({ app }: IProps) => {
   const { sessions } = chatStore
   const currentSession = chatStore.currentSession()
 
-  // const [chatMessages, setChatMessages] = React.useState<Message[]>(currentSession?.messages)
+  const [chatMessages, setChatMessages] = React.useState<Message[]>([])
   const sessionIdRef = React.useRef(`debug-${appId}`)
 
   const workflowData = useWorkflowContext((state) => state.workflowData)
@@ -79,6 +79,7 @@ const ChatDebug = ({ app }: IProps) => {
   )
 
   React.useEffect(() => {
+    setChatMessages(chatStore.currentSession().messages)
     const isExisted = sessions?.find((item) => item?.id === appId)
     if (!isExisted?.id) {
       // add new session
@@ -113,7 +114,7 @@ md:max-w-xl"
           mode="debug"
           isConfigChanged={shouldResetApiSessionId}
           session={session}
-          // initialMessages={currentSession?.messages}
+          initialMessages={chatMessages}
           setInitialMessages={handleMessage}
         />
       </SheetContent>

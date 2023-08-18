@@ -15,9 +15,10 @@ function removeApp(url: string) {
 interface IProps {
   id: string
   name: string
+  handelDelete?: () => void
 }
 
-export default function DeleteAppButton({ id, name }: IProps) {
+export default function DeleteAppButton({ id, name, handelDelete }: IProps) {
   const router = useRouter()
   const { mutate } = useSWRConfig()
   const { trigger, isMutating } = useSWRMutation(`/api/apps/${id}`, removeApp)
@@ -31,6 +32,7 @@ export default function DeleteAppButton({ id, name }: IProps) {
       mutate('/api/me/workspace')
       router.push('/apps')
       router.refresh()
+      handelDelete?.()
     } catch (error) {
       console.log('AppSettingDialog handleRemove error:', error)
     }

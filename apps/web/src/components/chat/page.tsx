@@ -109,6 +109,7 @@ const Chat = (props: ChatProps) => {
     onFinish: (message) => {
       if (mode === 'debug') {
         props.setInitialMessages?.([...messages, message])
+        console.log([...messages, message], '---onresponse')
       }
     },
   })
