@@ -1,10 +1,10 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
+import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { isEqual, omit } from 'lodash'
 
-import { api } from '@/lib/api'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
@@ -24,9 +24,12 @@ export async function addDataset(
 
   let api_dataset_id = null
   if (flags.enabledAIService) {
-    let res = await api.post<any, any>('/v1/datasets', {
-      name,
-    })
+    const { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets`,
+      {
+        name,
+      }
+    )
     if (res.status !== 200) {
       serverLog.capture({
         distinctId: userId,
@@ -136,8 +139,8 @@ export async function editDataset(
         []
       )
       const editParams = { documents }
-      let res = await api.patch<any, any>(
-        `/v1/datasets/${api_dataset_id}`,
+      let { data: res } = await axios.patch(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
         editParams
       )
       if (res.status !== 200) {
@@ -188,7 +191,9 @@ export async function removeDataset(datasetId: string) {
     api_dataset_id = dataset?.api_dataset_id
     if (!api_dataset_id) return Promise.resolve([])
 
-    let res = await api.delete<any, any>(`/v1/datasets/${api_dataset_id}`)
+    const { data: res } = await axios.delete(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`
+    )
     if (res?.status !== 200) {
       serverLog.capture({
         distinctId: userId,
