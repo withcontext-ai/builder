@@ -4,6 +4,8 @@ import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { ChatMessage } from '@/components/chat/types'
+
 export function createMessage(): Message {
   return {
     id: nanoid(),
@@ -15,11 +17,11 @@ export function createMessage(): Message {
 
 export interface ChatSession {
   id: string
-  messages: Message[]
+  messages: ChatMessage[]
   lastUpdate: number
 }
 
-function createEmptySession(id: string, messages?: Message[]): ChatSession {
+function createEmptySession(id: string, messages?: ChatMessage[]): ChatSession {
   return {
     id,
     messages: messages || [],
@@ -31,12 +33,12 @@ interface ChatStore {
   sessions: ChatSession[]
   currentSessionId: string
   selectSession: (index: string) => void
-  newSession: (id: string, message?: Message[]) => void
+  newSession: (id: string, message?: ChatMessage[]) => void
   removeSession: (id: string) => void
   clearAllData: () => void
 
   currentSession: () => ChatSession
-  onNewMessage: (message: Message[]) => void
+  onNewMessage: (message: ChatMessage[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
 }
 
@@ -52,7 +54,7 @@ export const useChatStore = create<ChatStore>()(
         })
       },
 
-      newSession(id: string, messages?: Message[]) {
+      newSession(id: string, messages?: ChatMessage[]) {
         const session = createEmptySession(id, messages)
         set((state) => ({
           currentSessionId: id,
@@ -64,7 +66,6 @@ export const useChatStore = create<ChatStore>()(
         const sessions = get().sessions
         const index = sessions.findIndex((item) => item?.id === id)
         sessions.splice(index, 1)
-        // set({ sessions })
       },
 
       currentSession() {

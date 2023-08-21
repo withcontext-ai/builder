@@ -77,6 +77,17 @@ interface LiveChatProps extends BaseChatProps {
 
 export type ChatProps = LiveChatProps | DebugChatProps
 
+const createInputMessage = (input: string) => {
+  const inputMsg: ChatMessage = {
+    id: nanoid(),
+    content: input,
+    createdAt: new Date(),
+    role: 'user',
+    type: 'chat',
+  }
+  return inputMsg
+}
+
 const Chat = (props: ChatProps) => {
   const { app, session, mode, initialMessages = [], initialEvents = [] } = props
   const appId = app?.short_id
@@ -93,21 +104,10 @@ const Chat = (props: ChatProps) => {
 
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
-  const createInputMessage = () => {
-    // const inputMsg: Message = {
-    //   id: nanoid(),
-    //   content: input,
-    //   createdAt: new Date(),
-    //   role: 'user',
-    // }
-    // return inputMsg
-  }
-
   const {
     messages,
     input,
     isLoading,
-    append,
     reload,
     stop,
     error,
@@ -116,26 +116,24 @@ const Chat = (props: ChatProps) => {
     handleInputChange,
   } = useChat({
     id: sessionId,
-    initialMessages,
     body: {
       appId,
       sessionId,
       apiSessionId,
     },
     sendExtraMessageFields: true,
+    onFinish: (message) => {
+      if (mode === 'debug') {
+        const inputMsg = createInputMessage(input)
+        props?.setInitialMessages?.([...messages, inputMsg, message])
+      }
+    },
   })
 
   const { eventMessages, setEventMessages } = useChatEvent({
     id: sessionId,
     initialEvents,
   })
-
-  useEffect(() => {
-    // add messages history  to localStorage
-    if (mode === 'debug') {
-      props.setInitialMessages?.(messages)
-    }
-  }, [messages])
 
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
   const callLinkRef = useRef('')
@@ -200,13 +198,11 @@ const Chat = (props: ChatProps) => {
     }
     handleSubmit(e)
     setAutoScroll(true)
-    console.log(messages, '--input')
   }
 
   const disabledRestart =
-    !messages ||
     messages.length === 0 ||
-    (app?.opening_remarks && messages?.length == 1)
+    ((app?.opening_remarks && messages?.length == 1) as boolean)
 
   const handleAccept = useCallback(() => {
     window.open(callLinkRef.current, '_blank')
@@ -232,6 +228,12 @@ const Chat = (props: ChatProps) => {
     addEventTrigger({ session_id: sessionId, event: message })
   }, [sessionId, addEventTrigger, setEventMessages])
 
+  useEffect(() => {
+    // onRestart to show the remark words
+    if (initialMessages?.length && !messages?.length) {
+      setMessages(initialMessages)
+    }
+  }, [initialMessages, messages, setMessages])
   return (
     <ChatContextProvider
       app={app}
@@ -248,7 +250,7 @@ const Chat = (props: ChatProps) => {
             onRestart={() => {
               handelStop()
               setMessages([])
-              mode === 'debug' && props?.onRestart()
+              mode === 'debug' && props?.onRestart?.()
             }}
             disabledRestart={disabledRestart}
           />

@@ -11,6 +11,7 @@ import { App } from '@/db/apps/schema'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import Chat from '@/components/chat/page'
+import { ChatMessage, ChatSession } from '@/components/chat/types'
 
 import { useWorkflowContext } from '../workflow/store'
 import { WorkflowItem } from '../workflow/type'
@@ -31,7 +32,6 @@ const ChatDebug = ({ app }: IProps) => {
   const { short_id: appId, opening_remarks } = app
   const [open, setOpen] = React.useState(false)
   const [apiSessionId, setApiSessionId] = React.useState(null)
-
   const chatStore = useChatStore()
   const { sessions } = chatStore
 
@@ -77,7 +77,7 @@ const ChatDebug = ({ app }: IProps) => {
     [apiSessionId]
   )
 
-  const initialMessages: Message[] = React.useMemo(() => {
+  const initialMessages: ChatMessage[] = React.useMemo(() => {
     const current = chatStore.currentSession()
     return opening_remarks && current?.messages?.length < 2
       ? [
@@ -86,6 +86,7 @@ const ChatDebug = ({ app }: IProps) => {
             role: 'assistant',
             createdAt: new Date(),
             content: opening_remarks,
+            type: 'chat',
           },
         ]
       : current?.messages
@@ -104,7 +105,7 @@ const ChatDebug = ({ app }: IProps) => {
     chatStore.currentSessionId = appId
   }, [appId, chatStore, initialMessages, sessions])
 
-  const handleMessage = (messages: Message[]) => {
+  const handleMessage = (messages: ChatMessage[]) => {
     chatStore.updateCurrentSession((session) => {
       session.messages = messages
       session.lastUpdate = Date.now()
@@ -118,8 +119,7 @@ const ChatDebug = ({ app }: IProps) => {
     })
   }
 
-  const current = chatStore.currentSession()?.messages
-  console.log(current, '--current')
+  const current = chatStore.currentSession()
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
@@ -139,7 +139,7 @@ md:max-w-xl"
           mode="debug"
           isConfigChanged={shouldResetApiSessionId}
           session={session}
-          initialMessages={current}
+          initialMessages={current?.messages}
           setInitialMessages={handleMessage}
           onRestart={onRestart}
         />
