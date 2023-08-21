@@ -123,11 +123,6 @@ const Chat = (props: ChatProps) => {
       apiSessionId,
     },
     sendExtraMessageFields: true,
-    onFinish: (message) => {
-      if (mode === 'debug') {
-        props.setInitialMessages?.([...messages, message])
-      }
-    },
   })
 
   const { eventMessages, setEventMessages } = useChatEvent({
@@ -135,7 +130,12 @@ const Chat = (props: ChatProps) => {
     initialEvents,
   })
 
-  console.log(initialMessages, '----initMessages', messages)
+  useEffect(() => {
+    // add messages history  to localStorage
+    if (mode === 'debug') {
+      props.setInitialMessages?.(messages)
+    }
+  }, [messages])
 
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
   const callLinkRef = useRef('')
@@ -200,6 +200,7 @@ const Chat = (props: ChatProps) => {
     }
     handleSubmit(e)
     setAutoScroll(true)
+    console.log(messages, '--input')
   }
 
   const disabledRestart =
