@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Message } from 'ai'
 import { useChat } from 'ai/react'
 import useSWRMutation from 'swr/mutation'
@@ -129,6 +129,13 @@ const Chat = (props: ChatProps) => {
     id: sessionId,
     initialEvents,
   })
+
+  // useEffect(() => {
+  //   if (initialMessages?.length) {
+  //     setMessages(initialMessages)
+  //   }
+  // }, [initialMessages])
+  console.log(initialMessages, '----initMessages', messages)
 
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
   const callLinkRef = useRef('')

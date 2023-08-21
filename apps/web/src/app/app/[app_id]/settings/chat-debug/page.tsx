@@ -79,7 +79,7 @@ const ChatDebug = ({ app }: IProps) => {
 
   const initialMessages: Message[] = React.useMemo(() => {
     const current = chatStore.currentSession()
-    return opening_remarks
+    return opening_remarks && current?.messages?.length < 2
       ? [
           {
             id: nanoid(),
@@ -88,7 +88,7 @@ const ChatDebug = ({ app }: IProps) => {
             content: opening_remarks,
           },
         ]
-      : []
+      : current?.messages
   }, [chatStore, opening_remarks])
 
   const getMessageHistory = React.useCallback(() => {
@@ -118,7 +118,7 @@ const ChatDebug = ({ app }: IProps) => {
     })
   }
 
-  const current = chatStore.currentSession()
+  const current = chatStore.currentSession()?.messages
   console.log(current, '--current')
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -139,7 +139,7 @@ md:max-w-xl"
           mode="debug"
           isConfigChanged={shouldResetApiSessionId}
           session={session}
-          initialMessages={current?.messages}
+          initialMessages={current}
           setInitialMessages={handleMessage}
           onRestart={onRestart}
         />
