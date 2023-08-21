@@ -141,7 +141,7 @@ export const uploadFile = async ({
   setIsUploading(true)
   if (!file) return
   file.status = 'uploading'
-  file.percent = 0
+  file.percent = 10
   await changeCurrentFile(file, mergedFileList, setMergedFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
@@ -173,7 +173,7 @@ export const uploadFile = async ({
       cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
-        const { progress = 0 } = progressEvent
+        const { progress = 0.1 } = progressEvent
         file.percent = progress * 100
         await changeCurrentFile(file, mergedFileList, setMergedFileList)
       },
