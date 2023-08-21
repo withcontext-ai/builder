@@ -10,7 +10,5 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "timeline.pageOnScroll": true,
-  "git.timeline.showUncommitted": true
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
