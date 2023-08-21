@@ -141,7 +141,7 @@ const handleSuccess = ({
 export const uploadFile = async ({
   file,
   mergedFileList,
-  abortControllerRef,
+  controller,
   process,
   onChangeFileList,
   setMergedFileList,
@@ -191,7 +191,7 @@ export const uploadFile = async ({
 
   axios
     .post(upload_url, formData, {
-      signal: abortControllerRef.current?.signal,
+      signal: controller?.signal,
       // cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'

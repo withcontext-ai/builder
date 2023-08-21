@@ -142,7 +142,7 @@ const Upload = (props: UploadProps) => {
       })
     },
 
-    [maxCount, process, isValid, controller, onChangeFileList, fileType]
+    [maxCount, process, isValid, controller, source, onChangeFileList, fileType]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
@@ -162,7 +162,6 @@ const Upload = (props: UploadProps) => {
     const objectFileList = batchFileInfoList.map((info) =>
       file2Obj(info.file as RcFile)
     )
-
     // Concat new files with prev files
     let newFileList = [...mergedFileList]
 
@@ -196,6 +195,7 @@ const Upload = (props: UploadProps) => {
         // Inject `uploading` status
         fileObj.status = 'uploading'
       }
+      console.log(triggerFileObj, newFileList, '---newFileList')
       onInternalChange(triggerFileObj, newFileList)
     })
   }
