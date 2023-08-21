@@ -148,3 +148,8 @@ export interface FileItemProps<T = any> {
   fileNameStyle?: string
   locale?: UploadLocale
 }
+
+export interface FilePercent {
+  uid?: string
+  percent?: number
+}

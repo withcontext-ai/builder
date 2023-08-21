@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
 import axios, { CancelTokenSource } from 'axios'
+import { flushSync } from 'react-dom'
 
 import { nanoid } from '@/lib/utils'
 
 import type {
+  FilePercent,
   InternalUploadFile,
   RcFile,
   UploadFile,
@@ -88,11 +91,27 @@ const changeCurrentFile = async (
     // @ts-ignore
     (item: { uid: any }) => item?.uid === file?.uid
   )
-
   if (index !== -1) {
     mergedFileList[index] = file
   }
   setMergedFileList?.(mergedFileList)
+}
+
+const handelProcess = (
+  file: UploadFile,
+  process?: FilePercent[],
+  setProcess?: (s: FilePercent[]) => void
+) => {
+  // add dynamic process to file
+  const allProcess = process || []
+  const processIndex =
+    allProcess?.findIndex((item) => item?.uid === file?.uid) || 0
+  if (processIndex !== -1) {
+    allProcess[processIndex] = { uid: file?.uid, percent: file?.percent }
+    setProcess?.(allProcess)
+  } else {
+    setProcess?.([...allProcess, { uid: file?.uid, percent: file?.percent }])
+  }
 }
 
 const handleSuccess = ({
@@ -122,26 +141,29 @@ const handleSuccess = ({
 export const uploadFile = async ({
   file,
   mergedFileList,
-  controller,
-  source,
+  abortControllerRef,
+  process,
   onChangeFileList,
   setMergedFileList,
   setIsUploading,
   fileType,
+  setProcess,
 }: {
   file: UploadFile
   mergedFileList: UploadFile<any>[]
   fileType?: string
   controller?: AbortController
   source?: CancelTokenSource
+  process?: FilePercent[]
   onChangeFileList?: (files: FileProps[]) => void
   setMergedFileList?: (files: UploadFile<any>[]) => void
   setIsUploading: (s: boolean) => void
+  setProcess?: (s: FilePercent[]) => void
 }) => {
   setIsUploading(true)
   if (!file) return
   file.status = 'uploading'
-  file.percent = 10
+  file.percent = 0
   await changeCurrentFile(file, mergedFileList, setMergedFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
@@ -169,13 +191,14 @@ export const uploadFile = async ({
 
   axios
     .post(upload_url, formData, {
-      signal: controller?.signal,
-      cancelToken: source?.token,
+      signal: abortControllerRef.current?.signal,
+      // cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
-        const { progress = 0.1 } = progressEvent
+        const { progress = 0 } = progressEvent
         file.percent = progress * 100
         await changeCurrentFile(file, mergedFileList, setMergedFileList)
+        await handelProcess(file, process, setProcess)
       },
     })
     .then(async () => {
