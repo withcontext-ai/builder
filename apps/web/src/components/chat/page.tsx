@@ -1,8 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Message } from 'ai'
-import { useChat } from 'ai/react'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher, nanoid } from '@/lib/utils'
@@ -16,8 +14,15 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 import RestartConfirmPage from './restart-confirm'
-import { ChatApp, ChatSession, EventMessage } from './types'
+import {
+  ChatApp,
+  ChatMessage,
+  ChatSession,
+  EventMessage,
+  Message,
+} from './types'
 import useConfigBase64 from './use-config-base64'
+import { useChat } from './useChat'
 import VideoCallConfirmDialog from './video-call-confirm-dialog'
 
 function formatToTimestamp(date?: Date | number | null) {
@@ -34,11 +39,10 @@ function formatToTimestamp(date?: Date | number | null) {
 function eventMessageBuilder(type: string): EventMessage {
   return {
     type: 'event',
-    data: {
-      id: nanoid(),
-      type,
-      createdAt: Date.now(),
-    },
+    id: nanoid(),
+    createdAt: new Date(),
+    eventType: type,
+    role: 'assistant',
   }
 }
 
@@ -56,15 +60,15 @@ interface BaseChatProps {
   session: ChatSession
   app: ChatApp | null
   mode: ChatMode
-  initialMessages?: Message[]
+  initialMessages?: ChatMessage[]
   initialEvents?: EventMessage[]
 }
 
 interface DebugChatProps extends BaseChatProps {
   mode: 'debug'
   isConfigChanged?: boolean
-  setInitialMessages?: (messages: Message[]) => void
-  onRestart: () => void
+  setInitialMessages?: (messages: ChatMessage[]) => void
+  onRestart?: () => void
 }
 
 interface LiveChatProps extends BaseChatProps {
@@ -86,22 +90,24 @@ const Chat = (props: ChatProps) => {
   const [confirmReset, setConfirmReset] = useState(
     mode === 'debug' && props.isConfigChanged && initialMessages?.length !== 0
   )
+
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
   const createInputMessage = () => {
-    const inputMsg: Message = {
-      id: nanoid(),
-      content: input,
-      createdAt: new Date(),
-      role: 'user',
-    }
-    return inputMsg
+    // const inputMsg: Message = {
+    //   id: nanoid(),
+    //   content: input,
+    //   createdAt: new Date(),
+    //   role: 'user',
+    // }
+    // return inputMsg
   }
 
   const {
     messages,
     input,
     isLoading,
+    append,
     reload,
     stop,
     error,
@@ -119,8 +125,7 @@ const Chat = (props: ChatProps) => {
     sendExtraMessageFields: true,
     onFinish: (message) => {
       if (mode === 'debug') {
-        const inputMsg = createInputMessage()
-        props.setInitialMessages?.([...messages, inputMsg, message])
+        props.setInitialMessages?.([...messages, message])
       }
     },
   })
@@ -130,11 +135,6 @@ const Chat = (props: ChatProps) => {
     initialEvents,
   })
 
-  // useEffect(() => {
-  //   if (initialMessages?.length) {
-  //     setMessages(initialMessages)
-  //   }
-  // }, [initialMessages])
   console.log(initialMessages, '----initMessages', messages)
 
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
@@ -142,8 +142,8 @@ const Chat = (props: ChatProps) => {
   const configStr = useConfigBase64({ appName })
   const onAdd = useCallback(
     (newEventMessage: any) => {
-      if (newEventMessage?.data?.type === 'call.created') {
-        callLinkRef.current = `${newEventMessage?.data?.link || ''}${
+      if (newEventMessage?.eventType === 'call.created') {
+        callLinkRef.current = `${newEventMessage?.link || ''}${
           configStr ? `?c=${configStr}` : ''
         }`
         setIsOpenCallConfirm(true)
@@ -162,16 +162,11 @@ const Chat = (props: ChatProps) => {
   })
 
   const chatMessages = useMemo(() => {
-    const formattedMessages = messages?.map((message) => ({
-      type: 'chat',
-      data: message,
-    }))
-    return [...formattedMessages, ...eventMessages].sort(
-      (a, b) =>
-        formatToTimestamp(a.data?.createdAt) -
-        formatToTimestamp(b.data?.createdAt)
+    return [...messages, ...eventMessages].sort(
+      (a, b) => formatToTimestamp(a.createdAt) - formatToTimestamp(b.createdAt)
     )
   }, [messages, eventMessages])
+  const disabled = !input || input.trim() === '' || isLoading
 
   const handelReload = () => {
     setAutoScroll(true)
@@ -190,7 +185,9 @@ const Chat = (props: ChatProps) => {
     handelStop()
     setMessages([])
     setConfirmReset(false)
-    mode === 'debug' && props?.onRestart()
+    if (props?.mode === 'debug') {
+      props?.onRestart?.()
+    }
   }
 
   const onCancel = () => {
@@ -198,6 +195,9 @@ const Chat = (props: ChatProps) => {
   }
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (disabled) {
+      return
+    }
     handleSubmit(e)
     setAutoScroll(true)
   }
@@ -264,6 +264,7 @@ const Chat = (props: ChatProps) => {
             reload={handelReload}
             stop={handelStop}
             handleInputChange={handleInputChange}
+            disabled={disabled}
           />
         </div>
       </div>
