@@ -162,6 +162,5 @@ export interface UploadFileProps {
   controller?: AbortController
   source?: CancelTokenSource
   onChangeFileList?: (files: FileProps[]) => void
-  ?: (files: UploadFile<any>[]) => void
   setIsUploading: (s: boolean) => void
 }

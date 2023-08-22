@@ -21,7 +21,6 @@ import {
   changeToUploadFile,
   file2Obj,
   FileProps,
-  getFileItem,
   removeFileItem,
   updateFileList,
   uploadFile,
