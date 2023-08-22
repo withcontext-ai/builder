@@ -1,10 +1,8 @@
 import axios from 'axios'
-import { aw } from 'drizzle-orm/column.d-aa4e525d'
 
 import { nanoid } from '@/lib/utils'
 
 import type {
-  FilePercent,
   InternalUploadFile,
   RcFile,
   UploadFile,
