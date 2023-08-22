@@ -184,7 +184,7 @@ export const uploadFile = async ({
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
-        await changeCurrentFile(file, mergedFileList, setMergedFileList)
+        // to get the fileProcess
         await handelProcess(file, process, setProcess)
       },
     })
@@ -195,7 +195,7 @@ export const uploadFile = async ({
       handleSuccess({ mergedFileList, onChangeFileList, fileType })
       await changeCurrentFile(file, mergedFileList, setMergedFileList)
     })
-    .catch((error) => {
+    .catch(async (error) => {
       if (axios.isCancel(error)) {
         console.log('Request canceled', error.message)
       }
