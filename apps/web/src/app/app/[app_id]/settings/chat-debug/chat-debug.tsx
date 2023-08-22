@@ -99,26 +99,17 @@ const ChatDebug = ({ app }: IProps) => {
     if (!isExisted?.id) {
       chatStore.newSession(appId, initialMessages)
     } else {
-      chatStore.updateCurrentSession((session) => {
-        session.messages = initialMessages
-        session.lastUpdate = Date.now()
-      })
+      chatStore.onNewMessage(initialMessages)
     }
     chatStore.currentSessionId = appId
   }, [appId, chatStore, initialMessages, sessions])
 
   const handleMessage = (messages: ChatMessage[]) => {
-    chatStore.updateCurrentSession((session) => {
-      session.messages = messages
-      session.lastUpdate = Date.now()
-    })
+    chatStore.onNewMessage(messages)
   }
 
   const onRestart = () => {
-    chatStore.updateCurrentSession((session) => {
-      session.messages = []
-      session.lastUpdate = Date.now()
-    })
+    chatStore.onNewMessage([])
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
