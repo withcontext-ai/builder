@@ -7,7 +7,7 @@ import { ChatApp, ChatSession } from './types'
 export type ChatMode = 'live' | 'debug' | 'history'
 
 interface BaseChatContextType {
-  app: ChatApp | null
+  app?: ChatApp | null
   session: ChatSession
   mode: ChatMode
   isLoading?: boolean

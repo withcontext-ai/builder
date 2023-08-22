@@ -1,8 +1,6 @@
-import { ColumnDef, useReactTable } from '@tanstack/react-table'
+import { getMonitoringData, getSessions } from '@/db/sessions/actions'
 
-import { getApp } from '@/db/apps/actions'
-import { getSessions } from '@/db/sessions/actions'
-import { Session } from '@/db/sessions/schema'
+import { MonitoringTable } from './table'
 
 interface IProps {
   params: {
@@ -10,31 +8,19 @@ interface IProps {
   }
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page({ params }: IProps) {
   const { app_id } = params
 
-  const appDetail = await getApp(app_id)
-
-  const sessions = await getSessions(app_id)
-
-  const columns: ColumnDef<Session>[] = [
-    {
-      accessorKey: 'created_at',
-      header: 'Time',
-    },
-    {
-      accessorKey: 'created_by',
-      header: 'User Email',
-    },
-    {
-      accessorKey: 'id',
-      header: 'Conversation ID',
-    },
-  ]
+  const data = await getMonitoringData({
+    appId: app_id,
+  })
 
   return (
-    <div className="mx-14 mt-18 w-[530px]">
-
+    <div className="mx-14 mt-18">
+      <h2 className="mb-6	text-2xl font-semibold leading-8">Monitoring</h2>
+      <MonitoringTable preloaded={data} />
     </div>
   )
 }

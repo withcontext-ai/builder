@@ -1,5 +1,7 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
+
 import { flags } from '@/lib/flags'
 
 import BaseSideBar from '../sidebar'
@@ -11,6 +13,7 @@ interface IProps {
 }
 
 export default function Sidebar({ appId, appName }: IProps) {
+  const searchParams = useSearchParams()
   return (
     <BaseSideBar>
       <div className="pl-3 text-sm font-medium uppercase text-slate-500">
@@ -18,13 +21,19 @@ export default function Sidebar({ appId, appName }: IProps) {
       </div>
 
       <BaseSideBar.Link
-        href={`/app/${appId}/settings/basics`}
+        href={{
+          pathname: `/app/${appId}/settings/basics`,
+          search: searchParams.toString(),
+        }}
         name="Basics"
         desc="Some basic configurations of the App."
       />
       {flags.enabledWorkflow && (
         <BaseSideBar.Link
-          href={`/app/${appId}/settings/workflow`}
+          href={{
+            pathname: `/app/${appId}/settings/workflow`,
+            search: searchParams.toString(),
+          }}
           name="Workflow"
           desc="Workflow related configurations of the App."
         />

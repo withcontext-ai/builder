@@ -1,19 +1,21 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { ThumbsDown, ThumbsUp } from 'lucide-react'
+import { useCallback } from 'react'
+import { TooltipTrigger } from '@radix-ui/react-tooltip'
+import { Clock, Code2, ThumbsDown, ThumbsUp } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import { cn } from '@/lib/utils'
-import { Dialog } from '@/components/ui/dialog'
+import { Tooltip, TooltipContent } from '@/components/ui/tooltip'
 
 import { useChatContext } from '../chat-context'
+import { ChatMessage } from '../types'
 import { useChatFeedbackContext } from './chat-feedback-context'
 import submitFeedback from './service'
 import { ChatFeedbackType } from './types'
 
 type Props = {
-  messageId?: string
+  message: ChatMessage
 }
 
 const commonButtonProps = {
@@ -22,9 +24,10 @@ const commonButtonProps = {
 } as const
 
 const ChatFeedbackButtons = (props: Props) => {
-  const { messageId } = props
-  const { session } = useChatContext()
-  const { short_id: session_id } = session
+  const { message } = props
+  const { id, feedback, feedback_content, latency } = message
+  const { session, mode } = useChatContext()
+  const { short_id: session_id } = session || {}
 
   const { toggleFeedback, feedbacked } = useChatFeedbackContext()
 
@@ -32,17 +35,17 @@ const ChatFeedbackButtons = (props: Props) => {
 
   const handleClick = useCallback(
     (type: ChatFeedbackType) => () => {
-      if (messageId) {
+      if (id) {
         trigger({
-          message_id: messageId,
+          message_id: id,
           type,
           session_id,
         })
 
-        toggleFeedback(messageId, type)
+        toggleFeedback(id, type)
       }
     },
-    [messageId, toggleFeedback, session_id, trigger]
+    [id, toggleFeedback, session_id, trigger]
   )
 
   const renderButton = useCallback(
@@ -83,12 +86,51 @@ const ChatFeedbackButtons = (props: Props) => {
     [handleClick]
   )
 
-  if (!messageId) {
+  if (!id) {
     return null
   }
 
-  const status = feedbacked[messageId]
+  const status = feedback || feedbacked[id]
 
+  if (mode === 'history') {
+    let button
+    if (feedback === 'good') {
+      button = renderButton('good', false)
+    } else if (feedback === 'bad') {
+      button = renderButton('bad', false)
+    }
+    return (
+      <>
+        {button && (
+          <Tooltip>
+            <TooltipTrigger asChild>{button}</TooltipTrigger>
+            <TooltipContent side="bottom" className="p-4">
+              {feedback_content}
+            </TooltipContent>
+          </Tooltip>
+        )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="ml-1 rounded-md border bg-white p-2">
+              <Code2 {...commonButtonProps} className="stroke-slate-400" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="space-y-2 p-4">
+            <div className="font-semibold">API request detail:</div>
+
+            <div className="flex items-center space-x-1">
+              {latency && (
+                <>
+                  <Clock />
+                  <div>{(latency / 1000).toPrecision(2)}s</div>
+                </>
+              )}
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </>
+    )
+  }
   return (
     <>
       {!status && (

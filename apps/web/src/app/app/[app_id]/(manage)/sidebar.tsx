@@ -2,6 +2,7 @@
 
 import { PropsWithChildren, useTransition } from 'react'
 import { Route } from 'next'
+import { Url } from 'next/dist/shared/lib/router/router'
 import Link from 'next/link'
 import {
   useRouter,
@@ -17,7 +18,7 @@ const commonStyle =
   'flex cursor-pointer flex-col rounded-md p-3 hover:bg-slate-200'
 
 type SidebarLinkProps = {
-  href: Route
+  href: Url
   name: string
   desc: string
 }
@@ -25,7 +26,8 @@ type SidebarLinkProps = {
 const SidebarLink = (props: SidebarLinkProps) => {
   const { href, name, desc } = props
   const segments = useSelectedLayoutSegments()
-  const basename = href.split('/').pop() ?? ''
+  const basename =
+    (typeof href === 'string' ? href : href.pathname)?.split('/').pop() ?? ''
   return (
     <Link
       className={cn(

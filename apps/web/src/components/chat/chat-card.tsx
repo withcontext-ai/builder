@@ -195,7 +195,7 @@ const ChatCard = (props: IProps) => {
                 // or any other messages
                 ((isEnd && !isLoading) || !isEnd) && (
                   <ChatActions>
-                    <ChatFeedbackButtons messageId={message?.id} />
+                    <ChatFeedbackButtons message={message} />
                   </ChatActions>
                 )}
             </div>
