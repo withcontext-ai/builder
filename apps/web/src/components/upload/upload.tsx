@@ -195,7 +195,6 @@ const Upload = (props: UploadProps) => {
         // Inject `uploading` status
         fileObj.status = 'uploading'
       }
-      console.log(triggerFileObj, newFileList, '---newFileList')
       onInternalChange(triggerFileObj, newFileList)
     })
   }
@@ -250,11 +249,11 @@ const Upload = (props: UploadProps) => {
       })
     },
     [
+      onRemove,
+      controller,
       mergedFileList,
       onChangeFileList,
       onInternalChange,
-      onRemove,
-      setMergedFileList,
       fileType,
     ]
   )

@@ -100,7 +100,7 @@ export const PDFFile = (props: FileItemProps) => {
                 {file?.name}
               </div>
               {file?.status === 'uploading' && (
-                <Progress value={file?.percent} className="h-1 duration-75" />
+                <Progress value={file?.percent} className="h-1" />
               )}
             </div>
           </div>
