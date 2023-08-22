@@ -35,6 +35,7 @@ const ChatDebug = ({ app }: IProps) => {
   const [apiSessionId, setApiSessionId] = React.useState(null)
   const chatStore = useChatStore()
   const { sessions } = chatStore
+  chatStore.currentSessionId = appId
 
   const sessionIdRef = React.useRef(`debug-${appId}`)
 
@@ -78,8 +79,8 @@ const ChatDebug = ({ app }: IProps) => {
     [apiSessionId]
   )
 
+  const current = chatStore.currentSession()
   const initialMessages: ChatMessage[] = React.useMemo(() => {
-    const current = chatStore.currentSession()
     return opening_remarks && current?.messages?.length < 2
       ? [
           {
@@ -91,7 +92,7 @@ const ChatDebug = ({ app }: IProps) => {
           },
         ]
       : current?.messages
-  }, [chatStore, opening_remarks])
+  }, [current?.messages, opening_remarks])
 
   const getMessageHistory = React.useCallback(() => {
     const isExisted = sessions?.find((item) => item?.id === appId)
@@ -119,8 +120,6 @@ const ChatDebug = ({ app }: IProps) => {
       session.lastUpdate = Date.now()
     })
   }
-
-  const current = chatStore.currentSession()
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
