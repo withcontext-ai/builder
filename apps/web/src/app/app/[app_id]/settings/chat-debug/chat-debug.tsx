@@ -35,7 +35,6 @@ const ChatDebug = ({ app }: IProps) => {
   const [apiSessionId, setApiSessionId] = React.useState(null)
   const chatStore = useChatStore()
   const { sessions } = chatStore
-  chatStore.currentSessionId = appId
 
   const sessionIdRef = React.useRef(`debug-${appId}`)
 
@@ -95,13 +94,13 @@ const ChatDebug = ({ app }: IProps) => {
   }, [current?.messages, opening_remarks])
 
   const getMessageHistory = React.useCallback(() => {
+    chatStore.selectSession(appId)
     const isExisted = sessions?.find((item) => item?.id === appId)
     if (!isExisted?.id) {
       chatStore.newSession(appId, initialMessages)
     } else {
       chatStore.onNewMessage(initialMessages)
     }
-    chatStore.currentSessionId = appId
   }, [appId, chatStore, initialMessages, sessions])
 
   const handleMessage = (messages: ChatMessage[]) => {

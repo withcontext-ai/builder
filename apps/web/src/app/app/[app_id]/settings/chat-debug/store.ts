@@ -32,11 +32,9 @@ function createEmptySession(id: string, messages?: ChatMessage[]): ChatSession {
 interface ChatStore {
   sessions: ChatSession[]
   currentSessionId: string
-  selectSession: (index: string) => void
+  selectSession: (id: string) => void
   newSession: (id: string, message?: ChatMessage[]) => void
   removeSession: (id: string) => void
-  clearAllData: () => void
-
   currentSession: () => ChatSession
   onNewMessage: (message: ChatMessage[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
@@ -82,22 +80,12 @@ export const useChatStore = create<ChatStore>()(
         })
       },
 
-      resetSession() {
-        get().updateCurrentSession((session) => {
-          session.messages = []
-        })
-      },
-
       updateCurrentSession(updater) {
         const sessions = get().sessions
         const id = get().currentSessionId
         const index = sessions?.findIndex((item) => item?.id === id)
         updater(sessions[index])
         set(() => ({ sessions }))
-      },
-
-      clearAllData() {
-        set({ sessions: [], currentSessionId: '' })
       },
     }),
     {
