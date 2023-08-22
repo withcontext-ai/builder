@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Loader2Icon, Play } from 'lucide-react'
+import { nanoid } from 'nanoid'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
@@ -13,6 +14,13 @@ import { ChatMessage } from '@/components/chat/types'
 
 import { useWorkflowContext } from '../workflow/store'
 import { WorkflowItem } from '../workflow/type'
+import { useChatStore } from './store'
+
+export const runtime = 'edge'
+
+interface IProps {
+  app: App
+}
 
 function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
   return fetcher(url, {
@@ -21,16 +29,13 @@ function getApiSessionId(url: string, { arg }: { arg: WorkflowItem[] }) {
   })
 }
 
-interface IProps {
-  app: App
-}
-
 const ChatDebug = ({ app }: IProps) => {
-  const { short_id: appId } = app
-
+  const { short_id: appId, opening_remarks } = app
   const [open, setOpen] = React.useState(false)
   const [apiSessionId, setApiSessionId] = React.useState(null)
-  const [chatMessages, setChatMessages] = React.useState<ChatMessage[]>([])
+  const chatStore = useChatStore()
+  const { sessions } = chatStore
+
   const sessionIdRef = React.useRef(`debug-${appId}`)
 
   const workflowData = useWorkflowContext((state) => state.workflowData)
@@ -45,6 +50,7 @@ const ChatDebug = ({ app }: IProps) => {
 
   const { trigger, isMutating } = useSWRMutation(`/api/debug`, getApiSessionId)
   const handleClick = () => {
+    getMessageHistory()
     if (shouldResetApiSessionId) {
       trigger(workflowData).then((res) => {
         setApiSessionId(res?.api_session_id)
@@ -72,6 +78,49 @@ const ChatDebug = ({ app }: IProps) => {
     [apiSessionId]
   )
 
+  const initialMessages: ChatMessage[] = React.useMemo(() => {
+    const current = chatStore.currentSession()
+    return opening_remarks && current?.messages?.length < 2
+      ? [
+          {
+            id: nanoid(),
+            role: 'assistant',
+            createdAt: new Date(),
+            content: opening_remarks,
+            type: 'chat',
+          },
+        ]
+      : current?.messages
+  }, [chatStore, opening_remarks])
+
+  const getMessageHistory = React.useCallback(() => {
+    const isExisted = sessions?.find((item) => item?.id === appId)
+    if (!isExisted?.id) {
+      chatStore.newSession(appId, initialMessages)
+    } else {
+      chatStore.updateCurrentSession((session) => {
+        session.messages = initialMessages
+        session.lastUpdate = Date.now()
+      })
+    }
+    chatStore.currentSessionId = appId
+  }, [appId, chatStore, initialMessages, sessions])
+
+  const handleMessage = (messages: ChatMessage[]) => {
+    chatStore.updateCurrentSession((session) => {
+      session.messages = messages
+      session.lastUpdate = Date.now()
+    })
+  }
+
+  const onRestart = () => {
+    chatStore.updateCurrentSession((session) => {
+      session.messages = []
+      session.lastUpdate = Date.now()
+    })
+  }
+
+  const current = chatStore.currentSession()
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
@@ -91,8 +140,9 @@ md:max-w-xl"
           mode="debug"
           isConfigChanged={shouldResetApiSessionId}
           session={session}
-          initialMessages={chatMessages}
-          setInitialMessages={setChatMessages}
+          initialMessages={current?.messages}
+          setInitialMessages={handleMessage}
+          onRestart={onRestart}
         />
       </SheetContent>
     </Sheet>
