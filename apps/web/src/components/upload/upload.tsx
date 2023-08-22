@@ -69,8 +69,6 @@ const Upload = (props: UploadProps) => {
   // cancel axios request when uploading
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const controller = useMemo(() => new AbortController(), [cancelCount])
-  const CancelToken = axios.CancelToken
-  const source = CancelToken.source()
 
   const unloadCallback = (event: BeforeUnloadEvent) => {
     event.preventDefault()
@@ -128,7 +126,6 @@ const Upload = (props: UploadProps) => {
         if (isValid !== false && changeInfo?.file?.status !== 'removed') {
           uploadFile({
             controller,
-            source,
             file: changeInfo?.file,
             mergedFileList: changeInfo?.fileList,
             onChangeFileList,
@@ -142,7 +139,7 @@ const Upload = (props: UploadProps) => {
       })
     },
 
-    [maxCount, process, isValid, controller, source, onChangeFileList, fileType]
+    [maxCount, process, isValid, controller, onChangeFileList, fileType]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {

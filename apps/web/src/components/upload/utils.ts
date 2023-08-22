@@ -1,6 +1,4 @@
-import { useEffect } from 'react'
-import axios, { CancelTokenSource } from 'axios'
-import { flushSync } from 'react-dom'
+import axios from 'axios'
 
 import { nanoid } from '@/lib/utils'
 
@@ -9,6 +7,7 @@ import type {
   InternalUploadFile,
   RcFile,
   UploadFile,
+  UploadFileProps,
   UploadFileStatus,
 } from './type'
 import { listPropsInterface } from './type'
@@ -148,18 +147,7 @@ export const uploadFile = async ({
   setIsUploading,
   fileType,
   setProcess,
-}: {
-  file: UploadFile
-  mergedFileList: UploadFile<any>[]
-  fileType?: string
-  controller?: AbortController
-  source?: CancelTokenSource
-  process?: FilePercent[]
-  onChangeFileList?: (files: FileProps[]) => void
-  setMergedFileList?: (files: UploadFile<any>[]) => void
-  setIsUploading: (s: boolean) => void
-  setProcess?: (s: FilePercent[]) => void
-}) => {
+}: UploadFileProps) => {
   setIsUploading(true)
   if (!file) return
   file.status = 'uploading'
@@ -192,7 +180,6 @@ export const uploadFile = async ({
   axios
     .post(upload_url, formData, {
       signal: controller?.signal,
-      // cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
         file.status = 'uploading'
         const { progress = 0 } = progressEvent
