@@ -2,11 +2,16 @@
 
 import { useMemo } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { format, isToday, isYesterday } from 'date-fns'
 import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
 
-import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import {
+  cn,
+  formatSeconds,
+  formatTime,
+  getAvatarBgColor,
+  getFirstLetter,
+} from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Text from '../ui/text'
@@ -65,27 +70,11 @@ const AlertErrorIcon = ({ className }: { className: string }) => (
   </svg>
 )
 
-const formatTime = (time: Date) => {
-  if (isToday(time)) {
-    return format(time, 'hh:mm aa')
-  }
-  if (isYesterday(time)) {
-    return `Yesterday at ${format(time, 'hh:mm aa')}`
-  } else return format(time, 'MM/dd/yyyy hh:mm aa')
-}
-
-function formatSeconds(seconds: number) {
-  if (seconds < 3600) {
-    return new Date(seconds * 1000).toISOString().substring(14, 19)
-  }
-  return new Date(seconds * 1000).toISOString().slice(11, 19)
-}
-
 function EventMessage({ data }: { data: any }) {
   let icon
   let message
 
-  switch (data.type) {
+  switch (data.eventType) {
     case 'call.created': {
       icon = <PhoneCallIcon className="mr-4" />
       message = 'Call Requested'
@@ -200,6 +189,8 @@ const ChatCard = (props: IProps) => {
               {renderContent}
               {mode !== 'debug' &&
                 !isUser &&
+                message &&
+                message.type !== 'event' &&
                 // last message finished loading
                 // or any other messages
                 ((isEnd && !isLoading) || !isEnd) && (
