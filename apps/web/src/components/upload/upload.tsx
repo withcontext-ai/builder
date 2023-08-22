@@ -134,7 +134,7 @@ const Upload = (props: UploadProps) => {
       })
     },
 
-    [maxCount, process, isValid, controller, onChangeFileList, fileType]
+    [maxCount, isValid, controller, onChangeFileList, fileType]
   )
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
@@ -395,7 +395,6 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     showFileList,
   ])
-  console.log(mergedFileList, '---mergeFile')
   return (
     <div>
       <div
