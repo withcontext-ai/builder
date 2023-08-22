@@ -129,10 +129,7 @@ const Upload = (props: UploadProps) => {
             file: changeInfo?.file,
             mergedFileList: changeInfo?.fileList,
             onChangeFileList,
-            setMergedFileList,
             setIsUploading,
-            setProcess,
-            process,
             fileType,
           })
         }
@@ -282,7 +279,6 @@ const Upload = (props: UploadProps) => {
         .catch(console.error)
     }
   }
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const rcUploadProps = {
     onBatchStart,
@@ -401,7 +397,7 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     showFileList,
   ])
-
+  console.log(mergedFileList, '---mergeFile')
   return (
     <div>
       <div
