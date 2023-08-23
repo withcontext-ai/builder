@@ -48,14 +48,14 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
             icon: <Settings size={16} />,
             link: `/app/${appId}/settings/basics`,
           },
+          {
+            id: 'analysis',
+            name: 'App Analysis',
+            icon: <Activity size={16} />,
+            link: `/app/${appId}/analysis/monitoring`,
+          },
         ]
       : []),
-    {
-      id: 'analysis',
-      name: 'App Analysis',
-      icon: <Activity size={16} />,
-      link: `/app/${appId}/analysis/monitoring`,
-    },
     {
       id: 'share',
       name: 'Share',
