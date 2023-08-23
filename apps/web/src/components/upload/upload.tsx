@@ -129,7 +129,6 @@ const Upload = (props: UploadProps) => {
             onChangeFileList,
             setIsUploading,
             fileType,
-            process,
             setProcess,
           })
         }
