@@ -3,6 +3,7 @@ import axios from 'axios'
 import { nanoid } from '@/lib/utils'
 
 import type {
+  FilePercent,
   InternalUploadFile,
   RcFile,
   UploadFile,
@@ -104,10 +105,29 @@ const handleSuccess = ({
   onChangeFileList?.(data)
 }
 
+const handelProcess = (
+  file: UploadFile,
+  process?: FilePercent[],
+  setProcess?: (s: FilePercent[]) => void
+) => {
+  // add dynamic process to file
+  const allProcess = process || []
+  const processIndex =
+    allProcess?.findIndex((item) => item?.uid === file?.uid) || 0
+  if (processIndex !== -1) {
+    allProcess[processIndex] = { uid: file?.uid, percent: file?.percent }
+    setProcess?.(allProcess)
+  } else {
+    setProcess?.([...allProcess, { uid: file?.uid, percent: file?.percent }])
+  }
+}
+
 export const uploadFile = async ({
   file,
   mergedFileList,
   controller,
+  process,
+  setProcess,
   onChangeFileList,
   setIsUploading,
   fileType,
@@ -142,6 +162,7 @@ export const uploadFile = async ({
       onUploadProgress: async (progressEvent) => {
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
+        await handelProcess(file, process, setProcess)
       },
     })
     .then(async () => {

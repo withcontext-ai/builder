@@ -82,6 +82,7 @@ export const PDFFile = (props: FileItemProps) => {
       setOpen(true)
     }
   }
+  console.log(file?.percent, '---percent')
   return (
     <div
       className={`relative ${file?.status === 'uploading' ? 'bg-gray-50	' : ''}`}

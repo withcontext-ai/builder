@@ -129,6 +129,8 @@ const Upload = (props: UploadProps) => {
             onChangeFileList,
             setIsUploading,
             fileType,
+            process,
+            setProcess,
           })
         }
       })
@@ -427,7 +429,7 @@ const Upload = (props: UploadProps) => {
                     onRemove={handleRemove}
                     listProps={listProps}
                     key={file?.uid}
-                    progress={percent}
+                    // progress={percent}
                   />
                 ) : (
                   <ImageFile
