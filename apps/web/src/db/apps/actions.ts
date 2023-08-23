@@ -141,9 +141,9 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     if (newApp.opening_remarks) {
       eventMessageContent = newApp.opening_remarks
     }
-    if (newApp.enable_video_interaction) {
-      eventMessageContent = null
-    }
+    // if (newApp.enable_video_interaction) {
+    //   eventMessageContent = null
+    // }
 
     const sessionVal = {
       short_id: nanoid(),
