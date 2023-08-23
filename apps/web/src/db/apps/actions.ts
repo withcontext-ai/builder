@@ -282,7 +282,6 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
         }
       }
     }
-
     const [updatedApp] = await db
       .update(AppsTable)
       .set(newValue)
