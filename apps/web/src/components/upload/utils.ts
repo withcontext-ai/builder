@@ -162,7 +162,7 @@ export const uploadFile = async ({
       onUploadProgress: async (progressEvent) => {
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
-        // await handelProcess(file, process, setProcess)
+        await handelProcess(file, process, setProcess)
       },
     })
     .then(async () => {

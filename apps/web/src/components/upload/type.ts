@@ -143,7 +143,7 @@ export interface FileItemProps<T = any> {
   onDownload?: (file: UploadFile<T>) => void
   onRemove?: (file: UploadFile<T>) => void | boolean | Promise<boolean | void>
   file: UploadFile
-  progress?: ReactNode | number
+  progress?: number
   className?: string
   listProps?: boolean | listPropsInterface
   fileNameStyle?: string
@@ -163,7 +163,6 @@ export interface UploadFileProps {
   source?: CancelTokenSource
   process?: FilePercent[]
   onChangeFileList?: (files: FileProps[]) => void
-  // setMergedFileList?: (files: UploadFile<any>[]) => void
   setIsUploading: (s: boolean) => void
   setProcess?: (s: FilePercent[]) => void
 }

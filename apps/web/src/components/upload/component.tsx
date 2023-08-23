@@ -82,7 +82,6 @@ export const PDFFile = (props: FileItemProps) => {
       setOpen(true)
     }
   }
-  console.log(file?.percent, '---percent')
   return (
     <div
       className={`relative ${file?.status === 'uploading' ? 'bg-gray-50	' : ''}`}
@@ -101,7 +100,7 @@ export const PDFFile = (props: FileItemProps) => {
                 {file?.name}
               </div>
               {file?.status === 'uploading' && (
-                <Progress value={file?.percent} className="h-1" />
+                <Progress value={props?.progress} className="h-1" />
               )}
             </div>
           </div>
