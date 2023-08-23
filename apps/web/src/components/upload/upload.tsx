@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Camera, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
@@ -233,6 +233,9 @@ const Upload = (props: UploadProps) => {
           )
           onChangeFileList?.(removed)
           onInternalChange(currentFile, removedFileList)
+
+          const left = process?.filter((item) => item?.uid !== file?.uid)
+          setProcess(left)
         } else {
           // 解决上传单张图片移除后展示removed状态的图片问题
           flushSync(() => {
