@@ -10,7 +10,7 @@ import { App } from '@/db/apps/schema'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import Chat from '@/components/chat/page'
-import { ChatMessage } from '@/components/chat/types'
+import { ChatMessage, EventMessage } from '@/components/chat/types'
 
 import { useWorkflowContext } from '../workflow/store'
 import { WorkflowItem } from '../workflow/type'
@@ -79,42 +79,37 @@ const ChatDebug = ({ app }: IProps) => {
   )
 
   const current = chatStore.currentSession()
-  const initialMessages: ChatMessage[] = React.useMemo(() => {
-    return opening_remarks && current?.messages?.length < 2
+  const initialMessages: EventMessage[] = React.useMemo(() => {
+    return opening_remarks
       ? [
           {
             id: nanoid(),
             role: 'assistant',
             createdAt: new Date(),
             content: opening_remarks,
-            type: 'chat',
+            type: 'event',
+            eventType: '',
           },
         ]
-      : current?.messages
-  }, [current?.messages, opening_remarks])
+      : []
+  }, [opening_remarks])
 
   const getMessageHistory = React.useCallback(() => {
     chatStore.selectSession(appId)
     const isExisted = sessions?.find((item) => item?.id === appId)
     if (!isExisted?.id) {
-      chatStore.newSession(appId, initialMessages)
+      chatStore.newSession(appId, [], initialMessages)
     } else {
-      chatStore.onNewMessage(initialMessages)
+      chatStore.onNewMessage(current?.messages)
     }
-  }, [appId, chatStore, initialMessages, sessions])
+  }, [appId, chatStore, current?.messages, initialMessages, sessions])
 
   const handleMessage = (messages: ChatMessage[]) => {
     chatStore.onNewMessage(messages)
   }
 
   const onRestart = () => {
-    if (opening_remarks) {
-      const message = current?.messages?.[0]
-      message.createdAt = new Date()
-      chatStore.onNewMessage([message])
-    } else {
-      chatStore.onNewMessage([])
-    }
+    chatStore.onNewMessage([])
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -136,6 +131,7 @@ md:max-w-xl"
           isConfigChanged={shouldResetApiSessionId}
           session={session}
           initialMessages={current?.messages}
+          initialEvents={current?.eventMessages}
           setInitialMessages={handleMessage}
           onRestart={onRestart}
         />

@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { ChatMessage } from '@/components/chat/types'
+import { ChatMessage, EventMessage } from '@/components/chat/types'
 
 export function createMessage(): Message {
   return {
@@ -18,13 +18,19 @@ export function createMessage(): Message {
 export interface ChatSession {
   id: string
   messages: ChatMessage[]
+  eventMessages: EventMessage[]
   lastUpdate: number
 }
 
-function createEmptySession(id: string, messages?: ChatMessage[]): ChatSession {
+function createEmptySession(
+  id: string,
+  messages?: ChatMessage[],
+  events?: EventMessage[]
+): ChatSession {
   return {
     id,
     messages: messages || [],
+    eventMessages: events || [],
     lastUpdate: Date.now(),
   }
 }
@@ -33,10 +39,15 @@ interface ChatStore {
   sessions: ChatSession[]
   currentSessionId: string
   selectSession: (id: string) => void
-  newSession: (id: string, message?: ChatMessage[]) => void
+  newSession: (
+    id: string,
+    message?: ChatMessage[],
+    event?: EventMessage[]
+  ) => void
   removeSession: (id: string) => void
   currentSession: () => ChatSession
   onNewMessage: (message: ChatMessage[]) => void
+  onNewEventMessage: (event: EventMessage[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
 }
 
@@ -52,8 +63,12 @@ export const useChatStore = create<ChatStore>()(
         })
       },
 
-      newSession(id: string, messages?: ChatMessage[]) {
-        const session = createEmptySession(id, messages)
+      newSession(
+        id: string,
+        messages?: ChatMessage[],
+        events?: EventMessage[]
+      ) {
+        const session = createEmptySession(id, messages, events)
         set((state) => ({
           currentSessionId: id,
           sessions: [session].concat(state.sessions),
@@ -76,6 +91,13 @@ export const useChatStore = create<ChatStore>()(
       onNewMessage(message) {
         get().updateCurrentSession((session) => {
           session.messages = message
+          session.lastUpdate = Date.now()
+        })
+      },
+
+      onNewEventMessage(event) {
+        get().updateCurrentSession((session) => {
+          session.eventMessages = event
           session.lastUpdate = Date.now()
         })
       },
