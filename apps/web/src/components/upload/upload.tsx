@@ -418,9 +418,9 @@ const Upload = (props: UploadProps) => {
           >
             {(listType === 'pdf' || listType === 'images-list') &&
               mergedFileList?.map((file: UploadFile) => {
-                const percent = process?.filter(
-                  (item) => item?.uid === file?.uid
-                )?.[0]?.percent
+                // const percent = process?.filter(
+                //   (item) => item?.uid === file?.uid
+                // )?.[0]?.percent
                 return listType === 'pdf' ? (
                   <PDFFile
                     {...props}
