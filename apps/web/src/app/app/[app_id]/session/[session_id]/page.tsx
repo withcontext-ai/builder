@@ -18,19 +18,18 @@ export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { session, app } = await getSession(session_id, app_id)
   let initialMessages: ChatMessage[] = safeParse(session.messages_str, [])
-  if (session?.name === 'Chat 1') {
-    if (app?.opening_remarks && !initialMessages?.length) {
-      initialMessages = [
-        {
-          role: 'assistant',
-          id: nanoid(),
-          createdAt: app?.created_at,
-          content: app?.opening_remarks,
-          type: 'chat',
-        },
-      ]
-    }
+  if (app?.opening_remarks && !initialMessages?.length) {
+    initialMessages = [
+      {
+        role: 'assistant',
+        id: nanoid(),
+        createdAt: app?.created_at,
+        content: app?.opening_remarks,
+        type: 'chat',
+      },
+    ]
   }
+
   return (
     <>
       <div className="h-full w-full overflow-hidden">
