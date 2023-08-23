@@ -25,7 +25,7 @@ export default async function MonitoringLayout({ children, params }: IProps) {
       <div className="w-[276px] shrink-0 border-r border-slate-200 bg-slate-50">
         <Sidebar appId={app_id} appName={appDetail.name} />
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   )
 }

@@ -27,8 +27,10 @@ import { ChatContextProvider } from '@/components/chat/chat-context'
 import ChatList from '@/components/chat/chat-list'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 
+type Data = Awaited<ReturnType<typeof getMonitoringData>>
+
 type Props = {
-  preloaded: Awaited<ReturnType<typeof getMonitoringData>>
+  preloaded: Data
 }
 
 async function fetchMonitoringData(
@@ -63,16 +65,16 @@ export const MonitoringTable = ({ preloaded }: Props) => {
     pageIndex: 0,
   })
 
-  const { data, isLoading } = useSWR<
-    Awaited<ReturnType<typeof getMonitoringData>>
-  >([app_id, queries, pagination], fetchMonitoringData, {
-    fallbackData: preloaded,
-    keepPreviousData: true,
-  })
+  const { data, isValidating } = useSWR<Data>(
+    [app_id, queries, pagination],
+    fetchMonitoringData,
+    {
+      fallbackData: preloaded,
+      keepPreviousData: true,
+    }
+  )
 
-  const columns: ColumnDef<
-    Awaited<ReturnType<typeof getMonitoringData>>['sessions'][0]
-  >[] = useMemo(
+  const columns: ColumnDef<Data['sessions'][number]>[] = useMemo(
     () => [
       {
         accessorKey: 'created_at',
@@ -81,8 +83,8 @@ export const MonitoringTable = ({ preloaded }: Props) => {
           new Date(row.getValue('created_at')).toLocaleString(),
       },
       {
-        accessorKey: 'created_by',
-        header: 'User ID',
+        accessorKey: 'email',
+        header: 'User Email',
       },
       {
         accessorKey: 'id',
@@ -236,15 +238,17 @@ export const MonitoringTable = ({ preloaded }: Props) => {
       />
       <DataTable
         table={table}
-        isLoading={isLoading}
+        isLoading={isValidating}
         onRowClick={handleRowClick}
       />
       <DataTablePagination table={table} />
-      <Sheet open={!!selectedSession}>
+      <Sheet
+        open={!!selectedSession}
+        onOpenChange={() => setSelectedSession(null)}
+      >
         <SheetContent
-          overlay={false}
           side="right"
-          className="sm:max-w-2xl md:max-w-2xl"
+          className="overflow-scroll sm:max-w-2xl md:max-w-2xl"
         >
           <SheetHeader className="flex-row items-center justify-between space-y-0">
             <SheetTitle>Conversation ID: {selectedSession?.id}</SheetTitle>

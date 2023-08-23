@@ -29,7 +29,7 @@ export interface ChatMessage extends BaseMessage, RawMessage {
   feedback?: ChatFeedbackType
   feedback_content?: string
   content: string
-  meta: {
+  meta?: {
     latency?: number
     token?: number
     raw?: string
