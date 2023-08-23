@@ -101,6 +101,7 @@ const ChatDebug = ({ app }: IProps) => {
       chatStore.newSession(appId, [], initialMessages)
     } else {
       chatStore.onNewMessage(current?.messages)
+      chatStore.onNewEventMessage(initialMessages)
     }
   }, [appId, chatStore, current?.messages, initialMessages, sessions])
 
