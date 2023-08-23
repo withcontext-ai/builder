@@ -25,7 +25,8 @@ const commonButtonProps = {
 
 const ChatFeedbackButtons = (props: Props) => {
   const { message } = props
-  const { id, feedback, feedback_content, latency } = message
+  const { id, feedback, feedback_content, meta } = message
+  const { latency, token, raw } = meta || {}
   const { session, mode } = useChatContext()
   const { short_id: session_id } = session || {}
 
@@ -115,17 +116,31 @@ const ChatFeedbackButtons = (props: Props) => {
               <Code2 {...commonButtonProps} className="stroke-slate-400" />
             </div>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="space-y-2 p-4">
-            <div className="font-semibold">API request detail:</div>
+          <TooltipContent
+            side="bottom"
+            className="min-h-10 max-h-96 w-96 space-y-3 p-4"
+          >
+            <div className="font-medium">API request detail:</div>
 
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-2">
               {latency && (
                 <>
-                  <Clock />
-                  <div>{(latency / 1000).toPrecision(2)}s</div>
+                  <Clock size={18} />
+                  <div className="font-medium">
+                    {(latency / 1000).toPrecision(3)}s
+                  </div>
                 </>
               )}
+              {latency && token && <div className="px-2 font-medium">|</div>}
+              {token && <div className="text-slate-500">{token} tokens</div>}
             </div>
+            {raw && (
+              <div className="rounded-lg bg-slate-100 p-2">
+                <pre className="max-h-40 overflow-y-scroll whitespace-pre-wrap break-all">
+                  {JSON.stringify(raw, null, 2)}
+                </pre>
+              </div>
+            )}
           </TooltipContent>
         </Tooltip>
       </>

@@ -25,6 +25,7 @@ import { ChatMessage, EventMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
 import { checkUserId } from '../users/actions'
+import { UsersTable } from '../users/schema'
 import { Session, SessionsTable } from './schema'
 
 export async function addSession(appId: string) {
@@ -336,17 +337,36 @@ export async function updateMessagesToSession(
       throw new Error('Not authenticated')
     }
 
+    const [session] = await db
+      .select()
+      .from(SessionsTable)
+      .where(eq(SessionsTable.short_id, sessionId))
+
+    const currentMessages = safeParse(session.messages_str, [])
+
     const formattedMessages = messages.map(formatId).map(formatTimestamp)
+
+    // todo impl single message chat
+    const mergedMessages = formattedMessages.map((message, id) => {
+      const currentMessage = currentMessages[id]
+      if (currentMessage?.id === message.id) {
+        return {
+          ...currentMessage,
+          ...message,
+        }
+      }
+      return message
+    })
 
     console.log(
       'BEGIN updateMessagesToSession db update:',
       userId,
-      formattedMessages.length
+      mergedMessages.length
     )
     await db
       .update(SessionsTable)
       .set({
-        messages_str: JSON.stringify(formattedMessages),
+        messages_str: JSON.stringify(mergedMessages),
       })
       .where(
         and(
@@ -489,10 +509,11 @@ export async function getMonitoringData({
   ].filter(Boolean) as SQL[]
 
   const start = Date.now()
-  const [sessions, [count], [app]] = await Promise.all([
+  const [items, [count], [app]] = await Promise.all([
     db
       .select()
       .from(SessionsTable)
+      .leftJoin(UsersTable, eq(SessionsTable.created_by, UsersTable.short_id))
       .where(and(eq(SessionsTable.app_id, appId), ...query))
       .limit(pageSize)
       .offset(page * pageSize),
@@ -506,8 +527,10 @@ export async function getMonitoringData({
   console.log('getMonitoringData db query time:', Date.now() - start)
 
   const ret = {
-    sessions: sessions.map((session) => {
-      const messages = JSON.parse(session.messages_str || '[]') as ChatMessage[]
+    sessions: items.map((item) => {
+      const messages = JSON.parse(
+        item.sessions.messages_str || '[]'
+      ) as ChatMessage[]
 
       const aggregation = messages.reduce(
         (acc, message) => {
@@ -529,7 +552,8 @@ export async function getMonitoringData({
         }
       )
       return {
-        ...session,
+        ...item.sessions,
+        email: item.users?.email,
         ...aggregation,
       }
     }),

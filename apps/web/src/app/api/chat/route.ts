@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
           },
         })
       },
-      async onCompletion(completion) {
+      async onCompletion(completion, token) {
         const responseTimestamp = Date.now()
         const latency = responseTimestamp - requestTimestamp
         const payload = [
@@ -87,7 +87,15 @@ export async function POST(req: NextRequest) {
                   content: completion,
                   createdAt: new Date(),
                   id: messageId,
-                  latency,
+                  meta: {
+                    latency,
+                    // todo impl actual
+                    token: 50,
+                    raw: {
+                      request: messages,
+                      response: completion,
+                    },
+                  },
                 },
               ]
             : []),
