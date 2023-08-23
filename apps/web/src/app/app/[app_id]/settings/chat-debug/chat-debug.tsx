@@ -108,7 +108,13 @@ const ChatDebug = ({ app }: IProps) => {
   }
 
   const onRestart = () => {
-    chatStore.onNewMessage([])
+    if (opening_remarks) {
+      const message = current?.messages?.[0]
+      message.createdAt = new Date()
+      chatStore.onNewMessage([message])
+    } else {
+      chatStore.onNewMessage([])
+    }
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
