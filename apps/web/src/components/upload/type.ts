@@ -143,7 +143,7 @@ export interface FileItemProps<T = any> {
   onDownload?: (file: UploadFile<T>) => void
   onRemove?: (file: UploadFile<T>) => void | boolean | Promise<boolean | void>
   file: UploadFile
-  progress?: number
+  progress?: ReactNode | number
   className?: string
   listProps?: boolean | listPropsInterface
   fileNameStyle?: string
