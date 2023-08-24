@@ -1,11 +1,4 @@
-import React, {
-  RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Camera, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
@@ -298,10 +291,6 @@ const Upload = (props: UploadProps) => {
         .catch(console.error)
     }
   }
-
-  const handelFormFile = useCallback(() => {
-    handleSuccess({ fileType, fileList: mergedFileList, onChangeFileList })
-  }, [fileType, mergedFileList, onChangeFileList])
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const rcUploadProps = {
