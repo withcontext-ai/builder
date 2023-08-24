@@ -181,7 +181,7 @@ const Chat = (props: ChatProps) => {
   usePageTitle(sessionName)
 
   const onRestart = () => {
-    handelRestart()
+    handleRestart()
     setConfirmReset(false)
   }
 
@@ -228,7 +228,7 @@ const Chat = (props: ChatProps) => {
     addEventTrigger({ session_id: sessionId, event: message })
   }, [sessionId, addEventTrigger, setEventMessages])
 
-  const handelRestart = () => {
+  const handleRestart = () => {
     handelStop()
     setMessages([])
     if (mode === 'debug') {
@@ -249,7 +249,7 @@ const Chat = (props: ChatProps) => {
         )}
         <div className="flex h-full w-full flex-col">
           <ChatHeader
-            onRestart={handelRestart}
+            onRestart={handleRestart}
             disabledRestart={disabledRestart}
           />
           <ChatList
