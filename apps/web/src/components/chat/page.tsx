@@ -92,8 +92,9 @@ const Chat = (props: ChatProps) => {
     api_session_id: apiSessionId,
   } = session
 
+  const isDebug = mode === 'debug'
   const [confirmReset, setConfirmReset] = useState(
-    mode === 'debug' && props.isConfigChanged && initialMessages?.length !== 0
+    isDebug && props.isConfigChanged && initialMessages?.length !== 0
   )
 
   const { scrollRef, setAutoScroll } = useScrollToBottom()
@@ -118,7 +119,7 @@ const Chat = (props: ChatProps) => {
     },
     sendExtraMessageFields: true,
     onFinish: (message) => {
-      if (mode === 'debug' && currentInput?.current) {
+      if (isDebug && currentInput?.current) {
         props?.setInitialMessages?.([
           ...messages,
           currentInput.current,
@@ -180,12 +181,8 @@ const Chat = (props: ChatProps) => {
 
   usePageTitle(sessionName)
 
-  const onRestart = () => {
+  const handleRestartConfirm = () => {
     handleRestart()
-    setConfirmReset(false)
-  }
-
-  const onCancel = () => {
     setConfirmReset(false)
   }
 
@@ -195,7 +192,7 @@ const Chat = (props: ChatProps) => {
     }
     handleSubmit(e)
     setAutoScroll(true)
-    if (props?.mode === 'debug') {
+    if (isDebug) {
       currentInput.current = createInputMessage(input)
     }
   }
@@ -231,7 +228,7 @@ const Chat = (props: ChatProps) => {
   const handleRestart = () => {
     handelStop()
     setMessages([])
-    if (mode === 'debug') {
+    if (isDebug) {
       props?.onRestart?.()
     }
   }
@@ -245,7 +242,10 @@ const Chat = (props: ChatProps) => {
     >
       <div className="relative h-full w-full">
         {confirmReset && (
-          <RestartConfirmPage onRestart={onRestart} onCancel={onCancel} />
+          <RestartConfirmPage
+            onRestart={handleRestartConfirm}
+            onCancel={() => setConfirmReset(false)}
+          />
         )}
         <div className="flex h-full w-full flex-col">
           <ChatHeader
