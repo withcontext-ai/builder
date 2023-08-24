@@ -20,6 +20,7 @@ import {
   changeToUploadFile,
   file2Obj,
   FileProps,
+  handleSuccess,
   removeFileItem,
   updateFileList,
   uploadFile,
@@ -124,8 +125,7 @@ const Upload = (props: UploadProps) => {
         if (isValid !== false && changeInfo?.file?.status !== 'removed') {
           uploadFile({
             controller,
-            file: changeInfo?.file,
-            mergedFileList: changeInfo?.fileList,
+            ...changeInfo,
             onChangeFileList,
             setIsUploading,
             fileType,
@@ -137,7 +137,6 @@ const Upload = (props: UploadProps) => {
 
     [maxCount, isValid, controller, onChangeFileList, fileType]
   )
-
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
     let parsedFile: File | Blob | string = file
     if (beforeUpload) {
@@ -202,8 +201,8 @@ const Upload = (props: UploadProps) => {
         if (ret === false) {
           return
         }
-        controller.abort()
-        setCancelCount((c) => c + 1)
+        // controller.abort()
+        // setCancelCount((c) => c + 1)
 
         const removedFileList = removeFileItem(file, mergedFileList)
         if (removedFileList?.length) {
@@ -217,8 +216,12 @@ const Upload = (props: UploadProps) => {
               item.status = 'removed'
             }
           })
+          upload.current?.abort(currentFile as RcFile)
+
           // handle fileList
-          const removed = removedFileList?.reduce(
+          //to fix when removed the formFile url is empty
+          const formFile = removedFileList?.filter((item) => !!item?.url)
+          const removed = formFile?.reduce(
             (m: FileProps[], item: UploadFile) => {
               m.push({
                 url: item?.url || '',
@@ -246,10 +249,10 @@ const Upload = (props: UploadProps) => {
     },
     [
       onRemove,
-      controller,
       mergedFileList,
       onChangeFileList,
       onInternalChange,
+      process,
       fileType,
     ]
   )
@@ -281,6 +284,11 @@ const Upload = (props: UploadProps) => {
         .catch(console.error)
     }
   }
+
+  const handelFormFile = useCallback(() => {
+    handleSuccess({ fileType, fileList: mergedFileList, onChangeFileList })
+  }, [fileType, mergedFileList, onChangeFileList])
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const rcUploadProps = {
     onBatchStart,
@@ -399,6 +407,7 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     showFileList,
   ])
+
   return (
     <div>
       <div

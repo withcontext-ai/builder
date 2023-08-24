@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import axios from 'axios'
 
 import { nanoid } from '@/lib/utils'
@@ -81,18 +82,20 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   reader.readAsDataURL(img)
 }
 
-const handleSuccess = ({
-  mergedFileList,
+export const handleSuccess = ({
+  fileList,
   fileType,
   onChangeFileList,
 }: {
-  mergedFileList: UploadFile[]
+  fileList: UploadFile[]
   fileType?: string
   onChangeFileList?: (files: FileProps[]) => void
 }) => {
-  const success = mergedFileList?.filter(
+  const success = fileList?.filter(
     (item) => item?.status === 'success' && item?.url
   )
+  console.log(success, '---success', fileList)
+
   const data = success?.reduce((m: FileProps[], item: UploadFile) => {
     m.push({
       url: item?.url || '',
@@ -124,8 +127,7 @@ const handelProcess = (file: UploadFile, setProcess?: any) => {
 
 export const uploadFile = async ({
   file,
-  mergedFileList,
-  controller,
+  fileList,
   setProcess,
   onChangeFileList,
   setIsUploading,
@@ -140,7 +142,7 @@ export const uploadFile = async ({
     file.status = 'error'
     setIsUploading(false)
   }
-
+  console.log(fileList, '---mergedFileList')
   const { upload_url, upload_fields, file_url } = data as {
     provider: string
     upload_url: string
@@ -157,7 +159,6 @@ export const uploadFile = async ({
   )
   axios
     .post(upload_url, formData, {
-      signal: controller?.signal,
       onUploadProgress: async (progressEvent) => {
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
@@ -168,7 +169,7 @@ export const uploadFile = async ({
       file.status = 'success'
       file.url = file_url
       setIsUploading(false)
-      handleSuccess({ mergedFileList, onChangeFileList, fileType })
+      handleSuccess({ fileList, onChangeFileList, fileType })
     })
     .catch(async (error) => {
       if (axios.isCancel(error)) {

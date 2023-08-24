@@ -157,7 +157,7 @@ export interface FilePercent {
 
 export interface UploadFileProps {
   file: UploadFile
-  mergedFileList: UploadFile<any>[]
+  fileList: UploadFile<any>[]
   fileType?: string
   controller?: AbortController
   source?: CancelTokenSource
