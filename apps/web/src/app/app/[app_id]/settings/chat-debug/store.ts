@@ -50,6 +50,27 @@ interface ChatStore {
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
 }
 
+function formatTimestamp(message: any) {
+  if (typeof message.createdAt !== 'number') {
+    return {
+      ...message,
+      createdAt: new Date(message.createdAt || Date.now()).getTime(),
+    }
+  }
+
+  return message
+}
+
+function formatId(message: any) {
+  if (!message.id) {
+    return {
+      ...message,
+      id: nanoid(),
+    }
+  }
+  return message
+}
+
 export const useChatStore = create<ChatStore>()(
   persist(
     (set, get) => ({
@@ -89,14 +110,17 @@ export const useChatStore = create<ChatStore>()(
 
       onNewMessage(messages) {
         get().updateCurrentSession((session) => {
-          session.messages = messages
+          const formattedMessages = messages.map(formatId).map(formatTimestamp)
+          session.messages = formattedMessages
           session.lastUpdate = Date.now()
         })
       },
 
       onNewEventMessage(events) {
         get().updateCurrentSession((session) => {
-          session.eventMessages = events
+          const formattedEvents = events?.map(formatId)?.map(formatTimestamp)
+
+          session.eventMessages = formattedEvents
           session.lastUpdate = Date.now()
         })
       },

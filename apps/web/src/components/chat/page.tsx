@@ -159,7 +159,9 @@ const Chat = (props: ChatProps) => {
       (a, b) => formatToTimestamp(a.createdAt) - formatToTimestamp(b.createdAt)
     )
   }, [messages, eventMessages])
+
   const disabled = !input || input.trim() === '' || isLoading
+  console.log(chatMessages, '----message', messages)
 
   const handelReload = () => {
     setAutoScroll(true)
@@ -175,12 +177,8 @@ const Chat = (props: ChatProps) => {
   usePageTitle(sessionName)
 
   const onRestart = () => {
-    handelStop()
-    setMessages([])
+    handelRestart()
     setConfirmReset(false)
-    if (props?.mode === 'debug') {
-      props?.onRestart?.()
-    }
   }
 
   const onCancel = () => {
@@ -223,6 +221,14 @@ const Chat = (props: ChatProps) => {
     addEventTrigger({ session_id: sessionId, event: message })
   }, [sessionId, addEventTrigger, setEventMessages])
 
+  const handelRestart = () => {
+    handelStop()
+    setMessages([])
+    if (mode === 'debug') {
+      props?.onRestart?.()
+    }
+  }
+
   return (
     <ChatContextProvider
       app={app}
@@ -236,13 +242,7 @@ const Chat = (props: ChatProps) => {
         )}
         <div className="flex h-full w-full flex-col">
           <ChatHeader
-            onRestart={() => {
-              handelStop()
-              setMessages([])
-              if (mode === 'debug') {
-                props?.onRestart?.()
-              }
-            }}
+            onRestart={handelRestart}
             disabledRestart={disabledRestart}
           />
           <ChatList
