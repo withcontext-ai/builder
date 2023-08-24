@@ -14,13 +14,7 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 import RestartConfirmPage from './restart-confirm'
-import {
-  ChatApp,
-  ChatMessage,
-  ChatSession,
-  EventMessage,
-  Message,
-} from './types'
+import { ChatApp, ChatMessage, ChatSession, EventMessage } from './types'
 import useConfigBase64 from './use-config-base64'
 import { useChat } from './useChat'
 import VideoCallConfirmDialog from './video-call-confirm-dialog'
@@ -116,6 +110,7 @@ const Chat = (props: ChatProps) => {
     handleInputChange,
   } = useChat({
     id: sessionId,
+    initialMessages,
     body: {
       appId,
       sessionId,
@@ -228,12 +223,6 @@ const Chat = (props: ChatProps) => {
     addEventTrigger({ session_id: sessionId, event: message })
   }, [sessionId, addEventTrigger, setEventMessages])
 
-  useEffect(() => {
-    // onRestart to show the remark words
-    if (initialMessages?.length && !messages?.length) {
-      setMessages(initialMessages)
-    }
-  }, [initialMessages, messages, setMessages])
   return (
     <ChatContextProvider
       app={app}
@@ -250,7 +239,9 @@ const Chat = (props: ChatProps) => {
             onRestart={() => {
               handelStop()
               setMessages([])
-              mode === 'debug' && props?.onRestart?.()
+              if (mode === 'debug') {
+                props?.onRestart?.()
+              }
             }}
             disabledRestart={disabledRestart}
           />

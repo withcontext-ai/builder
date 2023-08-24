@@ -1,5 +1,4 @@
 import { Message } from 'ai'
-import { MessagesSquare } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -41,13 +40,13 @@ interface ChatStore {
   selectSession: (id: string) => void
   newSession: (
     id: string,
-    message?: ChatMessage[],
-    event?: EventMessage[]
+    messages?: ChatMessage[],
+    events?: EventMessage[]
   ) => void
   removeSession: (id: string) => void
   currentSession: () => ChatSession
-  onNewMessage: (message: ChatMessage[]) => void
-  onNewEventMessage: (event: EventMessage[]) => void
+  onNewMessage: (messages: ChatMessage[]) => void
+  onNewEventMessage: (events: EventMessage[]) => void
   updateCurrentSession: (updater: (session: ChatSession) => void) => void
 }
 
@@ -88,16 +87,16 @@ export const useChatStore = create<ChatStore>()(
         return session
       },
 
-      onNewMessage(message) {
+      onNewMessage(messages) {
         get().updateCurrentSession((session) => {
-          session.messages = message
+          session.messages = messages
           session.lastUpdate = Date.now()
         })
       },
 
-      onNewEventMessage(event) {
+      onNewEventMessage(events) {
         get().updateCurrentSession((session) => {
-          session.eventMessages = event
+          session.eventMessages = events
           session.lastUpdate = Date.now()
         })
       },
@@ -112,7 +111,7 @@ export const useChatStore = create<ChatStore>()(
     }),
     {
       name: 'chat',
-      version: 3.1,
+      version: 1.0,
     }
   )
 )

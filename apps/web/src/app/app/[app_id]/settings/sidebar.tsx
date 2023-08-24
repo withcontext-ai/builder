@@ -9,7 +9,6 @@ import { flags } from '@/lib/flags'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
-import { useChatStore } from './chat-debug/store'
 import DeleteAppButton from './delete-app-button'
 
 const commonStyle =
@@ -26,7 +25,6 @@ export default function Sidebar({ appId, appName }: IProps) {
   const searchParams = useSearchParams()
   const nextUrl = searchParams.get('nextUrl')
   const [isPending, startTransition] = useTransition()
-  const chatStore = useChatStore()
 
   function handleGoBack() {
     startTransition(() => {
@@ -36,10 +34,6 @@ export default function Sidebar({ appId, appName }: IProps) {
         router.back()
       }
     })
-  }
-
-  const handelDelete = () => {
-    chatStore.removeSession(appId)
   }
 
   return (
@@ -104,11 +98,7 @@ export default function Sidebar({ appId, appName }: IProps) {
       </div>
 
       <div className="px-2">
-        <DeleteAppButton
-          id={appId}
-          name={appName}
-          handelDelete={handelDelete}
-        />
+        <DeleteAppButton id={appId} name={appName} />
       </div>
     </div>
   )

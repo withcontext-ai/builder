@@ -16,8 +16,6 @@ import { useWorkflowContext } from '../workflow/store'
 import { WorkflowItem } from '../workflow/type'
 import { useChatStore } from './store'
 
-export const runtime = 'edge'
-
 interface IProps {
   app: App
 }
