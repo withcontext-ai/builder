@@ -118,9 +118,12 @@ const Chat = (props: ChatProps) => {
     },
     sendExtraMessageFields: true,
     onFinish: (message) => {
-      if (mode === 'debug') {
-        const inputMsg = createInputMessage(input)
-        props?.setInitialMessages?.([...messages, inputMsg, message])
+      if (mode === 'debug' && currentInput?.current) {
+        props?.setInitialMessages?.([
+          ...messages,
+          currentInput.current,
+          message,
+        ])
       }
     },
   })
@@ -133,6 +136,8 @@ const Chat = (props: ChatProps) => {
   const [isOpenCallConfirm, setIsOpenCallConfirm] = useState(false)
   const callLinkRef = useRef('')
   const configStr = useConfigBase64({ appName })
+
+  const currentInput = useRef<ChatMessage>()
   const onAdd = useCallback(
     (newEventMessage: any) => {
       if (newEventMessage?.eventType === 'call.created') {
@@ -161,7 +166,6 @@ const Chat = (props: ChatProps) => {
   }, [messages, eventMessages])
 
   const disabled = !input || input.trim() === '' || isLoading
-  console.log(chatMessages, '----message', messages)
 
   const handelReload = () => {
     setAutoScroll(true)
@@ -191,6 +195,9 @@ const Chat = (props: ChatProps) => {
     }
     handleSubmit(e)
     setAutoScroll(true)
+    if (props?.mode === 'debug') {
+      currentInput.current = createInputMessage(input)
+    }
   }
 
   const disabledRestart =
