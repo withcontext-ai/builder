@@ -17,10 +17,9 @@ function removeApp(url: string) {
 interface IProps {
   id: string
   name: string
-  handelDelete?: () => void
 }
 
-export default function DeleteAppButton({ id, name, handelDelete }: IProps) {
+export default function DeleteAppButton({ id, name }: IProps) {
   const router = useRouter()
   const { mutate } = useSWRConfig()
   const { trigger, isMutating } = useSWRMutation(`/api/apps/${id}`, removeApp)
