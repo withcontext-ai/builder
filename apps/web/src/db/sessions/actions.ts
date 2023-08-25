@@ -251,6 +251,7 @@ export async function getSession(sessionId: string, appId?: string) {
         )
       )
       .leftJoin(AppsTable, eq(SessionsTable.app_id, AppsTable.short_id))
+      .leftJoin(UsersTable, eq(SessionsTable.created_by, UsersTable.short_id))
 
     if (!session) {
       throw new Error('Session not found')
@@ -259,6 +260,7 @@ export async function getSession(sessionId: string, appId?: string) {
     return {
       session: session.sessions,
       app: session.apps,
+      user: session.users,
     }
   } catch (error: any) {
     if (appId) {
@@ -488,6 +490,9 @@ export async function getMonitoringData({
       return {
         ...item.sessions,
         email: item.users?.email,
+        first_name: item.users?.first_name,
+        last_name: item.users?.last_name,
+        image_url: item.users?.image_url,
         ...aggregation,
       }
     }),

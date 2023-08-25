@@ -27,6 +27,13 @@ import { ChatContextProvider } from '@/components/chat/chat-context'
 import ChatList from '@/components/chat/chat-list'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 
+interface SessionWithUser extends Session {
+  email: string
+  first_name: string
+  last_name: string
+  image_url: string
+}
+
 type Data = Awaited<ReturnType<typeof getMonitoringData>>
 
 type Props = {
@@ -215,16 +222,27 @@ export const MonitoringTable = ({ preloaded }: Props) => {
     pageCount: Math.ceil((data?.count || 0) / pagination.pageSize),
   })
 
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null)
+  const [selectedSession, setSelectedSession] =
+    useState<SessionWithUser | null>(null)
 
   const messages = useMemo(
     () => JSON.parse(selectedSession?.messages_str || '[]'),
     [selectedSession]
   )
 
+  const user = useMemo(
+    () => ({
+      first_name: selectedSession?.first_name || null,
+      last_name: selectedSession?.last_name || null,
+      image_url: selectedSession?.image_url || null,
+    }),
+    [selectedSession]
+  )
+
   const handleRowClick = useCallback(
+    // fix: change Session to SessionWithUser would make DataTable type error
     (session: Session) => () => {
-      setSelectedSession(session)
+      setSelectedSession(session as SessionWithUser)
     },
     []
   )
@@ -262,6 +280,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
           <ChatContextProvider
             mode="history"
             app={data?.app}
+            user={user}
             session={selectedSession!}
           >
             <ChatList messages={messages} />
