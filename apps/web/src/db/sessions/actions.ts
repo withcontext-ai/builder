@@ -314,8 +314,8 @@ export async function updateMessagesToSession(
       const currentMessage = currentMessages[id]
       if (currentMessage?.id === message.id) {
         return {
-          ...currentMessage,
           ...message,
+          ...currentMessage,
         }
       }
       return message

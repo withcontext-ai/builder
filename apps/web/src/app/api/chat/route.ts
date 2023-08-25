@@ -90,11 +90,11 @@ export async function POST(req: NextRequest) {
                   meta: {
                     latency,
                     // todo impl actual
-                    token: 50,
-                    raw: {
-                      request: messages,
-                      response: completion,
-                    },
+                    // token: 50,
+                    // raw: {
+                    //   request: messages,
+                    //   response: completion,
+                    // },
                   },
                 },
               ]
