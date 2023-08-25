@@ -42,7 +42,7 @@ export async function checkUserId(id: string) {
       .select({ short_id: UsersTable.short_id })
       .from(UsersTable)
       .where(eq(UsersTable.short_id, id))
-    if (user.short_id === id) return true
+    if (user?.short_id === id) return true
 
     const res = await fetchUserInfoById(id)
     if (res.error) return false
@@ -55,7 +55,6 @@ export async function checkUserId(id: string) {
 
     return false
   } catch (error: any) {
-    console.log('checkUserId error:', error.message)
     return {
       error: error.message,
     }

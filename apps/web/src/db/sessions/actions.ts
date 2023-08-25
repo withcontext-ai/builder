@@ -19,7 +19,6 @@ import {
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
-import { serverLog } from '@/lib/posthog'
 import { nanoid, safeParse } from '@/lib/utils'
 import { ChatMessage, EventMessage } from '@/components/chat/types'
 
@@ -50,14 +49,6 @@ export async function addSession(appId: string) {
       { model_id: foundApp?.api_model_id }
     )
     if (res.status !== 200) {
-      serverLog.capture({
-        distinctId: userId,
-        event: 'ai_service_error:add_session',
-        properties: {
-          message: res.message,
-          app_id: appId,
-        },
-      })
       throw new Error(`AI service error: ${res.message}`)
     }
     api_session_id = res?.data?.session_id
@@ -97,16 +88,6 @@ export async function addSession(appId: string) {
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
-
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:add_session',
-    properties: {
-      app_id: appId,
-      session_id: newSession.short_id,
-      api_session_id,
-    },
-  })
 
   return { sessionId: newSession.short_id }
 }
@@ -155,15 +136,6 @@ export async function removeSession(appId: string, sessionId: string) {
     .update(SessionsTable)
     .set({ archived: true, updated_at: new Date() })
     .where(eq(SessionsTable.short_id, sessionId))
-
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:remove_session',
-    properties: {
-      app_id: appId,
-      session_id: sessionId,
-    },
-  })
 
   const [latestSession] = await db
     .select()
@@ -222,14 +194,6 @@ export async function getLatestSessionId(appId: string) {
           { model_id: foundApp?.api_model_id }
         )
         if (res.status !== 200) {
-          serverLog.capture({
-            distinctId: userId,
-            event: 'ai_service_error:add_session',
-            properties: {
-              message: res.message,
-              app_id: appId,
-            },
-          })
           throw new Error(`AI service error: ${res.message}`)
         }
         api_session_id = res?.data?.session_id
@@ -265,7 +229,6 @@ export async function getLatestSessionId(appId: string) {
 
     return foundSession.short_id
   } catch (error: any) {
-    console.log('error:', error)
     redirect('/')
   }
 }
@@ -357,12 +320,6 @@ export async function updateMessagesToSession(
       }
       return message
     })
-
-    console.log(
-      'BEGIN updateMessagesToSession db update:',
-      userId,
-      mergedMessages.length
-    )
     await db
       .update(SessionsTable)
       .set({
@@ -374,30 +331,7 @@ export async function updateMessagesToSession(
           eq(SessionsTable.created_by, userId)
         )
       )
-    console.log('END updateMessagesToSession db update')
-    await serverLog.capture({
-      distinctId: userId,
-      event: 'success:update_messages_to_session',
-      properties: {
-        sessionId,
-        messages,
-      },
-    })
   } catch (error: any) {
-    console.error('updateMessagesToSession error:', error.message)
-
-    if (userId) {
-      await serverLog.capture({
-        distinctId: userId,
-        event: 'error:update_messages_to_session',
-        properties: {
-          sessionId,
-          messages,
-          error: error.message,
-        },
-      })
-    }
-
     return {
       error: error.message,
     }
