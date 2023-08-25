@@ -21,7 +21,6 @@ import {
   changeToUploadFile,
   file2Obj,
   FileProps,
-  handleSuccess,
   removeFileItem,
   updateFileList,
   uploadFile,
@@ -226,7 +225,7 @@ const Upload = (props: UploadProps) => {
           current?.control?.abort()
 
           // handle fileList
-          //to fix when removed the formFile url is empty
+          // to fix when removed the formFile url is empty
           const formFile = removedFileList?.filter((item) => !!item?.url)
           const removed = formFile?.reduce(
             (m: FileProps[], item: UploadFile) => {
