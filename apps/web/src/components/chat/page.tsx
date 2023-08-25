@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher, nanoid } from '@/lib/utils'
