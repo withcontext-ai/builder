@@ -93,6 +93,7 @@ const ChatFeedbackButtons = (props: Props) => {
 
   const status = feedback || feedbacked[id]
 
+  // todo refactor
   if (mode === 'history') {
     let button
     if (feedback === 'good') {
@@ -100,16 +101,20 @@ const ChatFeedbackButtons = (props: Props) => {
     } else if (feedback === 'bad') {
       button = renderButton('bad', false)
     }
+    if (feedback_content) {
+      button = (
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent side="bottom" className="p-4">
+            {feedback_content}
+          </TooltipContent>
+        </Tooltip>
+      )
+    }
+
     return (
       <>
-        {button && (
-          <Tooltip>
-            <TooltipTrigger asChild>{button}</TooltipTrigger>
-            <TooltipContent side="bottom" className="p-4">
-              {feedback_content}
-            </TooltipContent>
-          </Tooltip>
-        )}
+        {button}
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="ml-1 rounded-md border bg-white p-2">
@@ -146,6 +151,7 @@ const ChatFeedbackButtons = (props: Props) => {
       </>
     )
   }
+
   return (
     <>
       {!status && (
