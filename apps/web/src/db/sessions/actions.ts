@@ -8,11 +8,11 @@ import { and, desc, eq, sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
-import { serverLog } from '@/lib/posthog'
 import { nanoid, safeParse } from '@/lib/utils'
 import { ChatMessage, EventMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
+import { checkUserId } from '../users/actions'
 import { Session, SessionsTable } from './schema'
 
 export async function addSession(appId: string) {
@@ -37,14 +37,6 @@ export async function addSession(appId: string) {
       { model_id: foundApp?.api_model_id }
     )
     if (res.status !== 200) {
-      serverLog.capture({
-        distinctId: userId,
-        event: 'ai_service_error:add_session',
-        properties: {
-          message: res.message,
-          app_id: appId,
-        },
-      })
       throw new Error(`AI service error: ${res.message}`)
     }
     api_session_id = res?.data?.session_id
@@ -61,9 +53,6 @@ export async function addSession(appId: string) {
   let eventMessageContent = null
   if (foundApp.opening_remarks) {
     eventMessageContent = foundApp.opening_remarks
-  }
-  if (foundApp.enable_video_interaction) {
-    eventMessageContent = null
   }
   const sessionVal = {
     short_id: nanoid(),
@@ -87,16 +76,6 @@ export async function addSession(appId: string) {
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
-
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:add_session',
-    properties: {
-      app_id: appId,
-      session_id: newSession.short_id,
-      api_session_id,
-    },
-  })
 
   return { sessionId: newSession.short_id }
 }
@@ -146,15 +125,6 @@ export async function removeSession(appId: string, sessionId: string) {
     .set({ archived: true, updated_at: new Date() })
     .where(eq(SessionsTable.short_id, sessionId))
 
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:remove_session',
-    properties: {
-      app_id: appId,
-      session_id: sessionId,
-    },
-  })
-
   const [latestSession] = await db
     .select()
     .from(SessionsTable)
@@ -200,6 +170,11 @@ export async function getLatestSessionId(appId: string) {
       .orderBy(desc(SessionsTable.created_at))
       .limit(1)
     if (!foundSession) {
+      const foundUser = await checkUserId(userId)
+      if (!foundUser) {
+        throw new Error('User not found')
+      }
+
       let api_session_id = null
       if (flags.enabledAIService) {
         let { data: res } = await axios.post(
@@ -207,14 +182,6 @@ export async function getLatestSessionId(appId: string) {
           { model_id: foundApp?.api_model_id }
         )
         if (res.status !== 200) {
-          serverLog.capture({
-            distinctId: userId,
-            event: 'ai_service_error:add_session',
-            properties: {
-              message: res.message,
-              app_id: appId,
-            },
-          })
           throw new Error(`AI service error: ${res.message}`)
         }
         api_session_id = res?.data?.session_id
@@ -222,9 +189,6 @@ export async function getLatestSessionId(appId: string) {
       let eventMessageContent = null
       if (foundApp.opening_remarks) {
         eventMessageContent = foundApp.opening_remarks
-      }
-      if (foundApp.enable_video_interaction) {
-        eventMessageContent = null
       }
       const sessionVal = {
         short_id: nanoid(),
@@ -344,29 +308,8 @@ export async function updateMessagesToSession(
         )
       )
     console.log('END updateMessagesToSession db update')
-    await serverLog.capture({
-      distinctId: userId,
-      event: 'success:update_messages_to_session',
-      properties: {
-        sessionId,
-        messages,
-      },
-    })
   } catch (error: any) {
     console.error('updateMessagesToSession error:', error.message)
-
-    if (userId) {
-      await serverLog.capture({
-        distinctId: userId,
-        event: 'error:update_messages_to_session',
-        properties: {
-          sessionId,
-          messages,
-          error: error.message,
-        },
-      })
-    }
-
     return {
       error: error.message,
     }

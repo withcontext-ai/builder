@@ -2,11 +2,16 @@
 
 import { useMemo } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { format, isToday, isYesterday } from 'date-fns'
 import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
 
-import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import {
+  cn,
+  formatSeconds,
+  formatTime,
+  getAvatarBgColor,
+  getFirstLetter,
+} from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Text from '../ui/text'
@@ -65,22 +70,6 @@ const AlertErrorIcon = ({ className }: { className: string }) => (
   </svg>
 )
 
-const formatTime = (time: Date) => {
-  if (isToday(time)) {
-    return format(time, 'hh:mm aa')
-  }
-  if (isYesterday(time)) {
-    return `Yesterday at ${format(time, 'hh:mm aa')}`
-  } else return format(time, 'MM/dd/yyyy hh:mm aa')
-}
-
-function formatSeconds(seconds: number) {
-  if (seconds < 3600) {
-    return new Date(seconds * 1000).toISOString().substring(14, 19)
-  }
-  return new Date(seconds * 1000).toISOString().slice(11, 19)
-}
-
 function EventMessage({ data }: { data: any }) {
   let icon
   let message
@@ -131,9 +120,12 @@ const ChatCard = (props: IProps) => {
   const showError = isEnd && error && !isUser
 
   const { user } = useUser()
+  console.log('user?.imageUrl:', user?.imageUrl)
 
   const color = getAvatarBgColor(appId || '')
-  const username = user?.primaryEmailAddress?.emailAddress
+  const username = [user?.firstName || '', user?.lastName || '']
+    .join(' ')
+    .trim()
   const icon = isUser ? user?.imageUrl : appIcon
   const name = (isUser ? username : appName) || ''
 
@@ -168,7 +160,13 @@ const ChatCard = (props: IProps) => {
               icon ? 'bg-white' : `bg-${color}-600`
             )}
           >
-            <AvatarImage src={icon} alt={name} className="object-cover" />
+            {icon && (
+              <img
+                src={icon}
+                alt={name}
+                className="aspect-square h-full w-full object-cover"
+              />
+            )}
             <AvatarFallback className="bg-transparent text-white">
               {getFirstLetter(name)}
             </AvatarFallback>

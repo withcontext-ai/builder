@@ -1,11 +1,13 @@
-import axios, { CancelTokenSource } from 'axios'
+import axios from 'axios'
 
 import { nanoid } from '@/lib/utils'
 
 import type {
+  FilePercent,
   InternalUploadFile,
   RcFile,
   UploadFile,
+  UploadFileProps,
   UploadFileStatus,
 } from './type'
 import { listPropsInterface } from './type'
@@ -79,22 +81,6 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   reader.readAsDataURL(img)
 }
 
-const changeCurrentFile = async (
-  file: UploadFile,
-  mergedFileList: UploadFile[],
-  setMergedFileList?: (files: UploadFile<any>[]) => void
-) => {
-  const index = mergedFileList?.indexOf(
-    // @ts-ignore
-    (item: { uid: any }) => item?.uid === file?.uid
-  )
-
-  if (index !== -1) {
-    mergedFileList[index] = file
-  }
-  setMergedFileList?.(mergedFileList)
-}
-
 const handleSuccess = ({
   mergedFileList,
   fileType,
@@ -119,37 +105,40 @@ const handleSuccess = ({
   onChangeFileList?.(data)
 }
 
+const handelProcess = (file: UploadFile, setProcess?: any) => {
+  // add dynamic process to file
+  setProcess?.((allProcess: FilePercent[]) => {
+    const processIndex =
+      allProcess?.findIndex((item) => item?.uid === file?.uid) || 0
+    if (processIndex !== -1) {
+      const left = allProcess.slice(0, processIndex)
+      const right = allProcess.slice(processIndex + 1)
+      const updated = { uid: file?.uid, percent: file?.percent }
+      const newProcess = [...left, updated, ...right]
+      return newProcess
+    } else {
+      return [...allProcess, { uid: file?.uid, percent: file?.percent }]
+    }
+  })
+}
+
 export const uploadFile = async ({
   file,
   mergedFileList,
   controller,
-  source,
+  setProcess,
   onChangeFileList,
-  setMergedFileList,
   setIsUploading,
   fileType,
-}: {
-  file: UploadFile
-  mergedFileList: UploadFile<any>[]
-  fileType?: string
-  controller?: AbortController
-  source?: CancelTokenSource
-  onChangeFileList?: (files: FileProps[]) => void
-  setMergedFileList?: (files: UploadFile<any>[]) => void
-  setIsUploading: (s: boolean) => void
-}) => {
+}: UploadFileProps) => {
   setIsUploading(true)
   if (!file) return
-  file.status = 'uploading'
-  file.percent = 0
-  await changeCurrentFile(file, mergedFileList, setMergedFileList)
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
   if (!success) {
     file.status = 'error'
     setIsUploading(false)
-    await changeCurrentFile(file, mergedFileList, setMergedFileList)
   }
 
   const { upload_url, upload_fields, file_url } = data as {
@@ -166,16 +155,13 @@ export const uploadFile = async ({
       formData.append(key, value)
     }
   )
-
   axios
     .post(upload_url, formData, {
       signal: controller?.signal,
-      cancelToken: source?.token,
       onUploadProgress: async (progressEvent) => {
-        file.status = 'uploading'
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
-        await changeCurrentFile(file, mergedFileList, setMergedFileList)
+        await handelProcess(file, setProcess)
       },
     })
     .then(async () => {
@@ -183,9 +169,8 @@ export const uploadFile = async ({
       file.url = file_url
       setIsUploading(false)
       handleSuccess({ mergedFileList, onChangeFileList, fileType })
-      await changeCurrentFile(file, mergedFileList, setMergedFileList)
     })
-    .catch((error) => {
+    .catch(async (error) => {
       if (axios.isCancel(error)) {
         console.log('Request canceled', error.message)
       }
