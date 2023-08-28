@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Zap, ZapOff } from 'lucide-react'
+import { Wrench, Zap, ZapOff } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import {
@@ -8,8 +8,27 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { useChatContext } from './chat-context'
+
+const Process = [
+  {
+    status: 'failed',
+    name: 'Self Checking',
+    key: 'tool-0',
+  },
+  {
+    status: 'success',
+    name: 'Self Checking',
+    key: 'tool-1',
+  },
+  {
+    status: 'waiting',
+    name: 'Self Checking',
+    key: 'tool-2',
+  },
+]
 
 export const ProcessButton = () => {
   const { showProcess, setShowProcess } = useChatContext()
@@ -36,7 +55,38 @@ export const ProcessButton = () => {
           showProcess ? 'block' : 'hidden'
         )}
       >
-        content
+        <div className="mb-6 text-base font-medium text-slate-500">PROCESS</div>
+        <div className="flex flex-col gap-2">
+          {Process?.map((item) => (
+            <div key={item?.key} className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={cn(
+                      'h-2 w-2 rounded-full hover:cursor-pointer',
+                      item?.status === 'failed'
+                        ? ' bg-red-500'
+                        : item?.status === 'success'
+                        ? 'bg-green-500'
+                        : 'bg-slate-400'
+                    )}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{item?.status}</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <div className="flex w-full items-center gap-2 rounded-sm border p-2 text-base">
+                <Wrench />
+                {item?.name}
+                <Badge variant="secondary" className="h-5">
+                  {item?.key}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
