@@ -18,14 +18,15 @@ interface IProps {
 }
 
 const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
-  const { mode, isLoading } = useChatContext()
+  const { mode, isLoading, showProcess } = useChatContext()
   const isDebug = mode === 'debug'
 
   return (
     <div
       className={cn(
         'flex flex-1 flex-col gap-12 overflow-auto px-6 pb-24 pt-6 scrollbar-none',
-        isDebug && 'px-0'
+        isDebug && 'px-0',
+        showProcess && 'w-[calc(100%-380px)]'
       )}
       ref={scrollRef}
       onWheel={() => setAutoScroll?.(false)}
