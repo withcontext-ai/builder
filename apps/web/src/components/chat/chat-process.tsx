@@ -77,10 +77,25 @@ export const ProcessButton = () => {
                 </TooltipContent>
               </Tooltip>
 
-              <div className="flex w-full items-center gap-2 rounded-sm border p-2 text-base">
+              <div
+                className={cn(
+                  'flex w-full items-center gap-2 rounded-sm border border-slate-100 p-2 text-base	',
+                  item?.status === 'waiting'
+                    ? 'text-slate-400'
+                    : 'text-slate-900'
+                )}
+              >
                 <Wrench />
                 {item?.name}
-                <Badge variant="secondary" className="h-5">
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    'h-5',
+                    item?.status === 'waiting'
+                      ? 'text-slate-400'
+                      : 'text-slate-900'
+                  )}
+                >
                   {item?.key}
                 </Badge>
               </div>
