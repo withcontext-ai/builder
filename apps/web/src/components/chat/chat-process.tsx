@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Wrench, Zap, ZapOff } from 'lucide-react'
+import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
 
-import { cn } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import {
   Tooltip,
   TooltipContent,
@@ -30,10 +32,21 @@ const Process = [
   },
 ]
 
-export const ProcessButton = () => {
-  const { showProcess, setShowProcess } = useChatContext()
+const ChatProcess = () => {
+  const { showProcess, setShowProcess, session } = useChatContext()
+
+  function getProcess() {
+    fetcher('/api/chat/process', {
+      method: 'POST',
+      body: JSON.stringify(session),
+    })
+  }
+  // const { data } = useSWR('/api/chat/process', getProcess, {
+  //   refreshInterval: 1000,
+  // })
+  // console.log(data, '---data')
   return (
-    <div className={cn('h-full w-full')}>
+    <div className="h-full w-full">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -106,3 +119,5 @@ export const ProcessButton = () => {
     </div>
   )
 }
+
+export default ChatProcess
