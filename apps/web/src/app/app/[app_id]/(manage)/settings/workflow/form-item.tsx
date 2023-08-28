@@ -8,6 +8,7 @@ import {
   TrashIcon,
 } from 'lucide-react'
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
+import { SuggestionDataItem } from 'react-mentions'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,7 @@ import {
 } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+import { MentionTextarea } from '@/components/mention-textarea'
 import { PdfImage } from '@/components/upload/component'
 
 const labelFilterBuilder =
@@ -367,6 +369,40 @@ export function ListSelectItem<T extends FieldValues>({
                 </div>
               )
             })}
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export interface IMentionTextareaItem<T> {
+  name: Path<T>
+  label?: string | ReactNode
+  data: SuggestionDataItem[]
+}
+
+export function MentionTextareaItem<T extends FieldValues>({
+  name,
+  label,
+  data,
+}: IMentionTextareaItem<T>) {
+  const form = useFormContext<T>()
+
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <MentionTextarea
+              value={field.value}
+              onChange={field.onChange}
+              data={data}
+            />
+          </FormControl>
+          <FormMessage />
         </FormItem>
       )}
     />
