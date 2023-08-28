@@ -45,13 +45,18 @@ const CONFIG = [
         children: [
           {
             subType: 'conversation_chain',
-            title: 'Conversation chain',
+            title: 'Conversation',
             desc: 'Basic example of conversation with a Prompt Template and LLM Model',
           },
           {
             subType: 'conversational_retrieval_qa_chain',
             title: 'Conversational Retrieval QA',
             desc: 'Support uploading data sources and searching for answers from data sources',
+          },
+          {
+            subType: 'self_checking_chain',
+            title: 'Self Checking',
+            desc: "Set the objective for the dialogue, and you can check whether the goal is achieved based on the conversation's context.",
           },
         ],
       },

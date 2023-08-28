@@ -60,7 +60,9 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
       set(
         produce((draft: WorkflowState) => {
           const id = nanoid()
-          const defaultFormValue = (TaskDefaultValueMap as any)[subType] || {}
+          const defaultFormValue =
+            TaskDefaultValueMap[subType as keyof typeof TaskDefaultValueMap] ||
+            {}
           const latestKey = last(
             draft.workflowData.filter((p) => p.type === type)
           )?.key

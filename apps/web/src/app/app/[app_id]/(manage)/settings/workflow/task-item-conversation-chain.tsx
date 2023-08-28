@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronRightIcon, Info, Plus } from 'lucide-react'
+import { ChevronRightIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -10,40 +10,27 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 
 import AddTemplateButton from './add-template-button'
 import { MAX_MAX_TOKENS } from './const'
-import { InputItem, SelectItem, SlideItem, TextareaItem } from './form-item'
-import PromptMentions from './prompt-mentions'
+import {
+  InputItem,
+  MentionTextareaItem,
+  SelectItem,
+  SlideItem,
+} from './form-item'
+import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
 import { TaskDefaultValueMap } from './task-default-value'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
+import { formatWorkflowDataToSuggestionData } from './utils'
 
 interface IProps {
   taskId: string
   keyLabel?: string
   formValue: any
 }
-
-export const TemplateInfo = () => (
-  <div className="flex items-center gap-1">
-    Template
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Info size={18} color="#94A3B8" />
-      </TooltipTrigger>
-      <TooltipContent className="relative left-[88px] w-[332px]">
-        <p className="break-words text-sm font-normal">{`If you want to quote the output results of another chain, please enter {key.output}.`}</p>
-      </TooltipContent>
-    </Tooltip>
-  </div>
-)
 
 export default function TaskItemConversationChain({
   taskId,
@@ -218,18 +205,29 @@ function FormItemLLM() {
 }
 
 function FormItemPrompt() {
+  const workflowData = useWorkflowContext((state) => state.workflowData)
+
+  const suggestionData = React.useMemo(
+    () => formatWorkflowDataToSuggestionData(workflowData),
+    [workflowData]
+  )
+
   return (
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">PROMPT</div>
       <div className="space-y-8">
-        <PromptMentions<IFormSchema>
+        <MentionTextareaItem<IFormSchema>
           name="prompt.template"
           label={
             <div className="flex items-center justify-between ">
-              <TemplateInfo />
+              <FormItemTitle
+                title="System Prompt"
+                tip="If you want to quote the output results of another chain, please enter {key.output}."
+              />
               <AddTemplateButton />
             </div>
           }
+          data={suggestionData}
         />
       </div>
     </div>

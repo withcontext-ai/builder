@@ -18,6 +18,9 @@ export const SUB_TYPE_MAP = {
   conversational_retrieval_qa_chain: {
     title: 'Conversational Retrieval QA',
   },
+  self_checking_chain: {
+    title: 'Self Checking',
+  },
 }
 
 export const DEFAULT_MAX_TOKENS = 2048
