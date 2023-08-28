@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import axios from 'axios'
 
 import { nanoid } from '@/lib/utils'
@@ -81,28 +82,31 @@ export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   reader.readAsDataURL(img)
 }
 
-const handleSuccess = ({
-  mergedFileList,
+export const handleSuccess = ({
   fileType,
+  setMergedFileList,
   onChangeFileList,
 }: {
-  mergedFileList: UploadFile[]
+  setMergedFileList?: (s: any) => void
   fileType?: string
   onChangeFileList?: (files: FileProps[]) => void
 }) => {
-  const success = mergedFileList?.filter(
-    (item) => item?.status === 'success' && item?.url
-  )
-  const data = success?.reduce((m: FileProps[], item: UploadFile) => {
-    m.push({
-      url: item?.url || '',
-      uid: nanoid(),
-      type: fileType || item?.type,
-      name: item?.name,
-    })
-    return m
-  }, [])
-  onChangeFileList?.(data)
+  setMergedFileList?.((files: UploadFile[]) => {
+    const success = files?.filter(
+      (item) => item?.status === 'success' && item?.url
+    )
+    const data = success?.reduce((m: FileProps[], item: UploadFile) => {
+      m.push({
+        url: item?.url || '',
+        uid: nanoid(),
+        type: fileType || item?.type,
+        name: item?.name,
+      })
+      return m
+    }, [])
+    onChangeFileList?.(data)
+    return files
+  })
 }
 
 const handelProcess = (file: UploadFile, setProcess?: any) => {
@@ -124,8 +128,9 @@ const handelProcess = (file: UploadFile, setProcess?: any) => {
 
 export const uploadFile = async ({
   file,
-  mergedFileList,
-  controller,
+  fileList,
+  setMergedFileList,
+  aborts,
   setProcess,
   onChangeFileList,
   setIsUploading,
@@ -133,6 +138,7 @@ export const uploadFile = async ({
 }: UploadFileProps) => {
   setIsUploading(true)
   if (!file) return
+  file.status = 'uploading'
   const filename = encodeURIComponent(file?.name || '')
   const res = await fetch(`/api/upload-url/gcp?filename=${filename}`)
   const { success, data } = await res.json()
@@ -140,7 +146,6 @@ export const uploadFile = async ({
     file.status = 'error'
     setIsUploading(false)
   }
-
   const { upload_url, upload_fields, file_url } = data as {
     provider: string
     upload_url: string
@@ -155,9 +160,12 @@ export const uploadFile = async ({
       formData.append(key, value)
     }
   )
+  const abort = new AbortController()
+  aborts.current?.push({ uid: file?.uid, control: abort })
+  const current = aborts?.current?.find((item) => item?.uid === file?.uid)
   axios
     .post(upload_url, formData, {
-      signal: controller?.signal,
+      signal: current?.control?.signal,
       onUploadProgress: async (progressEvent) => {
         const { progress = 0 } = progressEvent
         file.percent = progress * 100
@@ -168,12 +176,13 @@ export const uploadFile = async ({
       file.status = 'success'
       file.url = file_url
       setIsUploading(false)
-      handleSuccess({ mergedFileList, onChangeFileList, fileType })
+      handleSuccess({
+        setMergedFileList,
+        onChangeFileList,
+        fileType,
+      })
     })
     .catch(async (error) => {
-      if (axios.isCancel(error)) {
-        console.log('Request canceled', error.message)
-      }
       setIsUploading(false)
       file.status = 'error'
       console.error(error)
