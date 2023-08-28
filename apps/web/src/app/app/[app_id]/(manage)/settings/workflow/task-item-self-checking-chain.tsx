@@ -23,6 +23,7 @@ import {
   MentionTextareaItem,
   SelectItem,
   SlideItem,
+  TextareaItem,
 } from './form-item'
 import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
@@ -83,7 +84,7 @@ const FormSchema = z.object({
     template: z.string().optional(),
     target: z.string().optional(),
     check_prompt: z.string().optional(),
-    follow_up_questions_num: z.number().min(0).step(1),
+    follow_up_questions_num: z.number().min(0).max(10).step(1),
   }),
 })
 
@@ -229,9 +230,14 @@ function FormItemLLM() {
 function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
-  const suggestionData = React.useMemo(
+  const systemPromptSuggestionData = React.useMemo(
     () => formatWorkflowDataToSuggestionData(workflowData),
     [workflowData]
+  )
+
+  const checkPromptSuggestionData = React.useMemo(
+    () => ['target', 'dialogue'].map((s) => ({ id: s, display: s })),
+    []
   )
 
   return (
@@ -241,7 +247,7 @@ function FormItemPrompt() {
         <MentionTextareaItem<IFormSchema>
           name="prompt.template"
           label={
-            <div className="flex items-center justify-between ">
+            <div className="flex items-center justify-between">
               <FormItemTitle
                 title="System Prompt"
                 tip="If you want to quote the output results of another chain, please enter {key.output}."
@@ -249,7 +255,33 @@ function FormItemPrompt() {
               <AddTemplateButton />
             </div>
           }
-          data={suggestionData}
+          data={systemPromptSuggestionData}
+        />
+        <TextareaItem<IFormSchema>
+          name="prompt.target"
+          label={
+            <FormItemTitle
+              title="Target"
+              tip="Enter your goal, and let the AI determine whether the conversation has achieved its target."
+            />
+          }
+        />
+        <MentionTextareaItem<IFormSchema>
+          name="prompt.check_prompt"
+          label={
+            <FormItemTitle
+              title="Check Prompt"
+              tip="This is where the AI makes its judgments, and it is recommended not to make any modifications."
+            />
+          }
+          data={checkPromptSuggestionData}
+        />
+        <SlideItem<IFormSchema>
+          name="prompt.follow_up_questions_num"
+          label="Maximum follow-up questions"
+          min={0}
+          max={10}
+          step={1}
         />
       </div>
     </div>

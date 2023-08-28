@@ -20,7 +20,7 @@ export default function FormItemTitle({ title, tip }: IProps) {
           <TooltipTrigger asChild>
             <InfoIcon size={18} color="#94A3B8" />
           </TooltipTrigger>
-          <TooltipContent className="relative left-[88px] w-[332px]">
+          <TooltipContent className="relative max-w-xs">
             <p className="break-words text-sm font-normal">{tip}</p>
           </TooltipContent>
         </Tooltip>

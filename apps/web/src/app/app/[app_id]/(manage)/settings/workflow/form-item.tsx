@@ -49,7 +49,7 @@ const labelFilterBuilder =
 interface IInputItem<T> {
   name: Path<T>
   type?: HTMLInputTypeAttribute | undefined
-  label?: string
+  label?: string | ReactNode
   placeholder?: string
 }
 
