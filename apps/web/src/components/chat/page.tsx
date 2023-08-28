@@ -246,13 +246,15 @@ const Chat = (props: ChatProps) => {
       props?.onRestart?.()
     }
   }
-
+  const [showProcess, setShowProcess] = useState(false)
   return (
     <ChatContextProvider
       app={app}
       session={session}
       user={user}
       mode={mode}
+      showProcess={showProcess}
+      setShowProcess={setShowProcess}
       isLoading={isLoading}
     >
       <div className="relative h-full w-full">

@@ -1,7 +1,10 @@
+import { useState } from 'react'
+
 import { cn } from '@/lib/utils'
 
 import { Button } from '../ui/button'
 import { useChatContext } from './chat-context'
+import { ProcessButton } from './chat-process'
 
 interface IconBoxProps {
   children: React.ReactNode
@@ -26,7 +29,6 @@ interface IProps {
 
 const ChatHeader = ({ onRestart, disabledRestart }: IProps) => {
   const { session, mode } = useChatContext()
-
   const { name } = session
   return (
     <div
@@ -49,7 +51,9 @@ const ChatHeader = ({ onRestart, disabledRestart }: IProps) => {
       ) : (
         <div className="flex w-full items-center justify-between px-6 py-3">
           <h2 className="font-medium">{name}</h2>
-          <div className="flex"></div>
+          <div className="flex">
+            <ProcessButton />
+          </div>
         </div>
       )}
     </div>
