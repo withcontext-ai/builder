@@ -9,6 +9,8 @@ import { nanoid } from '@/lib/utils'
 import { updateMessagesToSession } from '@/db/sessions/actions'
 
 export const runtime = 'edge'
+export const preferredRegion = 'cle1'
+export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
