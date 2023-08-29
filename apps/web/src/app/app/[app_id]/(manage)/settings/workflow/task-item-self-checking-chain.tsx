@@ -29,7 +29,10 @@ import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
-import { formatWorkflowDataToSuggestionData } from './utils'
+import {
+  formatWorkflowDataToSuggestionData,
+  suggestionDataFormatter,
+} from './utils'
 
 interface IProps {
   taskId: string
@@ -230,14 +233,12 @@ function FormItemLLM() {
 function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
-  const systemPromptSuggestionData = React.useMemo(
-    () => formatWorkflowDataToSuggestionData(workflowData),
+  const suggestionData = React.useMemo(
+    () => [
+      ...['target', 'chat_history'].map(suggestionDataFormatter),
+      ...formatWorkflowDataToSuggestionData(workflowData),
+    ],
     [workflowData]
-  )
-
-  const checkPromptSuggestionData = React.useMemo(
-    () => ['target', 'dialogue'].map((s) => ({ id: s, display: s })),
-    []
   )
 
   return (
@@ -255,7 +256,7 @@ function FormItemPrompt() {
               <AddTemplateButton />
             </div>
           }
-          data={systemPromptSuggestionData}
+          data={suggestionData}
         />
         <TextareaItem<IFormSchema>
           name="prompt.target"
@@ -274,7 +275,7 @@ function FormItemPrompt() {
               tip="This is where the AI makes its judgments, and it is recommended not to make any modifications."
             />
           }
-          data={checkPromptSuggestionData}
+          data={suggestionData}
         />
         <InputItem<IFormSchema>
           name="prompt.follow_up_questions_num"
