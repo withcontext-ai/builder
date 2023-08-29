@@ -27,6 +27,8 @@ export async function OpenAIStream({
   // todo impl
   // let token = 0
 
+  const requestTimestamp = Date.now()
+  console.log('OpenAIStream requestTimestamp:', requestTimestamp)
   const res = await fetch(`${baseUrl}/chat/completions`, {
     headers: {
       'Content-Type': 'application/json',
