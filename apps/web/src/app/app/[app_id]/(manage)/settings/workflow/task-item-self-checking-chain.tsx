@@ -17,7 +17,11 @@ import {
 } from '@/components/ui/tooltip'
 
 import AddTemplateButton from './add-template-button'
-import { MAX_MAX_TOKENS, TASK_DEFAULT_VALUE_MAP } from './const'
+import {
+  MAX_MAX_TOKENS,
+  SYSTEM_PROMPT_TEMPLATES,
+  TASK_DEFAULT_VALUE_MAP,
+} from './const'
 import {
   InputItem,
   MentionTextareaItem,
@@ -253,7 +257,7 @@ function FormItemPrompt() {
                 title="System Prompt"
                 tip="If you want to quote the output results of another chain, please enter {key.output}."
               />
-              <AddTemplateButton />
+              <AddTemplateButton config={SYSTEM_PROMPT_TEMPLATES} />
             </div>
           }
           data={suggestionData}
