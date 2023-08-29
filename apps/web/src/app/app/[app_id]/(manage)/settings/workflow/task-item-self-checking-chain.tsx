@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/tooltip'
 
 import AddTemplateButton from './add-template-button'
-import { MAX_MAX_TOKENS } from './const'
+import { MAX_MAX_TOKENS, TASK_DEFAULT_VALUE_MAP } from './const'
 import {
   InputItem,
   MentionTextareaItem,
@@ -27,7 +27,6 @@ import {
 } from './form-item'
 import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
-import { TaskDefaultValueMap } from './task-default-value'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
 import { formatWorkflowDataToSuggestionData } from './utils'
@@ -96,7 +95,8 @@ interface FormProviderProps {
   formValue: any
 }
 
-const DEFAULT_VALUES: IFormSchema = TaskDefaultValueMap['self_checking_chain']
+const DEFAULT_VALUES: IFormSchema =
+  TASK_DEFAULT_VALUE_MAP['self_checking_chain']
 
 function FormProvider({ children, taskId, formValue }: FormProviderProps) {
   const defaultValues = formValue || DEFAULT_VALUES
