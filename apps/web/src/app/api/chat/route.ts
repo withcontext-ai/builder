@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
       async onStart() {
         const responseTimestamp = Date.now()
         const latencyMs = responseTimestamp - requestTimestamp
+        console.log('requestTimestamp:', requestTimestamp)
+        console.log('responseTimestamp:', responseTimestamp)
+        console.log('latencyMs:', latencyMs)
         await logsnag?.publish({
           channel: 'chat',
           event: 'Chat Response',
