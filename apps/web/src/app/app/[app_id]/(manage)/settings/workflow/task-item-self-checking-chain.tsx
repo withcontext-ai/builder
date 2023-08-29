@@ -229,7 +229,6 @@ function FormItemLLM() {
 
 function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
-  console.log('workflowData:', workflowData)
 
   const systemPromptSuggestionData = React.useMemo(
     () => formatWorkflowDataToSuggestionData(workflowData),
