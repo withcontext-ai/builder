@@ -83,7 +83,7 @@ const FormSchema = z.object({
     template: z.string().optional(),
     target: z.string().optional(),
     check_prompt: z.string().optional(),
-    follow_up_questions_num: z.number().min(0).max(10).step(1),
+    follow_up_questions_num: z.number().min(0).step(1),
   }),
 })
 
@@ -229,6 +229,7 @@ function FormItemLLM() {
 
 function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
+  console.log('workflowData:', workflowData)
 
   const systemPromptSuggestionData = React.useMemo(
     () => formatWorkflowDataToSuggestionData(workflowData),
@@ -276,12 +277,11 @@ function FormItemPrompt() {
           }
           data={checkPromptSuggestionData}
         />
-        <SlideItem<IFormSchema>
+        <InputItem<IFormSchema>
           name="prompt.follow_up_questions_num"
+          type="number"
           label="Maximum follow-up questions"
           min={0}
-          max={10}
-          step={1}
         />
       </div>
     </div>
