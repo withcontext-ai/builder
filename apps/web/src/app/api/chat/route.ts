@@ -25,14 +25,6 @@ export async function POST(req: NextRequest) {
   const apiSessionId = body.apiSessionId as string
   const messages = body.messages as Message[]
 
-  const payload = {
-    session_id: apiSessionId,
-    messages: messages.map((message) => ({
-      role: message.role,
-      content: message.content,
-    })),
-  }
-
   const requestId = nanoid()
   await logsnag?.publish({
     channel: 'chat',
@@ -52,6 +44,14 @@ export async function POST(req: NextRequest) {
   const messageId = nanoid()
 
   const requestTimestamp = Date.now()
+
+  const payload = {
+    session_id: apiSessionId,
+    messages: messages.map((message) => ({
+      role: message.role,
+      content: `${message.content}\n\nRequest timestamp: ${requestTimestamp}`,
+    })),
+  }
 
   const stream = await OpenAIStream({
     baseUrl,
