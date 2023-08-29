@@ -344,7 +344,7 @@ export function ListSelectItem<T extends FieldValues>({
                         }
                         className="flex items-center justify-between space-x-2"
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between truncate">
                           {item.icon === 'pdf' && (
                             <PdfImage className="mr-3 shrink-0" />
                           )}
