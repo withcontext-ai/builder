@@ -46,3 +46,11 @@ export const formatWorkflowDataToSuggestionData = (
     []
   )
 }
+
+export function formatNumberWithBoundary(
+  num: number,
+  min?: number,
+  max?: number
+) {
+  return num > (max ?? Infinity) ? max : num < (min ?? -Infinity) ? min : num
+}
