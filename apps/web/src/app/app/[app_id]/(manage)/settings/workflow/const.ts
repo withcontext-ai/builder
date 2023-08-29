@@ -85,6 +85,11 @@ export const TASK_DEFAULT_VALUE_MAP = {
     },
     prompt: {
       template: '',
+      basic_prompt: `The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
+Current conversation:
+[{chat_history}]
+Human: [{question}]
+AI:`,
     },
   },
   conversational_retrieval_qa_chain: {
@@ -99,6 +104,10 @@ export const TASK_DEFAULT_VALUE_MAP = {
     },
     prompt: {
       template: '',
+      basic_prompt: `background: '''[{context}]'''
+chat history: [{chat_history}]
+Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".
+[{question}]`,
     },
     retriever: {
       type: 'pinecone_hybrid_search',
@@ -121,7 +130,7 @@ export const TASK_DEFAULT_VALUE_MAP = {
       template: '',
       target: '',
       check_prompt:
-        'The goal is [{target}], and the content of the conversation is [{dialogue}]. Please determine if the dialogue has achieved the target. If so, only output "Yes" and do not provide any other explanations. If not, in order to achieve the goal, combine with the following dialogue and ask a question again.',
+        'The goal is [{target}], and the content of the conversation is [{chat_history}]. Please determine if the dialogue has achieved the target. If so, only output "Yes" and do not provide any other explanations. If not, in order to achieve the goal, combine with the following dialogue and ask a question again.',
       follow_up_questions_num: 1,
     },
   },
@@ -137,6 +146,6 @@ export const DEFAULT_WORKFLOW_DATA: WorkflowItem[] = [
     id: 'default_conversation_chain_id',
     type: 'tool',
     subType: 'conversation_chain',
-    formValueStr: `{"llm":{"name":"gpt-3.5-turbo","api_key":"","temperature":0.9,"max_tokens":${DEFAULT_MAX_TOKENS},"top_p":1,"frequency_penalty":0,"presence_penalty":0},"prompt":{"template":""}}`,
+    formValueStr: JSON.stringify(TASK_DEFAULT_VALUE_MAP['conversation_chain']),
   },
 ]

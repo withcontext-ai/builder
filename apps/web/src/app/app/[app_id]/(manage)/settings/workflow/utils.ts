@@ -54,3 +54,7 @@ export function formatNumberWithBoundary(
 ) {
   return num > (max ?? Infinity) ? max : num < (min ?? -Infinity) ? min : num
 }
+
+export function suggestionDataFormatter(id: string) {
+  return { id, display: id }
+}
