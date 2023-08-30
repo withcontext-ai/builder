@@ -11,33 +11,21 @@ import {
 
 import { useChatContext } from './chat-context'
 
-const PROCESS_DATA = [
-  {
-    status: 'failed',
-    name: 'Self Checking',
-    key: 'tool-0',
-  },
-  {
-    status: 'success',
-    name: 'Self Checking Self Checking Self Checking Self Checking',
-    key: 'tool-1',
-  },
-  {
-    status: 'waiting',
-    name: 'Self Checking',
-    key: 'tool-2',
-  },
-]
+interface IProcessItem {
+  status: string
+  name: string
+  key: string
+}
 
 const ChatProcess = () => {
   const { session } = useChatContext()
   const { api_session_id } = session
 
-  // TODO: use the data from the API
-  const { data, isLoading } = useSWR(
+  const { data } = useSWR<IProcessItem[]>(
     `/api/chat/process?api_session_id=${api_session_id}`,
     fetcher,
     {
+      revalidateOnMount: true,
       refreshInterval: 10 * 1000,
     }
   )
@@ -48,7 +36,7 @@ const ChatProcess = () => {
         Process
       </div>
       <div className="flex flex-col gap-2 pl-4 pr-1">
-        {PROCESS_DATA.map((item) => (
+        {data?.map((item) => (
           <div key={item?.key} className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
