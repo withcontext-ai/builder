@@ -101,20 +101,19 @@ const ChatFeedbackButtons = (props: Props) => {
     } else if (feedback === 'bad') {
       button = renderButton('bad', false)
     }
-    if (feedback_content) {
-      button = (
-        <Tooltip>
-          <TooltipTrigger asChild>{button}</TooltipTrigger>
-          <TooltipContent side="bottom" className="p-4">
-            {feedback_content}
-          </TooltipContent>
-        </Tooltip>
-      )
-    }
 
     return (
       <>
-        {button}
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent side="bottom" className="p-4">
+            <div className="mb-3 font-semibold">
+              {feedback === 'good' && 'User Likes:'}
+              {feedback === 'bad' && 'User Dislikes:'}
+            </div>
+            {feedback_content}
+          </TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="ml-1 rounded-md border bg-white p-2">
