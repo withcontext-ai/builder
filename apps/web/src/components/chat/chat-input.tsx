@@ -29,7 +29,7 @@ const ChatInput = ({
   handleInputChange,
   disabled,
 }: InputProps) => {
-  const { isLoading, mode, showProcess } = useChatContext()
+  const { isLoading, mode } = useChatContext()
   const isDebug = mode === 'debug'
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -39,8 +39,7 @@ const ChatInput = ({
     <div
       className={cn(
         'relative flex w-full flex-col gap-4',
-        isDebug ? '' : 'px-6 pb-4',
-        showProcess && 'w-[calc(100%-380px)]'
+        isDebug ? '' : 'px-6 pb-4'
       )}
     >
       <div className="absolute top-[-60px] flex w-full	items-center justify-center">

@@ -13,6 +13,7 @@ import { ChatContextProvider, ChatMode } from './chat-context'
 import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
+import ChatProcess from './chat-process'
 import RestartConfirmPage from './restart-confirm'
 import {
   ChatApp,
@@ -110,6 +111,7 @@ const Chat = (props: ChatProps) => {
   const [confirmReset, setConfirmReset] = useState(
     isDebug && props.isConfigChanged && initialMessages?.length !== 0
   )
+  const [showProcess, setShowProcess] = useState(false)
 
   const { scrollRef, setAutoScroll } = useScrollToBottom()
 
@@ -246,15 +248,13 @@ const Chat = (props: ChatProps) => {
       props?.onRestart?.()
     }
   }
-  const [showProcess, setShowProcess] = useState(false)
+
   return (
     <ChatContextProvider
       app={app}
       session={session}
       user={user}
       mode={mode}
-      showProcess={showProcess}
-      setShowProcess={setShowProcess}
       isLoading={isLoading}
     >
       <div className="relative h-full w-full">
@@ -268,22 +268,33 @@ const Chat = (props: ChatProps) => {
           <ChatHeader
             onRestart={handleRestart}
             disabledRestart={disabledRestart}
+            showProcess={showProcess}
+            setShowProcess={setShowProcess}
           />
-          <ChatList
-            messages={chatMessages}
-            scrollRef={scrollRef}
-            error={error?.message}
-            setAutoScroll={setAutoScroll}
-          />
-          <ChatInput
-            input={input}
-            onSubmit={onSubmit}
-            showResend={showResend}
-            reload={handelReload}
-            stop={handelStop}
-            handleInputChange={handleInputChange}
-            disabled={disabled}
-          />
+          <div className="flex h-0 flex-1">
+            <div className="flex flex-1 flex-col">
+              <ChatList
+                messages={chatMessages}
+                scrollRef={scrollRef}
+                error={error?.message}
+                setAutoScroll={setAutoScroll}
+              />
+              <ChatInput
+                input={input}
+                onSubmit={onSubmit}
+                showResend={showResend}
+                reload={handelReload}
+                stop={handelStop}
+                handleInputChange={handleInputChange}
+                disabled={disabled}
+              />
+            </div>
+            {mode === 'live' && showProcess && (
+              <div className="w-[380px] border-l">
+                <ChatProcess />
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <VideoCallConfirmDialog
