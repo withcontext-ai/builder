@@ -12,8 +12,6 @@ interface BaseChatContextType {
   user?: ChatUser | null
   mode: ChatMode
   isLoading?: boolean
-  showProcess?: boolean
-  setShowProcess?: (s: boolean) => void
 }
 
 interface LiveChatContextType extends BaseChatContextType {

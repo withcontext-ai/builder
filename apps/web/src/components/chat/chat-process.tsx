@@ -1,20 +1,17 @@
-import { useEffect, useState } from 'react'
-import { Wrench, Zap, ZapOff } from 'lucide-react'
+import { Wrench } from 'lucide-react'
 import useSWR from 'swr'
-import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
 import { useChatContext } from './chat-context'
 
-const Process = [
+const PROCESS_DATA = [
   {
     status: 'failed',
     name: 'Self Checking',
@@ -22,7 +19,7 @@ const Process = [
   },
   {
     status: 'success',
-    name: 'Self Checking',
+    name: 'Self Checking Self Checking Self Checking Self Checking',
     key: 'tool-1',
   },
   {
@@ -33,50 +30,32 @@ const Process = [
 ]
 
 const ChatProcess = () => {
-  const { showProcess, setShowProcess, session } = useChatContext()
+  const { session } = useChatContext()
+  const { api_session_id } = session
 
-  function getProcess() {
-    fetcher('/api/chat/process', {
-      method: 'POST',
-      body: JSON.stringify(session),
-    })
-  }
-  // const { data } = useSWR('/api/chat/process', getProcess, {
-  //   refreshInterval: 1000,
-  // })
-  // console.log(data, '---data')
+  // TODO: use the data from the API
+  const { data, isLoading } = useSWR(
+    `/api/chat/process?api_session_id=${api_session_id}`,
+    fetcher,
+    {
+      refreshInterval: 10 * 1000,
+    }
+  )
+
   return (
-    <div className="h-full w-full">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-8 w-8"
-            onClick={() => setShowProcess?.(!showProcess)}
-          >
-            {!showProcess ? <Zap size="16" /> : <ZapOff size="16" />}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{!showProcess ? 'Show process' : 'Hide process'}</p>
-        </TooltipContent>
-      </Tooltip>
-      <div
-        className={cn(
-          'absolute right-0 top-[56px] h-[calc(100%-56px)] w-[380px] border-l p-6',
-          showProcess ? 'block' : 'hidden'
-        )}
-      >
-        <div className="mb-6 text-base font-medium text-slate-500">PROCESS</div>
-        <div className="flex flex-col gap-2">
-          {Process?.map((item) => (
-            <div key={item?.key} className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
+    <div>
+      <div className="p-6 text-base font-medium uppercase text-slate-500">
+        Process
+      </div>
+      <div className="flex flex-col gap-2 pl-4 pr-1">
+        {PROCESS_DATA.map((item) => (
+          <div key={item?.key} className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="p-1 hover:cursor-pointer">
                   <div
                     className={cn(
-                      'h-2 w-2 rounded-full hover:cursor-pointer',
+                      'h-2 w-2 rounded-full',
                       item?.status === 'failed'
                         ? ' bg-red-500'
                         : item?.status === 'success'
@@ -84,37 +63,35 @@ const ChatProcess = () => {
                         : 'bg-slate-400'
                     )}
                   />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{item?.status}</p>
-                </TooltipContent>
-              </Tooltip>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>{item?.status}</p>
+              </TooltipContent>
+            </Tooltip>
 
-              <div
+            <div
+              className={cn(
+                'flex items-center gap-2 truncate rounded-sm border border-slate-100 p-2 text-base',
+                item?.status === 'waiting' ? 'text-slate-400' : 'text-slate-900'
+              )}
+            >
+              <Wrench className="shrink-0" />
+              <p className="truncate">{item?.name}</p>
+              <Badge
+                variant="secondary"
                 className={cn(
-                  'flex w-full items-center gap-2 rounded-sm border border-slate-100 p-2 text-base	',
+                  'shrink-0',
                   item?.status === 'waiting'
                     ? 'text-slate-400'
                     : 'text-slate-900'
                 )}
               >
-                <Wrench />
-                {item?.name}
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    'h-5',
-                    item?.status === 'waiting'
-                      ? 'text-slate-400'
-                      : 'text-slate-900'
-                  )}
-                >
-                  {item?.key}
-                </Badge>
-              </div>
+                {item?.key}
+              </Badge>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   )
