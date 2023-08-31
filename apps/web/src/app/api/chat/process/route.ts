@@ -3,19 +3,19 @@ import axios from 'axios'
 
 const PROCESS_DATA = [
   {
-    status: 'failed',
-    name: 'Self Checking',
     key: 'tool-0',
+    finished: true,
+    succeed: true,
   },
   {
-    status: 'success',
-    name: 'Self Checking Self Checking Self Checking Self Checking',
     key: 'tool-1',
+    finished: true,
+    succeed: false,
   },
   {
-    status: 'waiting',
-    name: 'Self Checking',
-    key: 'tool-2',
+    id: 'tool-2',
+    finished: false,
+    success: false,
   },
 ]
 

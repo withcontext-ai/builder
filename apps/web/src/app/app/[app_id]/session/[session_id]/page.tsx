@@ -8,19 +8,18 @@ import AppNotFound from './app-not-found'
 
 // export const runtime = 'edge'
 
-function getTasks(app: App) {
-  const tree = safeParse(app.published_workflow_tree_str, [])
-  const data = safeParse(app.published_workflow_data_str, [])
-  const tasks = tree.map((t: any) => {
+function getWorkflow(app: App) {
+  // const tree = safeParse(app.published_workflow_tree_str, [])
+  const tree = safeParse(app.workflow_tree_str, [])
+  // const data = safeParse(app.published_workflow_data_str, [])
+  const data = safeParse(app.workflow_data_str, [])
+  return tree.map((t: any) => {
     const d = data.find((d: any) => d.id === t.id)
     return {
-      id: d.id,
-      type: d.type,
-      subType: d.subType,
-      key: d.key,
+      key: `${d.type}-${d.key}`,
+      type: d.subType,
     }
   })
-  return tasks
 }
 
 interface IProps {
@@ -31,8 +30,7 @@ export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { session, app, user } = await getSession(session_id, app_id)
 
-  const tasks = app ? getTasks(app) : []
-  console.log('tasks:', tasks)
+  const workflow = app ? getWorkflow(app) : []
 
   return (
     <>
@@ -44,6 +42,7 @@ export default async function SessionPage({ params }: IProps) {
           user={user}
           initialMessages={safeParse(session.messages_str, [])}
           initialEvents={safeParse(session.events_str, [])}
+          workflow={workflow}
         />
       </div>
       <AppNotFound archived={app?.archived || false} />
