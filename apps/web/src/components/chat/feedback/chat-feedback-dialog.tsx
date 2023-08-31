@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 
@@ -50,6 +51,12 @@ const ChatFeedbackDialog = () => {
 
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
 
+  useEffect(() => {
+    resetForm({
+      content: '',
+    })
+  }, [messageId])
+
   if (!messageId || !type) {
     return null
   }
@@ -97,10 +104,6 @@ const ChatFeedbackDialog = () => {
     })
 
     reset()
-
-    resetForm({
-      content: '',
-    })
 
     const trimmed = content.trim()
 
