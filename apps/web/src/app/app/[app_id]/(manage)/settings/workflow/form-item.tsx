@@ -10,7 +10,7 @@ import {
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
 import { SuggestionDataItem } from 'react-mentions'
 
-import { cn } from '@/lib/utils'
+import { clamp, cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -37,8 +37,6 @@ import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { MentionTextarea } from '@/components/mention-textarea'
 import { PdfImage } from '@/components/upload/component'
-
-import { formatNumberWithBoundary } from './utils'
 
 const labelFilterBuilder =
   (options: { label: string; value: string }[]) =>
@@ -82,11 +80,7 @@ export function InputItem<T extends FieldValues>({
               value={field.value}
               onChange={(e) => {
                 if (type === 'number') {
-                  const val = formatNumberWithBoundary(
-                    +e.target.value,
-                    min,
-                    max
-                  )
+                  const val = clamp(+e.target.value, min, max)
                   field.onChange(val)
                 } else {
                   field.onChange(e)
@@ -261,11 +255,7 @@ export function SlideItem<T extends FieldValues>({
                 {...field}
                 value={field.value}
                 onChange={(e) => {
-                  const val = formatNumberWithBoundary(
-                    +e.target.value,
-                    min,
-                    max
-                  )
+                  const val = clamp(+e.target.value, min, max)
                   field.onChange(val)
                 }}
                 className="h-10 w-18"
