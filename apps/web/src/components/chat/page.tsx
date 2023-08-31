@@ -21,6 +21,7 @@ import {
   ChatSession,
   ChatUser,
   EventMessage,
+  ProcessTask,
 } from './types'
 import useConfigBase64 from './use-config-base64'
 import { useChat } from './useChat'
@@ -75,7 +76,7 @@ interface DebugChatProps extends BaseChatProps {
 
 interface LiveChatProps extends BaseChatProps {
   mode: 'live'
-  workflow: any[] // TODO: type
+  workflow: ProcessTask[]
 }
 
 export type ChatProps = LiveChatProps | DebugChatProps

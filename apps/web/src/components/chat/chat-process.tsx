@@ -12,22 +12,17 @@ import {
 import { SUB_TYPE_MAP } from '@/app/app/[app_id]/(manage)/settings/workflow/const'
 
 import { useChatContext } from './chat-context'
-
-interface IProcessItem {
-  status: string
-  name: string
-  key: string
-}
+import { ProcessTask } from './types'
 
 interface IProps {
-  workflow: any[] // TODO: type
+  workflow: ProcessTask[]
 }
 
 const ChatProcess = ({ workflow }: IProps) => {
   const { session } = useChatContext()
   const { api_session_id } = session
 
-  const { data } = useSWR<IProcessItem[]>(
+  const { data } = useSWR<ProcessTask[]>(
     `/api/chat/process?api_session_id=${api_session_id}`,
     fetcher,
     {
@@ -37,7 +32,7 @@ const ChatProcess = ({ workflow }: IProps) => {
   )
 
   const workflowWithStatus = React.useMemo(() => {
-    return workflow.map((item: any) => {
+    return workflow.map((item) => {
       if (item.type === 'self_checking_chain') {
         const found = data?.find((d: any) => d.key === item?.key)
         return {
