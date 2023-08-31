@@ -121,13 +121,18 @@ const ChatFeedbackButtons = (props: Props) => {
       <>
         <Tooltip>
           <TooltipTrigger asChild>{button}</TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-lg break-words p-4">
-            <div className="mb-3 font-semibold">
+          <TooltipContent
+            side="bottom"
+            className="max-w-lg space-y-1 break-words p-4"
+          >
+            <div className="font-semibold">
               {feedback === 'good' && 'User Likes'}
               {feedback === 'bad' && 'User Dislikes'}
               {feedback_content && ':'}
             </div>
-            {feedback_content}
+            {feedback_content
+              ?.split('\n')
+              .map((line, index) => <div key={index}>{line}</div>)}
           </TooltipContent>
         </Tooltip>
         <Tooltip>
