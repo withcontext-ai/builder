@@ -50,3 +50,11 @@ export const formatWorkflowDataToSuggestionData = (
 export function suggestionDataFormatter(id: string) {
   return { id, display: id }
 }
+
+export function formatRetrieverType(str: string) {
+  return str
+    ?.split('_')
+    ?.join(' ')
+    .toLowerCase()
+    .replace(/( |^)[a-z]/g, (L) => L.toUpperCase())
+}

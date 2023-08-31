@@ -9,7 +9,10 @@ import { PdfImage } from '@/components/upload/component'
 
 import { SUB_TYPE_MAP } from '../(manage)/settings/workflow/const'
 import { WorkflowItem } from '../(manage)/settings/workflow/type'
-import { formatWorkflowDataToSuggestionData } from '../(manage)/settings/workflow/utils'
+import {
+  formatRetrieverType,
+  formatWorkflowDataToSuggestionData,
+} from '../(manage)/settings/workflow/utils'
 import styles from './mention-input.module.css'
 import { DatasetProps } from './page'
 import { useWorkflowContext } from './store'
@@ -17,14 +20,6 @@ import { useWorkflowContext } from './store'
 interface IProps {
   value?: WorkflowItem
   onClose: () => void
-}
-
-function formatRetrieverType(str: string) {
-  return str
-    ?.split('_')
-    ?.join(' ')
-    .toLowerCase()
-    .replace(/( |^)[a-z]/g, (L) => L.toUpperCase())
 }
 
 export default function TaskDetail({ value, onClose }: IProps) {
