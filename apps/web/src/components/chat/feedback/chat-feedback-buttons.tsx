@@ -120,22 +120,6 @@ const ChatFeedbackButtons = (props: Props) => {
     return (
       <>
         <Tooltip>
-          <TooltipTrigger asChild>{button}</TooltipTrigger>
-          <TooltipContent
-            side="bottom"
-            className="max-w-lg space-y-1 break-words p-4"
-          >
-            <div className="font-semibold">
-              {feedback === 'good' && 'User Likes'}
-              {feedback === 'bad' && 'User Dislikes'}
-              {feedback_content && ':'}
-            </div>
-            {feedback_content
-              ?.split('\n')
-              .map((line, index) => <div key={index}>{line}</div>)}
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
           <TooltipTrigger asChild>
             <div className="ml-1 rounded-md border bg-white p-2">
               <Code2 {...commonButtonProps} className="stroke-slate-400" />
@@ -168,6 +152,22 @@ const ChatFeedbackButtons = (props: Props) => {
                 </pre>
               </div>
             )}
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            className="max-w-lg space-y-1 break-words p-4"
+          >
+            <div className="font-semibold">
+              {feedback === 'good' && 'User Likes'}
+              {feedback === 'bad' && 'User Dislikes'}
+              {feedback_content && ':'}
+            </div>
+            {feedback_content
+              ?.split('\n')
+              .map((line, index) => <div key={index}>{line}</div>)}
           </TooltipContent>
         </Tooltip>
       </>
