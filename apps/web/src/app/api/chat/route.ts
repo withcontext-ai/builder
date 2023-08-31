@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
                   id: messageId,
                   meta: {
                     latency,
-                    ...metadata,
+                    ...(metadata ?? {}),
                   },
                 },
               ]
