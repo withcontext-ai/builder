@@ -51,7 +51,12 @@ const ChatInput = ({
           </Button>
         )}
         {isLoading && (
-          <Button className=" bg-white" onClick={stop} variant="outline">
+          <Button
+            className=" bg-white"
+            onClick={stop}
+            variant="outline"
+            data-testid="stop"
+          >
             <StopCircle size={16} className="mr-2" />
             Stop generating
           </Button>
@@ -71,8 +76,9 @@ const ChatInput = ({
             }}
             minRows={1}
             maxRows={8}
+            data-testid="input"
           />
-          <Button type="submit" disabled={disabled}>
+          <Button type="submit" disabled={disabled} data-testid="send">
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Send
           </Button>

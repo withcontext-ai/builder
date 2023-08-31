@@ -9,7 +9,7 @@ import { fetcher } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import Chat from '@/components/chat/page'
+import Chat from '@/components/chat'
 import { ChatMessage, EventMessage } from '@/components/chat/types'
 import { TreeItem } from '@/components/dnd/types'
 

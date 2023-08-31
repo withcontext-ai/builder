@@ -1,0 +1,59 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Chat > matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="relative h-full w-full"
+  >
+    <div
+      class="flex h-full w-full flex-col"
+    >
+      <div
+        class="w-full flex-col border-slate-200 max-md:hidden sm:hidden lg:flex border-b"
+      >
+        <div
+          class="flex w-full items-center justify-between px-6 py-3"
+        >
+          <h2
+            class="font-medium"
+          >
+            test-chat-session
+          </h2>
+          <div
+            class="flex"
+          />
+        </div>
+      </div>
+      <div
+        class="flex flex-1 flex-col gap-12 overflow-auto px-6 pb-24 pt-6 scrollbar-none"
+      />
+      <div
+        class="relative flex w-full flex-col gap-4 px-6 pb-4"
+      >
+        <div
+          class="absolute top-[-60px] flex w-full	items-center justify-center"
+        />
+        <form>
+          <div
+            class="flex justify-between space-x-2"
+          >
+            <textarea
+              class="flex w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[40px]"
+              data-testid="input"
+              placeholder="Type a message"
+            />
+            <button
+              class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              data-testid="send"
+              disabled=""
+              type="submit"
+            >
+              Send
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
