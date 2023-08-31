@@ -52,9 +52,7 @@ const ChatFeedbackDialog = () => {
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
 
   useEffect(() => {
-    resetForm({
-      content: '',
-    })
+    resetForm()
   }, [messageId])
 
   if (!messageId || !type) {

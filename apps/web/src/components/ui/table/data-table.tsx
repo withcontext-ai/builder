@@ -1,9 +1,8 @@
 'use client'
 
 import { flexRender, Table as TableType } from '@tanstack/react-table'
-import { Loader } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -28,7 +27,7 @@ export function DataTable<TData>({
     <div className="relative rounded-md border">
       {isLoading && (
         <div className="absolute flex h-full w-full items-center justify-center rounded-md bg-white/80">
-          <Loader className="animate-spin" />
+          <Loader2 className="animate-spin" />
         </div>
       )}
       <Table>
