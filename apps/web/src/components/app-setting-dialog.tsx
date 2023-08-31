@@ -110,13 +110,11 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
                 link: `/app/${appId}/settings/basics`,
                 name: 'App Settings',
               })}
-              {/* {
-              // todo: add this back
-              renderItem({
+              {renderItem({
                 icon: <Activity size={16} />,
                 link: `/app/${appId}/analysis/monitoring`,
                 name: 'App Analysis',
-              })} */}
+              })}
             </>
           )}
           <DropdownMenuSeparator />
