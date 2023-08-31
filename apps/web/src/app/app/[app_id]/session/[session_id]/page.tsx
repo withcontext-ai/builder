@@ -2,6 +2,7 @@ import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
+import { ProcessTask } from '@/components/chat/types'
 import { TreeItem } from '@/components/dnd/types'
 
 import { WorkflowItem } from '../../(manage)/settings/workflow/type'
@@ -23,7 +24,7 @@ function getWorkflow(app: App) {
         key: `${d.type}-${d.key}`,
         type: d.subType,
         status: 'none',
-      })
+      } as ProcessTask)
   }
 
   return result
