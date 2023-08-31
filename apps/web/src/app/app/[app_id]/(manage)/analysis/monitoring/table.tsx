@@ -269,7 +269,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
       >
         <SheetContent
           side="right"
-          className="overflow-scroll p-0 sm:max-w-2xl md:max-w-2xl"
+          className="overflow-scroll p-0 sm:max-w-[720px] md:max-w-[720px]"
         >
           <SheetHeader className="sticky top-0 z-20 flex-row items-center justify-between space-y-0 border-b bg-white px-6 py-4">
             <SheetTitle>Conversation ID: {selectedSession?.id}</SheetTitle>
