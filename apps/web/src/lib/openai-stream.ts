@@ -70,8 +70,8 @@ export async function OpenAIStream({
           }
           try {
             const json = JSON.parse(data)
-            const text = json.choices[0].delta?.content || ''
             metadata = json.metadata
+            const text = json.choices?.[0].delta?.content || ''
             if (counter < 2 && (text.match(/\n/) || []).length) {
               return
             }
