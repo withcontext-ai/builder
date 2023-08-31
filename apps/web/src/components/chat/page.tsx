@@ -75,6 +75,7 @@ interface DebugChatProps extends BaseChatProps {
 
 interface LiveChatProps extends BaseChatProps {
   mode: 'live'
+  workflow: any[] // TODO: type
 }
 
 export type ChatProps = LiveChatProps | DebugChatProps
@@ -291,7 +292,7 @@ const Chat = (props: ChatProps) => {
             </div>
             {mode === 'live' && showProcess && (
               <div className="w-[380px] border-l">
-                <ChatProcess />
+                <ChatProcess workflow={props.workflow} />
               </div>
             )}
           </div>
