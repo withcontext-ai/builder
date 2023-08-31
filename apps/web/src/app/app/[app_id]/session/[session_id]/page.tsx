@@ -18,7 +18,12 @@ function getWorkflow(app: App) {
 
   for (const t of tree) {
     const d = data.find((d) => d.id === t.id)
-    if (d) result.push({ key: `${d.type}-${d.key}`, type: d.subType })
+    if (d)
+      result.push({
+        key: `${d.type}-${d.key}`,
+        type: d.subType,
+        status: 'none',
+      })
   }
 
   return result

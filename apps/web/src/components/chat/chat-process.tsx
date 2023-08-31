@@ -12,7 +12,7 @@ import {
 import { SUB_TYPE_MAP } from '@/app/app/[app_id]/(manage)/settings/workflow/const'
 
 import { useChatContext } from './chat-context'
-import { ProcessTask } from './types'
+import { ProcessTask, ProcessTaskFromAPI } from './types'
 
 interface IProps {
   workflow: ProcessTask[]
@@ -22,7 +22,7 @@ const ChatProcess = ({ workflow }: IProps) => {
   const { session } = useChatContext()
   const { api_session_id } = session
 
-  const { data } = useSWR<ProcessTask[]>(
+  const { data } = useSWR<ProcessTaskFromAPI[]>(
     `/api/chat/process?api_session_id=${api_session_id}`,
     fetcher,
     {
@@ -32,19 +32,21 @@ const ChatProcess = ({ workflow }: IProps) => {
   )
 
   const workflowWithStatus = React.useMemo(() => {
+    if (!data) return workflow
     return workflow.map((item) => {
       if (item.type === 'self_checking_chain') {
         const found = data?.find((d: any) => d.key === item?.key)
-        return {
-          ...item,
-          ...found,
-          hasStatus: true,
+        if (found) {
+          // TODO: let backend return status enum
+          let status = found?.succeed ? 'succeed' : 'failed'
+          if (found?.finished === false) status = 'pending'
+          return {
+            ...item,
+            status,
+          }
         }
       }
-      return {
-        ...item,
-        hasStatus: false,
-      }
+      return item
     })
   }, [workflow, data])
 
@@ -62,23 +64,17 @@ const ChatProcess = ({ workflow }: IProps) => {
                   <div
                     className={cn(
                       'h-2 w-2 rounded-full',
-                      !item?.hasStatus && 'bg-slate-900',
-                      item?.hasStatus && !item?.finished && 'bg-slate-400',
-                      item?.hasStatus &&
-                        item?.finished &&
-                        item?.succeed &&
-                        'bg-green-500',
-                      item?.hasStatus &&
-                        item?.finished &&
-                        !item?.succeed &&
-                        'bg-red-500'
+                      item?.status === 'none' && 'bg-slate-900',
+                      item?.status === 'pending' && 'bg-slate-400',
+                      item?.status === 'succeed' && 'bg-green-500',
+                      item?.status === 'failed' && 'bg-red-500'
                     )}
                   />
                 </div>
               </TooltipTrigger>
-              {item?.hasStatus && item?.finished && (
+              {['succeed', 'failed'].includes(item?.status) && (
                 <TooltipContent side="left">
-                  {item?.succeed ? 'Succeed' : 'Failed'}
+                  {item?.status === 'succeed' ? 'Succeed' : 'Failed'}
                 </TooltipContent>
               )}
             </Tooltip>
@@ -86,7 +82,7 @@ const ChatProcess = ({ workflow }: IProps) => {
             <div
               className={cn(
                 'flex items-center gap-2 truncate rounded-sm border border-slate-100 p-2 text-base text-slate-900',
-                item?.hasStatus && !item?.finished && 'text-slate-400'
+                item?.status === 'pending' && 'text-slate-400'
               )}
             >
               <Wrench className="shrink-0" />
@@ -97,7 +93,7 @@ const ChatProcess = ({ workflow }: IProps) => {
                 variant="secondary"
                 className={cn(
                   'shrink-0 text-slate-900',
-                  item?.hasStatus && !item?.finished && 'text-slate-400'
+                  item?.status === 'pending' && 'text-slate-400'
                 )}
               >
                 {item?.key}
