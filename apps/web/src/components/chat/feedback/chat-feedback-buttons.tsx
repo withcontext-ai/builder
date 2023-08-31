@@ -3,13 +3,14 @@
 import { useCallback } from 'react'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
 import { Clock, Code2, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent } from '@/components/ui/tooltip'
 
 import { useChatContext } from '../chat-context'
-import { ChatMessage } from '../types'
+import { ChatMessage, Message } from '../types'
 import { useChatFeedbackContext } from './chat-feedback-context'
 import submitFeedback from './service'
 import { ChatFeedbackType } from './types'
@@ -30,7 +31,7 @@ const ChatFeedbackButtons = (props: Props) => {
   const { session, mode } = useChatContext()
   const { short_id: session_id } = session || {}
 
-  const { toggleFeedback, feedbacked } = useChatFeedbackContext()
+  const { toggleFeedback, messages } = useChatFeedbackContext()
 
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
 
@@ -43,10 +44,23 @@ const ChatFeedbackButtons = (props: Props) => {
           session_id,
         })
 
+        mutate<Message[]>(
+          ['/api/chat', session_id],
+          messages.map((message: Message) => {
+            if (message.type === 'chat' && message.id === id) {
+              return {
+                ...message,
+                feedback: type,
+              }
+            }
+            return message
+          })
+        )
+
         toggleFeedback(id, type)
       }
     },
-    [id, toggleFeedback, session_id, trigger]
+    [id, trigger, session_id, messages, toggleFeedback]
   )
 
   const renderButton = useCallback(
@@ -91,7 +105,7 @@ const ChatFeedbackButtons = (props: Props) => {
     return null
   }
 
-  const status = feedback || feedbacked[id]
+  const status = feedback
 
   // todo refactor
   if (mode === 'history') {
