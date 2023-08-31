@@ -28,6 +28,7 @@ const ChatFeedbackButtons = (props: Props) => {
   const { message } = props
   const { id, feedback, feedback_content, meta } = message
   const { latency, token, raw } = meta || {}
+  const { total_tokens } = token || {}
   const { session, mode } = useChatContext()
   const { short_id: session_id } = session || {}
 
@@ -122,8 +123,9 @@ const ChatFeedbackButtons = (props: Props) => {
           <TooltipTrigger asChild>{button}</TooltipTrigger>
           <TooltipContent side="bottom" className="max-w-lg break-words p-4">
             <div className="mb-3 font-semibold">
-              {feedback === 'good' && 'User Likes:'}
-              {feedback === 'bad' && 'User Dislikes:'}
+              {feedback === 'good' && 'User Likes'}
+              {feedback === 'bad' && 'User Dislikes'}
+              {feedback_content && ':'}
             </div>
             {feedback_content}
           </TooltipContent>
@@ -136,7 +138,7 @@ const ChatFeedbackButtons = (props: Props) => {
           </TooltipTrigger>
           <TooltipContent
             side="bottom"
-            className="max-h-96 min-h-min w-96 space-y-3 p-4"
+            className="max-h-fit min-h-min max-w-lg space-y-3 p-4"
           >
             <div className="font-medium">API request detail:</div>
 
@@ -150,11 +152,13 @@ const ChatFeedbackButtons = (props: Props) => {
                 </>
               )}
               {latency && token && <div className="px-2 font-medium">|</div>}
-              {token && <div className="text-slate-500">{token} tokens</div>}
+              {total_tokens !== undefined && (
+                <div className="text-slate-500">{total_tokens} tokens</div>
+              )}
             </div>
             {raw && (
               <div className="rounded-lg bg-slate-100 p-2">
-                <pre className="max-h-40 overflow-y-scroll whitespace-pre-wrap break-all">
+                <pre className="max-h-80 overflow-y-scroll whitespace-pre-wrap break-all">
                   {JSON.stringify(raw, null, 2)}
                 </pre>
               </div>
