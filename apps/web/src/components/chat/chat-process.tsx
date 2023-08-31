@@ -36,9 +36,6 @@ const ChatProcess = ({ workflow }: IProps) => {
     }
   )
 
-  console.log('data:', data)
-  console.log('workflow:', workflow)
-
   const workflowWithStatus = React.useMemo(() => {
     return workflow.map((item: any) => {
       if (item.type === 'self_checking_chain') {
