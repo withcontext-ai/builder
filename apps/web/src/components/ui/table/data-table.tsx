@@ -1,6 +1,7 @@
 'use client'
 
 import { flexRender, Table as TableType } from '@tanstack/react-table'
+import { Loader } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import {
@@ -25,6 +26,11 @@ export function DataTable<TData>({
 }: DataTableProps<TData>) {
   return (
     <div className="relative rounded-md border">
+      {isLoading && (
+        <div className="absolute flex h-full w-full items-center justify-center rounded-md bg-white/80">
+          <Loader className="animate-spin" />
+        </div>
+      )}
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -44,7 +50,7 @@ export function DataTable<TData>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className={cn(isLoading && 'opacity-50')}>
+        <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
