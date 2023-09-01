@@ -2,11 +2,17 @@
 
 import { useMemo } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { format, isToday, isYesterday } from 'date-fns'
 import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
 import { useIsClient } from 'usehooks-ts'
 
-import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import {
+  cn,
+  formatSeconds,
+  formatTime,
+  getAvatarBgColor,
+  getFirstLetter,
+} from '@/lib/utils'
+import { User } from '@/db/users/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Text from '../ui/text'
@@ -14,7 +20,7 @@ import ChatActions from './chat-actions'
 import { useChatContext } from './chat-context'
 import ChatFeedbackButtons from './feedback/chat-feedback-buttons'
 import { Markdown } from './markdown/markdown'
-import { Message } from './types'
+import { ChatUser, Message } from './types'
 
 interface IProps {
   message?: Message
@@ -65,20 +71,13 @@ const AlertErrorIcon = ({ className }: { className: string }) => (
   </svg>
 )
 
-const formatTime = (time: Date) => {
-  if (isToday(time)) {
-    return format(time, 'hh:mm aa')
+function formatUser(user?: ChatUser | null) {
+  if (user == null) return {}
+  return {
+    firstName: user.first_name,
+    lastName: user.last_name,
+    imageUrl: user.image_url,
   }
-  if (isYesterday(time)) {
-    return `Yesterday at ${format(time, 'hh:mm aa')}`
-  } else return format(time, 'MM/dd/yyyy hh:mm aa')
-}
-
-function formatSeconds(seconds: number) {
-  if (seconds < 3600) {
-    return new Date(seconds * 1000).toISOString().substring(14, 19)
-  }
-  return new Date(seconds * 1000).toISOString().slice(11, 19)
 }
 
 function EventMessage({ data }: { data: any }) {
@@ -125,15 +124,19 @@ function EventMessage({ data }: { data: any }) {
 
 const ChatCard = (props: IProps) => {
   const { message, error = '', isEnd } = props
-  const { app, mode, isLoading } = useChatContext()
+  const { app, mode, isLoading, user: chatUser } = useChatContext()
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message?.role === 'user'
   const showError = isEnd && error && !isUser
 
-  const { user } = useUser()
+  const { user: currentUser } = useUser()
+
+  const user = mode === 'debug' ? currentUser : formatUser(chatUser)
 
   const color = getAvatarBgColor(appId || '')
-  const username = user?.primaryEmailAddress?.emailAddress
+  const username = [user?.firstName || '', user?.lastName || '']
+    .join(' ')
+    .trim()
   const icon = isUser ? user?.imageUrl : appIcon
   const name = (isUser ? username : appName) || ''
 
@@ -168,7 +171,13 @@ const ChatCard = (props: IProps) => {
               icon ? 'bg-white' : `bg-${color}-600`
             )}
           >
-            <AvatarImage src={icon} alt={name} className="object-cover" />
+            {icon && (
+              <img
+                src={icon}
+                alt={name}
+                className="aspect-square h-full w-full object-cover"
+              />
+            )}
             <AvatarFallback className="bg-transparent text-white">
               {getFirstLetter(name)}
             </AvatarFallback>
@@ -206,7 +215,7 @@ const ChatCard = (props: IProps) => {
                 // or any other messages
                 ((isEnd && !isLoading) || !isEnd) && (
                   <ChatActions>
-                    <ChatFeedbackButtons messageId={message?.id} />
+                    <ChatFeedbackButtons message={message} />
                   </ChatActions>
                 )}
             </div>

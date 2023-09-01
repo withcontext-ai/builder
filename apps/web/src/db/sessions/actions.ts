@@ -3,16 +3,28 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { Message } from 'ai'
 import axios from 'axios'
-import { and, desc, eq, sql } from 'drizzle-orm'
+import {
+  and,
+  desc,
+  eq,
+  gte,
+  isNull,
+  like,
+  notLike,
+  or,
+  SQL,
+  sql,
+} from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
-import { serverLog } from '@/lib/posthog'
 import { nanoid, safeParse } from '@/lib/utils'
 import { ChatMessage, EventMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
+import { checkUserId } from '../users/actions'
+import { UsersTable } from '../users/schema'
 import { Session, SessionsTable } from './schema'
 
 export async function addSession(appId: string) {
@@ -37,14 +49,6 @@ export async function addSession(appId: string) {
       { model_id: foundApp?.api_model_id }
     )
     if (res.status !== 200) {
-      serverLog.capture({
-        distinctId: userId,
-        event: 'ai_service_error:add_session',
-        properties: {
-          message: res.message,
-          app_id: appId,
-        },
-      })
       throw new Error(`AI service error: ${res.message}`)
     }
     api_session_id = res?.data?.session_id
@@ -61,9 +65,6 @@ export async function addSession(appId: string) {
   let eventMessageContent = null
   if (foundApp.opening_remarks) {
     eventMessageContent = foundApp.opening_remarks
-  }
-  if (foundApp.enable_video_interaction) {
-    eventMessageContent = null
   }
   const sessionVal = {
     short_id: nanoid(),
@@ -87,16 +88,6 @@ export async function addSession(appId: string) {
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
-
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:add_session',
-    properties: {
-      app_id: appId,
-      session_id: newSession.short_id,
-      api_session_id,
-    },
-  })
 
   return { sessionId: newSession.short_id }
 }
@@ -146,15 +137,6 @@ export async function removeSession(appId: string, sessionId: string) {
     .set({ archived: true, updated_at: new Date() })
     .where(eq(SessionsTable.short_id, sessionId))
 
-  serverLog.capture({
-    distinctId: userId,
-    event: 'success:remove_session',
-    properties: {
-      app_id: appId,
-      session_id: sessionId,
-    },
-  })
-
   const [latestSession] = await db
     .select()
     .from(SessionsTable)
@@ -200,6 +182,11 @@ export async function getLatestSessionId(appId: string) {
       .orderBy(desc(SessionsTable.created_at))
       .limit(1)
     if (!foundSession) {
+      const foundUser = await checkUserId(userId)
+      if (!foundUser) {
+        throw new Error('User not found')
+      }
+
       let api_session_id = null
       if (flags.enabledAIService) {
         let { data: res } = await axios.post(
@@ -207,14 +194,6 @@ export async function getLatestSessionId(appId: string) {
           { model_id: foundApp?.api_model_id }
         )
         if (res.status !== 200) {
-          serverLog.capture({
-            distinctId: userId,
-            event: 'ai_service_error:add_session',
-            properties: {
-              message: res.message,
-              app_id: appId,
-            },
-          })
           throw new Error(`AI service error: ${res.message}`)
         }
         api_session_id = res?.data?.session_id
@@ -222,9 +201,6 @@ export async function getLatestSessionId(appId: string) {
       let eventMessageContent = null
       if (foundApp.opening_remarks) {
         eventMessageContent = foundApp.opening_remarks
-      }
-      if (foundApp.enable_video_interaction) {
-        eventMessageContent = null
       }
       const sessionVal = {
         short_id: nanoid(),
@@ -253,7 +229,6 @@ export async function getLatestSessionId(appId: string) {
 
     return foundSession.short_id
   } catch (error: any) {
-    console.log('error:', error)
     redirect('/')
   }
 }
@@ -276,6 +251,7 @@ export async function getSession(sessionId: string, appId?: string) {
         )
       )
       .leftJoin(AppsTable, eq(SessionsTable.app_id, AppsTable.short_id))
+      .leftJoin(UsersTable, eq(SessionsTable.created_by, UsersTable.short_id))
 
     if (!session) {
       throw new Error('Session not found')
@@ -284,6 +260,7 @@ export async function getSession(sessionId: string, appId?: string) {
     return {
       session: session.sessions,
       app: session.apps,
+      user: session.users,
     }
   } catch (error: any) {
     if (appId) {
@@ -325,17 +302,30 @@ export async function updateMessagesToSession(
       throw new Error('Not authenticated')
     }
 
+    const [session] = await db
+      .select()
+      .from(SessionsTable)
+      .where(eq(SessionsTable.short_id, sessionId))
+
+    const currentMessages = safeParse(session.messages_str, [])
+
     const formattedMessages = messages.map(formatId).map(formatTimestamp)
 
-    console.log(
-      'BEGIN updateMessagesToSession db update:',
-      userId,
-      formattedMessages.length
-    )
+    // todo impl single message chat
+    const mergedMessages = formattedMessages.map((message, id) => {
+      const currentMessage = currentMessages[id]
+      if (currentMessage?.id === message.id) {
+        return {
+          ...message,
+          ...currentMessage,
+        }
+      }
+      return message
+    })
     await db
       .update(SessionsTable)
       .set({
-        messages_str: JSON.stringify(formattedMessages),
+        messages_str: JSON.stringify(mergedMessages),
       })
       .where(
         and(
@@ -343,30 +333,7 @@ export async function updateMessagesToSession(
           eq(SessionsTable.created_by, userId)
         )
       )
-    console.log('END updateMessagesToSession db update')
-    await serverLog.capture({
-      distinctId: userId,
-      event: 'success:update_messages_to_session',
-      properties: {
-        sessionId,
-        messages,
-      },
-    })
   } catch (error: any) {
-    console.error('updateMessagesToSession error:', error.message)
-
-    if (userId) {
-      await serverLog.capture({
-        distinctId: userId,
-        event: 'error:update_messages_to_session',
-        properties: {
-          sessionId,
-          messages,
-          error: error.message,
-        },
-      })
-    }
-
     return {
       error: error.message,
     }
@@ -426,4 +393,112 @@ export async function addFeedback({
       error: error.message,
     }
   }
+}
+
+export async function getMonitoringData({
+  appId,
+  pageSize = 10,
+  page = 0,
+  feedback,
+  timeframe,
+  search,
+}: {
+  appId: string
+  pageSize?: number
+  page?: number
+  timeframe?: string
+  feedback?: string
+  search?: string
+}) {
+  const timeframes = {
+    last7days: gte(SessionsTable.created_at, sql`now() - interval '7 days'`),
+    last3months: gte(
+      SessionsTable.created_at,
+      sql`now() - interval '3 months'`
+    ),
+    last12months: gte(
+      SessionsTable.created_at,
+      sql`now() - interval '12 months'`
+    ),
+    monthtodate: gte(SessionsTable.created_at, sql`date_trunc('month', now())`),
+    quartertodate: gte(
+      SessionsTable.created_at,
+      sql`date_trunc('quarter', now())`
+    ),
+    today: gte(SessionsTable.created_at, sql`date_trunc('day', now())`),
+    yeartodate: gte(SessionsTable.created_at, sql`date_trunc('year', now())`),
+  }
+
+  const feedbacks = {
+    userfeedback: like(SessionsTable.messages_str, `%feedback%`),
+    nofeedback: or(
+      isNull(SessionsTable.messages_str),
+      notLike(SessionsTable.messages_str, `%feedback%`)
+    ),
+    all: null,
+  }
+
+  const query = [
+    timeframe && timeframes[timeframe as keyof typeof timeframes],
+    feedback && feedbacks[feedback as keyof typeof feedbacks],
+    search && like(SessionsTable.messages_str, `%${search}%`),
+  ].filter(Boolean) as SQL[]
+
+  const start = Date.now()
+  const [items, [count], [app]] = await Promise.all([
+    db
+      .select()
+      .from(SessionsTable)
+      .orderBy(desc(SessionsTable.created_at))
+      .where(and(eq(SessionsTable.app_id, appId), ...query))
+      .limit(pageSize)
+      .offset(page * pageSize)
+      .leftJoin(UsersTable, eq(SessionsTable.created_by, UsersTable.short_id)),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(SessionsTable)
+      .where(and(eq(SessionsTable.app_id, appId), ...query)),
+    db.select().from(AppsTable).where(eq(AppsTable.short_id, appId)),
+  ])
+
+  console.log('getMonitoringData db query time:', Date.now() - start)
+
+  const ret = {
+    sessions: items.map((item) => {
+      const messages = JSON.parse(
+        item.sessions.messages_str || '[]'
+      ) as ChatMessage[]
+
+      const aggregation = messages.reduce(
+        (acc, message) => {
+          acc.total++
+          if (message.feedback === 'good') {
+            acc.feedback.good++
+          }
+          if (message.feedback === 'bad') {
+            acc.feedback.bad++
+          }
+          return acc
+        },
+        {
+          total: 0,
+          feedback: {
+            good: 0,
+            bad: 0,
+          },
+        }
+      )
+      return {
+        ...item.sessions,
+        email: item.users?.email,
+        first_name: item.users?.first_name,
+        last_name: item.users?.last_name,
+        image_url: item.users?.image_url,
+        ...aggregation,
+      }
+    }),
+    count: count?.count || 0,
+    app,
+  }
+  return ret
 }

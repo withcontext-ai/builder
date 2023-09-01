@@ -1,4 +1,5 @@
-import { ReactNode } from 'react'
+import { ReactNode, RefObject } from 'react'
+import { CancelTokenSource } from 'axios'
 import type {
   RcFile as OriRcFile,
   UploadRequestOption as RcCustomRequestOptions,
@@ -148,3 +149,22 @@ export interface FileItemProps<T = any> {
   fileNameStyle?: string
   locale?: UploadLocale
 }
+
+export interface FilePercent {
+  uid?: string
+  percent?: number
+}
+
+export interface UploadFileProps {
+  file: UploadFile
+  fileList: UploadFile<any>[]
+  setMergedFileList?: (s: UploadFile<any>[]) => void
+  fileType?: string
+  aborts: RefObject<AbortRef>
+  source?: CancelTokenSource
+  onChangeFileList?: (files: FileProps[]) => void
+  setIsUploading: (s: boolean) => void
+  setProcess?: (s: FilePercent[]) => void
+}
+
+export type AbortRef = { uid: string; control: AbortController }[]
