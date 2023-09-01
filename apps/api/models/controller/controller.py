@@ -82,6 +82,7 @@ class DatasetManager(BaseManager):
     def __init__(self) -> None:
         super().__init__()
         self.table = self.get_table("datasets")
+        self.cache = {}
 
     @BaseManager.db_session
     def save_dataset(self, dataset: Dataset):
@@ -99,6 +100,8 @@ class DatasetManager(BaseManager):
     @BaseManager.db_session
     def update_dataset(self, dataset_id: str, update_data: dict):
         logger.info(f"Updating dataset {dataset_id}")
+        if self.cache.get(dataset_id):
+            del self.cache[dataset_id]
         if update_data.get("documents"):
             handler = WebhookHandler()
             handler.update_status(dataset_id, 1)
@@ -153,6 +156,8 @@ class DatasetManager(BaseManager):
             return self.table.select()
 
     def get_datasets(self, dataset_id: str = None) -> Union[Dataset, list[Dataset]]:
+        if dataset_id in self.cache:
+            return [self.cache[dataset_id]]
         dataset_info = self._get_datasets(dataset_id)
         if dataset_info is None:
             return None
@@ -168,6 +173,9 @@ class DatasetManager(BaseManager):
                 logger.error(
                     f'Error when parsing dataset {dataset._mapping["id"]}: {e}'
                 )
+        for dataset in datasets:
+            if dataset.id not in self.cache:
+                self.cache[dataset.id] = dataset
         return datasets
 
     def upsert_dataset(self, dataset_id: str, dataset: dict):
@@ -191,6 +199,7 @@ class ModelManager(BaseManager):
     def __init__(self) -> None:
         super().__init__()
         self.table = self.get_table("models")
+        self.cache = {}
 
     @BaseManager.db_session
     def save_model(self, model: Model):
@@ -212,6 +221,8 @@ class ModelManager(BaseManager):
         update_data: dict,
     ):
         logger.info(f"Updating model {model_id}")
+        if self.cache.get(model_id):
+            del self.cache[model_id]
         handler = WebhookHandler()
         if update_data.get("chains"):
             model = self.get_models(model_id)[0]
@@ -255,6 +266,8 @@ class ModelManager(BaseManager):
             return self.table.select()
 
     def get_models(self, model_id: str = None) -> Union[Model, list[Model]]:
+        if model_id in self.cache:
+            return [self.cache[model_id]]
         model_info = self._get_model(model_id)
         if model_info is None:
             return None
@@ -268,6 +281,9 @@ class ModelManager(BaseManager):
                 models.append(Model(**model._mapping))
             except Exception as e:
                 logger.error(f"Error when parsing model {model._mapping['id']}: {e}")
+        for model in models:
+            if model.id not in self.cache:
+                self.cache[model.id] = model
         return models
 
     def upsert_model(self, model_id: str, model: dict):

@@ -1,7 +1,7 @@
 import asyncio
 import json
 import secrets
-import sys
+import time
 from typing import AsyncIterable, Awaitable, List
 
 import graphsignal
@@ -13,13 +13,23 @@ from models.base import Choices, CompletionsRequest, CompletionsResponse
 from models.base import Messages as MessagesContent
 from models.base import SessionRequest, VideoCompletionsRequest, session_state_manager
 from models.controller import model_manager
+from models.logsnag.handler import LogsnagHandler
 from models.faceto_ai import FaceToAiManager, WebhookHandler
 from models.workflow import Workflow
 from utils import WEBHOOK_KEY
+from concurrent.futures import ThreadPoolExecutor
+from models.workflow.custom_chain import (
+    SequentialSelfCheckChain,
+    SelfCheckChain,
+    SelfCheckChainStatus,
+)
 
+executor = ThreadPoolExecutor(max_workers=1000)
 
 router = APIRouter(prefix="/v1/chat")
 CHUNK_DATA = "chunk data"
+
+# {"data": [{"key": "tool-0", "finished": True, "succeed": True}]}
 
 
 def get_token_header(request: Request):
@@ -31,7 +41,9 @@ def get_token_header(request: Request):
     return token
 
 
-def wrap_token(token: str, model_id: str, session_id: str, filt: bool = False) -> str:
+def wrap_token(
+    token: str, model_id: str, session_id: str, filt: bool = False, openai_callback=None
+) -> str:
     if filt:
         content = {"content": token}
         if token == CHUNK_DATA:
@@ -43,7 +55,10 @@ def wrap_token(token: str, model_id: str, session_id: str, filt: bool = False) -
 
 
 async def send_message(
-    messages_contents: List[MessagesContent], session_id: str, filt=False
+    messages_contents: List[MessagesContent],
+    session_id: str,
+    filt=False,
+    start_time=None,
 ) -> AsyncIterable[str]:
     try:
         messages = []
@@ -60,7 +75,6 @@ async def send_message(
                 )
 
         model_id = session_state_manager.get_model_id(session_id)
-
         models = model_manager.get_models(model_id)
         if not models:
             raise HTTPException(
@@ -72,9 +86,8 @@ async def send_message(
                 detail=f"Model {model_id} has {len(models)} models in model manager",
             )
         model = models[0]
-        workflow = Workflow(model=model, session_id=session_id)
-
-        callback = workflow.sequential_chain_callback
+        # workflow = Workflow(model=model, session_id=session_id)
+        workflow = session_state_manager.get_workflow(session_id, model)
 
         async def wrap_done(fn: Awaitable, event: asyncio.Event):
             try:
@@ -87,18 +100,42 @@ async def send_message(
                 event.set()
 
         task = asyncio.create_task(
-            wrap_done(workflow.agenerate(messages), callback.done)
+            wrap_done(workflow.agenerate(messages), workflow.context.done)
         )
 
         yield wrap_token(CHUNK_DATA, model_id, session_id, filt=filt)
 
-        async for token in callback.aiter():
+        async for token in workflow.context.aiter():
+            if start_time:
+                duration_time = time.time() - start_time
+                start_time = None
+                logger.info(f"duration_time: {duration_time}")
+                logsang_handler = LogsnagHandler()
+                asyncio.create_task(
+                    logsang_handler.send_log(
+                        channel="chat",
+                        event="completion",
+                        description=f"model_id:{model_id}, response_time: {duration_time}",
+                        tags={
+                            "model-id": model_id,
+                            "session-id": session_id,
+                            "duration-time": duration_time,
+                        },
+                    )
+                )
             yield wrap_token(token, model_id, session_id, filt=filt)
 
         if not filt:
             yield f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=workflow.model.id, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict())}\n\n"
+            info = {
+                "metadata": {
+                    "token": {"total_tokens": workflow.cost_content.total_tokens},
+                    "raw": workflow.io_traces,
+                }
+            }
+            yield f"data: {json.dumps(info)}\n\n"
         yield "data: [DONE]\n\n"
-
+        workflow.clear()
         await task
     except Exception as e:
         logger.exception(e)
@@ -111,6 +148,8 @@ async def send_done_message():
 
 @router.post("/completions")
 async def stream_completions(body: CompletionsRequest):
+    start_time = time.time()
+    logger.info(f"start_time: {start_time}")
     with graphsignal.start_trace("completions"):
         logger.info(f"completions payload: {body.dict()}")
         model_id = session_state_manager.get_model_id(body.session_id)
@@ -128,7 +167,7 @@ async def stream_completions(body: CompletionsRequest):
             )
         else:
             return StreamingResponse(
-                send_message(body.messages, body.session_id),
+                send_message(body.messages, body.session_id, start_time=start_time),
                 media_type="text/event-stream",
             )
 
@@ -197,3 +236,48 @@ async def create_session(body: SessionRequest):
         except Exception as e:
             logger.exception(e)
             raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/session/{session_id}/process")
+async def get_process_status(session_id: str):
+    with graphsignal.start_trace("get_process_status"):
+        workflow = session_state_manager.get_workflow(session_id)
+        if workflow is None:
+            raise HTTPException(status_code=400, detail="workflow not found")
+        process_list = []
+        for chain in workflow.context.chains:
+            if isinstance(chain, SelfCheckChain):
+                match chain.status:
+                    case SelfCheckChainStatus.INIT:
+                        process_list.append(
+                            {
+                                "key": chain.output_key,
+                                "finished": False,
+                                "succeed": False,
+                            }
+                        )
+                    case SelfCheckChainStatus.RUNNING:
+                        process_list.append(
+                            {
+                                "key": chain.output_key,
+                                "finished": False,
+                                "succeed": False,
+                            }
+                        )
+                    case SelfCheckChainStatus.FINISHED:
+                        process_list.append(
+                            {
+                                "key": chain.output_key,
+                                "finished": True,
+                                "succeed": True,
+                            }
+                        )
+                    case SelfCheckChainStatus.ERROR:
+                        process_list.append(
+                            {
+                                "key": chain.output_key,
+                                "finished": True,
+                                "succeed": False,
+                            }
+                        )
+        return {"data": json.dumps(process_list), "message": "success", "status": 200}

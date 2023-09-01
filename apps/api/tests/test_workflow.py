@@ -44,7 +44,9 @@ Standalone question:"""
         documents=[document],
     )
 
-    dataset_manager.update_dataset(dataset.id, dataset.dict())
+    updated_dict = dataset.dict()
+    updated_dict.pop("id")
+    dataset_manager.update_dataset(dataset.id, updated_dict)
 
     chain1 = Chain(
         llm=llm1,

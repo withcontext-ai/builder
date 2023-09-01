@@ -1,1 +1,1 @@
-from .controller import dataset_manager, model_manager
+from .controller import dataset_manager, model_manager, ModelManager, DatasetManager

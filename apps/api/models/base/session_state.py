@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy import Column, String
 
 from .base import Base, BaseManager
+from models.workflow import Workflow
 
 
 class SessionState(BaseModel):
@@ -24,6 +25,8 @@ class SessionStateManager(BaseManager):
     def __init__(self) -> None:
         super().__init__()
         self.table = self.get_table("session_state")
+        self.cache = {}
+        self.workflow_cache = {}
 
     @BaseManager.db_session
     def save_session_state(self, session_id: str, model_id: str):
@@ -54,6 +57,8 @@ class SessionStateManager(BaseManager):
             return self.table.select()
 
     def get_model_id(self, session_id: str) -> Union[SessionState, list[SessionState]]:
+        if session_id in self.cache:
+            return self.cache[session_id]
         session_state_info = self._get_session_state(session_id)
         if session_state_info is None:
             return None
@@ -68,7 +73,21 @@ class SessionStateManager(BaseManager):
                 )
         if len(session_states) == 0:
             raise Exception("Session state not found")
+        self.cache[session_id] = session_states[0].model_id
         return session_states[0].model_id
+
+    def save_workflow(self, workflow, session_id):
+        self.workflow_cache[session_id] = workflow
+
+    def get_workflow(self, session_id, model):
+        if session_id in self.workflow_cache:
+            return self.workflow_cache[session_id]
+        elif model is None:
+            return None
+        else:
+            workflow = Workflow(model=model, session_id=session_id)
+            self.save_workflow(workflow, session_id)
+            return workflow
 
 
 session_state_manager = SessionStateManager()
