@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import axios from 'axios'
 
+export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
+
 // just for mock
 // const PROCESS_DATA = [
 //   {
