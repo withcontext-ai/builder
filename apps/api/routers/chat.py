@@ -241,9 +241,9 @@ async def create_session(body: SessionRequest):
 @router.get("/session/{session_id}/process")
 async def get_process_status(session_id: str):
     with graphsignal.start_trace("get_process_status"):
-        workflow = session_state_manager.get_workflow(session_id)
+        workflow = session_state_manager.get_workflow(session_id, None)
         if workflow is None:
-            raise HTTPException(status_code=400, detail="workflow not found")
+            return {"data": [], "message": "workflow not found", "status": 400}
         process_list = []
         for chain in workflow.context.chains:
             if isinstance(chain, SelfCheckChain):
@@ -251,7 +251,7 @@ async def get_process_status(session_id: str):
                     case SelfCheckChainStatus.INIT:
                         process_list.append(
                             {
-                                "key": chain.output_key,
+                                "key": "-".join(chain.output_key.split("_")[0:2]),
                                 "finished": False,
                                 "succeed": False,
                             }
@@ -259,7 +259,7 @@ async def get_process_status(session_id: str):
                     case SelfCheckChainStatus.RUNNING:
                         process_list.append(
                             {
-                                "key": chain.output_key,
+                                "key": "-".join(chain.output_key.split("_")[0:2]),
                                 "finished": False,
                                 "succeed": False,
                             }
@@ -267,7 +267,7 @@ async def get_process_status(session_id: str):
                     case SelfCheckChainStatus.FINISHED:
                         process_list.append(
                             {
-                                "key": chain.output_key,
+                                "key": "-".join(chain.output_key.split("_")[0:2]),
                                 "finished": True,
                                 "succeed": True,
                             }
@@ -275,9 +275,9 @@ async def get_process_status(session_id: str):
                     case SelfCheckChainStatus.ERROR:
                         process_list.append(
                             {
-                                "key": chain.output_key,
+                                "key": "-".join(chain.output_key.split("_")[0:2]),
                                 "finished": True,
                                 "succeed": False,
                             }
                         )
-        return {"data": json.dumps(process_list), "message": "success", "status": 200}
+        return {"data": process_list, "message": "success", "status": 200}

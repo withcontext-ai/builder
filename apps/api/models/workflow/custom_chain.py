@@ -87,7 +87,7 @@ class SelfCheckChain(Chain):
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Coroutine[Any, Any, Dict[str, Any]]:
         prompt_value = self.prompt.format_prompt(**inputs)
-        response = self.llm.generate_prompt(
+        response = await self.llm.agenerate_prompt(
             [prompt_value], callbacks=[run_manager.get_child() if run_manager else None]
         )
         if response.generations[0][0].text == "Yes":
@@ -141,7 +141,11 @@ class SequentialSelfCheckChain(SequentialChain):
                         for token in outputs[chain.output_key]:
                             await self.queue.put(token)
                         self.done.set()
-                        break
+                        return {
+                            k: known_values[k]
+                            for k in self.output_variables
+                            if k in known_values
+                        }
             else:
                 if i == len(self.chains) - 1:
                     callbacks.add_handler(
@@ -151,7 +155,7 @@ class SequentialSelfCheckChain(SequentialChain):
                     known_values, return_only_outputs=True, callbacks=callbacks
                 )
                 known_values.update(outputs)
-        return {k: known_values[k] for k in self.output_variables}
+        return {k: known_values[k] for k in self.output_variables if k in known_values}
 
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
@@ -170,5 +174,7 @@ class SequentialSelfCheckChain(SequentialChain):
                 other.pop().cancel()
             token_or_done = cast(Union[str, Literal[True]], done.pop().result())
             if token_or_done is True:
+                while not self.queue.empty():
+                    yield await self.queue.get()
                 break
             yield token_or_done

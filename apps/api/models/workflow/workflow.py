@@ -127,7 +127,7 @@ class Workflow:
             if _chain.prompt.target is None:
                 logger.warning(f"Target is None. model_id: {self.model.id}")
             template += "\n" + _chain.prompt.check_prompt
-            template.replace("[{target}]", _chain.prompt.target)
+            template = template.replace("[{target}]", _chain.prompt.target)
 
         template = replace_dot_with_dash_for_tool_pattern(template)
         # transfer f-format to jinja2 format
