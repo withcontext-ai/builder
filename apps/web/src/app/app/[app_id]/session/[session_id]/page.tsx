@@ -2,7 +2,7 @@ import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
-import { ProcessTask } from '@/components/chat/types'
+import { Message, ProcessTask } from '@/components/chat/types'
 import { TreeItem } from '@/components/dnd/types'
 
 import { WorkflowItem } from '../../(manage)/settings/workflow/type'
@@ -38,6 +38,13 @@ export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { session, app, user } = await getSession(session_id, app_id)
 
+  const messages = safeParse(session.messages_str, []).map(
+    (message: Message) => ({
+      ...message,
+      type: 'chat',
+    })
+  )
+
   const workflow = app ? getWorkflow(app) : []
 
   return (
@@ -48,7 +55,7 @@ export default async function SessionPage({ params }: IProps) {
           app={app}
           session={session}
           user={user}
-          initialMessages={safeParse(session.messages_str, [])}
+          initialMessages={messages}
           initialEvents={safeParse(session.events_str, [])}
           workflow={workflow}
         />
