@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import axios from 'axios'
 
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
@@ -33,14 +32,15 @@ export async function GET(req: NextRequest) {
     // await new Promise((resolve) => setTimeout(resolve, 1000))
     // return NextResponse.json({ success: true, data: PROCESS_DATA })
 
-    let { data: res } = await axios.get(
+    let res = await fetch(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session/${api_session_id}/process`
     )
-    if (res.status !== 200) {
-      throw new Error(`API service error: ${res.message}`)
+    let data = await res.json()
+    if (data.status !== 200) {
+      throw new Error(`API service error: ${data.message}`)
     }
 
-    return NextResponse.json({ success: true, data: res?.data })
+    return NextResponse.json({ success: true, data: data?.data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }
