@@ -123,6 +123,7 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
             link: `/app/${appId}/share`,
             name: 'Share',
           })}
+          <DropdownMenuSeparator />
           {renderItem({
             icon: <LogOutIcon size={16} />,
             link: '',
