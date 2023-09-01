@@ -32,7 +32,6 @@ const ChatProcess = ({ workflow }: IProps) => {
   )
 
   const workflowWithStatus = React.useMemo(() => {
-    if (!data) return workflow
     return workflow.map((item) => {
       if (item.type === 'self_checking_chain') {
         const found = data?.find((d: any) => d.key === item?.key)
@@ -43,6 +42,11 @@ const ChatProcess = ({ workflow }: IProps) => {
           return {
             ...item,
             status,
+          }
+        } else {
+          return {
+            ...item,
+            status: 'pending',
           }
         }
       }
