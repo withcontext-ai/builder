@@ -161,8 +161,8 @@ const ChatFeedbackButtons = (props: Props) => {
             className="max-w-lg space-y-1 break-words p-4"
           >
             <div className="font-semibold">
-              {feedback === 'good' && 'User Likes'}
-              {feedback === 'bad' && 'User Dislikes'}
+              {feedback === 'good' && 'User liked this'}
+              {feedback === 'bad' && 'User disliked this'}
               {feedback_content && ':'}
             </div>
             {feedback_content
