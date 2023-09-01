@@ -115,9 +115,9 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
                 link: `/app/${appId}/analysis/monitoring`,
                 name: 'App Analysis',
               })}
+              <DropdownMenuSeparator />
             </>
           )}
-          <DropdownMenuSeparator />
           {renderItem({
             icon: <Share size={16} />,
             link: `/app/${appId}/share`,
