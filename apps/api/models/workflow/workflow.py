@@ -94,8 +94,11 @@ class Workflow:
 
     def clear(self):
         self.context.done = asyncio.Event()
-        self.io_traces = []
-        self.cost_content = TokenCostProcess()
+        self.io_traces.clear()
+        self.cost_content.total_tokens = 0
+        self.cost_content.prompt_tokens = 0
+        self.cost_content.completion_tokens = 0
+        self.cost_content.successful_requests = 0
         self.context.queue = asyncio.Queue()
 
     def _prepare_llm_and_template(self, _chain, index):
@@ -231,14 +234,13 @@ class Workflow:
         # TODO buffer size limit
         prompt = messages[-1].content
         memory = ConversationBufferMemory(
-            memory_key="chat_history", input_key="question"
+            memory_key="chat_history", input_key="question", output_key="chat_history"
         )
         for i in range(len(messages) - 1):
             memory.chat_memory.add_message(messages[i])
-        self.context.memory = memory
         await self.context.arun(
             {
-                # CHAT_HISTORY_KEY: messages,
+                CHAT_HISTORY_KEY: memory.buffer_as_str,
                 QUESTION_KEY: prompt,
                 CONTEXT_KEY: "",
             }

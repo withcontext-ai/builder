@@ -26,7 +26,7 @@ from langchain.chains.base import Chain
 from langchain.prompts.base import BasePromptTemplate
 from langchain.schema.language_model import BaseLanguageModel
 from loguru import logger
-from pydantic import Extra, root_validator
+from pydantic import Extra, root_validator, Field
 
 
 class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -92,6 +92,13 @@ class SelfCheckChain(Chain):
         )
         if response.generations[0][0].text == "Yes":
             self.status = SelfCheckChainStatus.FINISHED
+            return {
+                self.output_key: inputs["chat_history"]
+                + "\nHuman:"
+                + inputs["question"]
+                + "\nAi:"
+                + response.generations[0][0].text
+            }
         else:
             self.max_retries -= 1
             if self.max_retries <= 0:
@@ -102,6 +109,7 @@ class SelfCheckChain(Chain):
 class SequentialSelfCheckChain(SequentialChain):
     queue: asyncio.Queue[str]
     done: asyncio.Event
+    known_values: Dict[str, Any] = Field(default_factory=dict)
 
     class Config:
         extra = Extra.allow
@@ -114,12 +122,15 @@ class SequentialSelfCheckChain(SequentialChain):
     ) -> Dict[str, str]:
         raise NotImplementedError
 
+    def _validate_outputs(self, outputs: Dict[str, Any]) -> None:
+        pass
+
     async def _acall(
         self,
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Dict[str, Any]:
-        known_values = inputs.copy()
+        self.known_values.update(inputs)
         _run_manager = run_manager or AsyncCallbackManagerForChainRun.get_noop_manager()
         callbacks = _run_manager.get_child()
         for i, chain in enumerate(self.chains):
@@ -131,9 +142,9 @@ class SequentialSelfCheckChain(SequentialChain):
                     continue
                 else:
                     outputs = await chain.acall(
-                        known_values, return_only_outputs=True, callbacks=callbacks
+                        self.known_values, return_only_outputs=True, callbacks=callbacks
                     )
-                    known_values.update(outputs)
+                    self.known_values.update(outputs)
                     if chain.status not in [
                         SelfCheckChainStatus.FINISHED,
                         SelfCheckChainStatus.ERROR,
@@ -141,21 +152,29 @@ class SequentialSelfCheckChain(SequentialChain):
                         for token in outputs[chain.output_key]:
                             await self.queue.put(token)
                         self.done.set()
-                        return {
-                            k: known_values[k]
-                            for k in self.output_variables
-                            if k in known_values
-                        }
+                        return_dict = {}
+                        for k in self.output_variables:
+                            if k in self.known_values:
+                                return_dict[k] = self.known_values[k]
+                            else:
+                                return_dict[k] = ""
+                        return return_dict
             else:
                 if i == len(self.chains) - 1:
                     callbacks.add_handler(
                         CustomAsyncIteratorCallbackHandler(self.queue, self.done)
                     )
                 outputs = await chain.acall(
-                    known_values, return_only_outputs=True, callbacks=callbacks
+                    self.known_values, return_only_outputs=True, callbacks=callbacks
                 )
-                known_values.update(outputs)
-        return {k: known_values[k] for k in self.output_variables if k in known_values}
+                self.known_values.update(outputs)
+        return_dict = {}
+        for k in self.output_variables:
+            if k in self.known_values:
+                return_dict[k] = self.known_values[k]
+            else:
+                return_dict[k] = ""
+        return return_dict
 
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
