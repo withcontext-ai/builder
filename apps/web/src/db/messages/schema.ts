@@ -1,6 +1,8 @@
 import { InferModel } from 'drizzle-orm'
 import {
+  bigint,
   boolean,
+  pgEnum,
   pgTable,
   serial,
   text,
@@ -9,6 +11,10 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import { SessionsTable } from '../sessions/schema'
+
+const typeEnum = pgEnum('type', ['chat', 'event'])
+const roleEnum = pgEnum('role', ['system', 'user', 'assistant'])
+const feedbackEnum = pgEnum('feedback', ['good', 'bad'])
 
 export const MessagesTable = pgTable(
   'messages',
@@ -23,18 +29,18 @@ export const MessagesTable = pgTable(
     updated_at: timestamp('updated_at').defaultNow().notNull(),
     archived: boolean('archived').default(false).notNull(),
     // base message
-    type: text('type').notNull(), // 'chat' | 'event'
-    role: text('role'), // 'user' | 'assistant'
+    type: typeEnum('type').notNull(),
+    role: roleEnum('role'),
     // chat message
     content: text('content'),
-    feedback: text('feedback'), // 'good' | 'bad'
+    feedback: feedbackEnum('feedback'),
     feedback_content: text('feedback_content'),
-    latency: text('latency'),
-    total_tokens: text('total_tokens'),
+    latency: bigint('latency', { mode: 'number' }),
+    total_tokens: bigint('total_tokens', { mode: 'number' }),
     raw: text('raw'),
     annotation: text('annotation'),
     // event message
-    eventType: text('eventType'), // 'call.created' | 'call.declined' | 'call.ended' | 'call.canceled'
+    event_type: text('event_type'), // 'call.created' | 'call.declined' | 'call.ended' | 'call.canceled'
   },
   (messages) => {
     return {
