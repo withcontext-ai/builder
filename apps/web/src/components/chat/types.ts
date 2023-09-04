@@ -34,9 +34,24 @@ export interface ChatMessage extends BaseMessage, RawMessage {
   content: string
   meta?: {
     latency?: number
-    token?: number
-    raw?: string
+    token?: {
+      total_tokens?: number
+    }
+    raw?: any
   }
 }
 
 export type Message = ChatMessage | EventMessage
+
+export interface ProcessTaskFromAPI {
+  key: string
+  type: string
+  finished?: boolean
+  succeed?: boolean
+}
+
+export interface ProcessTask {
+  key: string
+  type: string
+  status: 'none' | 'pending' | 'succeed' | 'failed'
+}
