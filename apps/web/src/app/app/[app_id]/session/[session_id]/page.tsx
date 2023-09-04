@@ -1,8 +1,10 @@
 import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
+import { getMessages } from '@/db/messages/actions'
+import { Message } from '@/db/messages/schema'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
-import { Message, ProcessTask } from '@/components/chat/types'
+import { ChatMessage, EventMessage, ProcessTask } from '@/components/chat/types'
 import { TreeItem } from '@/components/dnd/types'
 
 import { WorkflowItem } from '../../(manage)/settings/workflow/type'
@@ -10,6 +12,40 @@ import AddAppToWorkspace from './add-app-to-workspace'
 import AppNotFound from './app-not-found'
 
 export const runtime = 'edge'
+
+function formatChatMessages(messages: Message[]) {
+  return messages
+    .filter((m) => m.type === 'chat')
+    .map((m) => ({
+      id: m.short_id,
+      createdAt: m.created_at,
+      role: m.role,
+      content: m.content,
+      type: 'chat',
+      feedback: m.feedback,
+      feedback_content: m.feedback_content,
+      meta: {
+        latency: m.latency,
+        token: {
+          total_tokens: m.total_tokens,
+        },
+        raw: m.raw,
+      },
+    })) as ChatMessage[]
+}
+
+function formatEventMessages(messages: Message[]) {
+  return messages
+    .filter((m) => m.type === 'event')
+    .map((m) => ({
+      id: m.short_id,
+      createdAt: m.created_at,
+      role: m.role,
+      content: m.content,
+      type: 'event',
+      eventType: m.event_type,
+    })) as EventMessage[]
+}
 
 function getWorkflow(app: App) {
   const tree = safeParse(app.published_workflow_tree_str, []) as TreeItem[]
@@ -38,12 +74,9 @@ export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { session, app, user } = await getSession(session_id, app_id)
 
-  const messages = safeParse(session.messages_str, []).map(
-    (message: Message) => ({
-      ...message,
-      type: 'chat',
-    })
-  )
+  const allMessages = await getMessages(session_id)
+  const messages = formatChatMessages(allMessages)
+  const events = formatEventMessages(allMessages)
 
   const workflow = app ? getWorkflow(app) : []
 
@@ -56,7 +89,7 @@ export default async function SessionPage({ params }: IProps) {
           session={session}
           user={user}
           initialMessages={messages}
-          initialEvents={safeParse(session.events_str, [])}
+          initialEvents={events}
           workflow={workflow}
         />
       </div>
