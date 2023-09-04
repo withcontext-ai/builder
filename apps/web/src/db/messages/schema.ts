@@ -32,6 +32,7 @@ export const MessagesTable = pgTable(
     latency: text('latency'),
     total_tokens: text('total_tokens'),
     raw: text('raw'),
+    annotation: text('annotation'),
     // event message
     eventType: text('eventType'), // 'call.created' | 'call.declined' | 'call.ended' | 'call.canceled'
   },
