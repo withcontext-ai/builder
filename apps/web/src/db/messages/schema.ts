@@ -12,9 +12,9 @@ import {
 
 import { SessionsTable } from '../sessions/schema'
 
-const typeEnum = pgEnum('type', ['chat', 'event'])
-const roleEnum = pgEnum('role', ['system', 'user', 'assistant'])
-const feedbackEnum = pgEnum('feedback', ['good', 'bad'])
+export const typeEnum = pgEnum('type', ['chat', 'event'])
+export const roleEnum = pgEnum('role', ['system', 'user', 'assistant'])
+export const feedbackEnum = pgEnum('feedback', ['good', 'bad'])
 
 export const MessagesTable = pgTable(
   'messages',
@@ -29,7 +29,7 @@ export const MessagesTable = pgTable(
     updated_at: timestamp('updated_at').defaultNow().notNull(),
     archived: boolean('archived').default(false).notNull(),
     // base message
-    type: typeEnum('type').notNull(),
+    type: typeEnum('type').default('chat').notNull(),
     role: roleEnum('role'),
     // chat message
     content: text('content'),
