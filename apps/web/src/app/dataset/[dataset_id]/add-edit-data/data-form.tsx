@@ -72,6 +72,12 @@ const DataForm = ({ datasetId, config, active, setActive }: FormProps) => {
     } catch (error) {}
   }
 
+  const handleClick = () => {
+    if (active < 3) {
+      setActive(active + 1)
+    }
+  }
+
   return (
     <div className="h-full w-full px-14">
       <div className="sm:w-full md:max-w-[600px]">
@@ -81,14 +87,14 @@ const DataForm = ({ datasetId, config, active, setActive }: FormProps) => {
               <DocumentLoader form={form} data={data} setData={setData} />
             )}
             {active === 2 && <TextSplits form={form} />}
-            <div className="flex justify-end gap-2">
-              <Button type="reset" variant="outline">
-                Cancel
-              </Button>
-              <Button type="submit">{active !== 3 ? 'Next' : 'Save'}</Button>
-            </div>
           </form>
         </Form>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline">Cancel</Button>
+          <Button onClick={handleClick}>
+            {active !== 3 ? 'Next' : 'Save'}
+          </Button>
+        </div>
       </div>
     </div>
   )

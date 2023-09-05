@@ -371,7 +371,7 @@ const Upload = (props: UploadProps) => {
       return (
         <div
           className="
-         flex h-20 w-[440px] items-center justify-center gap-4 rounded-md border bg-slate-50 text-base transition delay-150 ease-in-out hover:shadow-md	"
+         flex h-20 w-[440px] items-center justify-center gap-4 rounded-lg border bg-slate-50 text-base transition delay-150 ease-in-out hover:shadow-md	"
         >
           <UploadCloud />
           <div className="flex gap-1">

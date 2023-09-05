@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { CheckIcon, ChevronsUpDown } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 
@@ -35,15 +35,18 @@ interface IProps {
   values: OptionsProps[]
   name: string
   title?: string
+  label?: ReactNode
   isRequired?: boolean
+  onSelect?: (s: string) => void
 }
 
 const SearchSelect = ({
   form,
   values,
+  label,
   name,
   title,
-  isRequired = false,
+  onSelect,
 }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   return (
@@ -52,9 +55,7 @@ const SearchSelect = ({
       name={name}
       render={({ field }) => (
         <FormItem className="mb-6 flex flex-col">
-          <FormLabel className="flex">
-            Type {isRequired && <div className="text-red-500">*</div>}
-          </FormLabel>
+          <FormLabel className="flex">{label || 'Type'}</FormLabel>
           <Popover open={open} onOpenChange={(open) => setOpen(open)}>
             <PopoverTrigger asChild>
               <FormControl>
@@ -84,6 +85,7 @@ const SearchSelect = ({
                       value={type.value}
                       key={type.value}
                       onSelect={(value) => {
+                        onSelect?.(value)
                         form.setValue('type', value)
                         setOpen(false)
                       }}

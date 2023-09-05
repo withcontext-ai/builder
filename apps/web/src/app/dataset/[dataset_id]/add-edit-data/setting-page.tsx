@@ -62,7 +62,7 @@ const SettingPage = ({ config }: DataProps) => {
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">Add New Data</div>
-      <Step active={1} />
+      <Step active={active} />
       <DataForm config={config} active={active} setActive={setActive} />
     </div>
   )

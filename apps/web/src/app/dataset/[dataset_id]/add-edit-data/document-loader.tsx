@@ -1,7 +1,10 @@
 'use client'
 
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import { nanoid } from 'nanoid'
 
+import { Button } from '@/components/ui/button'
 import {
   FormControl,
   FormField,
@@ -18,6 +21,7 @@ import { SessionProps } from './splitter'
 
 const types = [
   { label: 'PDF loader', value: 'pdf' },
+  { label: 'Annotated data', value: 'annotated data' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 
@@ -42,8 +46,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
     setData([...values])
     form.setValue('files', [...values])
   }
-  const { watch } = form
-  const type = watch().loaderType
+  const [type, setType] = useState('')
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
@@ -60,8 +63,14 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
         form={form}
         values={types}
         name="loaderType"
+        label={
+          <div className="flex">
+            Data Source<div className="text-red-500">*</div>
+          </div>
+        }
         title="Document Loader"
         isRequired={true}
+        onSelect={setType}
       />
       <FormField
         control={form.control}
@@ -69,22 +78,30 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
         render={(field) => {
           return (
             <FormItem className="w-[332px]">
-              <FormLabel>Files</FormLabel>
               <FormControl>
-                <Upload
-                  className="items-start justify-start"
-                  listProps={{
-                    showDownloadIcon: false,
-                    showPreviewIcon: false,
-                  }}
-                  setUploading={setUploading}
-                  listType="pdf"
-                  type="drag"
-                  fileType={type}
-                  accept="application/pdf"
-                  fileList={data}
-                  onChangeFileList={onChangeFileList}
-                />
+                {type === 'pdf' ? (
+                  <Upload
+                    className="items-start justify-start"
+                    listProps={{
+                      showDownloadIcon: false,
+                      showPreviewIcon: false,
+                    }}
+                    setUploading={setUploading}
+                    listType="pdf"
+                    type="drag"
+                    fileType={type}
+                    accept="application/pdf"
+                    fileList={data}
+                    onChangeFileList={onChangeFileList}
+                  />
+                ) : (
+                  <div className="">
+                    <Button>
+                      <Plus size={16} />
+                      Add Annotated Data
+                    </Button>
+                  </div>
+                )}
               </FormControl>
               <FormMessage />
             </FormItem>
