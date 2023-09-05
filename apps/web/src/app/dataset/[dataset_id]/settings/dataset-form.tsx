@@ -8,7 +8,6 @@ import { useDebounce } from 'usehooks-ts'
 import { z } from 'zod'
 
 import { fetcher } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -29,10 +28,8 @@ import VectorStores from './vector-stores'
 
 interface IProps {
   datasetId?: string
-  showMore?: boolean
   files?: FileProps[]
   defaultValues: SchemaProps
-  setShowMore?: (s: boolean) => void
   scrollRef: RefObject<HTMLDivElement>
   sectionRefs: RefObject<HTMLDivElement>[]
   setUploading?: (s: boolean) => void
@@ -53,8 +50,6 @@ function editDataset(
 const DatasetForm = ({
   datasetId,
   defaultValues,
-  setShowMore,
-  showMore,
   scrollRef,
   sectionRefs,
   files,
@@ -141,25 +136,10 @@ const DatasetForm = ({
               setData={setData}
               setUploading={setUploading}
             />
-            {showMore ? (
-              <>
-                <TextSplits form={form} sectionRef={sectionRefs[2]} />
-                <TextEmbedding form={form} sectionRef={sectionRefs[3]} />
-                <VectorStores form={form} sectionRef={sectionRefs[4]} />
-              </>
-            ) : (
-              <div className="flex w-full justify-center py-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowMore?.(true)
-                  }}
-                >
-                  Show more options
-                </Button>
-              </div>
-            )}
+
+            <TextSplits form={form} sectionRef={sectionRefs[2]} />
+            <TextEmbedding form={form} sectionRef={sectionRefs[3]} />
+            <VectorStores form={form} sectionRef={sectionRefs[4]} />
           </form>
         </Form>
       </div>

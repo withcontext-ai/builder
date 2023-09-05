@@ -21,26 +21,12 @@ interface IProps {
 
 const sections: SectionType[] = [
   {
-    title: 'Dataset Name',
-    name: 'dataset-name',
+    title: 'Basics',
+    name: 'basics',
   },
   {
-    title: 'Document Loaders',
-    name: 'loaders',
-  },
-]
-const moreSessions = [
-  {
-    title: 'Text Splitters',
-    name: 'splitters',
-  },
-  {
-    title: 'Text Embedding Models',
-    name: 'models',
-  },
-  {
-    title: ' Vector Stores',
-    name: 'stores',
+    title: 'Data',
+    name: 'data',
   },
 ]
 
@@ -48,14 +34,7 @@ function deleteDataset(url: string) {
   return fetcher(url, { method: 'DELETE' })
 }
 
-const SlideBar = ({
-  showMore,
-  scrollRef,
-  activeSection,
-  datasetId,
-  name,
-}: IProps) => {
-  const data = showMore ? [...sections, ...moreSessions] : sections
+const SlideBar = ({ scrollRef, activeSection, datasetId, name }: IProps) => {
   const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
@@ -106,7 +85,7 @@ const SlideBar = ({
           DATASETS
         </div>
         <div className="flex flex-col gap-2	text-sm	font-medium">
-          {data?.map((item: SectionType, index: number) => (
+          {sections?.map((item: SectionType, index: number) => (
             <button
               key={item?.title}
               onClick={() => handleClick(item?.name)}

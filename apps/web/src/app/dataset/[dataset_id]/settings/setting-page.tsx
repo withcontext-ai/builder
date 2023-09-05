@@ -40,8 +40,6 @@ const DatasetSetting = ({
     offsetPx: -10,
   })
 
-  const [showMore, setShowMore] = useState<boolean>(false)
-
   const defaultValues = useMemo(() => {
     // some loaderType is pdf loader .now change to pdf
     config.loaderType = config?.loaderType?.includes('pdf')
@@ -60,7 +58,6 @@ const DatasetSetting = ({
     <div className="absolute inset-0 hidden h-full w-full bg-white lg:flex">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
         <SlideBar
-          showMore={showMore}
           scrollRef={scrollRef}
           datasetId={datasetId}
           name={name}
@@ -69,10 +66,8 @@ const DatasetSetting = ({
       </div>
       <DatasetForm
         datasetId={datasetId}
-        showMore={showMore}
         defaultValues={defaultValues}
         files={config?.files}
-        setShowMore={setShowMore}
         scrollRef={scrollRef}
         sectionRefs={sectionRefs}
       />
