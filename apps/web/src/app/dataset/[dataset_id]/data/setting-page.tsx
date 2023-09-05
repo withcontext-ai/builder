@@ -6,7 +6,7 @@ import { z } from 'zod'
 import useScrollSpy from '@/hooks/use-scroll-spy'
 
 import DatasetForm from '../basics/basic-form'
-import SlideBar from './sidebar'
+import SlideBar from '../sidebar'
 import { FormSchema } from './utils'
 
 export interface SectionType {
@@ -45,11 +45,11 @@ const DatasetSetting = ({
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
         <SlideBar datasetId={datasetId} name={name} />
       </div>
-      <DatasetForm
+      {/* <DatasetForm
         datasetId={datasetId}
         defaultValues={defaultValues}
         files={config?.files}
-      />
+      /> */}
     </div>
   )
 }

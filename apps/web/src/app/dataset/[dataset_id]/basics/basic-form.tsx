@@ -1,7 +1,10 @@
+'use client'
+
+import { config } from 'process'
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { isEqual } from 'lodash'
+import { isEqual, omit } from 'lodash'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
@@ -19,17 +22,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { FileProps } from '@/components/upload/utils'
 
-import DocumentLoader, { stringUrlToFile } from '../settings/document-loader'
-import { SchemaProps } from '../settings/setting-page'
-import TextSplits from '../settings/splitter'
-import { FormSchema } from '../settings/utils'
+import { stringUrlToFile } from '../data/document-loader'
+import { SchemaProps } from '../data/setting-page'
+import { FormSchema } from '../data/utils'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
 
 export interface FormProps {
   datasetId?: string
-  files?: FileProps[]
-  defaultValues: SchemaProps
+  name?: string
+  config?: SchemaProps
   setUploading?: (s: boolean) => void
 }
 
@@ -45,13 +47,9 @@ function editDataset(
   })
 }
 
-const DatasetForm = ({
-  datasetId,
-  defaultValues,
-  files,
-  setUploading,
-}: FormProps) => {
+const BasicsForm = ({ datasetId, config, name }: FormProps) => {
   const uploadFiles = useMemo(() => {
+    const files = config?.files
     return files
       ? files.reduce((m: FileProps[], item: FileProps) => {
           const file = stringUrlToFile(item)
@@ -59,10 +57,13 @@ const DatasetForm = ({
           return m
         }, [])
       : []
-  }, [files])
+  }, [config?.files])
 
+  const defaultValues = useMemo(() => {
+    return { name, ...config }
+  }, [name, config])
   const [data, setData] = useState<FileProps[]>(uploadFiles)
-  const [values, setValues] = useState<SchemaProps>(defaultValues)
+  const [values, setValues] = useState<Record<string, any>>(defaultValues)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -135,4 +136,4 @@ const DatasetForm = ({
     </div>
   )
 }
-export default DatasetForm
+export default BasicsForm

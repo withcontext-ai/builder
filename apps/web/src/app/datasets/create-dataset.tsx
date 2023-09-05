@@ -27,8 +27,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { SchemaProps } from '../dataset/[dataset_id]/settings/setting-page'
-import { FormSchema } from '../dataset/[dataset_id]/settings/utils'
+import { SchemaProps } from '../dataset/[dataset_id]/data/setting-page'
+import { FormSchema } from '../dataset/[dataset_id]/data/utils'
 
 const defaultValues = {
   name: '',
@@ -72,7 +72,7 @@ const CreateDialog = () => {
       const json = await trigger(data)
       setOpen(false)
       router.refresh()
-      router.push(`/dataset/${json?.datasetId}`)
+      router.push(`/dataset/${json?.datasetId}/data`)
     } catch (error) {}
   }
 

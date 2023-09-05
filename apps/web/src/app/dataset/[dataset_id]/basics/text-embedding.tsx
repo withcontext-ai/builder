@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import SearchSelect from '../settings/search-select'
-import { SessionProps } from '../settings/splitter'
+import SearchSelect from '../data/search-select'
+import { SessionProps } from '../data/splitter'
 
 const types = [
   { label: 'OpenAI Embedding', value: 'openAI' },

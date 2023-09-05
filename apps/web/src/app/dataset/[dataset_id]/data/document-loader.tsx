@@ -45,11 +45,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const { watch } = form
   const type = watch().loaderType
   return (
-    <section
-      id="loaders"
-      className="w-full border-b-[1px] py-6"
-      ref={sectionRef}
-    >
+    <section id="loaders" className="w-full border-b-[1px] py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
         Document Loaders
       </div>

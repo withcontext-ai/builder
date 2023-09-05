@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import SearchSelect from '../settings/search-select'
-import { SessionProps } from '../settings/splitter'
+import SearchSelect from '../data/search-select'
+import { SessionProps } from '../data/splitter'
 
 const types = [
   { label: 'Pinecone', value: 'pinecone' },
@@ -19,7 +19,7 @@ const types = [
 
 const VectorStores = ({ form }: SessionProps) => {
   return (
-    <section id="stores" className="w-full border-b-[1px] py-6">
+    <section id="stores" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">Vector Stores</div>
       <div className="mb-6	text-sm font-normal leading-6 text-slate-600">
         One of the most common ways to store and search over unstructured data
