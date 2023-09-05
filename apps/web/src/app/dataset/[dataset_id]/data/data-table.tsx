@@ -15,11 +15,7 @@ import { DataTablePagination } from '@/components/ui/table/pagination'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 
 async function getDatasetDocument(
-  params: [
-    dataset_name: string,
-    // app_id: Record<string, any>,
-    pagination: Record<string, any>,
-  ]
+  params: [dataset_name: string, pagination: Record<string, any>]
 ) {
   const [dataset_name, pagination] = params
   const search = new URLSearchParams({
@@ -120,7 +116,14 @@ const DatasetTable = () => {
       />
       <DataTable
         table={table}
-        isLoading={false}
+        isLoading={isValidating}
+        colSpan={5}
+        noDataChildren={
+          <div className="py-[74px] text-base">
+            <div>There is no data yet.</div>You can upload data from different
+            channels, such as PDF files, Notion documents, and so on.
+          </div>
+        }
         // onRowClick={handleRowClick}
       />
       <DataTablePagination table={table} />

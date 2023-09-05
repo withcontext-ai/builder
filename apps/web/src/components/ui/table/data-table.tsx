@@ -1,5 +1,6 @@
 'use client'
 
+import { ReactNode } from 'react'
 import { flexRender, Table as TableType } from '@tanstack/react-table'
 import { Loader2 } from 'lucide-react'
 
@@ -16,13 +17,18 @@ interface DataTableProps<TData> {
   table: TableType<TData>
   isLoading?: boolean
   onRowClick?: (row: TData) => () => void
+  noDataChildren?: ReactNode
+  colSpan?: number
 }
 
 export function DataTable<TData>({
   table,
   isLoading,
   onRowClick,
+  noDataChildren,
+  colSpan,
 }: DataTableProps<TData>) {
+  console.log(table.getAllColumns.length, '--table.getAllColumns.length')
   return (
     <div className="relative rounded-md border">
       {isLoading && (
@@ -66,11 +72,8 @@ export function DataTable<TData>({
             ))
           ) : (
             <TableRow>
-              <TableCell
-                colSpan={table.getAllColumns.length}
-                className="h-24 text-center"
-              >
-                No results.
+              <TableCell colSpan={colSpan || 0} className="h-24 text-center">
+                {noDataChildren || 'No results.'}
               </TableCell>
             </TableRow>
           )}

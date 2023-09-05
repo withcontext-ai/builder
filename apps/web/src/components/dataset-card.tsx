@@ -23,7 +23,7 @@ export default function DatasetCard({
   linkedAppCount,
 }: IProps) {
   return (
-    <Link href={`/dataset/${id}`}>
+    <Link href={`/dataset/${id}/data`}>
       <Card className="flex h-[148px] flex-col px-4 py-6 shadow-none hover:shadow-md">
         <CardHeader className="h-full p-0">
           <CardTitle className="flex flex-1 gap-4 text-lg">
