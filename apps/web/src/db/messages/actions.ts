@@ -44,3 +44,22 @@ export async function addMessage(message: Message) {
     throw new Error(error.message)
   }
 }
+
+export async function removeMessage(id: string) {
+  try {
+    const [found] = await db
+      .select()
+      .from(MessagesTable)
+      .where(eq(MessagesTable.short_id, id))
+    if (!found) {
+      throw new Error('Message not found')
+    }
+
+    await db
+      .update(MessagesTable)
+      .set({ archived: true, updated_at: new Date() })
+      .where(eq(MessagesTable.short_id, id))
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}

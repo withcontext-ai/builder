@@ -6,7 +6,7 @@ import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
-import { addMessage } from '@/db/messages/actions'
+import { addMessage, removeMessage } from '@/db/messages/actions'
 import { updateMessagesToSession } from '@/db/sessions/actions'
 
 export const runtime = 'edge'
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
   const messages = body.messages as Message[]
+  const reloadMessageId = body.reload_message_id as string
 
   const payload = {
     session_id: apiSessionId,
@@ -121,6 +122,7 @@ export async function POST(req: NextRequest) {
         for (const msg of shouldSaveMsgs) {
           queue.push(addMessage(msg))
         }
+        if (reloadMessageId) queue.push(removeMessage(reloadMessageId))
         await Promise.all(queue)
       },
     },
