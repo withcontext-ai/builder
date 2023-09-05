@@ -51,9 +51,7 @@ export async function removeMessage(id: string) {
       .select()
       .from(MessagesTable)
       .where(eq(MessagesTable.short_id, id))
-    if (!found) {
-      throw new Error('Message not found')
-    }
+    if (!found) throw new Error('Message not found')
 
     await db
       .update(MessagesTable)
@@ -61,5 +59,37 @@ export async function removeMessage(id: string) {
       .where(eq(MessagesTable.short_id, id))
   } catch (error: any) {
     throw new Error(error.message)
+  }
+}
+
+export async function addFeedback({
+  messageId,
+  feedback,
+  content,
+}: {
+  messageId: string
+  feedback: 'good' | 'bad'
+  content?: string
+}) {
+  try {
+    const [found] = await db
+      .select()
+      .from(MessagesTable)
+      .where(eq(MessagesTable.short_id, messageId))
+    if (!found) throw new Error('Message not found')
+
+    const value = {
+      feedback,
+      feedback_content: content,
+    }
+
+    await db
+      .update(MessagesTable)
+      .set(value)
+      .where(eq(MessagesTable.short_id, messageId))
+  } catch (error: any) {
+    return {
+      error: error.message,
+    }
   }
 }
