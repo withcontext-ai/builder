@@ -23,6 +23,8 @@ import { nanoid } from '@/lib/utils'
 import { ChatMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
+import { addMessage } from '../messages/actions'
+import { Message as MessageSchema } from '../messages/schema'
 import { checkUserId } from '../users/actions'
 import { UsersTable } from '../users/schema'
 import { SessionsTable } from './schema'
@@ -62,32 +64,29 @@ export async function addSession(appId: string) {
     )
   const sessionCount = Number(allSessions?.count) || 0
 
-  let eventMessageContent = null
-  if (foundApp.opening_remarks) {
-    eventMessageContent = foundApp.opening_remarks
-  }
   const sessionVal = {
     short_id: nanoid(),
     name: `Chat ${sessionCount + 1}`,
     app_id: appId,
     api_session_id,
     created_by: userId,
-    events_str: eventMessageContent
-      ? JSON.stringify([
-          {
-            type: 'event',
-            id: nanoid(),
-            role: 'assistant',
-            content: eventMessageContent,
-            createdAt: Date.now(),
-          },
-        ])
-      : null,
   }
   const [newSession] = await db
     .insert(SessionsTable)
     .values(sessionVal)
     .returning()
+
+  if (foundApp.opening_remarks) {
+    const message = {
+      short_id: nanoid(),
+      session_id: newSession.short_id,
+      type: 'event',
+      role: 'assistant',
+      event_type: 'opening_remarks',
+      content: foundApp.opening_remarks,
+    } as MessageSchema
+    await addMessage(message)
+  }
 
   return { sessionId: newSession.short_id }
 }
@@ -198,32 +197,30 @@ export async function getLatestSessionId(appId: string) {
         }
         api_session_id = res?.data?.session_id
       }
-      let eventMessageContent = null
-      if (foundApp.opening_remarks) {
-        eventMessageContent = foundApp.opening_remarks
-      }
       const sessionVal = {
         short_id: nanoid(),
         name: 'Chat 1',
         app_id: appId,
         created_by: userId,
         api_session_id,
-        events_str: eventMessageContent
-          ? JSON.stringify([
-              {
-                type: 'event',
-                id: nanoid(),
-                role: 'assistant',
-                content: eventMessageContent,
-                createdAt: Date.now(),
-              },
-            ])
-          : null,
       }
       const [newSession] = await db
         .insert(SessionsTable)
         .values(sessionVal)
         .returning()
+
+      if (foundApp.opening_remarks) {
+        const message = {
+          short_id: nanoid(),
+          session_id: newSession.short_id,
+          type: 'event',
+          role: 'assistant',
+          event_type: 'opening_remarks',
+          content: foundApp.opening_remarks,
+        } as MessageSchema
+        await addMessage(message)
+      }
+
       return newSession.short_id
     }
 

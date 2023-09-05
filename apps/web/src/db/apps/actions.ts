@@ -23,6 +23,8 @@ import {
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable } from '../datasets/schema'
+import { addMessage } from '../messages/actions'
+import { Message } from '../messages/schema'
 import { SessionsTable } from '../sessions/schema'
 import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
@@ -141,33 +143,29 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       api_session_id = res?.data?.session_id
     }
 
-    let eventMessageContent = null
-    if (newApp.opening_remarks) {
-      eventMessageContent = newApp.opening_remarks
-    }
-
     const sessionVal = {
       short_id: nanoid(),
       name: 'Chat 1',
       app_id: appId,
       created_by: userId,
       api_session_id,
-      events_str: eventMessageContent
-        ? JSON.stringify([
-            {
-              type: 'event',
-              id: nanoid(),
-              role: 'assistant',
-              content: eventMessageContent,
-              createdAt: Date.now(),
-            },
-          ])
-        : null,
     }
     const [newSession] = await db
       .insert(SessionsTable)
       .values(sessionVal)
       .returning()
+
+    if (newApp.opening_remarks) {
+      const message = {
+        short_id: nanoid(),
+        session_id: newSession?.short_id,
+        type: 'event',
+        role: 'assistant',
+        event_type: 'opening_remarks',
+        content: newApp.opening_remarks,
+      } as Message
+      await addMessage(message)
+    }
 
     await logsnag?.publish({
       channel: 'creator',
