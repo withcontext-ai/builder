@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       session_id,
       type: 'event',
       role: 'assistant',
-      event_type: event.type,
+      event_type: event.eventType,
     } as Message
     await addMessage(message)
     return NextResponse.json({ success: true })
