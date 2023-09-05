@@ -23,6 +23,7 @@ import { ChatMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
 import { addMessage } from '../messages/actions'
+import { MessagesTable } from '../messages/schema'
 import { formatEventMessage } from '../messages/utils'
 import { checkUserId } from '../users/actions'
 import { UsersTable } from '../users/schema'
@@ -261,6 +262,93 @@ export async function getSession(sessionId: string, appId?: string) {
 }
 
 export async function getMonitoringData({
+  appId,
+  pageSize = 10,
+  page = 0,
+  feedback,
+  timeframe,
+  search,
+}: {
+  appId: string
+  pageSize?: number
+  page?: number
+  timeframe?: string
+  feedback?: string
+  search?: string
+}) {
+  const timeframes = {
+    last7days: gte(SessionsTable.created_at, sql`now() - interval '7 days'`),
+    last3months: gte(
+      SessionsTable.created_at,
+      sql`now() - interval '3 months'`
+    ),
+    last12months: gte(
+      SessionsTable.created_at,
+      sql`now() - interval '12 months'`
+    ),
+    monthtodate: gte(SessionsTable.created_at, sql`date_trunc('month', now())`),
+    quartertodate: gte(
+      SessionsTable.created_at,
+      sql`date_trunc('quarter', now())`
+    ),
+    today: gte(SessionsTable.created_at, sql`date_trunc('day', now())`),
+    yeartodate: gte(SessionsTable.created_at, sql`date_trunc('year', now())`),
+  }
+  // TODO: 反馈过滤：userfeedback, nofeedback, all
+  // TODO: 搜索 content
+  // 过滤集合，日期 created_at、反馈 feedback、搜索 content
+  const query = [
+    timeframe && timeframes[timeframe as keyof typeof timeframes],
+  ].filter(Boolean) as SQL[]
+
+  const sessionsQuery = db
+    .select({
+      id: SessionsTable.id,
+      short_id: SessionsTable.short_id,
+      created_at: SessionsTable.created_at,
+      email: UsersTable.email,
+      total: sql<number>`count(${MessagesTable.short_id})`,
+      feedback: {
+        good: sql<number>`count(${MessagesTable.feedback}) filter (where ${MessagesTable.feedback} = 'good')`,
+        bad: sql<number>`count(${MessagesTable.feedback}) filter (where ${MessagesTable.feedback} = 'bad')`,
+      },
+    })
+    .from(SessionsTable)
+    .limit(pageSize)
+    .offset(page * pageSize)
+    .innerJoin(UsersTable, eq(SessionsTable.created_by, UsersTable.short_id))
+    .leftJoin(
+      MessagesTable,
+      eq(SessionsTable.short_id, MessagesTable.session_id)
+    )
+    .where(and(eq(SessionsTable.app_id, appId), ...query))
+    .groupBy(
+      SessionsTable.id,
+      SessionsTable.short_id,
+      SessionsTable.created_at,
+      UsersTable.email
+    )
+
+  const sessionsCountQuery = db
+    .select({ count: sql<number>`count(*)` })
+    .from(SessionsTable)
+    .where(and(eq(SessionsTable.app_id, appId), ...query))
+
+  const appQuery = db
+    .select()
+    .from(AppsTable)
+    .where(eq(AppsTable.short_id, appId))
+
+  const [sessions, [sessionsCount], [app]] = await Promise.all([
+    sessionsQuery,
+    sessionsCountQuery,
+    appQuery,
+  ])
+
+  return { sessions, count: sessionsCount.count || 0, app }
+}
+
+export async function getMonitoringData_bck({
   appId,
   pageSize = 10,
   page = 0,

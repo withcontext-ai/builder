@@ -258,6 +258,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
         content={filters}
       />
       <DataTable
+        // @ts-ignore FIXME
         table={table}
         isLoading={isValidating}
         onRowClick={handleRowClick}
