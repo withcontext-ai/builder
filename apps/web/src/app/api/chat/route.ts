@@ -7,7 +7,6 @@ import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
 import { addMessage, removeMessage } from '@/db/messages/actions'
-import { updateMessagesToSession } from '@/db/sessions/actions'
 
 export const runtime = 'edge'
 // TODO: move to pdx1 (us-west-2) where db is located
@@ -101,7 +100,6 @@ export async function POST(req: NextRequest) {
               ]
             : []),
         ] as Message[]
-        // await updateMessagesToSession(sessionId, payload)
 
         // FIXME: type
         const msgs = (payload as any).map((m: any) => {

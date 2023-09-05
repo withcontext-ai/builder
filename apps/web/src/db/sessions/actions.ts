@@ -19,13 +19,13 @@ import {
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
-import { nanoid, safeParse } from '@/lib/utils'
-import { ChatMessage, EventMessage } from '@/components/chat/types'
+import { nanoid } from '@/lib/utils'
+import { ChatMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
 import { checkUserId } from '../users/actions'
 import { UsersTable } from '../users/schema'
-import { Session, SessionsTable } from './schema'
+import { SessionsTable } from './schema'
 
 export async function addSession(appId: string) {
   const { userId } = auth()
@@ -267,76 +267,6 @@ export async function getSession(sessionId: string, appId?: string) {
       redirect(`/app/${appId}`)
     }
     redirect('/')
-  }
-}
-
-function formatId(message: Message) {
-  if (!message.id) {
-    return {
-      ...message,
-      id: nanoid(),
-    }
-  }
-  return message
-}
-
-function formatTimestamp(message: Message) {
-  if (typeof message.createdAt !== 'number') {
-    return {
-      ...message,
-      createdAt: new Date(message.createdAt || Date.now()).getTime(),
-    }
-  }
-
-  return message
-}
-
-export async function updateMessagesToSession(
-  sessionId: string,
-  messages: Message[],
-  appId?: string
-) {
-  const { userId } = auth()
-  try {
-    if (!userId) {
-      throw new Error('Not authenticated')
-    }
-
-    const [session] = await db
-      .select()
-      .from(SessionsTable)
-      .where(eq(SessionsTable.short_id, sessionId))
-
-    const currentMessages = safeParse(session.messages_str, [])
-
-    const formattedMessages = messages.map(formatId).map(formatTimestamp)
-
-    // todo impl single message chat
-    const mergedMessages = formattedMessages.map((message, id) => {
-      const currentMessage = currentMessages[id]
-      if (currentMessage?.id === message.id) {
-        return {
-          ...message,
-          ...currentMessage,
-        }
-      }
-      return message
-    })
-    await db
-      .update(SessionsTable)
-      .set({
-        messages_str: JSON.stringify(mergedMessages),
-      })
-      .where(
-        and(
-          eq(SessionsTable.short_id, sessionId),
-          eq(SessionsTable.created_by, userId)
-        )
-      )
-  } catch (error: any) {
-    return {
-      error: error.message,
-    }
   }
 }
 
