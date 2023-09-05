@@ -28,7 +28,6 @@ export function DataTable<TData>({
   noDataChildren,
   colSpan,
 }: DataTableProps<TData>) {
-  console.log(table.getAllColumns.length, '--table.getAllColumns.length')
   return (
     <div className="relative rounded-md border">
       {isLoading && (

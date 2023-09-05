@@ -1,10 +1,9 @@
 'use client'
 
-import { config } from 'process'
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { isEqual, omit } from 'lodash'
+import { isEqual } from 'lodash'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
@@ -22,9 +21,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { FileProps } from '@/components/upload/utils'
 
-import { stringUrlToFile } from '../data/document-loader'
-import { SchemaProps } from '../data/setting-page'
-import { FormSchema } from '../data/utils'
+import { stringUrlToFile } from '../add-edit-data/document-loader'
+import { FormSchema, SchemaProps } from '../data/utils'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
 
@@ -119,15 +117,6 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
                 )}
               />
             </section>
-            {/* <DocumentLoader
-              form={form}
-              sectionRef={sectionRefs[1]}
-              data={data}
-              setData={setData}
-              setUploading={setUploading}
-            />
-
-            <TextSplits form={form} sectionRef={sectionRefs[2]} /> */}
             <TextEmbedding form={form} />
             <VectorStores form={form} />
           </form>

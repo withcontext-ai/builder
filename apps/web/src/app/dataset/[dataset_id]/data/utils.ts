@@ -28,3 +28,5 @@ export const FormSchema = z.object({
   developmentName: z.string().optional(),
   apiVersion: z.string().optional(),
 })
+
+export type SchemaProps = z.infer<typeof FormSchema>

@@ -13,7 +13,7 @@ import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import SearchSelect from './search-select'
+import SearchSelect from '../data/search-select'
 import { SessionProps } from './splitter'
 
 const types = [
@@ -45,7 +45,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const { watch } = form
   const type = watch().loaderType
   return (
-    <section id="loaders" className="w-full border-b-[1px] py-6">
+    <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
         Document Loaders
       </div>

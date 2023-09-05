@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { FileProps } from '@/components/upload/utils'
 
-import SearchSelect from './search-select'
+import SearchSelect from '../data/search-select'
 
 export interface SessionProps {
   form: UseFormReturn<any>
@@ -26,7 +26,7 @@ const types = [
 
 const TextSplits = ({ form }: SessionProps) => {
   return (
-    <section id="splitters" className="w-full border-b-[1px] py-6">
+    <section id="splitters" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
         Text Splitters
       </div>
