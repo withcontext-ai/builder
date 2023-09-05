@@ -31,7 +31,7 @@ import VectorStores from './vector-stores'
 export interface FormProps {
   datasetId?: string
   name?: string
-  config?: SchemaProps
+  config?: any
   setUploading?: (s: boolean) => void
 }
 
@@ -63,7 +63,7 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
     return { name, ...config }
   }, [name, config])
   const [data, setData] = useState<FileProps[]>(uploadFiles)
-  const [values, setValues] = useState<Record<string, any>>(defaultValues)
+  const [values, setValues] = useState<SchemaProps>(defaultValues)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

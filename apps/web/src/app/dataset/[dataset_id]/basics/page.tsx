@@ -20,9 +20,9 @@ const DatasetEdit = async ({ params }: IProps) => {
   const { config = {}, name = '' } = datasetDetail
   return (
     <div className="h-full overflow-auto">
-      <div className="mx-10 mb-10 mt-18 w-[530px] px-4">
+      <div className="w-[600px]">
         {/* Desktop version, can edit */}
-        <BasicsForm config={config} datasetId={dataset_id} name={name} />
+        <BasicsForm config={config || {}} datasetId={dataset_id} name={name} />
 
         {/* Mobile version, view only */}
         {/* <DatasetViewer
