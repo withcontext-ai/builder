@@ -21,7 +21,6 @@ export const MessagesTable = pgTable(
   {
     id: serial('id').primaryKey(),
     short_id: text('short_id').unique().notNull(),
-    name: text('name').notNull(),
     session_id: text('session_id')
       .references(() => SessionsTable.short_id)
       .notNull(),
