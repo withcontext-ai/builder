@@ -8,6 +8,7 @@ import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
 import { fetcher } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { FileProps } from '@/components/upload/utils'
 
@@ -80,6 +81,12 @@ const DataForm = ({ datasetId, config, active, setActive }: FormProps) => {
               <DocumentLoader form={form} data={data} setData={setData} />
             )}
             {active === 2 && <TextSplits form={form} />}
+            <div className="flex justify-end gap-2">
+              <Button type="reset" variant="outline">
+                Cancel
+              </Button>
+              <Button type="submit">{active !== 3 ? 'Next' : 'Save'}</Button>
+            </div>
           </form>
         </Form>
       </div>

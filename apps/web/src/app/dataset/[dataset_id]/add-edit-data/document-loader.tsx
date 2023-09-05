@@ -79,6 +79,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
                   }}
                   setUploading={setUploading}
                   listType="pdf"
+                  type="drag"
                   fileType={type}
                   accept="application/pdf"
                   fileList={data}

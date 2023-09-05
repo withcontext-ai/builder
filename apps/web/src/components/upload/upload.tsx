@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Camera, Upload as UploadIcon } from 'lucide-react'
+import { Camera, UploadCloud, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
@@ -371,11 +371,11 @@ const Upload = (props: UploadProps) => {
       return (
         <div
           className="
-         rounded-md border p-10 transition delay-150 ease-in-out hover:shadow-md"
+         flex h-20 w-[440px] items-center justify-center gap-4 rounded-md border bg-slate-50 text-base transition delay-150 ease-in-out hover:shadow-md	"
         >
-          Upload Files
-          <div>
-            Drag and drop your PDF here or <span>Browse.</span>
+          <UploadCloud />
+          <div className="flex gap-1">
+            Drag and drop file, or<span className="font-semibold">Browse</span>
           </div>
         </div>
       )
