@@ -24,13 +24,13 @@ function formatChatMessages(messages: Message[]) {
       type: 'chat',
       feedback: m.feedback,
       feedback_content: m.feedback_content,
-      meta: {
-        latency: m.latency,
-        token: {
-          total_tokens: m.total_tokens,
-        },
-        raw: m.raw,
-      },
+      // meta: {
+      //   latency: m.latency,
+      //   token: {
+      //     total_tokens: m.total_tokens,
+      //   },
+      //   raw: m.raw,
+      // },
     })) as ChatMessage[]
 }
 
