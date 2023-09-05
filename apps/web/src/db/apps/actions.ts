@@ -24,7 +24,7 @@ import {
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable } from '../datasets/schema'
 import { addMessage } from '../messages/actions'
-import { Message } from '../messages/schema'
+import { formatEventMessage } from '../messages/utils'
 import { SessionsTable } from '../sessions/schema'
 import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
@@ -156,14 +156,11 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       .returning()
 
     if (newApp.opening_remarks) {
-      const message = {
-        short_id: nanoid(),
-        session_id: newSession?.short_id,
-        type: 'event',
-        role: 'assistant',
+      const message = formatEventMessage({
+        session_id: newSession.short_id,
         event_type: 'opening_remarks',
         content: newApp.opening_remarks,
-      } as Message
+      })
       await addMessage(message)
     }
 

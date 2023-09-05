@@ -6,7 +6,7 @@ import { and, asc, desc, eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 
-import { Message, MessagesTable } from './schema'
+import { Message, MessagesTable, NewMessage } from './schema'
 
 export async function getMessages(sessionId: string) {
   try {
@@ -33,7 +33,7 @@ export async function getMessages(sessionId: string) {
   }
 }
 
-export async function addMessage(message: Message) {
+export async function addMessage(message: NewMessage) {
   try {
     const [newMessage] = await db
       .insert(MessagesTable)

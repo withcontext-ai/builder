@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '@/lib/drizzle-edge'
 import { nanoid } from '@/lib/utils'
 import { addMessage } from '@/db/messages/actions'
-import { Message } from '@/db/messages/schema'
+import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { EventMessage } from '@/components/chat/types'
 
@@ -26,13 +26,11 @@ export async function POST(req: NextRequest) {
     }
     const session = await getSession(session_id)
     if (!session) throw new Error('Session not found')
-    const message = {
+    const message = formatEventMessage({
       short_id: nanoid(),
       session_id,
-      type: 'event',
-      role: 'assistant',
       event_type: event.eventType,
-    } as Message
+    })
     await addMessage(message)
     return NextResponse.json({ success: true })
   } catch (error: any) {

@@ -5,11 +5,11 @@ import { nanoid } from 'nanoid'
 import { db } from '@/lib/drizzle-edge'
 import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
-import { formatSeconds, safeParse } from '@/lib/utils'
+import { formatSeconds } from '@/lib/utils'
 import { DatasetsTable } from '@/db/datasets/schema'
 import { addMessage } from '@/db/messages/actions'
-import { Message } from '@/db/messages/schema'
-import { Session, SessionsTable } from '@/db/sessions/schema'
+import { formatEventMessage } from '@/db/messages/utils'
+import { SessionsTable } from '@/db/sessions/schema'
 import { UsersTable } from '@/db/users/schema'
 
 async function getSession(api_session_id: string) {
@@ -119,14 +119,12 @@ async function endCall(eventType: string, data: any) {
   const pusher = initPusher()
   await pusher?.trigger(channelId, 'user-chat', newEvent)
 
-  const message = {
+  const message = formatEventMessage({
     short_id: newEvent.id,
-    role: 'assistant',
-    type: 'event',
+    session_id: session.short_id,
     event_type: newEvent.eventType,
     call_duration: newEvent.duration,
-    created_at: new Date(newEvent.createdAt),
-  } as Message
+  })
   await addMessage(message)
 
   const user = await getUserBySessionId(session.short_id)

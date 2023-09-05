@@ -1,7 +1,6 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
-import { Message } from 'ai'
 import axios from 'axios'
 import {
   and,
@@ -24,7 +23,7 @@ import { ChatMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
 import { addMessage } from '../messages/actions'
-import { Message as MessageSchema } from '../messages/schema'
+import { formatEventMessage } from '../messages/utils'
 import { checkUserId } from '../users/actions'
 import { UsersTable } from '../users/schema'
 import { SessionsTable } from './schema'
@@ -77,14 +76,11 @@ export async function addSession(appId: string) {
     .returning()
 
   if (foundApp.opening_remarks) {
-    const message = {
-      short_id: nanoid(),
+    const message = formatEventMessage({
       session_id: newSession.short_id,
-      type: 'event',
-      role: 'assistant',
       event_type: 'opening_remarks',
       content: foundApp.opening_remarks,
-    } as MessageSchema
+    })
     await addMessage(message)
   }
 
@@ -210,14 +206,11 @@ export async function getLatestSessionId(appId: string) {
         .returning()
 
       if (foundApp.opening_remarks) {
-        const message = {
-          short_id: nanoid(),
+        const message = formatEventMessage({
           session_id: newSession.short_id,
-          type: 'event',
-          role: 'assistant',
           event_type: 'opening_remarks',
           content: foundApp.opening_remarks,
-        } as MessageSchema
+        })
         await addMessage(message)
       }
 
