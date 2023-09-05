@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
           queue.push(addMessage(msg))
         }
         if (reloadMessageId) queue.push(removeMessage(reloadMessageId))
-        await Promise.all(queue)
+        await Promise.allSettled(queue)
       },
     },
     data: {
