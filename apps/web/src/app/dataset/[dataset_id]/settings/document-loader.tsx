@@ -37,13 +37,7 @@ interface IProps extends SessionProps {
   setUploading?: (s: boolean) => void
 }
 
-const DocumentLoader = ({
-  form,
-  sectionRef,
-  setData,
-  data,
-  setUploading,
-}: IProps) => {
+const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
     form.setValue('files', [...values])

@@ -18,20 +18,15 @@ import SearchSelect from './search-select'
 export interface SessionProps {
   form: UseFormReturn<any>
   files?: FileProps[]
-  sectionRef: RefObject<HTMLElement>
 }
 const types = [
   { label: 'Character TextSplitter', value: 'character' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 
-const TextSplits = ({ form, sectionRef }: SessionProps) => {
+const TextSplits = ({ form }: SessionProps) => {
   return (
-    <section
-      id="splitters"
-      className="w-full border-b-[1px] py-6"
-      ref={sectionRef}
-    >
+    <section id="splitters" className="w-full border-b-[1px] py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
         Text Splitters
       </div>

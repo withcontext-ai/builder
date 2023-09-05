@@ -19,19 +19,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { FileProps } from '@/components/upload/utils'
 
-import DocumentLoader, { stringUrlToFile } from './document-loader'
-import { SchemaProps } from './setting-page'
-import TextSplits from './splitter'
+import DocumentLoader, { stringUrlToFile } from '../settings/document-loader'
+import { SchemaProps } from '../settings/setting-page'
+import TextSplits from '../settings/splitter'
+import { FormSchema } from '../settings/utils'
 import TextEmbedding from './text-embedding'
-import { FormSchema } from './utils'
 import VectorStores from './vector-stores'
 
-interface IProps {
+export interface FormProps {
   datasetId?: string
   files?: FileProps[]
   defaultValues: SchemaProps
-  scrollRef: RefObject<HTMLDivElement>
-  sectionRefs: RefObject<HTMLDivElement>[]
   setUploading?: (s: boolean) => void
 }
 
@@ -50,11 +48,9 @@ function editDataset(
 const DatasetForm = ({
   datasetId,
   defaultValues,
-  scrollRef,
-  sectionRefs,
   files,
   setUploading,
-}: IProps) => {
+}: FormProps) => {
   const uploadFiles = useMemo(() => {
     return files
       ? files.reduce((m: FileProps[], item: FileProps) => {
@@ -98,18 +94,11 @@ const DatasetForm = ({
   }, [JSON.stringify(debouncedFormValue)])
 
   return (
-    <div
-      className="h-full w-full overflow-auto px-14 pb-[100px] pt-12"
-      ref={scrollRef}
-    >
+    <div className="h-full w-full overflow-auto px-14 pb-[100px] pt-12">
       <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
           <form className="w-full">
-            <section
-              id="dataset-name"
-              ref={sectionRefs[0]}
-              className="border-b-[1px] py-6"
-            >
+            <section id="dataset-name" className="border-b-[1px] py-6">
               <div className="mb-6 text-2xl font-semibold leading-8">
                 Dataset Name
               </div>
@@ -129,7 +118,7 @@ const DatasetForm = ({
                 )}
               />
             </section>
-            <DocumentLoader
+            {/* <DocumentLoader
               form={form}
               sectionRef={sectionRefs[1]}
               data={data}
@@ -137,9 +126,9 @@ const DatasetForm = ({
               setUploading={setUploading}
             />
 
-            <TextSplits form={form} sectionRef={sectionRefs[2]} />
-            <TextEmbedding form={form} sectionRef={sectionRefs[3]} />
-            <VectorStores form={form} sectionRef={sectionRefs[4]} />
+            <TextSplits form={form} sectionRef={sectionRefs[2]} /> */}
+            <TextEmbedding form={form} />
+            <VectorStores form={form} />
           </form>
         </Form>
       </div>

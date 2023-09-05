@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import useScrollSpy from '@/hooks/use-scroll-spy'
 
-import DatasetForm from './dataset-form'
+import DatasetForm from '../basics/basic-form'
 import SlideBar from './sidebar'
 import { FormSchema } from './utils'
 
@@ -26,20 +26,6 @@ const DatasetSetting = ({
   config?: Record<string, any>
   datasetId?: string
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const sectionRefs = [
-    useRef(null),
-    useRef(null),
-    useRef(null),
-    useRef(null),
-    useRef(null),
-  ]
-  const activeSection = useScrollSpy({
-    scrollingElement: scrollRef,
-    sectionElementRefs: sectionRefs,
-    offsetPx: -10,
-  })
-
   const defaultValues = useMemo(() => {
     // some loaderType is pdf loader .now change to pdf
     config.loaderType = config?.loaderType?.includes('pdf')
@@ -57,19 +43,12 @@ const DatasetSetting = ({
   return (
     <div className="absolute inset-0 hidden h-full w-full bg-white lg:flex">
       <div className="w-[276px] border-r border-slate-200 bg-slate-50">
-        <SlideBar
-          scrollRef={scrollRef}
-          datasetId={datasetId}
-          name={name}
-          activeSection={activeSection}
-        />
+        <SlideBar datasetId={datasetId} name={name} />
       </div>
       <DatasetForm
         datasetId={datasetId}
         defaultValues={defaultValues}
         files={config?.files}
-        scrollRef={scrollRef}
-        sectionRefs={sectionRefs}
       />
     </div>
   )

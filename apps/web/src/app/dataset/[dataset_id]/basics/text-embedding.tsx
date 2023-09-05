@@ -9,21 +9,17 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import SearchSelect from './search-select'
-import { SessionProps } from './splitter'
+import SearchSelect from '../settings/search-select'
+import { SessionProps } from '../settings/splitter'
 
 const types = [
   { label: 'OpenAI Embedding', value: 'openAI' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 
-const TextEmbedding = ({ form, sectionRef }: SessionProps) => {
+const TextEmbedding = ({ form }: SessionProps) => {
   return (
-    <section
-      id="models"
-      className="w-full border-b-[1px] py-6"
-      ref={sectionRef}
-    >
+    <section id="models" className="w-full border-b-[1px] py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
         Text Embedding Models
       </div>

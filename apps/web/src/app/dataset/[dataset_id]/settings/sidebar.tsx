@@ -15,8 +15,6 @@ interface IProps {
   name: string
   datasetId?: string
   showMore?: boolean
-  scrollRef: RefObject<HTMLDivElement>
-  activeSection?: number
 }
 
 const sections: SectionType[] = [
@@ -34,24 +32,15 @@ function deleteDataset(url: string) {
   return fetcher(url, { method: 'DELETE' })
 }
 
-const SlideBar = ({ scrollRef, activeSection, datasetId, name }: IProps) => {
+const SlideBar = ({ datasetId, name }: IProps) => {
   const [isPending, startTransition] = useTransition()
+  const [selected, setSelected] = useState('Data')
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
     deleteDataset
   )
   const router = useRouter()
-  const handleClick = (name: string) => {
-    const element = document.getElementById(`${name}`)
-    if (element) {
-      scrollRef?.current?.scrollTo({
-        top: element.offsetTop,
-        left: 0,
-        behavior: 'smooth',
-      })
-    }
-  }
 
   const handelDelete = async () => {
     try {
@@ -85,13 +74,15 @@ const SlideBar = ({ scrollRef, activeSection, datasetId, name }: IProps) => {
           DATASETS
         </div>
         <div className="flex flex-col gap-2	text-sm	font-medium">
-          {sections?.map((item: SectionType, index: number) => (
+          {sections?.map((item: SectionType) => (
             <button
               key={item?.title}
-              onClick={() => handleClick(item?.name)}
+              onClick={() => {
+                setSelected(item?.name)
+              }}
               className={cn(
                 'px-3 py-2 text-start text-sm hover:rounded-md hover:bg-slate-200	',
-                activeSection === index ? 'rounded-md bg-slate-200' : ''
+                selected === item?.name ? 'rounded-md bg-slate-200' : ''
               )}
             >
               {item?.title}
