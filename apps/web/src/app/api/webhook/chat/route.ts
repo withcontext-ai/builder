@@ -7,6 +7,8 @@ import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds, safeParse } from '@/lib/utils'
 import { DatasetsTable } from '@/db/datasets/schema'
+import { addMessage } from '@/db/messages/actions'
+import { Message } from '@/db/messages/schema'
 import { Session, SessionsTable } from '@/db/sessions/schema'
 import { UsersTable } from '@/db/users/schema'
 
@@ -32,18 +34,6 @@ async function getUserBySessionId(sessionId: string) {
 
 function formatChannelId(session_id: string) {
   return `session-${session_id}`
-}
-
-async function updateEvents(session: Session, newEvent: any) {
-  const oldEvents = safeParse(session.events_str, [])
-  const newEvents = [...oldEvents, newEvent]
-
-  await db
-    .update(SessionsTable)
-    .set({
-      events_str: JSON.stringify(newEvents),
-    })
-    .where(eq(SessionsTable.short_id, session.short_id))
 }
 
 export async function POST(req: NextRequest) {
@@ -95,7 +85,6 @@ async function createCall(eventType: string, data: any) {
   await pusher?.trigger(channelId, 'user-chat', newEvent)
 
   // DO NOT SAVE THIS TO DB
-  // await updateEvents(session, newEvent)
 
   const user = await getUserBySessionId(session.short_id)
   await logsnag?.publish({
@@ -130,7 +119,15 @@ async function endCall(eventType: string, data: any) {
   const pusher = initPusher()
   await pusher?.trigger(channelId, 'user-chat', newEvent)
 
-  await updateEvents(session, newEvent)
+  const message = {
+    short_id: newEvent.id,
+    role: 'assistant',
+    type: 'event',
+    event_type: newEvent.eventType,
+    call_duration: newEvent.duration,
+    created_at: new Date(newEvent.createdAt),
+  } as Message
+  await addMessage(message)
 
   const user = await getUserBySessionId(session.short_id)
   await logsnag?.publish({

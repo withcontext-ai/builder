@@ -75,8 +75,8 @@ export default async function SessionPage({ params }: IProps) {
   const { session, app, user } = await getSession(session_id, app_id)
 
   const allMessages = await getMessages(session_id)
-  const messages = formatChatMessages(allMessages)
-  const events = formatEventMessages(allMessages)
+  const chatMessages = formatChatMessages(allMessages)
+  const eventMessages = formatEventMessages(allMessages)
 
   const workflow = app ? getWorkflow(app) : []
 
@@ -88,8 +88,8 @@ export default async function SessionPage({ params }: IProps) {
           app={app}
           session={session}
           user={user}
-          initialMessages={messages}
-          initialEvents={events}
+          initialMessages={chatMessages}
+          initialEvents={eventMessages}
           workflow={workflow}
         />
       </div>

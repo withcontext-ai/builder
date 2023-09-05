@@ -340,18 +340,6 @@ export async function updateMessagesToSession(
   }
 }
 
-export async function updateEvents(session: Session, newEvent: EventMessage) {
-  const oldEvents = safeParse(session.events_str, [])
-  const newEvents = [...oldEvents, newEvent].map(formatId).map(formatTimestamp)
-
-  await db
-    .update(SessionsTable)
-    .set({
-      events_str: JSON.stringify(newEvents),
-    })
-    .where(eq(SessionsTable.short_id, session.short_id))
-}
-
 export async function getMonitoringData({
   appId,
   pageSize = 10,
