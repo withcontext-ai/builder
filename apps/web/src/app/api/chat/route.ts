@@ -6,6 +6,7 @@ import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
+import { addMessage } from '@/db/messages/actions'
 import { updateMessagesToSession } from '@/db/sessions/actions'
 
 export const runtime = 'edge'
@@ -99,7 +100,28 @@ export async function POST(req: NextRequest) {
               ]
             : []),
         ] as Message[]
-        await updateMessagesToSession(sessionId, payload)
+        // await updateMessagesToSession(sessionId, payload)
+
+        // FIXME: type
+        const msgs = (payload as any).map((m: any) => {
+          return {
+            short_id: m.id || nanoid(),
+            session_id: sessionId,
+            created_at: new Date(m.createdAt || Date.now()),
+            type: 'chat',
+            role: m.role,
+            content: m.content,
+            latency,
+            ...(m?.meta?.total_tokens && { total_tokens: m.meta.total_tokens }),
+            ...(m?.meta?.raw && { raw: m.meta.raw }),
+          }
+        })
+        const shouldSaveMsgs = msgs.slice(-2) // save the last 2 messages
+        const queue = []
+        for (const msg of shouldSaveMsgs) {
+          queue.push(addMessage(msg))
+        }
+        await Promise.all(queue)
       },
     },
     data: {

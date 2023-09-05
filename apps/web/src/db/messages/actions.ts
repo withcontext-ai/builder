@@ -6,7 +6,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 
-import { MessagesTable } from './schema'
+import { Message, MessagesTable } from './schema'
 
 export async function getMessages(sessionId: string) {
   try {
@@ -28,5 +28,17 @@ export async function getMessages(sessionId: string) {
       .limit(100) // FIXME: pagination
   } catch (error) {
     redirect('/')
+  }
+}
+
+export async function addMessage(message: Message) {
+  try {
+    const [newMessage] = await db
+      .insert(MessagesTable)
+      .values(message)
+      .returning()
+    return newMessage
+  } catch (error: any) {
+    throw new Error(error.message)
   }
 }
