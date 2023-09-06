@@ -89,5 +89,13 @@ class SessionStateManager(BaseManager):
             self.save_workflow(workflow, session_id)
             return workflow
 
+    def delete_session_state_cache_via_model(self, model_id):
+        for session_id, session_state in self.cache.items():
+            if session_state == model_id:
+                del self.cache[session_id]
+        for session_id, workflow in self.workflow_cache.items():
+            if workflow.model.id == model_id:
+                del self.workflow_cache[session_id]
+
 
 session_state_manager = SessionStateManager()

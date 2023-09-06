@@ -240,14 +240,16 @@ async def create_session(body: SessionRequest):
 
 @router.get("/session/{session_id}/process")
 async def get_process_status(session_id: str):
+    logger.info(f"session_id: {session_id}")
     with graphsignal.start_trace("get_process_status"):
         workflow = session_state_manager.get_workflow(session_id, None)
         if workflow is None:
             return {"data": [], "message": "workflow not found", "status": 400}
         process_list = []
         for chain in workflow.context.chains:
+            logger.info(f"chain: {chain}")
             if isinstance(chain, SelfCheckChain):
-                match chain.status:
+                match chain.process:
                     case SelfCheckChainStatus.INIT:
                         process_list.append(
                             {
@@ -280,4 +282,6 @@ async def get_process_status(session_id: str):
                                 "succeed": False,
                             }
                         )
+                    case _:
+                        logger.warning(f"invalid chain status: {chain.process}")
         return {"data": process_list, "message": "success", "status": 200}

@@ -11,7 +11,7 @@ from typing import (
     cast,
 )
 from enum import Enum
-
+import time
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
@@ -21,12 +21,18 @@ from langchain.chains import (
     ConversationChain,
     LLMSummarizationCheckerChain,
     SequentialChain,
+    LLMChain,
 )
 from langchain.chains.base import Chain
 from langchain.prompts.base import BasePromptTemplate
 from langchain.schema.language_model import BaseLanguageModel
+from langchain.schema import SystemMessage
 from loguru import logger
 from pydantic import Extra, root_validator, Field
+import inspect
+
+from langchain.chat_models import ChatOpenAI
+from langchain.retrievers import SelfQueryRetriever
 
 
 class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -52,15 +58,12 @@ class SelfCheckChainStatus(str, Enum):
 
 
 class SelfCheckChain(Chain):
-    prompt: BasePromptTemplate
-    llm: BaseLanguageModel
+    system_prompt: BasePromptTemplate
+    check_prompt: BasePromptTemplate
+    llm: ChatOpenAI
     output_key: str = "text"
     max_retries: int = 0
-    status: str = "initialized"
-
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.status = SelfCheckChainStatus.INIT
+    process: str = SelfCheckChainStatus.INIT
 
     class Config:
         extra = Extra.forbid
@@ -68,7 +71,7 @@ class SelfCheckChain(Chain):
 
     @property
     def input_keys(self) -> List[str]:
-        return self.prompt.input_variables
+        return self.check_prompt.input_variables
 
     @property
     def output_keys(self) -> List[str]:
@@ -86,23 +89,30 @@ class SelfCheckChain(Chain):
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Coroutine[Any, Any, Dict[str, Any]]:
-        prompt_value = self.prompt.format_prompt(**inputs)
-        response = await self.llm.agenerate_prompt(
-            [prompt_value], callbacks=[run_manager.get_child() if run_manager else None]
+        if inputs.get("chat_history", None) is not None and isinstance(
+            inputs["chat_history"], str
+        ):
+            inputs["chat_history"] = [inputs["chat_history"]]
+        messages = inputs.get("chat_history", [])
+        inputs.pop("chat_history", None)
+
+        if self.process == SelfCheckChainStatus.INIT:
+            prompt_value = self.system_prompt.format_prompt(**inputs)
+            self.process = SelfCheckChainStatus.RUNNING
+        elif self.process == SelfCheckChainStatus.RUNNING:
+            prompt_value = self.check_prompt.format_prompt(**inputs)
+        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+        response = await self.llm.agenerate(
+            messages=[messages],
+            callbacks=run_manager.get_child() if run_manager else None,
         )
         if response.generations[0][0].text == "Yes":
-            self.status = SelfCheckChainStatus.FINISHED
-            return {
-                self.output_key: inputs["chat_history"]
-                + "\nHuman:"
-                + inputs["question"]
-                + "\nAi:"
-                + response.generations[0][0].text
-            }
+            self.process = SelfCheckChainStatus.FINISHED
+            return {self.output_key: response.generations[0][0].text}
         else:
             self.max_retries -= 1
             if self.max_retries <= 0:
-                self.status = SelfCheckChainStatus.ERROR
+                self.process = SelfCheckChainStatus.ERROR
         return {self.output_key: response.generations[0][0].text}
 
 
@@ -122,9 +132,6 @@ class SequentialSelfCheckChain(SequentialChain):
     ) -> Dict[str, str]:
         raise NotImplementedError
 
-    def _validate_outputs(self, outputs: Dict[str, Any]) -> None:
-        pass
-
     async def _acall(
         self,
         inputs: Dict[str, Any],
@@ -136,21 +143,24 @@ class SequentialSelfCheckChain(SequentialChain):
         for i, chain in enumerate(self.chains):
             if isinstance(chain, SelfCheckChain):
                 if (
-                    chain.status == SelfCheckChainStatus.FINISHED
-                    or chain.status == SelfCheckChainStatus.ERROR
+                    chain.process == SelfCheckChainStatus.FINISHED
+                    or chain.process == SelfCheckChainStatus.ERROR
                 ):
+                    logger.info(f"Skipping chain {i} as it is already {chain.process}")
                     continue
                 else:
                     outputs = await chain.acall(
                         self.known_values, return_only_outputs=True, callbacks=callbacks
                     )
                     self.known_values.update(outputs)
-                    if chain.status not in [
+                    if chain.process not in [
                         SelfCheckChainStatus.FINISHED,
                         SelfCheckChainStatus.ERROR,
                     ]:
                         for token in outputs[chain.output_key]:
                             await self.queue.put(token)
+                        while not self.queue.empty():
+                            await asyncio.sleep(2)
                         self.done.set()
                         return_dict = {}
                         for k in self.output_variables:
@@ -197,3 +207,95 @@ class SequentialSelfCheckChain(SequentialChain):
                     yield await self.queue.get()
                 break
             yield token_or_done
+
+
+class EnhanceConversationChain(Chain):
+    prompt: BasePromptTemplate
+    llm: ChatOpenAI
+    output_key: str = "text"
+
+    def _call(
+        self,
+        inputs: Dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
+    ) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    @property
+    def input_keys(self) -> List[str]:
+        return self.prompt.input_variables
+
+    @property
+    def output_keys(self) -> List[str]:
+        return [self.output_key]
+
+    async def _acall(
+        self,
+        inputs: Dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
+    ) -> Dict[str, Any]:
+        if inputs.get("chat_history", None) is not None and isinstance(
+            inputs["chat_history"], str
+        ):
+            inputs["chat_history"] = [inputs["chat_history"]]
+        messages = inputs.get("chat_history", [])
+        inputs.pop("chat_history", None)
+        prompt_value = self.prompt.format_prompt(**inputs)
+        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+        response = await self.llm.agenerate(
+            messages=[messages],
+            callbacks=run_manager.get_child() if run_manager else None,
+        )
+        return {self.output_key: response.generations[0][0].text}
+
+
+class EnhanceConversationalRetrievalChain(Chain):
+    prompt: BasePromptTemplate
+    llm: ChatOpenAI
+    output_key: str = "text"
+    retriever: SelfQueryRetriever
+
+    @property
+    def input_keys(self) -> List[str]:
+        return self.prompt.input_variables
+
+    @property
+    def output_keys(self) -> List[str]:
+        return [self.output_key]
+
+    def _call(
+        self,
+        inputs: Dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
+    ) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    async def _acall(
+        self,
+        inputs: Dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
+    ) -> Dict[str, Any]:
+        if inputs.get("chat_history", None) is not None and isinstance(
+            inputs["chat_history"], str
+        ):
+            inputs["chat_history"] = [inputs["chat_history"]]
+        messages = inputs.get("chat_history", [])
+        inputs.pop("chat_history", None)
+        question = inputs.get("question", None)
+        if question is None:
+            raise ValueError("Question is required")
+        inputs.pop("question", None)
+
+        docs = await self.retriever.aget_relevant_documents(
+            question, callbacks=run_manager.get_child()
+        )
+        context = "\n".join([doc.page_content for doc in docs])
+        inputs["context"] = context
+        prompt_value = self.prompt.format_prompt(**inputs)
+        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+        response = await self.llm.agenerate(
+            messages=[messages],
+            callbacks=run_manager.get_child() if run_manager else None,
+        )
+        return {self.output_key: response.generations[0][0].text}

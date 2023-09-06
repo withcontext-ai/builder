@@ -6,7 +6,7 @@ from langchain.callbacks import (
     get_openai_callback,
 )
 from langchain.chains import LLMChain, SequentialChain
-from langchain.llms import OpenAIChat
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import BaseMessage
 from langchain.schema.messages import get_buffer_string
@@ -14,7 +14,13 @@ from loguru import logger
 from models.base.model import Model
 from models.retrieval import Retriever
 from langchain.memory import ConversationBufferMemory
-from .custom_chain import SequentialSelfCheckChain, SelfCheckChain
+from .custom_chain import (
+    SequentialSelfCheckChain,
+    SelfCheckChain,
+    SelfCheckChainStatus,
+    EnhanceConversationalRetrievalChain,
+    EnhanceConversationChain,
+)
 from .utils import (
     PatchedRetrievalQA,
     extract_tool_patterns_from_brackets,
@@ -33,31 +39,6 @@ from .callbacks import (
 CHAT_HISTORY_KEY = "chat_history"
 QUESTION_KEY = "question"
 CONTEXT_KEY = "context"
-
-# HISTORY_PREFIX = "Question History:\n\n{chat_history}\n\n"
-# CONTEXT_PREFIX = """Background: '''{context}'''
-
-# Use the text separated by three quotation marks after "Background" to answer the question. Do not add any additional information. Ensure the answer is correct and do not produce false content. If the answer cannot be found in the text, write "The document does not provide an answer."
-# """
-
-# DEFAULT_CONVERSATION_CHAIN_PROMPT = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
-
-# Current conversation:
-# {chat_history}
-# Human: {question}
-# AI:"""
-
-# DEFAULT_CONVERSATIONAL_RETRIEVAL_QA_CHAIN_PROMPT = """Background: '''{context}'''
-
-# Use the text separated by three quotation marks after "Background" to answer the question. Do not add any additional information. Ensure the answer is correct and do not produce false content. If the answer cannot be found in the text, write "The document does not provide an answer."
-
-
-# question history:
-# {chat_history}
-
-
-# Question: {question}
-# Helpful Answer:"""
 
 
 class Workflow:
@@ -110,7 +91,7 @@ class Workflow:
         top_p = llm.pop("top_p")
         frequency_penalty = llm.pop("frequency_penalty")
         presence_penalty = llm.pop("presence_penalty")
-        llm = OpenAIChat(
+        llm = ChatOpenAI(
             model=llm_model,
             model_kwargs=llm,
             streaming=True,
@@ -124,19 +105,18 @@ class Workflow:
             presence_penalty=presence_penalty,
         )
         template = _chain.prompt.template
-        if _chain.prompt.basic_prompt is not None:
-            template += "\n" + _chain.prompt.basic_prompt
-        elif _chain.prompt.check_prompt is not None:
-            if _chain.prompt.target is None:
-                logger.warning(f"Target is None. model_id: {self.model.id}")
-            template += "\n" + _chain.prompt.check_prompt
-            template = template.replace("[{target}]", _chain.prompt.target)
+        # if _chain.prompt.basic_prompt is not None:
+        #     template += "\n" + _chain.prompt.basic_prompt
+        # elif _chain.prompt.check_prompt is not None:
+        #     if _chain.prompt.target is None:
+        #         logger.warning(f"Target is None. model_id: {self.model.id}")
+        #     template += "\n" + _chain.prompt.check_prompt
+        #     template = template.replace("[{target}]", _chain.prompt.target)
 
         template = replace_dot_with_dash_for_tool_pattern(template)
         # transfer f-format to jinja2 format
         input_variables = extract_tool_patterns_from_brackets(template) + [
             QUESTION_KEY,
-            CHAT_HISTORY_KEY,
             CONTEXT_KEY,
         ]
         unique_input_variables = []
@@ -149,19 +129,37 @@ class Workflow:
                 _var = "_".join(var.split("-"))
                 if _var in self.known_keys:
                     input_variables.append(var)
-            elif var in [QUESTION_KEY, CHAT_HISTORY_KEY, CONTEXT_KEY]:
+            elif var in [QUESTION_KEY, CONTEXT_KEY]:
                 input_variables.append(var)
 
         for var in input_variables:
             template = template.replace("[{" + var + "}]", "{{ " + var + " }}")
-        for var in input_variables:
+        for i in range(len(input_variables)):
+            var = input_variables[i]
             if var.startswith("tool-"):
                 _var = "_".join(var.split("-"))
                 template = template.replace("{{ " + var + " }}", "{{ " + _var + " }}")
-                input_variables.remove(var)
-                input_variables.append(_var)
+                input_variables[i] = _var
             else:
                 template = template.replace("{" + var + "}", "{{ " + var + " }}")
+
+        if _chain.chain_type == "self_checking_chain":
+            system_template = PromptTemplate(
+                template=template,
+                input_variables=input_variables,
+                validate_template=True,
+                template_format="jinja2",
+            )
+            check_prompt = _chain.prompt.check_prompt.replace(
+                "[{target}]", _chain.prompt.target
+            )
+            check_template = PromptTemplate(
+                template=check_prompt,
+                input_variables=input_variables,
+                validate_template=True,
+                template_format="jinja2",
+            )
+            return llm, [system_template, check_template]
 
         prompt_template = PromptTemplate(
             template=template,
@@ -169,9 +167,9 @@ class Workflow:
             validate_template=True,
             template_format="jinja2",
         )
-        return llm, prompt_template
+        return llm, [prompt_template]
 
-    def _prepare_chain(self, _chain, llm, prompt_template: PromptTemplate):
+    def _prepare_chain(self, _chain, llm, prompt_template: List[PromptTemplate]):
         match _chain.chain_type:
             case "conversational_retrieval_qa_chain":
                 try:
@@ -182,11 +180,8 @@ class Workflow:
                             }
                         }
                     )
-                    chain = PatchedRetrievalQA.from_chain_type(
-                        llm=llm,
-                        retriever=retriever,
-                        input_keys=prompt_template.input_variables,
-                        chain_type_kwargs={"prompt": prompt_template},
+                    chain = EnhanceConversationalRetrievalChain(
+                        prompt=prompt_template[0], retriever=retriever, llm=llm
                     )
 
                     chain.callbacks = [
@@ -200,9 +195,9 @@ class Workflow:
 
             case "conversation_chain":
                 try:
-                    chain = LLMChain(
+                    chain = EnhanceConversationChain(
                         llm=llm,
-                        prompt=prompt_template,
+                        prompt=prompt_template[0],
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(),
@@ -215,8 +210,9 @@ class Workflow:
                 try:
                     chain = SelfCheckChain(
                         llm=llm,
-                        prompt=prompt_template,
-                        max_retries=_chain.prompt.follow_up_questions_num,
+                        system_prompt=prompt_template[0],
+                        check_prompt=prompt_template[1],
+                        max_retries=_chain.prompt.follow_up_questions_num + 1,
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(),
@@ -233,14 +229,10 @@ class Workflow:
     async def agenerate(self, messages: List[BaseMessage]) -> str:
         # TODO buffer size limit
         prompt = messages[-1].content
-        memory = ConversationBufferMemory(
-            memory_key="chat_history", input_key="question", output_key="chat_history"
-        )
-        for i in range(len(messages) - 1):
-            memory.chat_memory.add_message(messages[i])
+
         await self.context.arun(
             {
-                CHAT_HISTORY_KEY: memory.buffer_as_str,
+                CHAT_HISTORY_KEY: messages,
                 QUESTION_KEY: prompt,
                 CONTEXT_KEY: "",
             }
