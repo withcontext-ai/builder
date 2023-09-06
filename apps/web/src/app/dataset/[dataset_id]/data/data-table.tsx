@@ -69,7 +69,7 @@ const DatasetTable = () => {
     }
   )
 
-  const columns: ColumnDef<any>[] = useMemo(
+  const columns: ColumnDef<DataProps>[] = useMemo(
     () => [
       {
         accessorKey: 'name',

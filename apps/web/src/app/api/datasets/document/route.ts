@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { editDataset, getDataset } from '@/db/datasets/actions'
+import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 
 export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const datasetDetail = await getDataset(dataset_id)
@@ -17,7 +18,7 @@ export async function DELETE(req: NextRequest) {
   const { dataset_id, uid, config } = await req.json()
   const { documents } = await getDocuments({ dataset_id })
 
-  const files = documents?.filter((item: any) => item?.uid !== uid)
+  const files = documents?.filter((item: DataProps) => item?.uid !== uid)
   const newConfig = { ...config, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({

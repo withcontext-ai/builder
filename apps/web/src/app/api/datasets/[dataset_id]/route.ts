@@ -7,6 +7,7 @@ import {
   removeDataset,
 } from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
+import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 
 import { getDocuments } from '../document/route'
 
@@ -34,12 +35,12 @@ export async function GET(
   const { documents, updated_at, status } = await getDocuments({ dataset_id })
   let res = documents
   if (search) {
-    res = documents?.filter((item: any) => item?.name?.includes(search))
+    res = documents?.filter((item: DataProps) => item?.name?.includes(search))
   }
   res = res?.slice(page * pageSize, pageSize * (page + 1))
 
   // Compat the historical data
-  const result = res?.reduce((m: any[], item: any) => {
+  const result = res?.reduce((m: DataProps[], item: any) => {
     if (!item?.update_at) {
       item.update_at = updated_at
     }

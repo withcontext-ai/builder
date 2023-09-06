@@ -37,5 +37,5 @@ export interface DataProps {
   status: number
   type: string
   url: string
-  characters: number
+  characters?: number
 }
