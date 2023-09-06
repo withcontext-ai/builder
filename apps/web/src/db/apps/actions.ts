@@ -5,17 +5,21 @@ import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { difference, isEmpty, pick } from 'lodash'
 
-import { auth } from '@/lib/auth'
+import { auth, currentUserEmail } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
-import { serverLog } from '@/lib/posthog'
+import { logsnag } from '@/lib/logsnag'
 import { nanoid, safeParse } from '@/lib/utils'
+import { TreeItem } from '@/components/dnd/types'
 import {
-  defaultWorkflowData,
-  defaultWorkflowTree,
-} from '@/app/app/[app_id]/settings/workflow/task-default-value'
-import { WorkflowItem } from '@/app/app/[app_id]/settings/workflow/type'
-import { taskToApiFormatter } from '@/app/app/[app_id]/settings/workflow/utils'
+  DEFAULT_WORKFLOW_DATA,
+  DEFAULT_WORKFLOW_TREE,
+} from '@/app/app/[app_id]/(manage)/settings/workflow/const'
+import { WorkflowItem } from '@/app/app/[app_id]/(manage)/settings/workflow/type'
+import {
+  formatTreeWithData,
+  taskToApiFormatter,
+} from '@/app/app/[app_id]/(manage)/settings/workflow/utils'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable } from '../datasets/schema'
@@ -24,15 +28,42 @@ import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
 export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
+  const requestId = nanoid()
+
   try {
     const { userId } = auth()
     if (!userId) {
       throw new Error('Not authenticated')
     }
 
+    const email = await currentUserEmail()
+
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Create App Request',
+      icon: '➡️',
+      description: `${email} try to create an app ${app.name}`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'has-icon': !!app.icon,
+      },
+    })
+
     let api_model_id = null
     if (flags.enabledAIService) {
-      const chains = defaultWorkflowData.map(taskToApiFormatter)
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Create App Request to API service',
+        icon: '➡️',
+        description: `${email} try to create an app ${app.name} to API service`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+        },
+      })
+
+      const chains = DEFAULT_WORKFLOW_DATA.map(taskToApiFormatter)
       const { data: res } = await axios.post(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
         {
@@ -40,14 +71,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
         }
       )
       if (res.status !== 200) {
-        serverLog.capture({
-          distinctId: userId,
-          event: 'ai_service_error:add_app',
-          properties: {
-            message: res.message,
-          },
-        })
-        throw new Error(`AI service error: ${res.message}`)
+        throw new Error(`API service error: ${res.message}`)
       }
       api_model_id = res?.data?.id
     }
@@ -55,10 +79,10 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     const appVal = {
       ...app,
       short_id: nanoid(),
-      workflow_tree_str: JSON.stringify(defaultWorkflowTree),
-      workflow_data_str: JSON.stringify(defaultWorkflowData),
-      published_workflow_tree_str: JSON.stringify(defaultWorkflowTree),
-      published_workflow_data_str: JSON.stringify(defaultWorkflowData),
+      workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+      workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+      published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+      published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
       api_model_id,
       created_by: userId,
     }
@@ -66,31 +90,53 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
 
     const appId = newApp?.short_id
 
-    serverLog.capture({
-      distinctId: userId,
-      event: 'success:add_app',
-      properties: {
-        app_id: appId,
-        api_model_id,
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Create App Request',
+      icon: '✅',
+      description: `${email} created an app ${app.name} successfully`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'app-id': appId,
+        'api-model-id': api_model_id,
+      },
+    })
+
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Create Session Request',
+      icon: '➡️',
+      description: `${email} try to create a session of app ${app.name}`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'app-id': appId,
+        'api-model-id': api_model_id,
       },
     })
 
     let api_session_id = null
     if (flags.enabledAIService) {
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Create Session Request to API service',
+        icon: '➡️',
+        description: `${email} try to create a session of app ${app.name} to API service`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+          'app-id': appId,
+          'api-model-id': api_model_id,
+        },
+      })
+
       let { data: res } = await axios.post(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
         { model_id: api_model_id }
       )
       if (res.status !== 200) {
-        serverLog.capture({
-          distinctId: userId,
-          event: 'ai_service_error:add_session',
-          properties: {
-            message: res.message,
-            app_id: appId,
-          },
-        })
-        throw new Error(`AI service error: ${res.message}`)
+        throw new Error(`API service error: ${res.message}`)
       }
       api_session_id = res?.data?.session_id
     }
@@ -98,9 +144,6 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     let eventMessageContent = null
     if (newApp.opening_remarks) {
       eventMessageContent = newApp.opening_remarks
-    }
-    if (newApp.enable_video_interaction) {
-      eventMessageContent = null
     }
 
     const sessionVal = {
@@ -126,13 +169,18 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       .values(sessionVal)
       .returning()
 
-    serverLog.capture({
-      distinctId: userId,
-      event: 'success:add_session',
-      properties: {
-        app_id: appId,
-        session_id: newSession?.short_id,
-        api_session_id,
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Create Session Request',
+      icon: '✅',
+      description: `${email} created a session of app ${app.name} successfully`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'app-id': appId,
+        'api-model-id': api_model_id,
+        'session-id': newSession?.short_id,
+        'api-session-id': api_session_id,
       },
     })
 
@@ -140,6 +188,23 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
 
     return { appId, sessionId: newSession?.short_id }
   } catch (error: any) {
+    const { userId } = auth()
+    if (userId) {
+      const email = await currentUserEmail()
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Create App Request',
+        icon: '❌',
+        description: `${email} try to create app/session but failed: ${error.message}`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+          error: error.message,
+          'is-error': true,
+        },
+      })
+    }
+
     return {
       error: error.message,
     }
@@ -184,6 +249,8 @@ export async function getApp(appId: string) {
 }
 
 export async function editApp(appId: string, newValue: Partial<NewApp>) {
+  const requestId = nanoid()
+
   try {
     const { userId } = auth()
     if (!userId) {
@@ -191,6 +258,8 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
         error: 'Not authenticated',
       }
     }
+
+    const email = await currentUserEmail()
 
     if (flags.enabledAIService) {
       const { api_model_id } = await getApp(appId)
@@ -209,39 +278,53 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
             payload
           )
           if (res.status !== 200) {
-            serverLog.capture({
-              distinctId: userId,
-              event: 'ai_service_error:edit_app',
-              properties: {
-                app_id: appId,
-                api_model_id,
-                message: res.message,
-              },
-            })
-            throw new Error(`AI service error: ${res.message}`)
+            throw new Error(`API service error: ${res.message}`)
           }
         }
       }
     }
 
-    const response = await db
+    const [updatedApp] = await db
       .update(AppsTable)
       .set(newValue)
       .where(
         and(eq(AppsTable.short_id, appId), eq(AppsTable.created_by, userId))
       )
+      .returning()
 
-    serverLog.capture({
-      distinctId: userId,
-      event: 'success:edit_app',
-      properties: {
-        app_id: appId,
-        value: newValue,
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Edit App Request',
+      icon: '✅',
+      description: `${email} edit app ${updatedApp.name} successfully`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'app-id': appId,
       },
     })
 
-    return response
+    return updatedApp
   } catch (error: any) {
+    const { userId } = auth()
+    if (userId) {
+      const email = await currentUserEmail()
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Edit App Request',
+        icon: '❌',
+        description: `${email} try to edit app but failed: ${error.message}`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+          'app-id': appId,
+          'updated-value': JSON.stringify(newValue),
+          error: error.message,
+          'is-error': true,
+        },
+      })
+    }
+
     return {
       error: error.message,
     }
@@ -249,11 +332,15 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
 }
 
 export async function deployApp(appId: string, newValue: Partial<NewApp>) {
+  const requestId = nanoid()
+
   try {
     const { userId } = auth()
     if (!userId) {
       throw new Error('Not authenticated')
     }
+
+    const email = await currentUserEmail()
 
     if (flags.enabledAIService) {
       const { api_model_id } = await getApp(appId)
@@ -261,24 +348,22 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
         throw new Error('api_model_id is not found, please create a new app')
       }
 
-      const workflow = safeParse(newValue.published_workflow_data_str, [])
+      const tree = safeParse(
+        newValue.published_workflow_tree_str,
+        []
+      ) as TreeItem[]
+      const data = safeParse(
+        newValue.published_workflow_data_str,
+        []
+      ) as WorkflowItem[]
+      const workflow = formatTreeWithData(tree, data)
       const chains = workflow.map(taskToApiFormatter)
-      console.log('deploy chains:', chains)
       let { data: res } = await axios.patch(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
         { chains }
       )
       if (res.status !== 200) {
-        serverLog.capture({
-          distinctId: userId,
-          event: 'ai_service_error:deploy_app',
-          properties: {
-            app_id: appId,
-            api_model_id,
-            message: res.message,
-          },
-        })
-        throw new Error(`AI service error: ${res.message}`)
+        throw new Error(`API service error: ${res.message}`)
       }
     }
 
@@ -329,14 +414,6 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
           dataset_id: datasetId,
         })
         queue.push(task)
-        serverLog.capture({
-          distinctId: userId,
-          event: 'success:link_dataset_to_app',
-          properties: {
-            app_id: appId,
-            dataset_id: datasetId,
-          },
-        })
       }
     }
     if (removedApiDatasetIds.length > 0) {
@@ -356,14 +433,6 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
             )
           )
         queue.push(task)
-        serverLog.capture({
-          distinctId: userId,
-          event: 'success:unlink_dataset_from_app',
-          properties: {
-            app_id: appId,
-            dataset_id: datasetId,
-          },
-        })
       }
     }
     if (queue.length > 0) {
@@ -371,23 +440,48 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
     }
     // END link datasets to this app
 
-    const response = await db
+    const [updatedApp] = await db
       .update(AppsTable)
       .set(newValue)
       .where(
         and(eq(AppsTable.short_id, appId), eq(AppsTable.created_by, userId))
       )
-    serverLog.capture({
-      distinctId: userId,
-      event: 'success:deploy_app',
-      properties: {
-        app_id: appId,
-        value: newValue,
+      .returning()
+
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Publish App Request',
+      icon: '✅',
+      description: `${email} published app ${updatedApp.name} successfully`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'app-id': appId,
+        'has-icon': !!updatedApp.icon,
       },
     })
 
-    return response
+    return updatedApp
   } catch (error: any) {
+    const { userId } = auth()
+    if (userId) {
+      const email = await currentUserEmail()
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Publish App Request',
+        icon: '❌',
+        description: `${email} try to publish app but failed: ${error.message}`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+          'app-id': appId,
+          'updated-value': JSON.stringify(newValue),
+          error: error.message,
+          'is-error': true,
+        },
+      })
+    }
+
     return {
       error: error.message,
     }
@@ -395,28 +489,56 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
 }
 
 export async function removeApp(appId: string) {
+  const requestId = nanoid()
+
   try {
     const { userId } = auth()
     if (!userId) {
       throw new Error('Not authenticated')
     }
 
-    const response = await db
+    const email = await currentUserEmail()
+
+    const [updatedApp] = await db
       .update(AppsTable)
       .set({ archived: true, updated_at: new Date() })
       .where(
         and(eq(AppsTable.short_id, appId), eq(AppsTable.created_by, userId))
       )
-    serverLog.capture({
-      distinctId: userId,
-      event: 'success:remove_app',
-      properties: {
-        app_id: appId,
+      .returning()
+
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Delete App Request',
+      icon: '✅',
+      description: `${email} deleted app ${updatedApp.name} successfully`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'app-id': appId,
       },
     })
 
-    return response
+    return updatedApp
   } catch (error: any) {
+    const { userId } = auth()
+    if (userId) {
+      const email = await currentUserEmail()
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Delete App Request',
+        icon: '❌',
+        description: `${email} try to delete app but failed: ${error.message}`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+          'app-id': appId,
+          error: error.message,
+          'is-error': true,
+        },
+      })
+    }
+
     return {
       error: error.message,
     }
@@ -428,7 +550,9 @@ export async function getAppsBasedOnIds(ids: string[]) {
     const apps = await db
       .select()
       .from(AppsTable)
-      .where(inArray(AppsTable.short_id, ids))
+      .where(
+        and(inArray(AppsTable.short_id, ids), eq(AppsTable.archived, false))
+      )
       .orderBy(desc(AppsTable.created_at))
 
     return apps
@@ -438,33 +562,72 @@ export async function getAppsBasedOnIds(ids: string[]) {
 }
 
 export async function addDebugSession(api_model_id: string) {
-  const { userId } = auth()
-  if (!userId || !flags.enabledAIService) return null
+  const requestId = nanoid()
 
-  let { data: res } = await axios.post(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-    { model_id: api_model_id }
-  )
+  try {
+    const { userId } = auth()
+    if (!userId || !flags.enabledAIService) return null
 
-  if (res.status !== 200) {
-    serverLog.capture({
-      distinctId: userId || '',
-      event: 'ai_service_error:debug_session',
-      properties: {
-        message: res.message,
+    const email = await currentUserEmail()
+
+    let { data: res } = await axios.post(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+      { model_id: api_model_id }
+    )
+
+    if (res.status !== 200) {
+      throw new Error(`API service error: ${res.message}`)
+    }
+
+    await logsnag?.publish({
+      channel: 'creator',
+      event: 'Debug App Request',
+      icon: '✅',
+      description: `${email} start to debug app`,
+      tags: {
+        'request-id': requestId,
+        'user-id': userId,
+        'api-model-id': api_model_id,
       },
     })
-    throw new Error(`AI service error: ${res.message}`)
-  }
 
-  return res?.data?.session_id
+    return res?.data?.session_id
+  } catch (error: any) {
+    const { userId } = auth()
+    if (userId) {
+      const email = await currentUserEmail()
+      await logsnag?.publish({
+        channel: 'creator',
+        event: 'Debug App Request',
+        icon: '❌',
+        description: `${email} try to debug app but failed: ${error.message}`,
+        tags: {
+          'request-id': requestId,
+          'user-id': userId,
+          'api-model-id': api_model_id,
+          error: error.message,
+          'is-error': true,
+        },
+      })
+    }
+
+    throw new Error(error.message)
+  }
 }
 
-export async function getDebugSessionId(tasks: WorkflowItem[]) {
+export async function getDebugSessionId({
+  tree,
+  data,
+}: {
+  tree: TreeItem[]
+  data: WorkflowItem[]
+}) {
   const { userId } = auth()
   if (!userId || !flags.enabledAIService) return null
 
-  const chains = tasks.map(taskToApiFormatter)
+  const workflow = formatTreeWithData(tree, data)
+  const chains = workflow.map(taskToApiFormatter)
+
   const { data: res } = await axios.post(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
     {
@@ -473,14 +636,6 @@ export async function getDebugSessionId(tasks: WorkflowItem[]) {
   )
 
   if (res.status !== 200) {
-    serverLog.capture({
-      distinctId: userId,
-      event: 'ai_service_error:debug_app',
-      properties: {
-        message: res.message,
-        chains,
-      },
-    })
     throw new Error(`AI service error: ${res.message}`)
   }
 

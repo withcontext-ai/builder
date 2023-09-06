@@ -13,8 +13,8 @@ import { Message } from './types'
 interface IProps {
   messages: Message[]
   error?: string
-  scrollRef: Ref<HTMLDivElement>
-  setAutoScroll: (s: boolean) => void
+  scrollRef?: Ref<HTMLDivElement>
+  setAutoScroll?: (s: boolean) => void
 }
 
 const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
@@ -28,9 +28,9 @@ const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
         isDebug && 'px-0'
       )}
       ref={scrollRef}
-      onWheel={() => setAutoScroll(false)}
+      onWheel={() => setAutoScroll?.(false)}
     >
-      <ChatFeedbackContextProvider>
+      <ChatFeedbackContextProvider messages={messages}>
         {messages?.map((message: any, index: number) => {
           return (
             <ChatCard
@@ -41,7 +41,7 @@ const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
             />
           )
         })}
-        <ChatFeedbackDialog />
+        {mode === 'live' && <ChatFeedbackDialog />}
       </ChatFeedbackContextProvider>
       {isLoading && messages[messages.length - 1]?.role === 'user' && (
         <ChatCard
