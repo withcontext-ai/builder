@@ -55,17 +55,21 @@ const Step = ({ active }: StepProps) => {
 interface DataProps {
   config: any
   datasetId: string
+  document_id: string
 }
-const SettingPage = ({ config, datasetId }: DataProps) => {
+const SettingPage = ({ config, datasetId, document_id }: DataProps) => {
   const [active, setActive] = useState(1)
 
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 bg-white px-[140px] py-18">
-      <div className="text-2xl font-semibold">Add New Data</div>
+      <div className="text-2xl font-semibold">
+        {document_id === 'add' ? 'Add' : 'Edit'} New Data
+      </div>
       <Step active={active} />
       <DataForm
         config={config}
         active={active}
+        documentId={document_id}
         setActive={setActive}
         datasetId={datasetId}
       />

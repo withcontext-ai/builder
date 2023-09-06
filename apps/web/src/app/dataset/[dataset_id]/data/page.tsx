@@ -33,7 +33,7 @@ const DataPage = ({ params }: IProps) => {
 
   const handelClick = () => {
     startTransition(() => {
-      router.push(`/dataset/${dataset_id}/add-edit-data`)
+      router.push(`/dataset/${dataset_id}/add`)
     })
   }
 

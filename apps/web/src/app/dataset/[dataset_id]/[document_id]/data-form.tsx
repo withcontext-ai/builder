@@ -12,15 +12,14 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { FileProps } from '@/components/upload/utils'
 
-import DocumentLoader, {
-  stringUrlToFile,
-} from '../add-edit-data/document-loader'
 import { FormSchema, SchemaProps } from '../data/utils'
+import DocumentLoader, { stringUrlToFile } from './document-loader'
 import Preview from './preview'
 import TextSplits from './splitter'
 
 export interface FormProps {
-  datasetId?: string
+  datasetId: string
+  documentId: string
   config?: any
   active: number
   setActive: (s: number) => void
@@ -39,17 +38,24 @@ function editDataset(
   })
 }
 
-const DataForm = ({ datasetId, config, active, setActive }: FormProps) => {
+const DataForm = ({
+  datasetId,
+  config,
+  active,
+  setActive,
+  documentId,
+}: FormProps) => {
+  const isAdd = documentId === 'add'
   const uploadFiles = useMemo(() => {
     const files = config?.files
-    return files
+    return files && !isAdd
       ? files.reduce((m: FileProps[], item: FileProps) => {
           const file = stringUrlToFile(item)
           m?.push(file)
           return m
         }, [])
       : []
-  }, [config?.files])
+  }, [config?.files, isAdd])
 
   const [data, setData] = useState<FileProps[]>(uploadFiles)
   const [values, setValues] = useState<SchemaProps>(config)
@@ -79,7 +85,7 @@ const DataForm = ({ datasetId, config, active, setActive }: FormProps) => {
       handleSubmit(onSubmit)()
     }
   }
-
+  console.log(config, '---config')
   return (
     <div className={cn('h-full w-full')}>
       <div

@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { SessionProps } from '../add-edit-data/splitter'
+import { SessionProps } from '../[document_id]/splitter'
 import SearchSelect from '../data/search-select'
 
 const types = [

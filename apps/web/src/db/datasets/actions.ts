@@ -131,7 +131,6 @@ export async function editDataset(
       }
     }
   }
-
   const response = await db
     .update(DatasetsTable)
     .set({ name, config, updated_at: new Date() })
