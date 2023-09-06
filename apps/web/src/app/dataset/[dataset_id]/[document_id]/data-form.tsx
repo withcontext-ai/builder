@@ -85,7 +85,6 @@ const DataForm = ({
       handleSubmit(onSubmit)()
     }
   }
-  console.log(config, '---config')
   return (
     <div className={cn('h-full w-full')}>
       <div

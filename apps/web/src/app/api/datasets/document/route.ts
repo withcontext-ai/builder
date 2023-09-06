@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { omit } from 'lodash'
 
 import { editDataset, getDataset } from '@/db/datasets/actions'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
@@ -10,7 +9,6 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
 
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
-  console.log(datasetDetail, '---config')
   return { documents, updated_at, status, config }
 }
 
