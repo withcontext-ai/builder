@@ -58,6 +58,7 @@ export function DataTable<TData>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
+                className="group/cell"
                 key={row.id}
                 onClick={onRowClick?.(row.original)}
                 data-state={row.getIsSelected() && 'selected'}

@@ -7,9 +7,11 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { FileType2, RefreshCcw, Trash } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
@@ -73,9 +75,8 @@ const DatasetTable = () => {
         accessorKey: 'name',
         header: 'Data Name',
         cell: ({ row }) => {
-          console.log(row, '--row')
           return (
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
               {row.original?.type == 'pdf' ? (
                 <PdfImage className="h-4 w-4" />
               ) : (
@@ -93,6 +94,7 @@ const DatasetTable = () => {
       {
         accessorKey: 'update_at',
         header: 'Update Time',
+        cell: ({ row }) => new Date(row.getValue('update_at')).toLocaleString(),
       },
       {
         accessorKey: 'status',
@@ -121,10 +123,25 @@ const DatasetTable = () => {
         accessorKey: 'id',
         header: '',
         cell: ({ row }) => {
-          const value = row.getValue<{
-            status: number
-          }>('')
-          return <div>actions</div>
+          const { status, type } = row.original
+          return (
+            <div className="invisible flex gap-2 group-hover/cell:visible">
+              {status === 0 && (
+                <Button size="icon" variant="outline">
+                  <FileType2 size={18} />
+                </Button>
+              )}
+              {status === 0 && type !== 'pdf' && (
+                <Button size="icon" variant="outline">
+                  <RefreshCcw size={18} />
+                </Button>
+              )}
+
+              <Button size="icon" variant="outline" className="text-red-600">
+                <Trash size={18} />
+              </Button>
+            </div>
+          )
         },
       },
     ],
