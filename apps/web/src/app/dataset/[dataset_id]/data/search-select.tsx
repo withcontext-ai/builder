@@ -37,17 +37,9 @@ interface IProps {
   title?: string
   label?: ReactNode
   isRequired?: boolean
-  onSelect?: (s: string) => void
 }
 
-const SearchSelect = ({
-  form,
-  values,
-  label,
-  name,
-  title,
-  onSelect,
-}: IProps) => {
+const SearchSelect = ({ form, values, label, name, title }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   return (
     <FormField
@@ -85,8 +77,7 @@ const SearchSelect = ({
                       value={type.value}
                       key={type.value}
                       onSelect={(value) => {
-                        onSelect?.(value)
-                        form.setValue('type', value)
+                        form.setValue(name, value)
                         setOpen(false)
                       }}
                       data-disabled={type?.value === 'coming soon' || undefined}

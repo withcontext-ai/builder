@@ -46,7 +46,8 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
     setData([...values])
     form.setValue('files', [...values])
   }
-  const [type, setType] = useState('')
+  const { watch } = form
+  const type = watch().loaderType
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
@@ -70,7 +71,6 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
         }
         title="Document Loader"
         isRequired={true}
-        onSelect={setType}
       />
       <FormField
         control={form.control}

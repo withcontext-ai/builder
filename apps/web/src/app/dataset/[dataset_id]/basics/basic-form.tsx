@@ -60,7 +60,6 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
   const defaultValues = useMemo(() => {
     return { name, ...config }
   }, [name, config])
-  const [data, setData] = useState<FileProps[]>(uploadFiles)
   const [values, setValues] = useState<SchemaProps>(defaultValues)
 
   const form = useForm<z.infer<typeof FormSchema>>({
