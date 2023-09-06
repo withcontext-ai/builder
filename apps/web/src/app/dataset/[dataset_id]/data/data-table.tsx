@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { FileType2, RefreshCcw, Trash } from 'lucide-react'
+import { FileType2, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -17,6 +17,7 @@ import { DataTablePagination } from '@/components/ui/table/pagination'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 import { PdfImage } from '@/components/upload/component'
 
+import DeleteData from './delete-data'
 import { DataProps } from './utils'
 
 const DatasetTable = () => {
@@ -68,7 +69,6 @@ const DatasetTable = () => {
     }
   )
 
-  console.log(data, '----data', isValidating)
   const columns: ColumnDef<any>[] = useMemo(
     () => [
       {
@@ -123,7 +123,7 @@ const DatasetTable = () => {
         accessorKey: 'id',
         header: '',
         cell: ({ row }) => {
-          const { status, type } = row.original
+          const { status, type, uid } = row.original
           return (
             <div className="invisible flex gap-2 group-hover/cell:visible">
               {status === 0 && (
@@ -137,15 +137,13 @@ const DatasetTable = () => {
                 </Button>
               )}
 
-              <Button size="icon" variant="outline" className="text-red-600">
-                <Trash size={18} />
-              </Button>
+              <DeleteData datasetId={dataset_id} uid={uid} />
             </div>
           )
         },
       },
     ],
-    []
+    [dataset_id]
   )
 
   const table = useReactTable({

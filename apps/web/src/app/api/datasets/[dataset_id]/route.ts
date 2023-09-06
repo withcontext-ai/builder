@@ -8,6 +8,8 @@ import {
 } from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
 
+import { getDocuments } from '../document/route'
+
 // create a dataset
 export async function POST(req: NextRequest) {
   const params = (await req.json()) as NewDataset
@@ -29,10 +31,7 @@ export async function GET(
     return new Response('Bad Request', { status: 400 })
   }
 
-  const datasetDetail = await getDataset(dataset_id)
-  const { updated_at, status } = datasetDetail
-  // @ts-ignore
-  const documents = datasetDetail?.config?.files || []
+  const { documents, updated_at, status } = await getDocuments({ dataset_id })
   let res = documents
   if (search) {
     res = documents?.filter((item: any) => item?.name?.includes(search))

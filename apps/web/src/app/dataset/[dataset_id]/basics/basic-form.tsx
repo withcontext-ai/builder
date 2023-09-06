@@ -19,9 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { FileProps } from '@/components/upload/utils'
 
-import { stringUrlToFile } from '../add-edit-data/document-loader'
 import { FormSchema, SchemaProps } from '../data/utils'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
@@ -46,17 +44,6 @@ function editDataset(
 }
 
 const BasicsForm = ({ datasetId, config, name }: FormProps) => {
-  const uploadFiles = useMemo(() => {
-    const files = config?.files
-    return files
-      ? files.reduce((m: FileProps[], item: FileProps) => {
-          const file = stringUrlToFile(item)
-          m?.push(file)
-          return m
-        }, [])
-      : []
-  }, [config?.files])
-
   const defaultValues = useMemo(() => {
     return { name, ...config }
   }, [name, config])
