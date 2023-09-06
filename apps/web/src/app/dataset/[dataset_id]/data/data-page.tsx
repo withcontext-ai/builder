@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2Icon, Plus } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
@@ -21,15 +21,18 @@ function getDocuments(url: string) {
   })
 }
 
-const DataPage = ({ params }: IProps) => {
+const DataPage = ({ params, preloaded }: IProps) => {
   const router = useRouter()
-  const [preloaded, setPreloaded] = useState()
   const { dataset_id } = params
   const [isPending, startTransition] = useTransition()
   const { trigger } = useSWRMutation(
     `/api/datasets/${dataset_id}`,
     getDocuments
   )
+
+  useEffect(() => {
+    trigger()
+  }, [trigger])
 
   const handelClick = () => {
     startTransition(() => {

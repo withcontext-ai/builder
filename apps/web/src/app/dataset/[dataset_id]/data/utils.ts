@@ -30,3 +30,12 @@ export const FormSchema = z.object({
 })
 
 export type SchemaProps = z.infer<typeof FormSchema>
+
+export interface DataProps {
+  uid: string
+  name: string
+  status: number
+  type: string
+  url: string
+  characters: number
+}

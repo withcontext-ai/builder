@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { addDataset, editDataset, removeDataset } from '@/db/datasets/actions'
+import {
+  addDataset,
+  editDataset,
+  getDataset,
+  removeDataset,
+} from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
 
 // create a dataset
@@ -10,13 +15,43 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, data: result })
 }
 
-// Get a dataset
+// Get the dataset document
 export async function GET(
   req: NextRequest,
   { params }: { params: { dataset_id: string } }
 ) {
   const { dataset_id } = params
-  return NextResponse.json({ success: true, data: { dataset_id } })
+  const query = req.nextUrl.searchParams
+  const pageSize = parseInt(query.get('pageSize') || '')
+  const page = parseInt(query.get('pageIndex') || '')
+  const search = query.get('search') || ''
+  if (isNaN(pageSize) || isNaN(page)) {
+    return new Response('Bad Request', { status: 400 })
+  }
+
+  const datasetDetail = await getDataset(dataset_id)
+  const { updated_at, status } = datasetDetail
+  // @ts-ignore
+  const documents = datasetDetail?.config?.files || []
+  let res = documents
+  if (search) {
+    res = documents?.filter((item: any) => item?.name?.includes(search))
+  }
+  res = res?.slice(page * pageSize, pageSize * (page + 1))
+
+  // Compat the historical data
+  const result = res?.reduce((m: any[], item: any) => {
+    if (!item?.update_at) {
+      item.update_at = updated_at
+    }
+    if (!item?.status) {
+      item.status = status
+    }
+    m.push(item)
+    return m
+  }, [])
+
+  return NextResponse.json({ success: true, data: result })
 }
 
 // // Update a dataset

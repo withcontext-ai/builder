@@ -9,27 +9,19 @@ import {
 } from '@tanstack/react-table'
 import useSWR from 'swr'
 
-import { fetcher } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
+import { PdfImage } from '@/components/upload/component'
 
-async function getDatasetDocument(
-  params: [dataset_name: string, pagination: Record<string, any>]
-) {
-  const [dataset_name, pagination] = params
-  const search = new URLSearchParams({
-    dataset_name,
-    ...pagination,
-  }).toString()
-
-  return fetcher(``)
-}
+import { DataProps } from './utils'
 
 const DatasetTable = () => {
   const { dataset_id } = useParams() as {
     dataset_id: string
   }
+
   const [queries, setQueries] = useState({
     search: '',
   })
@@ -37,6 +29,18 @@ const DatasetTable = () => {
     pageSize: 10,
     pageIndex: 0,
   })
+
+  async function getDatasetDocument(
+    params: [queries: Record<string, any>, pagination: Record<string, any>]
+  ) {
+    const [queries, pagination] = params
+    const search = new URLSearchParams({
+      ...queries,
+      ...pagination,
+    }).toString()
+
+    return fetcher(`/api/datasets/${dataset_id}?${search}`, { method: 'GET' })
+  }
 
   const handleFilterChange = useCallback(async (key: string, value: any) => {
     setQueries((prev) => ({ ...prev, [key]: value }))
@@ -53,20 +57,34 @@ const DatasetTable = () => {
     []
   )
 
-  const { data, isValidating } = useSWR<any>(
-    [dataset_id, queries, pagination],
+  const { data = [], isValidating } = useSWR<any>(
+    [queries, pagination],
     getDatasetDocument,
     {
       // fallbackData: preloaded,
       keepPreviousData: true,
     }
   )
-  const columns: ColumnDef<any['sessions'][number]>[] = useMemo(
+
+  console.log(data, '----data', isValidating)
+  const columns: ColumnDef<any>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
         header: 'Data Name',
-        cell: ({ row }) => new Date(row.getValue('name')).toLocaleString(),
+        cell: ({ row }) => {
+          console.log(row, '--row')
+          return (
+            <div className="flex gap-1">
+              {row.original?.type == 'pdf' ? (
+                <PdfImage className="h-4 w-4" />
+              ) : (
+                'app icon'
+              )}
+              {row.getValue('name')}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'Characters',
@@ -80,11 +98,27 @@ const DatasetTable = () => {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          return <div className="text-right">{row.getValue('status')}</div>
+          const status = row.getValue('status')
+          const text =
+            status === 0 ? 'Available' : status === 1 ? 'Indexing' : 'Error'
+          return (
+            <div
+              className={cn(
+                'text-right',
+                status === 0
+                  ? 'text-green-600'
+                  : status === 2
+                  ? 'text-red-600'
+                  : 'text-black'
+              )}
+            >
+              {text}
+            </div>
+          )
         },
       },
       {
-        accessorKey: 'action',
+        accessorKey: 'id',
         header: '',
         cell: ({ row }) => {
           const value = row.getValue<{
@@ -98,13 +132,13 @@ const DatasetTable = () => {
   )
 
   const table = useReactTable({
-    data: [],
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
     onPaginationChange: setPagination,
     manualPagination: true,
-    pageCount: Math.ceil((data?.count || 0) / pagination.pageSize),
+    pageCount: Math.ceil((data?.length || 0) / pagination.pageSize),
   })
 
   return (
