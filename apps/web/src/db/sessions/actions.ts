@@ -341,6 +341,7 @@ export async function getMonitoringData({
       },
     })
     .from(SessionsTable)
+    .orderBy(desc(SessionsTable.created_at))
     .limit(pageSize)
     .offset(page * pageSize)
     .innerJoin(UsersTable, eq(SessionsTable.created_by, UsersTable.short_id))
