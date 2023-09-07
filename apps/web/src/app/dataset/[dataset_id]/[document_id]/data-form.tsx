@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -48,18 +48,20 @@ const DataForm = ({
   const [isPending, startTransition] = useTransition()
 
   const isAdd = documentId === 'add'
-  const uploadFiles = useMemo(() => {
-    const files = defaultValues?.dataConfig?.files
-    return files && !isAdd
-      ? files.reduce((m: FileProps[], item: FileProps) => {
-          const file = stringUrlToFile(item)
-          m?.push(file)
-          return m
-        }, [])
-      : []
-  }, [defaultValues?.dataConfig?.files, isAdd])
+  const files = defaultValues?.dataConfig?.files || []
+  // const uploadFiles = useMemo(() => {
+  //   const files = defaultValues?.dataConfig?.files
+  //   console.log(files, '---files')
+  //   return files
+  //     ? files.reduce((m: FileProps[], item: FileProps) => {
+  //         const file = stringUrlToFile(item)
+  //         m?.push(file)
+  //         return m
+  //       }, [])
+  //     : []
+  // }, [defaultValues])
 
-  const [data, setData] = useState<FileProps[]>(uploadFiles)
+  const [data, setData] = useState<FileProps[]>(files)
   // const [values, setValues] = useState<DataSchemesProps>(config)
   const form = useForm<z.infer<typeof DataSchema>>({
     resolver: zodResolver(DataSchema),
@@ -96,6 +98,7 @@ const DataForm = ({
       })
     }
   }
+
   return (
     <div className={cn('h-full w-full')}>
       <div
@@ -107,7 +110,7 @@ const DataForm = ({
         <Form {...form}>
           <form className="w-full">
             {active === 1 && (
-              <DocumentLoader form={form} data={data} setData={setData} />
+              <DocumentLoader form={form} data={files} setData={setData} />
             )}
             {active === 2 && <TextSplits form={form} />}
             {active === 3 && <Preview />}

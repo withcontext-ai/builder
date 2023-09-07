@@ -53,14 +53,12 @@ const Step = ({ active }: StepProps) => {
 }
 
 interface DataProps {
-  // config: any
   datasetId: string
   document_id: string
   defaultValues: any
 }
 const SettingPage = ({ datasetId, document_id, defaultValues }: DataProps) => {
   const [active, setActive] = useState(1)
-  console.log(defaultValues, '---defaultValues')
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">

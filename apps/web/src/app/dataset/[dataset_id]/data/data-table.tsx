@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ColumnDef,
@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table'
 import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -20,8 +21,15 @@ import { PdfImage } from '@/components/upload/component'
 import DeleteData from './delete-data'
 import { DataProps } from './utils'
 
+async function getData(url: string) {
+  return fetcher(url, {
+    method: 'GET',
+  })
+}
+
 const DatasetTable = () => {
   const [isPending, startTransition] = useTransition()
+  const currentUid = useRef({ uid: '' })
   const router = useRouter()
   const { dataset_id } = useParams() as {
     dataset_id: string
@@ -51,8 +59,22 @@ const DatasetTable = () => {
     setQueries((prev) => ({ ...prev, [key]: value }))
   }, [])
 
+  // const search = new URLSearchParams({
+  //   ...{dataset_id,document_id:currentUid?.current?.uid},
+  // }).toString()
+  // const { trigger, isMutating } = useSWRMutation(
+  //   `/api/datasets/document?${search}`,
+  //   getData
+  // )
+
+  // useEffect(() => {
+  //   trigger().then((res) => {
+  //     setValue({ dataConfig: { ...res?.config, files: res?.files } })
+  //   })
+  // }, [trigger])
+
   const editData = useCallback(
-    (uid: string) => {
+    async (uid: string) => {
       startTransition(() => {
         router.push(`/dataset/${dataset_id}/${uid}`)
       })

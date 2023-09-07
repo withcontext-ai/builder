@@ -31,11 +31,6 @@ import { FormSchema, SchemaProps } from '../dataset/[dataset_id]/data/utils'
 
 const defaultValues = {
   name: '',
-  // loaderType: 'pdf',
-  // splitType: 'character',
-  // files: [],
-  // chunkSize: 1000,
-  // chunkOverlap: 0,
   embeddingType: 'openAI',
   storeType: 'pinecone',
   collectionName: '',

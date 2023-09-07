@@ -45,21 +45,6 @@ export async function POST(req: NextRequest) {
   })
 }
 
-// get data info
-export async function GET(req: NextRequest) {
-  const query = req.nextUrl.searchParams
-  const dataset_id = query.get('dataset_id') || ''
-  const uid = query.get('document_id')
-  const { documents } = await getDocuments({ dataset_id })
-  const detail = documents?.find((item: DataProps) => item?.uid === uid)
-  console.log(detail, '---detail')
-  const config = omit(detail, ['url', 'uid', 'type', 'name'])
-  return NextResponse.json({
-    success: true,
-    data: { dataset_id, files: [detail], config },
-  })
-}
-
 // edit data
 export async function PATCH(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
