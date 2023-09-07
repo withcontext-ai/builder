@@ -1,10 +1,15 @@
 import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { getMessages } from '@/db/messages/actions'
-import { Message } from '@/db/messages/schema'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
-import { ChatMessage, EventMessage, ProcessTask } from '@/components/chat/types'
+import { ProcessTask } from '@/components/chat/types'
+import {
+  chatMessagesFilter,
+  chatMessagesFormatter,
+  eventMessagesFilter,
+  eventMessagesFormatter,
+} from '@/components/chat/utils'
 import { TreeItem } from '@/components/dnd/types'
 
 import { WorkflowItem } from '../../(manage)/settings/workflow/type'
@@ -12,40 +17,6 @@ import AddAppToWorkspace from './add-app-to-workspace'
 import AppNotFound from './app-not-found'
 
 export const runtime = 'edge'
-
-function formatChatMessages(messages: Message[]) {
-  return messages
-    .filter((m) => m.type === 'chat')
-    .map((m) => ({
-      id: m.short_id,
-      createdAt: m.created_at,
-      role: m.role,
-      content: m.content,
-      type: 'chat',
-      feedback: m.feedback,
-      feedback_content: m.feedback_content,
-      meta: {
-        latency: m.latency,
-        token: {
-          total_tokens: m.total_tokens,
-        },
-        raw: m.raw,
-      },
-    })) as ChatMessage[]
-}
-
-function formatEventMessages(messages: Message[]) {
-  return messages
-    .filter((m) => m.type === 'event')
-    .map((m) => ({
-      id: m.short_id,
-      createdAt: m.created_at,
-      role: m.role,
-      content: m.content,
-      type: 'event',
-      eventType: m.event_type,
-    })) as EventMessage[]
-}
 
 function getWorkflow(app: App) {
   const tree = safeParse(app.published_workflow_tree_str, []) as TreeItem[]
@@ -75,8 +46,12 @@ export default async function SessionPage({ params }: IProps) {
   const { session, app, user } = await getSession(session_id, app_id)
 
   const allMessages = await getMessages(session_id)
-  const chatMessages = formatChatMessages(allMessages)
-  const eventMessages = formatEventMessages(allMessages)
+  const chatMessages = allMessages
+    .filter(chatMessagesFilter)
+    .map(chatMessagesFormatter)
+  const eventMessages = allMessages
+    .filter(eventMessagesFilter)
+    .map(eventMessagesFormatter)
 
   const workflow = app ? getWorkflow(app) : []
 

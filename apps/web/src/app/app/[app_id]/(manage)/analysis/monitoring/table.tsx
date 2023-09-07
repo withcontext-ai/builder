@@ -23,8 +23,7 @@ import {
 } from '@/components/ui/sheet'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
-import { ChatContextProvider } from '@/components/chat/chat-context'
-import ChatList from '@/components/chat/chat-list'
+import ChatListWithData from '@/components/chat/chat-list-with-data'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 
 interface SessionWithUser extends Session {
@@ -225,27 +224,14 @@ export const MonitoringTable = ({ preloaded }: Props) => {
     pageCount: Math.ceil((data?.count || 0) / pagination.pageSize),
   })
 
-  const [selectedSession, setSelectedSession] =
-    useState<SessionWithUser | null>(null)
-
-  const messages = useMemo(
-    () => JSON.parse(selectedSession?.messages_str || '[]'),
-    [selectedSession]
-  )
-
-  const user = useMemo(
-    () => ({
-      first_name: selectedSession?.first_name || null,
-      last_name: selectedSession?.last_name || null,
-      image_url: selectedSession?.image_url || null,
-    }),
-    [selectedSession]
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+    null
   )
 
   const handleRowClick = useCallback(
     // fix: change Session to SessionWithUser would make DataTable type error
-    (session: Session) => () => {
-      setSelectedSession(session as SessionWithUser)
+    (session: SessionWithUser) => () => {
+      setSelectedSessionId(session.short_id)
     },
     []
   )
@@ -265,31 +251,26 @@ export const MonitoringTable = ({ preloaded }: Props) => {
       />
       <DataTablePagination table={table} />
       <Sheet
-        open={!!selectedSession}
-        onOpenChange={() => setSelectedSession(null)}
+        open={!!selectedSessionId}
+        onOpenChange={() => setSelectedSessionId(null)}
       >
         <SheetContent
           side="right"
           className="overflow-scroll p-0 sm:max-w-[720px] md:max-w-[720px]"
         >
           <SheetHeader className="sticky top-0 z-20 flex-row items-center justify-between space-y-0 border-b bg-white px-6 py-4">
-            <SheetTitle>Conversation ID: {selectedSession?.id}</SheetTitle>
+            <SheetTitle>Conversation ID: {selectedSessionId}</SheetTitle>
             <SheetClose>
               <XIcon
                 className="h-7 w-7"
-                onClick={() => setSelectedSession(null)}
+                onClick={() => setSelectedSessionId(null)}
               />
             </SheetClose>
           </SheetHeader>
           <div className="px-6">
-            <ChatContextProvider
-              mode="history"
-              app={data?.app}
-              user={user}
-              session={selectedSession!}
-            >
-              <ChatList messages={messages} />
-            </ChatContextProvider>
+            {selectedSessionId && (
+              <ChatListWithData mode="history" sessionId={selectedSessionId} />
+            )}
           </div>
         </SheetContent>
       </Sheet>
