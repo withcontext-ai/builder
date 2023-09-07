@@ -36,11 +36,20 @@ interface IProps {
   name: string
   title?: string
   label?: ReactNode
-  isRequired?: boolean
+  onSelect?: () => void
 }
 
-const SearchSelect = ({ form, values, label, name, title }: IProps) => {
+const SearchSelect = ({
+  form,
+  values,
+  label,
+  name,
+  title,
+  onSelect,
+}: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
+  const { watch } = form
+  const lastType = watch()?.name
   return (
     <FormField
       control={form.control}
@@ -77,6 +86,9 @@ const SearchSelect = ({ form, values, label, name, title }: IProps) => {
                       value={type.value}
                       key={type.value}
                       onSelect={(value) => {
+                        if (lastType !== value) {
+                          onSelect?.()
+                        }
                         form.setValue(name, value)
                         setOpen(false)
                       }}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { omit } from 'lodash'
 import { Plus } from 'lucide-react'
 import { nanoid } from 'nanoid'
@@ -9,7 +10,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { UploadFileStatus } from '@/components/upload/type'
@@ -37,12 +37,21 @@ export const stringUrlToFile = (file: FileProps) => {
 
 interface IProps extends SessionProps {
   data: FileProps[]
+  documentId?: string
   setData: (data: FileProps[]) => void
   setUploading?: (s: boolean) => void
 }
 
-const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
+const DocumentLoader = ({
+  form,
+  setData,
+  data,
+  setUploading,
+  documentId,
+}: IProps) => {
   const { watch, getValues } = form
+  const [changedType, setChangedType] = useState(false)
+
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
     const config = omit(getValues().dataConfig, 'files')
@@ -55,6 +64,13 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   }
   const type = watch()?.dataConfig?.loaderType
 
+  const files = watch()?.dataConfig.files
+  const showButton = files?.length !== 0 && documentId
+
+  const onSelect = () => {
+    setChangedType(true)
+    form.setValue('dataConfig.files', [])
+  }
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
@@ -77,7 +93,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
           </div>
         }
         title="Document Loader"
-        isRequired={true}
+        onSelect={onSelect}
       />
       <FormField
         control={form.control}
@@ -94,7 +110,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
                       showPreviewIcon: false,
                     }}
                     setUploading={setUploading}
-                    listType="pdf"
+                    listType={showButton ? 'update-pdf' : 'pdf'}
                     type="drag"
                     fileType={type}
                     accept="application/pdf"

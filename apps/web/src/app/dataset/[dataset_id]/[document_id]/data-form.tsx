@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
+import { useToast } from '@/components/ui/use-toast'
 import { FileProps } from '@/components/upload/utils'
 
 import { DataConfigProps, DataSchema, DataSchemeProps } from '../data/utils'
@@ -46,23 +47,11 @@ const DataForm = ({
   documentId,
 }: FormProps) => {
   const [isPending, startTransition] = useTransition()
+  const { toast } = useToast()
 
-  const isAdd = documentId === 'add'
   const files = defaultValues?.dataConfig?.files || []
-  // const uploadFiles = useMemo(() => {
-  //   const files = defaultValues?.dataConfig?.files
-  //   console.log(files, '---files')
-  //   return files
-  //     ? files.reduce((m: FileProps[], item: FileProps) => {
-  //         const file = stringUrlToFile(item)
-  //         m?.push(file)
-  //         return m
-  //       }, [])
-  //     : []
-  // }, [defaultValues])
-
+  const type = defaultValues?.dataConfig?.loaderType
   const [data, setData] = useState<FileProps[]>(files)
-  // const [values, setValues] = useState<DataSchemesProps>(config)
   const form = useForm<z.infer<typeof DataSchema>>({
     resolver: zodResolver(DataSchema),
     defaultValues,
@@ -88,6 +77,14 @@ const DataForm = ({
   }
 
   const handleClick = async () => {
+    const files = watch()?.dataConfig?.files
+    if (!files?.length) {
+      toast({
+        variant: 'destructive',
+        description: 'Please select a document.',
+      })
+      return
+    }
     if (active < 3) {
       setActive(active + 1)
     } else {
@@ -110,7 +107,12 @@ const DataForm = ({
         <Form {...form}>
           <form className="w-full">
             {active === 1 && (
-              <DocumentLoader form={form} data={files} setData={setData} />
+              <DocumentLoader
+                form={form}
+                data={data}
+                setData={setData}
+                documentId={documentId}
+              />
             )}
             {active === 2 && <TextSplits form={form} />}
             {active === 3 && <Preview />}

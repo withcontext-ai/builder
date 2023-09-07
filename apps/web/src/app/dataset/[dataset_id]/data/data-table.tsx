@@ -161,7 +161,7 @@ const DatasetTable = () => {
             <div className="invisible flex gap-2 group-hover/cell:visible">
               {status === 0 && (
                 <Button size="icon" variant="outline">
-                  {isPending ? (
+                  {isPending && currentUid?.current?.uid === uid ? (
                     <Loader2Icon className="h-4 w-4 animate-spin" />
                   ) : (
                     <FileType2 size={18} onClick={() => editData(uid)} />

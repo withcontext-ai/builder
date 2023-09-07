@@ -386,6 +386,7 @@ const Upload = (props: UploadProps) => {
   const showUploadIcon = React.useMemo(() => {
     const file = mergedFileList?.[0]
     const showImage = listType === 'image' && mergedFileList?.length !== 0
+    const showOnePdf = listType === 'update-pdf' && type === 'drag'
     return showImage && showFileList ? (
       <ImageFile
         key={file?.url || file?.uid}
@@ -394,6 +395,8 @@ const Upload = (props: UploadProps) => {
         className={cn('h-16 w-16', className)}
         listProps={listProps}
       />
+    ) : showOnePdf ? (
+      <></>
     ) : (
       <RcUpload {...rcUploadProps} ref={upload}>
         {props?.children || defaultButton}
@@ -402,22 +405,25 @@ const Upload = (props: UploadProps) => {
   }, [
     mergedFileList,
     listType,
+    type,
+    showFileList,
+    handleRemove,
     className,
     listProps,
     rcUploadProps,
     props?.children,
     defaultButton,
-    handleRemove,
-    showFileList,
   ])
 
   return (
     <div>
       <div
         className={cn(
-          'flex  cursor-pointer flex-col  items-start justify-start',
+          'flex cursor-pointer  flex-col items-start justify-start',
           listType === 'image' ? 'gap-0' : 'gap-2',
-          listType === 'pdf' ? 'h-full w-full' : 'h-16 w-16',
+          listType === 'pdf' || listType === 'update-pdf'
+            ? 'h-full w-full'
+            : 'h-16 w-16',
           className
         )}
         onClick={onFileDrop}
@@ -430,12 +436,14 @@ const Upload = (props: UploadProps) => {
               listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
             )}
           >
-            {(listType === 'pdf' || listType === 'images-list') &&
+            {(listType === 'pdf' ||
+              listType === 'images-list' ||
+              listType === 'update-pdf') &&
               mergedFileList?.map((file: UploadFile) => {
                 const percent = process?.filter(
                   (item) => item?.uid === file?.uid
                 )?.[0]?.percent
-                return listType === 'pdf' ? (
+                return listType !== 'images-list' ? (
                   <PDFFile
                     {...props}
                     file={file}
