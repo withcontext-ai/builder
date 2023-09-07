@@ -287,6 +287,18 @@ const messageIdsHasFeedbackQuery = db
   .from(MessagesTable)
   .where(isNotNull(MessagesTable.feedback))
 
+const messageIdsSearchQueryBuilder = (search: string) =>
+  db
+    .select({ data: MessagesTable.session_id })
+    .from(MessagesTable)
+    .where(
+      and(
+        eq(MessagesTable.type, 'chat'),
+        isNotNull(MessagesTable.content),
+        like(MessagesTable.content, `%${search}%`)
+      )
+    )
+
 const feedbacks = {
   userfeedback: inArray(SessionsTable.short_id, messageIdsHasFeedbackQuery),
   nofeedback: notInArray(SessionsTable.short_id, messageIdsHasFeedbackQuery),
@@ -312,6 +324,8 @@ export async function getMonitoringData({
     eq(SessionsTable.app_id, appId),
     timeframe && timeframes[timeframe as keyof typeof timeframes],
     feedback && feedbacks[feedback as keyof typeof feedbacks],
+    search &&
+      inArray(SessionsTable.short_id, messageIdsSearchQueryBuilder(search)),
   ].filter(Boolean) as SQL[]
 
   let sessionsQuery = db
