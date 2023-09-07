@@ -15,7 +15,7 @@ import { ChatMessage as Message } from './types'
 
 type ChatRequest = RawChatRequest & {
   messages: Message[]
-  isReload?: boolean
+  reload_message_id?: string
 }
 
 export type UseChatHelpers = {
@@ -110,8 +110,8 @@ const getStreamedResponse = async (
       ...(chatRequest.function_call !== undefined && {
         function_call: chatRequest.function_call,
       }),
-      ...(chatRequest.isReload !== undefined && {
-        isReload: chatRequest.isReload,
+      ...(chatRequest.reload_message_id !== undefined && {
+        reload_message_id: chatRequest.reload_message_id,
       }),
     }),
     credentials: extraMetadataRef.current.credentials,
@@ -365,7 +365,7 @@ export function useChat({
           options,
           ...(functions !== undefined && { functions }),
           ...(function_call !== undefined && { function_call }),
-          isReload: true,
+          reload_message_id: lastMessage.id,
         }
 
         return triggerRequest(chatRequest)

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
   const messages = body.messages as Message[]
-  const isReload = body.isReload as boolean
+  const reloadMessageId = body.reload_message_id as string
 
   const [userMessage] = messages.filter((m) => m.role === 'user').slice(-1)
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  const messageId = isReload ? userMessage.id : nanoid()
+  const messageId = reloadMessageId || nanoid()
 
   const requestTimestamp = Date.now()
 
@@ -91,13 +91,15 @@ export async function POST(req: NextRequest) {
           session_id: sessionId,
           query: userMessage.content,
           answer: completion,
+          feedback: null,
+          feedback_content: null,
           latency,
           ...(metadata?.total_tokens && {
             total_tokens: metadata.total_tokens,
           }),
           ...(metadata?.raw && { raw: metadata.raw }),
         }
-        if (isReload) {
+        if (reloadMessageId) {
           await editMessage(messageId, newMessage)
         } else {
           await addMessage(newMessage)
