@@ -6,7 +6,7 @@ import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
-import { addMessage, removeMessage } from '@/db/messages/actions'
+import { addMessage, editMessage, removeMessage } from '@/db/messages/actions'
 
 export const runtime = 'edge'
 // TODO: move to pdx1 (us-west-2) where db is located
@@ -28,7 +28,9 @@ export async function POST(req: NextRequest) {
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
   const messages = body.messages as Message[]
-  const reloadMessageId = body.reload_message_id as string
+  const isReload = body.isReload as boolean
+
+  const [userMessage] = messages.filter((m) => m.role === 'user').slice(-1)
 
   const payload = {
     session_id: apiSessionId,
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  const messageId = nanoid()
+  const messageId = isReload ? userMessage.id : nanoid()
 
   const requestTimestamp = Date.now()
 
@@ -83,45 +85,23 @@ export async function POST(req: NextRequest) {
       async onCompletion(completion, metadata) {
         const responseTimestamp = Date.now()
         const latency = responseTimestamp - requestTimestamp
-        const payload = [
-          ...messages,
-          ...(completion
-            ? [
-                {
-                  role: 'assistant',
-                  content: completion,
-                  createdAt: new Date(),
-                  id: messageId,
-                  meta: {
-                    latency,
-                    ...(metadata ?? {}),
-                  },
-                },
-              ]
-            : []),
-        ] as Message[]
-
-        // FIXME: type
-        const msgs = (payload as any).map((m: any) => {
-          return {
-            short_id: m.id || nanoid(),
-            session_id: sessionId,
-            created_at: new Date(m.createdAt || Date.now()),
-            type: 'chat',
-            role: m.role,
-            content: m.content,
-            latency,
-            ...(m?.meta?.total_tokens && { total_tokens: m.meta.total_tokens }),
-            ...(m?.meta?.raw && { raw: m.meta.raw }),
-          }
-        })
-        const shouldSaveMsgs = msgs.slice(-2) // save the last 2 messages
-        const queue = []
-        for (const msg of shouldSaveMsgs) {
-          queue.push(addMessage(msg))
+        const newMessage = {
+          type: 'chat',
+          short_id: messageId,
+          session_id: sessionId,
+          query: userMessage.content,
+          answer: completion,
+          latency,
+          ...(metadata?.total_tokens && {
+            total_tokens: metadata.total_tokens,
+          }),
+          ...(metadata?.raw && { raw: metadata.raw }),
         }
-        if (reloadMessageId) queue.push(removeMessage(reloadMessageId))
-        await Promise.allSettled(queue)
+        if (isReload) {
+          await editMessage(messageId, newMessage)
+        } else {
+          await addMessage(newMessage)
+        }
       },
     },
     data: {

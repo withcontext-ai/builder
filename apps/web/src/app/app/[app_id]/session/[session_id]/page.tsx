@@ -1,6 +1,7 @@
 import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { getMessages } from '@/db/messages/actions'
+import { Message } from '@/db/messages/schema'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
 import { ProcessTask } from '@/components/chat/types'
@@ -9,6 +10,7 @@ import {
   chatMessagesFormatter,
   eventMessagesFilter,
   eventMessagesFormatter,
+  messagesBuilder,
 } from '@/components/chat/utils'
 import { TreeItem } from '@/components/dnd/types'
 
@@ -45,7 +47,8 @@ export default async function SessionPage({ params }: IProps) {
   const { app_id, session_id } = params
   const { session, app, user } = await getSession(session_id, app_id)
 
-  const allMessages = await getMessages(session_id)
+  const rawMessages = await getMessages(session_id)
+  const allMessages = messagesBuilder(rawMessages)
   const chatMessages = allMessages
     .filter(chatMessagesFilter)
     .map(chatMessagesFormatter)

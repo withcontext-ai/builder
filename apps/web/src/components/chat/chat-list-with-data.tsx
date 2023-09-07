@@ -8,7 +8,7 @@ import { getSession } from '@/db/sessions/actions'
 import { ChatContextProvider, ChatMode } from './chat-context'
 import ChatList from './chat-list'
 import { Message } from './types'
-import { messageFormatter } from './utils'
+import { messageFormatter, messagesBuilder } from './utils'
 
 type SessionData = Awaited<ReturnType<typeof getSession>>
 type MessagesData = Awaited<ReturnType<typeof getMessages>>
@@ -22,11 +22,12 @@ export default function ChatListWithData({ mode, sessionId }: IProps) {
   const { data: sessionData, isLoading: isLoadingSessionData } =
     useSWR<SessionData>(`/api/sessions/${sessionId}`, fetcher)
 
-  const { data: messagesData, isLoading: isLoadingMessagesData } =
+  const { data: rawMessages, isLoading: isLoadingMessagesData } =
     useSWR<MessagesData>(`/api/sessions/${sessionId}/messages`, fetcher)
 
   const { session, app, user } = sessionData || {}
-  const messages = (messagesData || [])
+  const allMessages = messagesBuilder(rawMessages || [])
+  const messages = allMessages
     .map(messageFormatter)
     .filter(Boolean) as Message[]
   const isLoading = isLoadingSessionData || isLoadingMessagesData

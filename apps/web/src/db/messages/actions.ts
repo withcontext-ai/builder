@@ -37,9 +37,29 @@ export async function addMessage(message: NewMessage) {
   try {
     const [newMessage] = await db
       .insert(MessagesTable)
-      .values(message)
+      .values({ ...message, created_at: new Date() })
       .returning()
     return newMessage
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+export async function editMessage(
+  messageId: string,
+  newValues: Partial<Message>
+) {
+  try {
+    const [found] = await db
+      .select()
+      .from(MessagesTable)
+      .where(eq(MessagesTable.short_id, messageId))
+    if (!found) throw new Error('Message not found')
+
+    await db
+      .update(MessagesTable)
+      .set({ ...newValues, updated_at: new Date() })
+      .where(eq(MessagesTable.short_id, messageId))
   } catch (error: any) {
     throw new Error(error.message)
   }

@@ -10,7 +10,6 @@ export function formatEventMessage(message: Partial<Message>): NewMessage {
     short_id: message.short_id || nanoid(),
     session_id: message.session_id,
     type: 'event',
-    role: 'assistant',
     event_type: message.event_type,
     created_at: new Date(message.created_at || Date.now()),
     ...(message.content && { content: message.content }),

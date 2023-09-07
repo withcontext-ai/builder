@@ -13,7 +13,6 @@ import {
 import { SessionsTable } from '../sessions/schema'
 
 export const typeEnum = pgEnum('type', ['chat', 'event'])
-export const roleEnum = pgEnum('role', ['system', 'user', 'assistant'])
 export const feedbackEnum = pgEnum('feedback', ['good', 'bad'])
 
 export const MessagesTable = pgTable(
@@ -29,9 +28,9 @@ export const MessagesTable = pgTable(
     archived: boolean('archived').default(false).notNull(),
     // base message
     type: typeEnum('type').default('chat').notNull(),
-    role: roleEnum('role'),
     // chat message
-    content: text('content'),
+    query: text('query'),
+    answer: text('answer'),
     feedback: feedbackEnum('feedback'),
     feedback_content: text('feedback_content'),
     latency: bigint('latency', { mode: 'number' }),
@@ -39,6 +38,7 @@ export const MessagesTable = pgTable(
     raw: text('raw'),
     annotation: text('annotation'),
     // event message
+    content: text('content'),
     event_type: text('event_type'), // 'call.created' | 'call.declined' | 'call.ended' | 'call.canceled'
     call_duration: bigint('call_duration', { mode: 'number' }),
   },

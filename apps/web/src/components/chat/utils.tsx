@@ -1,6 +1,12 @@
-import { Message } from '@/db/messages/schema'
+import { type Message as RawMessage } from 'ai'
+
+import { Message as MessageSchema } from '@/db/messages/schema'
 
 import { ChatMessage, EventMessage } from './types'
+
+interface Message extends MessageSchema {
+  role: RawMessage['role']
+}
 
 export const chatMessagesFilter = (m: Message) => m.type === 'chat'
 
@@ -38,4 +44,22 @@ export const messageFormatter = (m: Message) => {
   if (m.type === 'chat') return chatMessagesFormatter(m)
   if (m.type === 'event') return eventMessagesFormatter(m)
   return null
+}
+
+export const messagesBuilder = (messages: MessageSchema[]) => {
+  const result = []
+  for (const m of messages) {
+    if (m.type === 'chat') {
+      result.push({ ...m, role: 'user', content: m.query })
+      result.push({ ...m, role: 'assistant', content: m.answer })
+    } else {
+      result.push(m)
+    }
+  }
+  return result as Message[]
+}
+
+export const keyBuilder = (m: RawMessage) => {
+  if (m.role) return `${m.id}-${m.role}`
+  return `${m.id}`
 }
