@@ -15,13 +15,11 @@ import {
   SQL,
   sql,
 } from 'drizzle-orm'
-import { AnyPgSelect, PgSelect } from 'drizzle-orm/pg-core'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
-import { ChatMessage } from '@/components/chat/types'
 
 import { AppsTable } from '../apps/schema'
 import { addMessage } from '../messages/actions'
