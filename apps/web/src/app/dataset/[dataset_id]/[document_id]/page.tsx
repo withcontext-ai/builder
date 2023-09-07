@@ -1,29 +1,64 @@
-import { redirect, useParams } from 'next/navigation'
+'use client'
 
-import { auth } from '@/lib/auth'
-import { getDataset } from '@/db/datasets/actions'
+import { useEffect, useState } from 'react'
+import { omit } from 'lodash'
+import useSWRMutation from 'swr/mutation'
+
+import { fetcher } from '@/lib/utils'
 
 import SettingPage from './setting-page'
 
 interface IProps {
   params: { dataset_id: string; document_id: string }
+  defaultValues: any
 }
-const DatasetEdit = async ({ params }: IProps) => {
+
+async function getData(url: string) {
+  return fetcher(url, {
+    method: 'GET',
+  })
+}
+const defaultValues = {
+  dataConfig: {
+    loaderType: 'pdf',
+    splitType: 'character',
+    files: [],
+    chunkSize: 1000,
+    chunkOverlap: 0,
+  },
+}
+
+const EditPage = ({ params }: IProps) => {
   const { dataset_id, document_id } = params
-  const { userId } = auth()
-  const datasetDetail = await getDataset(dataset_id)
+  const [values, setValue] = useState({
+    dataConfig: {
+      loaderType: 'pdf',
+      splitType: 'character',
+      files: [],
+      chunkSize: 1000,
+      chunkOverlap: 0,
+    },
+  })
 
-  if (datasetDetail.created_by !== userId) {
-    redirect('/')
-  }
-  const { config = {} } = datasetDetail
+  const search = new URLSearchParams({
+    ...params,
+  }).toString()
+  const { trigger, isMutating, data } = useSWRMutation(
+    `/api/datasets/document?${search}`,
+    getData
+  )
 
+  useEffect(() => {
+    trigger().then((res) => {
+      setValue({ dataConfig: { ...res?.config, files: res?.files } })
+    })
+  }, [trigger])
   return (
     <div className="h-full overflow-auto">
       <div className="w-[600px]">
         {/* Desktop version, can edit */}
         <SettingPage
-          config={config || {}}
+          defaultValues={values}
           datasetId={dataset_id}
           document_id={document_id}
         />
@@ -37,4 +72,4 @@ const DatasetEdit = async ({ params }: IProps) => {
     </div>
   )
 }
-export default DatasetEdit
+export default EditPage

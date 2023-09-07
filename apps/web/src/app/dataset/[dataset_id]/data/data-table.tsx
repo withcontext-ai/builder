@@ -1,13 +1,13 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import {
   ColumnDef,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { FileType2, RefreshCcw } from 'lucide-react'
+import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -21,6 +21,8 @@ import DeleteData from './delete-data'
 import { DataProps } from './utils'
 
 const DatasetTable = () => {
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
   const { dataset_id } = useParams() as {
     dataset_id: string
   }
@@ -48,6 +50,15 @@ const DatasetTable = () => {
   const handleFilterChange = useCallback(async (key: string, value: any) => {
     setQueries((prev) => ({ ...prev, [key]: value }))
   }, [])
+
+  const editData = useCallback(
+    (uid: string) => {
+      startTransition(() => {
+        router.push(`/dataset/${dataset_id}/${uid}`)
+      })
+    },
+    [dataset_id, router]
+  )
 
   const filters: GenericFilterType[] = useMemo(
     () => [
@@ -128,7 +139,11 @@ const DatasetTable = () => {
             <div className="invisible flex gap-2 group-hover/cell:visible">
               {status === 0 && (
                 <Button size="icon" variant="outline">
-                  <FileType2 size={18} />
+                  {isPending ? (
+                    <Loader2Icon className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileType2 size={18} onClick={() => editData(uid)} />
+                  )}
                 </Button>
               )}
               {status === 0 && type !== 'pdf' && (
@@ -143,7 +158,7 @@ const DatasetTable = () => {
         },
       },
     ],
-    [dataset_id]
+    [dataset_id, editData, isPending]
   )
 
   const table = useReactTable({

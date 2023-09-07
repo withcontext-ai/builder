@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
@@ -23,15 +24,17 @@ interface IProps {
 
 const DeleteData = ({ datasetId, uid }: IProps) => {
   const [open, setOpen] = useState(false)
-
+  const router = useRouter()
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
     deleteData
   )
 
   const handelDelete = () => {
-    trigger({ dataset_id: datasetId, uid })
-    setOpen(false)
+    trigger({ dataset_id: datasetId, uid }).then((res) => {
+      setOpen(false)
+      router.refresh()
+    })
   }
 
   return (

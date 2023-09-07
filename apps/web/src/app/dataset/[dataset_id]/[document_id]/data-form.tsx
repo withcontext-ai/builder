@@ -3,7 +3,6 @@
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CopySlash } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
@@ -21,20 +20,10 @@ import TextSplits from './splitter'
 export interface FormProps {
   datasetId: string
   documentId: string
-  config?: any
+  defaultValues: DataSchemeProps
   active: number
   setActive: (s: number) => void
   setUploading?: (s: boolean) => void
-}
-
-const defaultValues = {
-  dataConfig: {
-    loaderType: 'pdf',
-    splitType: 'character',
-    files: [],
-    chunkSize: 1000,
-    chunkOverlap: 0,
-  },
 }
 
 type Params = DataSchemeProps
@@ -43,7 +32,6 @@ function addData(
   url: string,
   { arg }: { arg: { dataset_id: string; dataConfig: any } }
 ) {
-  console.log(arg, '---args')
   return fetcher(url, {
     method: 'POST',
     body: JSON.stringify(arg),
@@ -52,14 +40,16 @@ function addData(
 
 const DataForm = ({
   datasetId,
-  config,
   active,
+  defaultValues,
   setActive,
   documentId,
 }: FormProps) => {
+  const [isPending, startTransition] = useTransition()
+
   const isAdd = documentId === 'add'
   const uploadFiles = useMemo(() => {
-    const files = config?.files
+    const files = defaultValues?.dataConfig?.files
     return files && !isAdd
       ? files.reduce((m: FileProps[], item: FileProps) => {
           const file = stringUrlToFile(item)
@@ -67,18 +57,21 @@ const DataForm = ({
           return m
         }, [])
       : []
-  }, [config?.files, isAdd])
+  }, [defaultValues?.dataConfig?.files, isAdd])
 
   const [data, setData] = useState<FileProps[]>(uploadFiles)
-  const [values, setValues] = useState<DataSchemeProps>(config)
+  // const [values, setValues] = useState<DataSchemesProps>(config)
   const form = useForm<z.infer<typeof DataSchema>>({
     resolver: zodResolver(DataSchema),
-    defaultValues: isAdd ? defaultValues : values,
+    defaultValues,
   })
 
   const { handleSubmit, watch } = form
 
-  const { trigger } = useSWRMutation(`/api/datasets/document`, addData)
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/datasets/document`,
+    addData
+  )
   const router = useRouter()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSubmit = async () => {
@@ -97,7 +90,10 @@ const DataForm = ({
       setActive(active + 1)
     } else {
       await onSubmit()
-      router.push(`/dataset/${datasetId}/data`)
+
+      startTransition(() => {
+        router.push(`/dataset/${datasetId}/data`)
+      })
     }
   }
   return (
@@ -132,8 +128,12 @@ const DataForm = ({
             >
               Cancel
             </Button>
-            <Button onClick={handleClick}>
-              {active !== 3 ? 'Next' : 'Save'}
+            <Button onClick={handleClick} disabled={isPending || isMutating}>
+              {active !== 3
+                ? 'Next'
+                : isPending || isMutating
+                ? 'Saving'
+                : 'Save'}
             </Button>
           </div>
         </div>
