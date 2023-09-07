@@ -6,14 +6,11 @@ import {
   and,
   desc,
   eq,
-  gt,
   gte,
+  ilike,
   inArray,
   isNotNull,
-  isNull,
-  like,
   notInArray,
-  notLike,
   or,
   SQL,
   sql,
@@ -294,8 +291,10 @@ const messageIdsSearchQueryBuilder = (search: string) =>
     .where(
       and(
         eq(MessagesTable.type, 'chat'),
-        isNotNull(MessagesTable.content),
-        like(MessagesTable.content, `%${search}%`)
+        or(
+          ilike(MessagesTable.query, `%${search}%`),
+          ilike(MessagesTable.answer, `%${search}%`)
+        )
       )
     )
 
