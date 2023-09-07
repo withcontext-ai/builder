@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { eq } from 'drizzle-orm'
 
 import { db } from '@/lib/drizzle-edge'
-import { nanoid } from '@/lib/utils'
 import { addMessage } from '@/db/messages/actions'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
@@ -27,7 +26,6 @@ export async function POST(req: NextRequest) {
     const session = await getSession(session_id)
     if (!session) throw new Error('Session not found')
     const message = formatEventMessage({
-      short_id: nanoid(),
       session_id,
       event_type: event.eventType,
     })

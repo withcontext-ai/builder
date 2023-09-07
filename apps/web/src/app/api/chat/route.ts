@@ -30,8 +30,6 @@ export async function POST(req: NextRequest) {
   const messages = body.messages as Message[]
   const reloadMessageId = body.reload_message_id as string
 
-  const [userMessage] = messages.filter((m) => m.role === 'user').slice(-1)
-
   const payload = {
     session_id: apiSessionId,
     messages: messages.map((message) => ({
@@ -85,6 +83,9 @@ export async function POST(req: NextRequest) {
       async onCompletion(completion, metadata) {
         const responseTimestamp = Date.now()
         const latency = responseTimestamp - requestTimestamp
+        const [userMessage] = messages
+          .filter((m) => m.role === 'user')
+          .slice(-1)
         const newMessage = {
           type: 'chat',
           short_id: messageId,

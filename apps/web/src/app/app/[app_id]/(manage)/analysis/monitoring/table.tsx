@@ -12,7 +12,6 @@ import useSWR from 'swr'
 
 import { fetcher } from '@/lib/utils'
 import { getMonitoringData } from '@/db/sessions/actions'
-import { Session } from '@/db/sessions/schema'
 import { useConfigStore } from '@/store/config'
 import {
   Sheet,
@@ -26,11 +25,16 @@ import { DataTablePagination } from '@/components/ui/table/pagination'
 import ChatListWithData from '@/components/chat/chat-list-with-data'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 
-interface SessionWithUser extends Session {
-  email: string
-  first_name: string
-  last_name: string
-  image_url: string
+interface TableSession {
+  id: number
+  short_id: string
+  created_at: Date
+  email: string | null
+  total: number
+  feedback: {
+    good: number
+    bad: number
+  }
 }
 
 type Data = Awaited<ReturnType<typeof getMonitoringData>>
@@ -229,8 +233,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
   )
 
   const handleRowClick = useCallback(
-    // fix: change Session to SessionWithUser would make DataTable type error
-    (session: SessionWithUser) => () => {
+    (session: TableSession) => () => {
       setSelectedSessionId(session.short_id)
     },
     []
@@ -244,7 +247,6 @@ export const MonitoringTable = ({ preloaded }: Props) => {
         content={filters}
       />
       <DataTable
-        // @ts-ignore FIXME
         table={table}
         isLoading={isValidating}
         onRowClick={handleRowClick}
