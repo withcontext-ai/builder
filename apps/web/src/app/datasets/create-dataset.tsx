@@ -27,16 +27,15 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { SchemaProps } from '../dataset/[dataset_id]/data/setting-page'
-import { FormSchema } from '../dataset/[dataset_id]/data/utils'
+import { FormSchema, SchemaProps } from '../dataset/[dataset_id]/data/utils'
 
 const defaultValues = {
   name: '',
-  loaderType: 'pdf',
-  splitType: 'character',
-  files: [],
-  chunkSize: 1000,
-  chunkOverlap: 0,
+  // loaderType: 'pdf',
+  // splitType: 'character',
+  // files: [],
+  // chunkSize: 1000,
+  // chunkOverlap: 0,
   embeddingType: 'openAI',
   storeType: 'pinecone',
   collectionName: '',

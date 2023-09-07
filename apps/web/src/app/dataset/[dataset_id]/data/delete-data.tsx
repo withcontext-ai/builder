@@ -6,8 +6,6 @@ import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import ConfirmDialog from '@/components/confirm-dialog'
 
-import { SchemaProps } from './utils'
-
 function deleteData(
   url: string,
   { arg }: { arg: { dataset_id: string; uid: string } }

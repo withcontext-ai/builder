@@ -17,6 +17,7 @@ const DatasetEdit = async ({ params }: IProps) => {
     redirect('/')
   }
   const { config = {} } = datasetDetail
+
   return (
     <div className="h-full overflow-auto">
       <div className="w-[600px]">

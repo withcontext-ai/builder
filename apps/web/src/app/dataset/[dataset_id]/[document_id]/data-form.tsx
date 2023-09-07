@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { CopySlash } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
@@ -12,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { FileProps } from '@/components/upload/utils'
 
-import { FormSchema, SchemaProps } from '../data/utils'
+import { DataConfigProps, DataSchema, DataSchemeProps } from '../data/utils'
 import DocumentLoader, { stringUrlToFile } from './document-loader'
 import Preview from './preview'
 import TextSplits from './splitter'
@@ -26,14 +27,25 @@ export interface FormProps {
   setUploading?: (s: boolean) => void
 }
 
-type Params = SchemaProps
+const defaultValues = {
+  dataConfig: {
+    loaderType: 'pdf',
+    splitType: 'character',
+    files: [],
+    chunkSize: 1000,
+    chunkOverlap: 0,
+  },
+}
 
-function editDataset(
+type Params = DataSchemeProps
+
+function addData(
   url: string,
-  { arg }: { arg: { name: string; config: Omit<Params, 'name'> } }
+  { arg }: { arg: { dataset_id: string; dataConfig: any } }
 ) {
+  console.log(arg, '---args')
   return fetcher(url, {
-    method: 'PATCH',
+    method: 'POST',
     body: JSON.stringify(arg),
   })
 }
@@ -58,31 +70,34 @@ const DataForm = ({
   }, [config?.files, isAdd])
 
   const [data, setData] = useState<FileProps[]>(uploadFiles)
-  const [values, setValues] = useState<SchemaProps>(config)
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: values,
+  const [values, setValues] = useState<DataSchemeProps>(config)
+  const form = useForm<z.infer<typeof DataSchema>>({
+    resolver: zodResolver(DataSchema),
+    defaultValues: isAdd ? defaultValues : values,
   })
 
   const { handleSubmit, watch } = form
-  const { trigger } = useSWRMutation(`/api/datasets/${datasetId}`, editDataset)
+
+  const { trigger } = useSWRMutation(`/api/datasets/document`, addData)
   const router = useRouter()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onSubmit = async (data: SchemaProps) => {
+  const onSubmit = async () => {
     try {
-      const { name, ...rest } = data
-      const json = await trigger({ name, config: rest })
-      setValues({ name: json.body?.name, ...json?.body?.config })
-      router.refresh()
+      const { dataConfig = {} } = watch()
+      const json = await trigger({
+        dataset_id: datasetId,
+        dataConfig,
+      })
+      console.log(json, '---add data success')
     } catch (error) {}
   }
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (active < 3) {
       setActive(active + 1)
     } else {
-      handleSubmit(onSubmit)()
+      await onSubmit()
+      router.push(`/dataset/${datasetId}/data`)
     }
   }
   return (

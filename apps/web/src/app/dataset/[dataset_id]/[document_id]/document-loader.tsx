@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { omit } from 'lodash'
 import { Plus } from 'lucide-react'
 import { nanoid } from 'nanoid'
 
@@ -42,12 +42,20 @@ interface IProps extends SessionProps {
 }
 
 const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
+  const { watch, getValues } = form
+
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
-    form.setValue('files', [...values])
+    const config = omit(getValues().dataConfig, 'files')
+    const files = values?.reduce((m: any, item) => {
+      const fileConfig = { ...config, ...item }
+      m.push(fileConfig)
+      return m
+    }, [])
+    form.setValue('dataConfig.files', [...files])
   }
-  const { watch } = form
-  const type = watch().loaderType
+  const type = watch()?.dataConfig?.loaderType
+
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
@@ -63,7 +71,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
       <SearchSelect
         form={form}
         values={types}
-        name="loaderType"
+        name="dataConfig.loaderType"
         label={
           <div className="flex">
             Data Source<div className="text-red-500">*</div>
@@ -74,7 +82,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
       />
       <FormField
         control={form.control}
-        name="files"
+        name="dataConfig.files"
         render={(field) => {
           return (
             <FormItem className="w-[332px]">
@@ -95,12 +103,10 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (
-                  <div className="">
-                    <Button>
-                      <Plus size={16} />
-                      Add Annotated Data
-                    </Button>
-                  </div>
+                  <Button>
+                    <Plus size={16} />
+                    Add Annotated Data
+                  </Button>
                 )}
               </FormControl>
               <FormMessage />

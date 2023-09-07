@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { omit } from 'lodash'
 
 import { editDataset, getDataset } from '@/db/datasets/actions'
+import { FileProps } from '@/components/upload/utils'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 
 export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const datasetDetail = await getDataset(dataset_id)
-  const { updated_at, status, config = {} } = datasetDetail
-
+  const { updated_at, status } = datasetDetail
+  const config = datasetDetail?.config || {}
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
   return { documents, updated_at, status, config }
@@ -18,11 +20,28 @@ export async function DELETE(req: NextRequest) {
   const { documents, config } = await getDocuments({ dataset_id })
 
   const files = documents?.filter((item: DataProps) => item?.uid !== uid)
-  // @ts-ignore
   const newConfig = { ...config, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,
     data: { dataset_id, uid, response },
+  })
+}
+
+// add data
+export async function POST(req: NextRequest) {
+  const { dataset_id, dataConfig } = await req.json()
+  const { documents, config } = await getDocuments({ dataset_id })
+  // to complete the history data
+  const existedFiles = documents?.reduce((m: DataProps[], item: any) => {
+    item.config = omit(dataConfig, 'files')
+    return m
+  }, [])
+  const files = [...existedFiles, ...dataConfig?.files]
+  const newConfig = { ...config, files }
+  const response = (await editDataset(dataset_id, { config: newConfig })) as any
+  return NextResponse.json({
+    success: true,
+    data: { dataset_id, response },
   })
 }

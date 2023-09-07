@@ -5,21 +5,7 @@ export const FormSchema = z.object({
     .string()
     .nonempty('Dataset name is required.')
     .max(50, { message: 'Dataset name must be less than 50 characters.' }),
-  loaderType: z.string().optional(),
-  splitType: z.string().optional(),
   embeddingType: z.string().optional(),
-  files: z
-    .array(
-      z.object({
-        name: z.string(),
-        url: z.string(),
-        type: z.string(),
-        uid: z.string(),
-      })
-    )
-    .optional(),
-  chunkSize: z.number().optional(),
-  chunkOverlap: z.number().optional(),
   storeType: z.string().optional(),
   collectionName: z.string().optional(),
   chromaUrl: z.string().optional(),
@@ -31,6 +17,15 @@ export const FormSchema = z.object({
 
 export type SchemaProps = z.infer<typeof FormSchema>
 
+export interface DataConfigProps {
+  type?: string
+  splitType?: string
+  chunkSize?: number
+  chunkOverlap?: number
+  uid: string
+  name: string
+}
+
 export interface DataProps {
   uid: string
   name: string
@@ -38,4 +33,34 @@ export interface DataProps {
   type: string
   url: string
   characters?: number
+  config: DataConfigProps
 }
+
+export const DataSchema = z.object({
+  dataConfig: z.object({
+    loaderType: z.string().optional(),
+    splitType: z.string().optional(),
+    chunkSize: z.number().optional(),
+    chunkOverlap: z.number().optional(),
+    files: z
+      .array(
+        z.object({
+          name: z.string(),
+          url: z.string(),
+          type: z.string(),
+          uid: z.string(),
+          config: z
+            .object({
+              loaderType: z.string().optional(),
+              splitType: z.string().optional(),
+              chunkSize: z.number().optional(),
+              chunkOverlap: z.number().optional(),
+            })
+            .optional(),
+        })
+      )
+      .optional(),
+  }),
+})
+
+export type DataSchemeProps = z.infer<typeof DataSchema>
