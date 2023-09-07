@@ -6,14 +6,19 @@ import {
   and,
   desc,
   eq,
+  gt,
   gte,
+  inArray,
+  isNotNull,
   isNull,
   like,
+  notInArray,
   notLike,
   or,
   SQL,
   sql,
 } from 'drizzle-orm'
+import { AnyPgSelect, PgSelect } from 'drizzle-orm/pg-core'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
@@ -261,6 +266,33 @@ export async function getSession(sessionId: string, appId?: string) {
   }
 }
 
+const timeframes = {
+  last7days: gte(SessionsTable.created_at, sql`now() - interval '7 days'`),
+  last3months: gte(SessionsTable.created_at, sql`now() - interval '3 months'`),
+  last12months: gte(
+    SessionsTable.created_at,
+    sql`now() - interval '12 months'`
+  ),
+  monthtodate: gte(SessionsTable.created_at, sql`date_trunc('month', now())`),
+  quartertodate: gte(
+    SessionsTable.created_at,
+    sql`date_trunc('quarter', now())`
+  ),
+  today: gte(SessionsTable.created_at, sql`date_trunc('day', now())`),
+  yeartodate: gte(SessionsTable.created_at, sql`date_trunc('year', now())`),
+}
+
+const messageIdsHasFeedbackQuery = db
+  .select({ data: MessagesTable.session_id })
+  .from(MessagesTable)
+  .where(isNotNull(MessagesTable.feedback))
+
+const feedbacks = {
+  userfeedback: inArray(SessionsTable.short_id, messageIdsHasFeedbackQuery),
+  nofeedback: notInArray(SessionsTable.short_id, messageIdsHasFeedbackQuery),
+  all: null,
+}
+
 export async function getMonitoringData({
   appId,
   pageSize = 10,
@@ -276,38 +308,19 @@ export async function getMonitoringData({
   feedback?: string
   search?: string
 }) {
-  const timeframes = {
-    last7days: gte(SessionsTable.created_at, sql`now() - interval '7 days'`),
-    last3months: gte(
-      SessionsTable.created_at,
-      sql`now() - interval '3 months'`
-    ),
-    last12months: gte(
-      SessionsTable.created_at,
-      sql`now() - interval '12 months'`
-    ),
-    monthtodate: gte(SessionsTable.created_at, sql`date_trunc('month', now())`),
-    quartertodate: gte(
-      SessionsTable.created_at,
-      sql`date_trunc('quarter', now())`
-    ),
-    today: gte(SessionsTable.created_at, sql`date_trunc('day', now())`),
-    yeartodate: gte(SessionsTable.created_at, sql`date_trunc('year', now())`),
-  }
-  // TODO: 反馈过滤：userfeedback, nofeedback, all
-  // TODO: 搜索 content
-  // 过滤集合，日期 created_at、反馈 feedback、搜索 content
-  const query = [
+  const sessionFilters = [
+    eq(SessionsTable.app_id, appId),
     timeframe && timeframes[timeframe as keyof typeof timeframes],
+    feedback && feedbacks[feedback as keyof typeof feedbacks],
   ].filter(Boolean) as SQL[]
 
-  const sessionsQuery = db
+  let sessionsQuery = db
     .select({
       id: SessionsTable.id,
       short_id: SessionsTable.short_id,
       created_at: SessionsTable.created_at,
       email: UsersTable.email,
-      total: sql<number>`count(${MessagesTable.short_id})`,
+      total: sql<number>`count(${MessagesTable.id})`,
       feedback: {
         good: sql<number>`count(${MessagesTable.feedback}) filter (where ${MessagesTable.feedback} = 'good')`,
         bad: sql<number>`count(${MessagesTable.feedback}) filter (where ${MessagesTable.feedback} = 'bad')`,
@@ -321,7 +334,7 @@ export async function getMonitoringData({
       MessagesTable,
       eq(SessionsTable.short_id, MessagesTable.session_id)
     )
-    .where(and(eq(SessionsTable.app_id, appId), ...query))
+    .where(and(...sessionFilters))
     .groupBy(
       SessionsTable.id,
       SessionsTable.short_id,
@@ -332,18 +345,20 @@ export async function getMonitoringData({
   const sessionsCountQuery = db
     .select({ count: sql<number>`count(*)` })
     .from(SessionsTable)
-    .where(and(eq(SessionsTable.app_id, appId), ...query))
+    .where(and(...sessionFilters))
 
   const appQuery = db
     .select()
     .from(AppsTable)
     .where(eq(AppsTable.short_id, appId))
 
+  const start = Date.now()
   const [sessions, [sessionsCount], [app]] = await Promise.all([
     sessionsQuery,
     sessionsCountQuery,
     appQuery,
   ])
+  console.log('getMonitoringData db query time:', Date.now() - start)
 
   return { sessions, count: sessionsCount.count || 0, app }
 }
