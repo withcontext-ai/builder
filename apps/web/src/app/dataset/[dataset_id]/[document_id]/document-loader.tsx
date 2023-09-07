@@ -17,6 +17,7 @@ import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
 import SearchSelect from '../data/search-select'
+import AddAnnotatedData from './add-annoted-data'
 import { SessionProps } from './splitter'
 
 const types = [
@@ -118,10 +119,7 @@ const DocumentLoader = ({
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (
-                  <Button>
-                    <Plus size={16} />
-                    Add Annotated Data
-                  </Button>
+                  <AddAnnotatedData form={form} />
                 )}
               </FormControl>
               <FormMessage />

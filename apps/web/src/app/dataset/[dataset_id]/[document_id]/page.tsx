@@ -1,16 +1,24 @@
 import { getDataInfo } from '@/db/datasets/actions'
 
+import { DataSchemeProps } from '../data/utils'
 import SettingPage from './setting-page'
 
 interface IProps {
   params: { dataset_id: string; document_id: string }
-  defaultValues: any
+  defaultValues: DataSchemeProps
 }
 const Page = async ({ params }: IProps) => {
   const { dataset_id, document_id } = params
 
+  // getDataInfo just documents
   const { data } = await getDataInfo(dataset_id, document_id)
-  const defaultValues = { dataConfig: { ...data?.config, files: data?.files } }
+  const defaultValues = {
+    dataConfig: {
+      ...data?.config,
+      files: data?.files,
+      notedData: [],
+    },
+  }
   return (
     <div className="h-full overflow-auto">
       <div className="w-[600px]">

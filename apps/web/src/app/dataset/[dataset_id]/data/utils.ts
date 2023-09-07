@@ -42,24 +42,37 @@ export const DataSchema = z.object({
     splitType: z.string().optional(),
     chunkSize: z.number().optional(),
     chunkOverlap: z.number().optional(),
-    files: z
-      .array(
-        z.object({
-          name: z.string(),
-          url: z.string(),
-          type: z.string(),
-          uid: z.string(),
-          config: z
-            .object({
-              loaderType: z.string().optional(),
-              splitType: z.string().optional(),
-              chunkSize: z.number().optional(),
-              chunkOverlap: z.number().optional(),
-            })
-            .optional(),
-        })
-      )
-      .optional(),
+    files: z.array(
+      z.object({
+        name: z.string(),
+        url: z.string(),
+        type: z.string(),
+        uid: z.string(),
+        config: z
+          .object({
+            loaderType: z.string().optional(),
+            splitType: z.string().optional(),
+            chunkSize: z.number().optional(),
+            chunkOverlap: z.number().optional(),
+          })
+          .optional(),
+      })
+    ),
+    notedData: z.array(
+      z.object({
+        name: z.string(),
+        icon: z.string(),
+        app_id: z.string(),
+        config: z
+          .object({
+            loaderType: z.string().optional(),
+            splitType: z.string().optional(),
+            chunkSize: z.number().optional(),
+            chunkOverlap: z.number().optional(),
+          })
+          .optional(),
+      })
+    ),
   }),
 })
 
