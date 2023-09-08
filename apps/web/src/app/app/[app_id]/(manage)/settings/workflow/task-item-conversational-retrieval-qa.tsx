@@ -13,8 +13,9 @@ import { Form } from '@/components/ui/form'
 
 import AddTemplateButton from './add-template-button'
 import {
+  BASIC_PROMPT_TEMPLATES,
   MAX_MAX_TOKENS,
-  SYSTEM_PROMPT_TEMPLATES_FOR_RETRIEVAL_QA_CHAIN,
+  SYSTEM_PROMPT_TEMPLATES,
   TASK_DEFAULT_VALUE_MAP,
 } from './const'
 import {
@@ -69,6 +70,7 @@ const FormSchema = z.object({
   }),
   prompt: z.object({
     template: z.string().optional(),
+    basic_prompt: z.string().optional(),
   }),
   retriever: z.object({
     type: z.string(),
@@ -246,9 +248,20 @@ function FormItemPrompt() {
                 title="System Prompt"
                 tip="If you want to quote the output results of another chain, please enter {key.output}."
               />
-              <AddTemplateButton
-                config={SYSTEM_PROMPT_TEMPLATES_FOR_RETRIEVAL_QA_CHAIN}
+              <AddTemplateButton config={SYSTEM_PROMPT_TEMPLATES} />
+            </div>
+          }
+          data={suggestionData}
+        />
+        <MentionTextareaItem<IFormSchema>
+          name="prompt.basic_prompt"
+          label={
+            <div className="flex items-center justify-between">
+              <FormItemTitle
+                title="Basic Prompt"
+                tip="This is where the AI makes its judgments, and it is recommended not to make any modifications."
               />
+              <AddTemplateButton config={BASIC_PROMPT_TEMPLATES} />
             </div>
           }
           data={suggestionData}

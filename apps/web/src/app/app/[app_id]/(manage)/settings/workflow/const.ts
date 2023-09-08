@@ -99,6 +99,8 @@ export const TASK_DEFAULT_VALUE_MAP = {
     },
     prompt: {
       template: '',
+      basic_prompt: `background: '''[{context}]'''
+Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".`,
     },
     retriever: {
       type: 'pinecone_hybrid_search',
@@ -120,8 +122,8 @@ export const TASK_DEFAULT_VALUE_MAP = {
     prompt: {
       template: '',
       target: '',
-      check_prompt:
-        'The goal is [{target}], and the content of the conversation is [{chat_history}]. Please determine if the dialogue has achieved the target. If so, only output "Yes" and do not provide any other explanations. If not, in order to achieve the goal, combine with the following dialogue and ask a question again.',
+      check_prompt: `The goal is [{target}].
+Please determine if this conversation has achieved its objective. If the objective has been met, simply respond with "yes" and refrain from adding further comments. If the objective hasn't been met, in order to continue pursuing the objective, please raise a follow-up question based on the content of this conversation. Ensure that, in the event the objective hasn't been met, your question is definitely aimed at achieving the objective and doesn't deviate from it."`,
       follow_up_questions_num: 1,
     },
   },
@@ -141,7 +143,7 @@ export const DEFAULT_WORKFLOW_DATA: WorkflowItem[] = [
   },
 ]
 
-export const SYSTEM_PROMPT_TEMPLATES_FOR_CONVERSATION_CHAIN = [
+export const SYSTEM_PROMPT_TEMPLATES = [
   {
     title: 'Roleplay - Interviewer',
     prompt: `I want you to act as an software engineer internship interviewer. I will be the candidate and you will ask me the interview questions for the position position. I want you to only reply as the interviewer. Do not write all the conservation at once. I want you to only do the interview with me. Ask me the questions and wait for my answers. Do not write explanations. Ask me the questions one by one like an interviewer does and wait for my answers.`,
@@ -156,7 +158,7 @@ export const SYSTEM_PROMPT_TEMPLATES_FOR_CONVERSATION_CHAIN = [
   },
 ]
 
-export const SYSTEM_PROMPT_TEMPLATES_FOR_RETRIEVAL_QA_CHAIN = [
+export const BASIC_PROMPT_TEMPLATES = [
   {
     title: 'Default Template',
     prompt: `background: '''[{context}]'''
