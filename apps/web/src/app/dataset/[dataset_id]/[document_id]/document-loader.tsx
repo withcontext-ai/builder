@@ -53,7 +53,6 @@ const DocumentLoader = ({
   documentId,
 }: IProps) => {
   const { watch, getValues } = form
-  const [changedType, setChangedType] = useState(false)
 
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])

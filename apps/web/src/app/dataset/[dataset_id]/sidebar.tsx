@@ -12,9 +12,6 @@ import ConfirmDialog from '@/components/confirm-dialog'
 interface IProps {
   name: string
   datasetId?: string
-  showMore?: boolean
-  scrollRef: RefObject<HTMLDivElement>
-  activeSection?: number
 }
 
 const sections = [

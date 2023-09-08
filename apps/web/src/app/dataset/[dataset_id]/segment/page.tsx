@@ -1,24 +1,17 @@
-import { FileType2 } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import { PdfImage } from '@/components/upload/component'
+
+import AddOrEdit from './add-edit-segment'
+import SegmentHeader from './header'
+import SegmentPage from './view-page'
 
 interface IProps {
-  index: number
-  characters: number
-  text: string
+  params: { dataset_id: string; document_id: string }
 }
-export const PreviewCard = ({ characters, text, index }: IProps) => {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-      <div className="mb-1 flex justify-between text-sm text-slate-500">
-        {`#00${index}`}
-        <div className="flex gap-2">
-          <FileType2 size={18} /> {characters} characters
-        </div>
-      </div>
-      <div className="line-clamp-6 text-sm">{text}</div>
-    </div>
-  )
-}
-const mockData = [
+
+const preload = [
   {
     characters: 2356,
     text: `The pursuit of wealth should be motivated by a desire for financial
@@ -43,22 +36,14 @@ const mockData = [
   },
 ]
 
-const Preview = () => {
+const Page = () => {
   return (
-    <div className="mb-8 flex grid-cols-2 gap-4">
-      {mockData?.map((item, index) => {
-        return (
-          <div key={index}>
-            <PreviewCard
-              characters={item?.characters}
-              index={index}
-              text={item?.text}
-            />
-          </div>
-        )
-      })}
+    <div className="py-[68px] pl-14 pr-8">
+      <SegmentHeader />
+
+      <SegmentPage preload={preload} />
     </div>
   )
 }
 
-export default Preview
+export default Page

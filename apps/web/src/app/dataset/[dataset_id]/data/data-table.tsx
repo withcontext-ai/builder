@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { words } from 'lodash'
 import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
@@ -15,6 +16,7 @@ import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
+import { useToast } from '@/components/ui/use-toast'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 import { PdfImage } from '@/components/upload/component'
 
@@ -59,19 +61,7 @@ const DatasetTable = () => {
     setQueries((prev) => ({ ...prev, [key]: value }))
   }, [])
 
-  // const search = new URLSearchParams({
-  //   ...{dataset_id,document_id:currentUid?.current?.uid},
-  // }).toString()
-  // const { trigger, isMutating } = useSWRMutation(
-  //   `/api/datasets/document?${search}`,
-  //   getData
-  // )
-
-  // useEffect(() => {
-  //   trigger().then((res) => {
-  //     setValue({ dataConfig: { ...res?.config, files: res?.files } })
-  //   })
-  // }, [trigger])
+  const { toast } = useToast()
 
   const editData = useCallback(
     async (uid: string) => {
@@ -183,6 +173,28 @@ const DatasetTable = () => {
     [dataset_id, editData, isPending]
   )
 
+  const handleRowClick = useCallback(
+    (row: any) => () => {
+      if (row?.status === 1) {
+        toast({
+          variant: 'destructive',
+          description: 'Indexing in progress, please wait..',
+        })
+        return
+      }
+      if (row?.status === 2) {
+        toast({
+          variant: 'destructive',
+          description: 'Indexing failed, please re-upload.',
+        })
+        return
+      } else {
+        router.push(`/dataset/${dataset_id}/segment`)
+        return
+      }
+    },
+    [dataset_id, router, toast]
+  )
   const table = useReactTable({
     data,
     columns,
@@ -210,7 +222,7 @@ const DatasetTable = () => {
             channels, such as PDF files, Notion documents, and so on.
           </div>
         }
-        // onRowClick={handleRowClick}
+        onRowClick={handleRowClick}
       />
       <DataTablePagination table={table} />
     </div>
