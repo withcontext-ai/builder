@@ -6,8 +6,7 @@ import graphsignal
 from fastapi import APIRouter, HTTPException, Request
 from loguru import logger
 from models.base import Model
-from models.controller import model_manager
-from models.base import session_state_manager
+from models.controller import model_manager, session_state_manager
 from concurrent.futures import ThreadPoolExecutor
 
 executor = ThreadPoolExecutor(max_workers=1000)

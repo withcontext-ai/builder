@@ -11,8 +11,8 @@ from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from loguru import logger
 from models.base import Choices, CompletionsRequest, CompletionsResponse
 from models.base import Messages as MessagesContent
-from models.base import SessionRequest, VideoCompletionsRequest, session_state_manager
-from models.controller import model_manager
+from models.base import SessionRequest, VideoCompletionsRequest
+from models.controller import model_manager, session_state_manager
 from models.logsnag.handler import LogsnagHandler
 from models.faceto_ai import FaceToAiManager, WebhookHandler
 from models.workflow import Workflow
@@ -86,7 +86,7 @@ async def send_message(
                 detail=f"Model {model_id} has {len(models)} models in model manager",
             )
         model = models[0]
-        # workflow = Workflow(model=model, session_id=session_id)
+        logger.info(f"model while chat: {model}")
         workflow = session_state_manager.get_workflow(session_id, model)
 
         async def wrap_done(fn: Awaitable, event: asyncio.Event):
@@ -135,7 +135,7 @@ async def send_message(
             }
             yield f"data: {json.dumps(info)}\n\n"
         yield "data: [DONE]\n\n"
-        workflow.clear()
+        session_state_manager.save_workflow_status(session_id, workflow)
         await task
     except Exception as e:
         logger.exception(e)

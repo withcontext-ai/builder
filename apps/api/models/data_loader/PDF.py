@@ -4,7 +4,7 @@ import sys
 from langchain.schema import Document
 from langchain.text_splitter import CharacterTextSplitter
 from loguru import logger
-from models.base.dataset import Dataset
+from models.base.dataset import Dataset, Document as DocumentModel
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
@@ -88,3 +88,13 @@ class PDFLoader:
         fake_file_handle.close()
 
         return text
+
+    @staticmethod
+    def get_document_page_size(document: DocumentModel) -> int:
+        if document.page_size != 0:
+            return document.page_size
+        else:
+            pdf_content = GoogleCloudStorageClient().load(document.url)
+            text = PDFLoader.extract_text_from_pdf(pdf_content)
+            pages = text.split("\f")
+            return len(pages)

@@ -26,10 +26,11 @@ from langchain.chains import (
 from langchain.chains.base import Chain
 from langchain.prompts.base import BasePromptTemplate
 from langchain.schema.language_model import BaseLanguageModel
-from langchain.schema import SystemMessage
+from langchain.schema import SystemMessage, HumanMessage
 from loguru import logger
 from pydantic import Extra, root_validator, Field
 import inspect
+from langchain.schema.messages import get_buffer_string
 
 from langchain.chat_models import ChatOpenAI
 from langchain.retrievers import SelfQueryRetriever
@@ -64,6 +65,7 @@ class SelfCheckChain(Chain):
     output_key: str = "text"
     max_retries: int = 0
     process: str = SelfCheckChainStatus.INIT
+    suffix: str = "The content you want to output first is:"
 
     class Config:
         extra = Extra.forbid
@@ -93,26 +95,43 @@ class SelfCheckChain(Chain):
             inputs["chat_history"], str
         ):
             inputs["chat_history"] = [inputs["chat_history"]]
-        messages = inputs.get("chat_history", [])
+        bacis_messages = inputs.get("chat_history", [])
         inputs.pop("chat_history", None)
 
-        if self.process == SelfCheckChainStatus.INIT:
-            prompt_value = self.system_prompt.format_prompt(**inputs)
-            self.process = SelfCheckChainStatus.RUNNING
-        elif self.process == SelfCheckChainStatus.RUNNING:
+        question = ""
+        if self.process == SelfCheckChainStatus.RUNNING:
             prompt_value = self.check_prompt.format_prompt(**inputs)
-        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+            messages = [SystemMessage(content=prompt_value.to_string())] + [
+                HumanMessage(
+                    content=get_buffer_string(
+                        bacis_messages, human_prefix="User", ai_prefix="AI"
+                    )
+                )
+            ]
+            response = await self.llm.agenerate(
+                messages=[messages],
+                callbacks=run_manager.get_child() if run_manager else None,
+            )
+            if response.generations[0][0].text == "Yes":
+                self.process = SelfCheckChainStatus.FINISHED
+                return {self.output_key: response.generations[0][0].text}
+            else:
+                self.max_retries -= 1
+                if self.max_retries <= 0:
+                    self.process = SelfCheckChainStatus.ERROR
+                    return {self.output_key: response.generations[0][0].text}
+                question = response.generations[0][0].text
+        prompt_value = self.system_prompt.format_prompt(**inputs)
+        if self.process == SelfCheckChainStatus.INIT:
+            self.process = SelfCheckChainStatus.RUNNING
+            system_message = prompt_value.to_string()
+        elif self.process == SelfCheckChainStatus.RUNNING:
+            system_message = f"{prompt_value.to_string()}\n{self.suffix}{question}\n"
+        messages = [SystemMessage(content=system_message)] + bacis_messages
         response = await self.llm.agenerate(
             messages=[messages],
             callbacks=run_manager.get_child() if run_manager else None,
         )
-        if response.generations[0][0].text == "Yes":
-            self.process = SelfCheckChainStatus.FINISHED
-            return {self.output_key: response.generations[0][0].text}
-        else:
-            self.max_retries -= 1
-            if self.max_retries <= 0:
-                self.process = SelfCheckChainStatus.ERROR
         return {self.output_key: response.generations[0][0].text}
 
 
@@ -120,6 +139,7 @@ class SequentialSelfCheckChain(SequentialChain):
     queue: asyncio.Queue[str]
     done: asyncio.Event
     known_values: Dict[str, Any] = Field(default_factory=dict)
+    state_dependent_chains = [SelfCheckChain]
 
     class Config:
         extra = Extra.allow
@@ -141,7 +161,7 @@ class SequentialSelfCheckChain(SequentialChain):
         _run_manager = run_manager or AsyncCallbackManagerForChainRun.get_noop_manager()
         callbacks = _run_manager.get_child()
         for i, chain in enumerate(self.chains):
-            if isinstance(chain, SelfCheckChain):
+            if type(chain) in self.state_dependent_chains:
                 if (
                     chain.process == SelfCheckChainStatus.FINISHED
                     or chain.process == SelfCheckChainStatus.ERROR

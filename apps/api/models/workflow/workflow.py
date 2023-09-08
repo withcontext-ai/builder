@@ -34,6 +34,8 @@ from .callbacks import (
     TokenCostProcess,
     IOTraceCallbackHandler,
 )
+from pydantic import BaseModel
+import redis
 
 
 CHAT_HISTORY_KEY = "chat_history"
@@ -41,14 +43,16 @@ QUESTION_KEY = "question"
 CONTEXT_KEY = "context"
 
 
-class Workflow:
-    model: Model
-    session_id: str
-    context: Optional[Union[SequentialChain, PatchedRetrievalQA, LLMChain]] = None
+class Workflow(BaseModel):
+    model: Model = None
+    session_id: str = None
+    context: Optional[SequentialSelfCheckChain] = None
     cost_content: TokenCostProcess = TokenCostProcess()
     io_traces: List[str] = []
+    known_keys: List[str] = []
 
     def __init__(self, model: Model, session_id: str) -> None:
+        super().__init__()
         chains = []
         self.session_id = session_id
         self.model = model
@@ -105,13 +109,6 @@ class Workflow:
             presence_penalty=presence_penalty,
         )
         template = _chain.prompt.template
-        # if _chain.prompt.basic_prompt is not None:
-        #     template += "\n" + _chain.prompt.basic_prompt
-        # elif _chain.prompt.check_prompt is not None:
-        #     if _chain.prompt.target is None:
-        #         logger.warning(f"Target is None. model_id: {self.model.id}")
-        #     template += "\n" + _chain.prompt.check_prompt
-        #     template = template.replace("[{target}]", _chain.prompt.target)
 
         template = replace_dot_with_dash_for_tool_pattern(template)
         # transfer f-format to jinja2 format

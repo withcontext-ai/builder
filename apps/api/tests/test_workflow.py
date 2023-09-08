@@ -6,10 +6,9 @@ from models.base import (
     Chain,
     Dataset,
     Document,
-    session_state_manager,
     Messages,
 )
-from models.controller import model_manager, dataset_manager
+from models.controller import model_manager, dataset_manager, session_state_manager
 from utils import OPENAI_API_KEY
 from routers.chat import send_message
 import uuid
