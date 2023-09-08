@@ -51,7 +51,9 @@ export const messagesBuilder = (messages: MessageSchema[]) => {
   for (const m of messages) {
     if (m.type === 'chat') {
       result.push({ ...m, role: 'user', content: m.query })
-      result.push({ ...m, role: 'assistant', content: m.answer })
+      if (m.answer) {
+        result.push({ ...m, role: 'assistant', content: m.answer })
+      }
     } else {
       result.push(m)
     }
