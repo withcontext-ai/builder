@@ -57,7 +57,7 @@ export async function GET() {
 
     if (flags.isProd) {
       const queue = []
-      const pub = logsnag?.publish({
+      const pub = logsnag?.track({
         channel: 'insight',
         event: 'Web Insight',
         icon: '➡️',
@@ -111,7 +111,7 @@ export async function GET() {
         },
       ]
       for (const insight of insights) {
-        const task = logsnag?.insight(insight)
+        const task = logsnag?.insight.track(insight)
         queue.push(task)
       }
       await Promise.all(queue)
