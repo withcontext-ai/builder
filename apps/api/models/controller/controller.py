@@ -17,12 +17,28 @@ class RelativeManager(BaseManager):
         super().__init__()
         self.table = self.get_table("dataset_chain_associations")
 
-    @staticmethod
-    def get_chain_urn(model_id: str, chain_key: str):
+    @classmethod
+    def get_chain_urn(cls, model_id: str, chain_key: str):
+        """Constructs and returns a unique chain identifier.
+
+        Args:
+            model_id: The ID of the model.
+            chain_key: The key associated with the chain.
+
+        Returns:
+            A unique identifier for the chain.
+        """
         return f"{model_id}-{chain_key}"
 
     @BaseManager.db_session
     def save_relative(self, dataset_id: str, model_id: str, chain_key: str):
+        """Saves the relative association of a dataset to a chain.
+
+        Args:
+            dataset_id: The ID of the dataset.
+            model_id: The ID of the model.
+            chain_key: The key of the chain.
+        """
         urn = self.get_chain_urn(model_id, chain_key)
         logger.info(f"Saving relative {dataset_id} {urn}")
         return self.table.insert().values(dataset_id=dataset_id, chain_urn=urn)
@@ -99,6 +115,11 @@ class DatasetManager(BaseManager):
 
     @BaseManager.db_session
     def save_dataset(self, dataset: Dataset):
+        """Saves a dataset to the database and updates the relevant status.
+
+        Args:
+            dataset: The dataset object to save.
+        """
         logger.info(f"Saving dataset {dataset.id}")
         # check if dataset is pdf
         handler = WebhookHandler()
@@ -236,6 +257,11 @@ class ModelManager(BaseManager):
 
     @BaseManager.db_session
     def save_model(self, model: Model):
+        """Saves a model to the database and updates related datasets.
+
+        Args:
+            model: The model object to save.
+        """
         logger.info(f"Saving model {model.id}")
         handler = WebhookHandler()
         urn = self.get_model_urn(model.id)
