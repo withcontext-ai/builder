@@ -7,7 +7,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { words } from 'lodash'
 import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
@@ -22,12 +21,6 @@ import { PdfImage } from '@/components/upload/component'
 
 import DeleteData from './delete-data'
 import { DataProps } from './utils'
-
-async function getData(url: string) {
-  return fetcher(url, {
-    method: 'GET',
-  })
-}
 
 const DatasetTable = () => {
   const [isPending, startTransition] = useTransition()
