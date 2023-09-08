@@ -1,42 +1,25 @@
 'use client'
 
-import { useEffect, useTransition } from 'react'
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2Icon, Plus } from 'lucide-react'
-import useSWRMutation from 'swr/mutation'
 
-import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 import DatasetTable from './data-table'
 
 interface IProps {
-  params: { dataset_id: string }
-  preloaded: any
+  dataset_id: string
+  preload?: any
 }
 
-function getDocuments(url: string) {
-  return fetcher(url, {
-    method: 'GET',
-  })
-}
-
-const DataPage = ({ params, preloaded }: IProps) => {
+const DataPage = ({ dataset_id, preload }: IProps) => {
   const router = useRouter()
-  const { dataset_id } = params
   const [isPending, startTransition] = useTransition()
-  const { trigger } = useSWRMutation(
-    `/api/datasets/${dataset_id}`,
-    getDocuments
-  )
-
-  useEffect(() => {
-    trigger()
-  }, [trigger])
 
   const handelClick = () => {
     startTransition(() => {
-      router.push(`/dataset/${dataset_id}/add-edit-data`)
+      router.push(`/dataset/${dataset_id}/add`)
     })
   }
 
@@ -55,7 +38,7 @@ const DataPage = ({ params, preloaded }: IProps) => {
             Add New Data
           </Button>
         </div>
-        <DatasetTable />
+        <DatasetTable preload={preload} />
       </div>
     </div>
   )

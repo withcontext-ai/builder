@@ -27,7 +27,7 @@ export default function DatasetCard({
       <Card className="flex h-[148px] flex-col px-4 py-6 shadow-none hover:shadow-md">
         <CardHeader className="h-full p-0">
           <CardTitle className="flex flex-1 gap-4 text-lg">
-            {iconType?.includes('pdf') && <PdfImage />}
+            {/* {iconType?.includes('pdf') && <PdfImage />} */}
             <div className="line-clamp-2 max-h-[52px] flex-1">{title}</div>
           </CardTitle>
           <CardFooter className="flex h-5 w-full gap-3 p-0">

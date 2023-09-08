@@ -9,7 +9,6 @@ import {
 } from '@tanstack/react-table'
 import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
-import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -22,14 +21,17 @@ import { PdfImage } from '@/components/upload/component'
 import DeleteData from './delete-data'
 import { DataProps } from './utils'
 
-const DatasetTable = () => {
+interface IProps {
+  preload: any
+}
+
+const DatasetTable = ({ preload }: IProps) => {
   const [isPending, startTransition] = useTransition()
   const currentUid = useRef({ uid: '' })
   const router = useRouter()
   const { dataset_id } = useParams() as {
     dataset_id: string
   }
-
   const [queries, setQueries] = useState({
     search: '',
   })
@@ -80,7 +82,7 @@ const DatasetTable = () => {
     [queries, pagination],
     getDatasetDocument,
     {
-      // fallbackData: preloaded,
+      fallbackData: preload,
       keepPreviousData: true,
     }
   )
@@ -141,18 +143,27 @@ const DatasetTable = () => {
         cell: ({ row }) => {
           const { status, type, uid } = row.original
           return (
-            <div className="invisible flex gap-2 group-hover/cell:visible">
+            <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
-                <Button size="icon" variant="outline">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8"
+                  onClick={(e) => {
+                    currentUid.current.uid = uid
+                    e.preventDefault()
+                    editData(uid)
+                  }}
+                >
                   {isPending && currentUid?.current?.uid === uid ? (
                     <Loader2Icon className="h-4 w-4 animate-spin" />
                   ) : (
-                    <FileType2 size={18} onClick={() => editData(uid)} />
+                    <FileType2 size={18} />
                   )}
                 </Button>
               )}
               {status === 0 && type !== 'pdf' && (
-                <Button size="icon" variant="outline">
+                <Button size="icon" variant="outline" className="h-8 w-8">
                   <RefreshCcw size={18} />
                 </Button>
               )}

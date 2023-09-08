@@ -42,8 +42,11 @@ const DeleteData = ({ datasetId, uid }: IProps) => {
       <Button
         size="icon"
         variant="outline"
-        className="text-red-600"
-        onClick={() => setOpen(true)}
+        className="h-8 w-8 text-red-600"
+        onClick={(e) => {
+          e.preventDefault()
+          setOpen(true)
+        }}
       >
         <Trash size={18} />
       </Button>
