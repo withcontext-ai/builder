@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
           event_type: oldEvent.eventType || 'basic.opening_remarks',
           content: oldEvent.content ?? null,
           // @ts-ignore
-          call_duration: oldEvent.call_duration ?? null,
+          call_duration: oldEvent.duration ?? null,
           created_at:
             typeof oldEvent.createdAt === 'number'
               ? new Date(oldEvent.createdAt)
