@@ -85,6 +85,10 @@ function EventMessage({ data }: { data: any }) {
   let message
 
   switch (data.eventType) {
+    case 'basic.opening_remarks': {
+      message = data.content
+      break
+    }
     case 'call.created': {
       icon = <PhoneCallIcon className="mr-4" />
       message = 'Call Requested'

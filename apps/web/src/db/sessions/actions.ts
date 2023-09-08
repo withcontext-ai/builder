@@ -79,7 +79,7 @@ export async function addSession(appId: string) {
   if (foundApp.opening_remarks) {
     const message = formatEventMessage({
       session_id: newSession.short_id,
-      event_type: 'opening_remarks',
+      event_type: 'basic.opening_remarks',
       content: foundApp.opening_remarks,
     })
     await addMessage(message)
@@ -209,7 +209,7 @@ export async function getLatestSessionId(appId: string) {
       if (foundApp.opening_remarks) {
         const message = formatEventMessage({
           session_id: newSession.short_id,
-          event_type: 'opening_remarks',
+          event_type: 'basic.opening_remarks',
           content: foundApp.opening_remarks,
         })
         await addMessage(message)

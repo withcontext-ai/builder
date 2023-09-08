@@ -1,7 +1,6 @@
 import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { getMessages } from '@/db/messages/actions'
-import { Message } from '@/db/messages/schema'
 import { getSession } from '@/db/sessions/actions'
 import Chat from '@/components/chat/page'
 import { ProcessTask } from '@/components/chat/types'

@@ -158,7 +158,7 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
     if (newApp.opening_remarks) {
       const message = formatEventMessage({
         session_id: newSession.short_id,
-        event_type: 'opening_remarks',
+        event_type: 'basic.opening_remarks',
         content: newApp.opening_remarks,
       })
       await addMessage(message)
