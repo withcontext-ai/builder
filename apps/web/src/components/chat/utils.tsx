@@ -38,6 +38,7 @@ export const eventMessagesFormatter = (m: Message) =>
     content: m.content,
     type: 'event',
     eventType: m.event_type,
+    call_duration: m.call_duration,
   }) as EventMessage
 
 export const messageFormatter = (m: Message) => {

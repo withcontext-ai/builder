@@ -111,7 +111,7 @@ async function endCall(eventType: string, data: any) {
     id: nanoid(),
     type: 'event',
     eventType,
-    duration,
+    call_duration: duration,
     createdAt: Date.now(),
   }
 
@@ -123,7 +123,7 @@ async function endCall(eventType: string, data: any) {
     short_id: newEvent.id,
     session_id: session.short_id,
     event_type: newEvent.eventType,
-    call_duration: newEvent.duration,
+    call_duration: newEvent.call_duration,
   })
   await addMessage(message)
 
@@ -134,7 +134,9 @@ async function endCall(eventType: string, data: any) {
     icon: '🔚',
     description: `${
       user?.email || `Session ${session.short_id}`
-    } ended a call that lasted for ${formatSeconds(+data.duration || 0)}`,
+    } ended a call that lasted for ${formatSeconds(
+      +(message.call_duration || 0)
+    )}`,
     tags: {
       'session-id': session.short_id,
       'api-session-id': api_session_id,

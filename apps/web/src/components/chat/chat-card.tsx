@@ -101,7 +101,7 @@ function EventMessage({ data }: { data: any }) {
     }
     case 'call.ended': {
       icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
-      message = `Call Ended ${formatSeconds(+data.duration || 0)}`
+      message = `Call Ended ${formatSeconds(+data.call_duration || 0)}`
       break
     }
     case 'call.canceled': {
