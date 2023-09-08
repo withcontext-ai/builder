@@ -124,7 +124,7 @@ const DatasetTable = ({ preload }: IProps) => {
           return (
             <div
               className={cn(
-                'text-right',
+                'text-left',
                 status === 0
                   ? 'text-green-600'
                   : status === 2

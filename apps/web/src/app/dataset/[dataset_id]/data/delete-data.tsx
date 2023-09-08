@@ -44,8 +44,8 @@ const DeleteData = ({ datasetId, uid }: IProps) => {
         variant="outline"
         className="h-8 w-8 text-red-600"
         onClick={(e) => {
-          setOpen(true)
           e.stopPropagation()
+          setOpen(true)
         }}
       >
         <Trash size={18} />
