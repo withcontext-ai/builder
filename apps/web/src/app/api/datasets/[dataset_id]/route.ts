@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   addDataset,
   editDataset,
-  getDataset,
   getDocuments,
   removeDataset,
 } from '@/db/datasets/actions'
@@ -33,11 +32,11 @@ export async function GET(
 
   const { documents, updated_at, status } = await getDocuments({ dataset_id })
   let res = documents
+
+  res = res?.slice(page * pageSize, pageSize * (page + 1))
   if (search) {
     res = documents?.filter((item: DataProps) => item?.name?.includes(search))
   }
-  res = res?.slice(page * pageSize, pageSize * (page + 1))
-
   // Compat the historical data
   const result = res?.reduce((m: DataProps[], item: any) => {
     if (!item?.update_at) {

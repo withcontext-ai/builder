@@ -5,8 +5,8 @@ import { editDataset, getDataset, getDocuments } from '@/db/datasets/actions'
 import { FileProps } from '@/components/upload/utils'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 
-// // Delete a dataexport
-async function DELETE(req: NextRequest) {
+// // Delete a data
+export async function DELETE(req: NextRequest) {
   const { dataset_id, uid } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
   const files = documents?.filter((item: DataProps) => item?.uid !== uid)
