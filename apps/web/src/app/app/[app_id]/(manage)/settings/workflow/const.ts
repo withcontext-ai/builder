@@ -141,7 +141,7 @@ export const DEFAULT_WORKFLOW_DATA: WorkflowItem[] = [
   },
 ]
 
-export const SYSTEM_PROMPT_TEMPLATES = [
+export const SYSTEM_PROMPT_TEMPLATES_FOR_CONVERSATION_CHAIN = [
   {
     title: 'Roleplay - Interviewer',
     prompt: `I want you to act as an software engineer internship interviewer. I will be the candidate and you will ask me the interview questions for the position position. I want you to only reply as the interviewer. Do not write all the conservation at once. I want you to only do the interview with me. Ask me the questions and wait for my answers. Do not write explanations. Ask me the questions one by one like an interviewer does and wait for my answers.`,
@@ -156,18 +156,15 @@ export const SYSTEM_PROMPT_TEMPLATES = [
   },
 ]
 
-export const BASIC_PROMPT_TEMPLATES = [
+export const SYSTEM_PROMPT_TEMPLATES_FOR_RETRIEVAL_QA_CHAIN = [
   {
     title: 'Default Template',
     prompt: `background: '''[{context}]'''
-chat history: [{chat_history}]
-Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".
-[{question}]`,
+Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".`,
   },
   {
     title: 'Additional Information',
     prompt: `background: '''[{context}]'''
-chat history: [{chat_history}]
 Prioritize using the text separated by three quotation marks in the background to answer the questions. Do not add any additional information. Ensure the answer is correct and do not provide false information."
 If the answer cannot be found in the text, you may use other known information to answer, but ensure the answer is correct and do not provide false information.`,
   },

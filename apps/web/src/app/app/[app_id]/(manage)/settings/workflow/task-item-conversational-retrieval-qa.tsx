@@ -13,9 +13,8 @@ import { Form } from '@/components/ui/form'
 
 import AddTemplateButton from './add-template-button'
 import {
-  BASIC_PROMPT_TEMPLATES,
   MAX_MAX_TOKENS,
-  SYSTEM_PROMPT_TEMPLATES,
+  SYSTEM_PROMPT_TEMPLATES_FOR_RETRIEVAL_QA_CHAIN,
   TASK_DEFAULT_VALUE_MAP,
 } from './const'
 import {
@@ -247,7 +246,9 @@ function FormItemPrompt() {
                 title="System Prompt"
                 tip="If you want to quote the output results of another chain, please enter {key.output}."
               />
-              <AddTemplateButton config={SYSTEM_PROMPT_TEMPLATES} />
+              <AddTemplateButton
+                config={SYSTEM_PROMPT_TEMPLATES_FOR_RETRIEVAL_QA_CHAIN}
+              />
             </div>
           }
           data={suggestionData}
