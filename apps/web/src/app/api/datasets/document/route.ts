@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { assign, omit } from 'lodash'
 
-import { editDataset, getDataset } from '@/db/datasets/actions'
+import { editDataset, getDataset, getDocuments } from '@/db/datasets/actions'
 import { FileProps } from '@/components/upload/utils'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 
-export async function getDocuments({ dataset_id }: { dataset_id: string }) {
-  const datasetDetail = await getDataset(dataset_id)
-  const { updated_at, status } = datasetDetail
-  const config = datasetDetail?.config || {}
-  // @ts-ignore
-  const documents = datasetDetail?.config?.files || []
-  return { documents, updated_at, status, config }
-}
-
-// // Delete a data
-export async function DELETE(req: NextRequest) {
+// // Delete a dataexport
+async function DELETE(req: NextRequest) {
   const { dataset_id, uid } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
   const files = documents?.filter((item: DataProps) => item?.uid !== uid)

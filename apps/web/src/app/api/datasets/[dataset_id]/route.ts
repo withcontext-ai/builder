@@ -4,12 +4,11 @@ import {
   addDataset,
   editDataset,
   getDataset,
+  getDocuments,
   removeDataset,
 } from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
-
-import { getDocuments } from '../document/route'
 
 // create a dataset
 export async function POST(req: NextRequest) {

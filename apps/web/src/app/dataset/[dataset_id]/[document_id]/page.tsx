@@ -5,9 +5,8 @@ import SettingPage from './setting-page'
 
 interface IProps {
   params: { dataset_id: string; document_id: string }
-  defaultValues: DataSchemeProps
 }
-const Page = async ({ params }: IProps) => {
+export default async function Page({ params }: IProps) {
   const { dataset_id, document_id } = params
 
   // getDataInfo just documents
@@ -38,5 +37,3 @@ const Page = async ({ params }: IProps) => {
     </div>
   )
 }
-
-export default Page

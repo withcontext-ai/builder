@@ -10,7 +10,6 @@ import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
 import { FileProps } from '@/components/upload/utils'
-import { getDocuments } from '@/app/api/datasets/document/route'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable, NewDataset } from './schema'
@@ -174,6 +173,15 @@ export async function removeDataset(datasetId: string) {
     )
 
   return response
+}
+
+export async function getDocuments({ dataset_id }: { dataset_id: string }) {
+  const datasetDetail = await getDataset(dataset_id)
+  const { updated_at, status } = datasetDetail
+  const config = datasetDetail?.config || {}
+  // @ts-ignore
+  const documents = datasetDetail?.config?.files || []
+  return { documents, updated_at, status, config }
 }
 
 // get data info

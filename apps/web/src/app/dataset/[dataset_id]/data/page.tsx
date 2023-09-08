@@ -12,7 +12,6 @@ import DatasetTable from './data-table'
 
 interface IProps {
   params: { dataset_id: string }
-  preloaded: any
 }
 
 function getDocuments(url: string) {
