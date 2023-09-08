@@ -31,7 +31,6 @@ export default function TaskDetail({ value, onClose }: IProps) {
   const presencePenalty = formValue.llm?.presence_penalty
   const frequencyPenalty = formValue.llm?.frequency_penalty
   const systemPrompt = formValue.prompt?.template
-  const basicPrompt = formValue.prompt?.basic_prompt
   const target = formValue.prompt?.target
   const checkPrompt = formValue.prompt?.check_prompt
   const followUpQuestionsNumber = formValue.prompt?.follow_up_questions_num
@@ -63,7 +62,6 @@ export default function TaskDetail({ value, onClose }: IProps) {
       {systemPrompt && (
         <PromptItem title="System Prompt" value={systemPrompt} />
       )}
-      {basicPrompt && <PromptItem title="Basic Prompt" value={basicPrompt} />}
       {target && <Item label="Target" value={target} />}
       {checkPrompt && <PromptItem title="Check Prompt" value={checkPrompt} />}
       {followUpQuestionsNumber != null && (

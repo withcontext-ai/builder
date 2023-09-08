@@ -85,11 +85,6 @@ export const TASK_DEFAULT_VALUE_MAP = {
     },
     prompt: {
       template: '',
-      basic_prompt: `The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
-Current conversation:
-[{chat_history}]
-Human: [{question}]
-AI:`,
     },
   },
   conversational_retrieval_qa_chain: {
@@ -104,10 +99,6 @@ AI:`,
     },
     prompt: {
       template: '',
-      basic_prompt: `background: '''[{context}]'''
-chat history: [{chat_history}]
-Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".
-[{question}]`,
     },
     retriever: {
       type: 'pinecone_hybrid_search',

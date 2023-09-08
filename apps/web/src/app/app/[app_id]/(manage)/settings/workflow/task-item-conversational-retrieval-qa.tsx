@@ -70,7 +70,6 @@ const FormSchema = z.object({
   }),
   prompt: z.object({
     template: z.string().optional(),
-    basic_prompt: z.string().optional(),
   }),
   retriever: z.object({
     type: z.string(),
@@ -230,7 +229,7 @@ function FormItemPrompt() {
 
   const suggestionData = React.useMemo(
     () => [
-      ...['context', 'chat_history', 'question'].map(suggestionDataFormatter),
+      ...['context'].map(suggestionDataFormatter),
       ...formatWorkflowDataToSuggestionData(workflowData),
     ],
     [workflowData]
@@ -249,19 +248,6 @@ function FormItemPrompt() {
                 tip="If you want to quote the output results of another chain, please enter {key.output}."
               />
               <AddTemplateButton config={SYSTEM_PROMPT_TEMPLATES} />
-            </div>
-          }
-          data={suggestionData}
-        />
-        <MentionTextareaItem<IFormSchema>
-          name="prompt.basic_prompt"
-          label={
-            <div className="flex items-center justify-between">
-              <FormItemTitle
-                title="Basic Prompt"
-                tip="This is where the AI makes its judgments, and it is recommended not to make any modifications."
-              />
-              <AddTemplateButton config={BASIC_PROMPT_TEMPLATES} />
             </div>
           }
           data={suggestionData}
