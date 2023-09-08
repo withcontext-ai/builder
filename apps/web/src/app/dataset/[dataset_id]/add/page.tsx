@@ -35,7 +35,7 @@ const DatasetEdit = async ({ params }: IProps) => {
         <SettingPage
           defaultValues={defaultValues}
           datasetId={dataset_id}
-          document_id={'add'}
+          document_id={''}
         />
 
         {/* Mobile version, view only */}

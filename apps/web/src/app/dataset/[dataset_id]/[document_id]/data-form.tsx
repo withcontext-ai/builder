@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { omit } from 'lodash'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
@@ -39,6 +40,16 @@ function addData(
   })
 }
 
+function editData(
+  url: string,
+  { arg }: { arg: { dataset_id: string; dataConfig: any; document_id: string } }
+) {
+  console.log(arg.dataConfig, '---args')
+  return fetcher(url, {
+    method: 'PATCH',
+    body: JSON.stringify(arg),
+  })
+}
 const DataForm = ({
   datasetId,
   active,
@@ -49,30 +60,45 @@ const DataForm = ({
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
 
-  const files = defaultValues?.dataConfig?.files || []
   const notedData = defaultValues?.dataConfig?.notedData || []
-  const [data, setData] = useState<FileProps[]>(files)
   const form = useForm<z.infer<typeof DataSchema>>({
     resolver: zodResolver(DataSchema),
     defaultValues,
   })
 
-  const { handleSubmit, watch } = form
+  const { watch } = form
 
-  const { trigger, isMutating } = useSWRMutation(
+  const files = defaultValues?.dataConfig?.files
+  const [data, setData] = useState<any[]>(files)
+
+  const { trigger: addTrigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
     addData
   )
+
+  const { trigger: triggerEdit, isMutating: editMutating } = useSWRMutation(
+    `/api/datasets/document`,
+    editData
+  )
   const router = useRouter()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSubmit = async () => {
     try {
       const { dataConfig = {} } = watch()
-      const json = await trigger({
-        dataset_id: datasetId,
-        dataConfig,
-      })
-      console.log(json, '---add data success')
+      let json
+      if (!documentId) {
+        json = await addTrigger({
+          dataset_id: datasetId,
+          dataConfig,
+        })
+      } else {
+        json = await triggerEdit({
+          dataset_id: datasetId,
+          dataConfig,
+          document_id: documentId,
+        })
+      }
+
+      console.log(json, documentId ? 'edit data success' : 'add data success')
     } catch (error) {}
   }
 
@@ -141,7 +167,7 @@ const DataForm = ({
             <Button onClick={handleClick} disabled={isPending || isMutating}>
               {active !== 3
                 ? 'Next'
-                : isPending || isMutating
+                : isPending || isMutating || editMutating
                 ? 'Saving'
                 : 'Save'}
             </Button>
