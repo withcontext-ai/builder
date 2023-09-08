@@ -151,7 +151,7 @@ const DatasetTable = ({ preload }: IProps) => {
                   className="h-8 w-8"
                   onClick={(e) => {
                     currentUid.current.uid = uid
-                    e.preventDefault()
+                    e.stopPropagation()
                     editData(uid)
                   }}
                 >
