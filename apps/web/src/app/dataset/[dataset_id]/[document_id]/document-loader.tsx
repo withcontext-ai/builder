@@ -38,6 +38,7 @@ export const stringUrlToFile = (file: FileProps) => {
 
 interface IProps extends SessionProps {
   data: FileProps[]
+  notedData: any[]
   documentId?: string
   setData: (data: FileProps[]) => void
   setUploading?: (s: boolean) => void
@@ -47,6 +48,7 @@ const DocumentLoader = ({
   form,
   setData,
   data,
+  notedData,
   setUploading,
   documentId,
 }: IProps) => {
@@ -69,8 +71,8 @@ const DocumentLoader = ({
   const showButton = files?.length !== 0 && documentId
 
   const onSelect = () => {
-    setChangedType(true)
-    form.setValue('dataConfig.files', [])
+    // setChangedType(true)
+    // form.setValue('dataConfig.files', [])
   }
   return (
     <section id="loaders" className="w-full py-6">
@@ -119,7 +121,7 @@ const DocumentLoader = ({
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (
-                  <AddAnnotatedData form={form} />
+                  <AddAnnotatedData form={form} notedData={notedData} />
                 )}
               </FormControl>
               <FormMessage />

@@ -14,7 +14,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { FileProps } from '@/components/upload/utils'
 
 import { DataConfigProps, DataSchema, DataSchemeProps } from '../data/utils'
-import DocumentLoader, { stringUrlToFile } from './document-loader'
+import DocumentLoader from './document-loader'
 import Preview from './preview'
 import TextSplits from './splitter'
 
@@ -50,7 +50,7 @@ const DataForm = ({
   const { toast } = useToast()
 
   const files = defaultValues?.dataConfig?.files || []
-  const type = defaultValues?.dataConfig?.loaderType
+  const notedData = defaultValues?.dataConfig?.notedData || []
   const [data, setData] = useState<FileProps[]>(files)
   const form = useForm<z.infer<typeof DataSchema>>({
     resolver: zodResolver(DataSchema),
@@ -78,7 +78,8 @@ const DataForm = ({
 
   const handleClick = async () => {
     const files = watch()?.dataConfig?.files
-    if (!files?.length) {
+    const type = watch()?.dataConfig?.loaderType
+    if (!files?.length && type === 'pdf') {
       toast({
         variant: 'destructive',
         description: 'Please select a document.',
@@ -110,6 +111,7 @@ const DataForm = ({
               <DocumentLoader
                 form={form}
                 data={data}
+                notedData={notedData}
                 setData={setData}
                 documentId={documentId}
               />
@@ -129,7 +131,10 @@ const DataForm = ({
           <div className="flex  gap-2">
             <Button
               variant="outline"
-              onClick={() => router.push(`/dataset/${datasetId}/data`)}
+              onClick={() => {
+                form.reset()
+                router.push(`/dataset/${datasetId}/data`)
+              }}
             >
               Cancel
             </Button>

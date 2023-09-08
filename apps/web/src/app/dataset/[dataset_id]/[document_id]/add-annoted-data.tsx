@@ -1,6 +1,7 @@
 'use client'
 
-import { Plus } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, X } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 
 import {
@@ -20,9 +21,19 @@ import AnnotatedForm from './noted-form'
 
 interface IProps {
   form: UseFormReturn<any>
+  notedData: any[]
 }
 
-const AddAnnotatedData = ({ form }: IProps) => {
+const AddAnnotatedData = ({ form, notedData }: IProps) => {
+  const { watch } = form
+  const [data, setData] = useState(notedData)
+  const type = watch()?.dataConfig?.loaderType
+
+  const deleteNotedData = (app_id: string) => {
+    const newData = data?.filter((item: any) => item?.app_id !== app_id) || []
+    form.setValue('dataConfig?.notedData', newData)
+    setData(newData)
+  }
   return (
     <div>
       <AlertDialog>
@@ -37,15 +48,48 @@ const AddAnnotatedData = ({ form }: IProps) => {
             <AlertDialogTitle>Add Annotated Data</AlertDialogTitle>
             <AlertDialogDescription>
               <AnnotatedForm form={form} />
-              {/* <CheckboxReactHookFormMultiple /> */}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Add</AlertDialogAction>
+            <AlertDialogAction
+              onClick={() => {
+                const notedData = watch()?.dataConfig?.notedData
+                setData(notedData)
+              }}
+            >
+              Add
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <div className="mt-4 space-y-2">
+        {data?.map((item: any) => {
+          return (
+            <div
+              key={item?.app_id}
+              className="flex flex-row items-center justify-between gap-2 space-x-3 space-y-0 truncate rounded-lg border border-slate-200 p-4"
+            >
+              <div className="flex items-center gap-2 truncate text-sm font-normal text-black">
+                <img
+                  src={item?.icon}
+                  alt="app icon"
+                  className="h-8 w-8 shrink-0 rounded-[5px]"
+                />
+                {item.name}
+              </div>
+              <Button
+                variant="outline"
+                type="button"
+                className="h-8 w-8 p-0 text-black"
+                onClick={() => deleteNotedData(item?.app_id)}
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

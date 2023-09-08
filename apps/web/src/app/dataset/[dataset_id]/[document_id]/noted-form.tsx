@@ -1,8 +1,6 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, UseFormReturn } from 'react-hook-form'
-import { z } from 'zod'
+import { UseFormReturn } from 'react-hook-form'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -12,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { toast } from '@/components/ui/use-toast'
 
 const mockData = [
   {
@@ -41,8 +38,6 @@ interface IProps {
 }
 
 const AnnotatedForm = ({ form }: IProps) => {
-  const { watch } = form
-  console.log(watch(), '---watch')
   return (
     <FormField
       control={form.control}
