@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { XIcon } from 'lucide-react'
 import { Mention, MentionsInput } from 'react-mentions'
 
@@ -7,8 +6,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PdfImage } from '@/components/upload/component'
 
-import { getToolKeys } from '../(manage)/settings/workflow/prompt-mentions'
+import { SUB_TYPE_MAP } from '../(manage)/settings/workflow/const'
 import { WorkflowItem } from '../(manage)/settings/workflow/type'
+import { formatRetrieverType } from '../(manage)/settings/workflow/utils'
 import styles from './mention-input.module.css'
 import { DatasetProps } from './page'
 import { useWorkflowContext } from './store'
@@ -18,31 +18,24 @@ interface IProps {
   onClose: () => void
 }
 
-function UpCaseStr(str: string) {
-  return str
-    ?.split('_')
-    ?.join(' ')
-    .toLowerCase()
-    .replace(/( |^)[a-z]/g, (L) => L.toUpperCase())
-}
-
 export default function TaskDetail({ value, onClose }: IProps) {
   const linkedDatasets = useWorkflowContext((state) => state.linkedDatasets)
   if (!value) return null
 
   const { subType, formValueStr, key, type } = value
   const formValue = safeParse(formValueStr, {})
-  const title =
-    subType === 'conversation_chain'
-      ? 'Conversation Chain'
-      : 'Conversational Retrieval QA'
+  const title = SUB_TYPE_MAP[subType as keyof typeof SUB_TYPE_MAP]?.title ?? ''
   const modelName = formValue.llm?.name
   const temperature = formValue.llm?.temperature
   const topP = formValue.llm?.top_p
   const presencePenalty = formValue.llm?.presence_penalty
   const frequencyPenalty = formValue.llm?.frequency_penalty
-  const promptTemplate = formValue.prompt?.template
-  const retriever = UpCaseStr(formValue?.retriever?.type)
+  const systemPrompt = formValue.prompt?.template
+  const basicPrompt = formValue.prompt?.basic_prompt
+  const target = formValue.prompt?.target
+  const checkPrompt = formValue.prompt?.check_prompt
+  const followUpQuestionsNumber = formValue.prompt?.follow_up_questions_num
+  const retriever = formatRetrieverType(formValue?.retriever?.type)
   const keyLabel = `${type}-${key}`
   const datasetIds = formValue?.data?.datasets
   const datasets = linkedDatasets?.filter(
@@ -67,7 +60,18 @@ export default function TaskDetail({ value, onClose }: IProps) {
       </div>
 
       <Item label="Model" value={modelName} />
-      <PromptItem promptTemplate={promptTemplate || ''} />
+      {systemPrompt && (
+        <PromptItem title="System Prompt" value={systemPrompt} />
+      )}
+      {basicPrompt && <PromptItem title="Basic Prompt" value={basicPrompt} />}
+      {target && <Item label="Target" value={target} />}
+      {checkPrompt && <PromptItem title="Check Prompt" value={checkPrompt} />}
+      {followUpQuestionsNumber != null && (
+        <Item
+          label="Maximum follow-up questions"
+          value={followUpQuestionsNumber}
+        />
+      )}
 
       <Item label="Temperature" value={temperature} />
       <Item label="Top P" value={topP} />
@@ -79,16 +83,13 @@ export default function TaskDetail({ value, onClose }: IProps) {
   )
 }
 
-const PromptItem = ({ promptTemplate }: { promptTemplate: string }) => {
-  const workflowData = useWorkflowContext((state) => state.workflowData)
-  const data = useMemo(() => getToolKeys(workflowData), [workflowData])
-
+const PromptItem = ({ title, value }: { title: string; value: string }) => {
   return (
     <div className="space-y-2">
-      <div className="text-base font-medium">Prompt</div>
-      <MentionsInput value={promptTemplate} disabled classNames={styles}>
+      <div className="text-base font-medium">{title}</div>
+      <MentionsInput value={value} disabled classNames={styles}>
         <Mention
-          data={data}
+          data={[]}
           markup="[__display__]"
           className={styles.mentions__mention}
           trigger="{"

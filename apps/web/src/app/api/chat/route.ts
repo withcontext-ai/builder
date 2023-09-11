@@ -6,9 +6,13 @@ import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
-import { updateMessagesToSession } from '@/db/sessions/actions'
+import { addMessage, editMessage, removeMessage } from '@/db/messages/actions'
 
 export const runtime = 'edge'
+// TODO: move to pdx1 (us-west-2) where db is located
+// https://vercel.com/docs/edge-network/regions
+export const preferredRegion = 'cle1' // now at us-east-2 where ai service is located
+export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
@@ -24,6 +28,7 @@ export async function POST(req: NextRequest) {
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
   const messages = body.messages as Message[]
+  const reloadMessageId = body.reload_message_id as string
 
   const payload = {
     session_id: apiSessionId,
@@ -34,7 +39,8 @@ export async function POST(req: NextRequest) {
   }
 
   const requestId = nanoid()
-  await logsnag?.publish({
+  await logsnag?.track({
+    user_id: userId,
     channel: 'chat',
     event: 'Chat Request',
     icon: '➡️',
@@ -49,7 +55,7 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  const messageId = nanoid()
+  const messageId = reloadMessageId || nanoid()
 
   const requestTimestamp = Date.now()
 
@@ -60,7 +66,8 @@ export async function POST(req: NextRequest) {
       async onStart() {
         const responseTimestamp = Date.now()
         const latencyMs = responseTimestamp - requestTimestamp
-        await logsnag?.publish({
+        await logsnag?.track({
+          user_id: userId,
           channel: 'chat',
           event: 'Chat Response',
           icon: '⬅️',
@@ -75,32 +82,31 @@ export async function POST(req: NextRequest) {
           },
         })
       },
-      async onCompletion(completion, token) {
+      async onCompletion(completion, metadata) {
         const responseTimestamp = Date.now()
         const latency = responseTimestamp - requestTimestamp
-        const payload = [
-          ...messages,
-          ...(completion
-            ? [
-                {
-                  role: 'assistant',
-                  content: completion,
-                  createdAt: new Date(),
-                  id: messageId,
-                  meta: {
-                    latency,
-                    // todo impl actual
-                    // token: 50,
-                    // raw: {
-                    //   request: messages,
-                    //   response: completion,
-                    // },
-                  },
-                },
-              ]
-            : []),
-        ] as Message[]
-        await updateMessagesToSession(sessionId, payload)
+        const [userMessage] = messages
+          .filter((m) => m.role === 'user')
+          .slice(-1)
+        const newMessage = {
+          type: 'chat',
+          short_id: messageId,
+          session_id: sessionId,
+          query: userMessage.content,
+          answer: completion,
+          feedback: null,
+          feedback_content: null,
+          latency,
+          ...(metadata?.total_tokens && {
+            total_tokens: metadata.total_tokens,
+          }),
+          ...(metadata?.raw && { raw: metadata.raw }),
+        }
+        if (reloadMessageId) {
+          await editMessage(messageId, newMessage)
+        } else {
+          await addMessage(newMessage)
+        }
       },
     },
     data: {

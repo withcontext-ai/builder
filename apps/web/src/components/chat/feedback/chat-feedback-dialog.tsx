@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 
@@ -6,7 +7,6 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 
 import { DialogContent, DialogHeader } from '../../ui/dialog'
-import { useChatContext } from '../chat-context'
 import { useChatFeedbackContext } from './chat-feedback-context'
 import submitFeedback from './service'
 
@@ -19,22 +19,20 @@ type Remark = {
 const remarks = [
   {
     id: 'harmful',
-    label: 'This is harmful',
+    label: 'This is harmful / unsafe',
   },
   {
     id: 'wrong',
-    label: 'This is not true',
+    label: "This isn't true",
   },
   {
     id: 'unhelpful',
-    label: 'This is not helpful',
+    label: "This isn't helpful",
   },
 ] as const
 
 const ChatFeedbackDialog = () => {
   const { messageId, type, reset } = useChatFeedbackContext()
-  const { session } = useChatContext()
-  const { short_id: session_id } = session
 
   const {
     register,
@@ -49,6 +47,10 @@ const ChatFeedbackDialog = () => {
   }>()
 
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
+
+  useEffect(() => {
+    resetForm()
+  }, [messageId])
 
   if (!messageId || !type) {
     return null
@@ -88,19 +90,12 @@ const ChatFeedbackDialog = () => {
     let { content } = values
 
     const validRemarks = remarks.filter((remark) => values[remark.id])
-    if (validRemarks.length !== 0) {
-      content += `\nRemarks: `
-    }
 
     validRemarks.forEach((remark) => {
-      content += `${remark.id} `
+      content += `\n# ${remark.label}`
     })
 
     reset()
-
-    resetForm({
-      content: '',
-    })
 
     const trimmed = content.trim()
 
@@ -111,7 +106,6 @@ const ChatFeedbackDialog = () => {
     trigger({
       content: trimmed,
       message_id: messageId,
-      session_id,
       type,
     })
   }
