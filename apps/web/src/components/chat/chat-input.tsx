@@ -64,9 +64,7 @@ const ChatInput = ({
             value={input}
             onChange={handleInputChange}
             onKeyDown={(e) => {
-              const set = new Set(input?.split(''))
-              const isEmpty = (set?.size === 1 && set.has('\n')) || input === ''
-              if (!isEmpty) {
+              if (!disabled) {
                 onKeyDown(e)
               }
             }}
