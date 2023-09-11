@@ -102,9 +102,9 @@ export const MonitoringTable = ({ preloaded }: Props) => {
       },
       {
         accessorKey: 'total',
-        header: () => <div className="pr-12 text-right">Message Count</div>,
+        header: () => <div className="text-right">Message Count</div>,
         cell: ({ row }) => {
-          return <div className="pr-12 text-right">{row.getValue('total')}</div>
+          return <div className="text-right">{row.getValue('total')}</div>
         },
       },
       {
