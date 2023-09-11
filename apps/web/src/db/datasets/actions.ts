@@ -116,8 +116,14 @@ export async function editDataset(
     const update = !isEqual(oldFiles, newFiles)
     if (update) {
       const documents = newFiles?.reduce(
-        (m: Record<string, any>[], item: FileProps) => {
+        (m: Record<string, any>[], item: any) => {
           const cur = omit(item, 'name')
+          const split_option = {
+            split_type: item?.splitType,
+            chunk_size: item?.chunkSize,
+            chunk_overlap: item?.chunkOverlap,
+          }
+          cur.split_option = split_option
           m.push(cur)
           return m
         },

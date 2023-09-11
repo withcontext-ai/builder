@@ -52,7 +52,7 @@ function editData(
   })
 }
 const DataForm = () => {
-  const { defaultValues, documentId, datasetId, step, setStep } =
+  const { defaultValues, documentId, datasetId, step, setStep, isAdd } =
     useDataContext()
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
@@ -88,7 +88,7 @@ const DataForm = () => {
     try {
       const { dataConfig = {} } = watch()
       let json
-      if (!documentId) {
+      if (isAdd) {
         json = await addTrigger({
           dataset_id: datasetId,
           dataConfig,

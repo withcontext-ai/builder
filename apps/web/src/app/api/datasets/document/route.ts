@@ -18,7 +18,7 @@ export async function DELETE(req: NextRequest) {
   })
 }
 
-// add datas
+// add data
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
