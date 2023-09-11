@@ -209,7 +209,6 @@ const Chat = (props: ChatProps) => {
     if (disabled) {
       return
     }
-    console.log('---submit', disabled)
     handleSubmit(e)
     setAutoScroll(true)
     if (isDebug) {
