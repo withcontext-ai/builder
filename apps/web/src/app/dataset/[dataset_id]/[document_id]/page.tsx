@@ -7,14 +7,13 @@ interface IProps {
 }
 export default async function Page({ params }: IProps) {
   const { dataset_id, document_id } = params
-  const list = await getNotedData()
+  const { data: apps = [] } = await getNotedData()
 
   const { data } = await getDataInfo(dataset_id, document_id)
   const defaultValues = {
     dataConfig: {
       ...data?.config,
       files: data?.files,
-      notedData: [],
     },
   }
 
@@ -26,7 +25,7 @@ export default async function Page({ params }: IProps) {
           defaultValues={defaultValues}
           datasetId={dataset_id}
           document_id={document_id}
-          apps={list?.data || []}
+          apps={apps}
         />
 
         {/* Mobile version, view only */}

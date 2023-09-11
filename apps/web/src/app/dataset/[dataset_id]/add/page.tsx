@@ -10,7 +10,6 @@ const defaultValues = {
     loaderType: 'pdf',
     splitType: 'character',
     files: [],
-    notedData: [],
     chunkSize: 1000,
     chunkOverlap: 0,
   },

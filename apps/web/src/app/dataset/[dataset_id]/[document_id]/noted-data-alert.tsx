@@ -28,9 +28,8 @@ interface IProps {
 
 const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
-  const { defaultValues, documentId, datasetId, step, setStep } =
-    useDataContext()
-  const notedData = defaultValues?.dataConfig?.notedData || []
+  const { defaultValues, documentId } = useDataContext()
+  const notedData = defaultValues?.dataConfig?.files || []
   const [data, setData] = useState(notedData)
 
   const [selected, setSelected] = useState<any>()
@@ -39,9 +38,10 @@ const AddAnnotatedData = ({ form }: IProps) => {
 
   const deleteNotedData = (id: string) => {
     const newData = data?.filter((item: any) => item?.id !== id) || []
-    form.setValue('dataConfig?.notedData', newData)
+    form.setValue('dataConfig?.files', newData)
     setData(newData)
   }
+  console.log(data, '---data')
   return (
     <div>
       <AlertDialog>
@@ -68,9 +68,9 @@ const AddAnnotatedData = ({ form }: IProps) => {
               onClick={() => {
                 if (!isAdd) {
                   setData([selected])
-                  form.setValue('dataConfig?.notedData', selected)
+                  form.setValue('dataConfig?.files', selected)
                 } else {
-                  const notedData = watch()?.dataConfig?.notedData
+                  const notedData = watch()?.dataConfig?.files
                   setData(notedData)
                 }
               }}

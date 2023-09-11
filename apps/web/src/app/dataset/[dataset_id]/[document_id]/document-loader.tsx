@@ -18,8 +18,8 @@ import { FileProps } from '@/components/upload/utils'
 
 import { NotedDataProps } from '../../type'
 import SearchSelect from '../data/search-select'
-import AddAnnotatedData from './add-annoted-data'
 import { useDataContext } from './data-context'
+import AddAnnotatedData from './noted-data-alert'
 import { SessionProps } from './splitter'
 
 const types = [

@@ -77,6 +77,7 @@ const SettingPage = ({
         documentId={document_id}
         step={step}
         setStep={setStep}
+        disabledData={[]}
         isAdd={isAdd}
       >
         <Step />

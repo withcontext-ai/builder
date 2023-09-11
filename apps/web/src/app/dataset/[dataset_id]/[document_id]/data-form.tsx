@@ -30,8 +30,6 @@ export interface FormProps {
   setUploading?: (s: boolean) => void
 }
 
-type Params = DataSchemeProps
-
 function addData(
   url: string,
   { arg }: { arg: { dataset_id: string; dataConfig: any } }
@@ -57,7 +55,6 @@ const DataForm = () => {
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
 
-  const notedData = defaultValues?.dataConfig?.notedData || []
   const form = useForm<z.infer<typeof DataSchema>>({
     resolver: zodResolver(DataSchema),
     defaultValues,
@@ -70,6 +67,9 @@ const DataForm = () => {
   // )
   const disabledApps: any[] = []
   const { watch } = form
+
+  const { dataConfig = {} } = watch()
+  console.log(dataConfig, '---dataConfig')
 
   const files = defaultValues?.dataConfig?.files
   const [data, setData] = useState<any[]>(files)

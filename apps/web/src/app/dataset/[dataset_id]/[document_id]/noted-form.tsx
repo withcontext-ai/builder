@@ -26,7 +26,7 @@ const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
   return (
     <FormField
       control={form.control}
-      name="dataConfig.notedData"
+      name="dataConfig.files"
       render={() => (
         <FormItem>
           {notedData?.map((item) => {
@@ -37,7 +37,7 @@ const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
               <FormField
                 key={item.id}
                 control={form.control}
-                name="dataConfig.notedData"
+                name="dataConfig.files"
                 render={({ field }) => {
                   return (
                     <FormItem
@@ -67,7 +67,6 @@ const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
                           }
                           className={!isAdd ? 'hidden' : 'block'}
                           onCheckedChange={(checked) => {
-                            console.log(checked, '000checked', field?.value)
                             return checked
                               ? field.onChange([...field?.value, item])
                               : field.onChange(
