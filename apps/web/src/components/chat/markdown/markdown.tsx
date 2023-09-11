@@ -67,13 +67,10 @@ export const Markdown = (props: MarkdownProps) => {
           )
         },
         a({ ...props }) {
-          const href = props.href || ''
-          const isInternal = /^\/#/i.test(href)
-          const target = isInternal ? '_self' : props.target ?? '_blank'
           return (
             <a
               {...props}
-              target={target}
+              target="_blank"
               className={isUser ? 'text-white' : 'text-black'}
             />
           )
