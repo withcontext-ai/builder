@@ -9,7 +9,6 @@ export default async function Page({ params }: IProps) {
   const { dataset_id, document_id } = params
   const list = await getNotedData()
 
-  // getDataInfo just documents
   const { data } = await getDataInfo(dataset_id, document_id)
   const defaultValues = {
     dataConfig: {
