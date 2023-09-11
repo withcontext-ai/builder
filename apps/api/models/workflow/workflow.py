@@ -15,9 +15,9 @@ from models.base.model import Model
 from models.retrieval import Retriever
 from langchain.memory import ConversationBufferMemory
 from .custom_chain import (
-    SequentialSelfCheckChain,
-    SelfCheckChain,
-    SelfCheckChainStatus,
+    EnhanceSequentialChain,
+    TargetedChainStatus,
+    TargetedChain,
     EnhanceConversationalRetrievalChain,
     EnhanceConversationChain,
 )
@@ -46,7 +46,7 @@ CONTEXT_KEY = "context"
 class Workflow(BaseModel):
     model: Model = None
     session_id: str = None
-    context: Optional[SequentialSelfCheckChain] = None
+    context: Optional[EnhanceSequentialChain] = None
     cost_content: TokenCostProcess = TokenCostProcess()
     io_traces: List[str] = []
     known_keys: List[str] = []
@@ -66,7 +66,7 @@ class Workflow(BaseModel):
             chain.output_key = f"{_chain.key}-output".replace("-", "_")
             chains.append(chain)
             self.known_keys.append(chain.output_key)
-        self.context = SequentialSelfCheckChain(
+        self.context = EnhanceSequentialChain(
             chains=chains,
             input_variables=[QUESTION_KEY, CHAT_HISTORY_KEY, CONTEXT_KEY],
             callbacks=[
@@ -208,7 +208,7 @@ class Workflow(BaseModel):
 
             case "self_checking_chain":
                 try:
-                    chain = SelfCheckChain(
+                    chain = TargetedChain(
                         llm=llm,
                         system_prompt=prompt_template[0],
                         check_prompt=prompt_template[1],

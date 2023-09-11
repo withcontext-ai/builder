@@ -19,9 +19,8 @@ from models.workflow import Workflow
 from utils import WEBHOOK_KEY
 from concurrent.futures import ThreadPoolExecutor
 from models.workflow.custom_chain import (
-    SequentialSelfCheckChain,
-    SelfCheckChain,
-    SelfCheckChainStatus,
+    TargetedChainStatus,
+    TargetedChain,
 )
 
 executor = ThreadPoolExecutor(max_workers=1000)
@@ -248,9 +247,9 @@ async def get_process_status(session_id: str):
         process_list = []
         for chain in workflow.context.chains:
             logger.info(f"chain: {chain}")
-            if isinstance(chain, SelfCheckChain):
+            if isinstance(chain, TargetedChain):
                 match chain.process:
-                    case SelfCheckChainStatus.INIT:
+                    case TargetedChainStatus.INIT:
                         process_list.append(
                             {
                                 "key": "-".join(chain.output_key.split("_")[0:2]),
@@ -258,7 +257,7 @@ async def get_process_status(session_id: str):
                                 "succeed": False,
                             }
                         )
-                    case SelfCheckChainStatus.RUNNING:
+                    case TargetedChainStatus.RUNNING:
                         process_list.append(
                             {
                                 "key": "-".join(chain.output_key.split("_")[0:2]),
@@ -266,7 +265,7 @@ async def get_process_status(session_id: str):
                                 "succeed": False,
                             }
                         )
-                    case SelfCheckChainStatus.FINISHED:
+                    case TargetedChainStatus.FINISHED:
                         process_list.append(
                             {
                                 "key": "-".join(chain.output_key.split("_")[0:2]),
@@ -274,7 +273,7 @@ async def get_process_status(session_id: str):
                                 "succeed": True,
                             }
                         )
-                    case SelfCheckChainStatus.ERROR:
+                    case TargetedChainStatus.ERROR:
                         process_list.append(
                             {
                                 "key": "-".join(chain.output_key.split("_")[0:2]),

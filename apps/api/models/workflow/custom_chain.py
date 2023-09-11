@@ -51,20 +51,20 @@ class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         self.done.set()
 
 
-class SelfCheckChainStatus(str, Enum):
+class TargetedChainStatus(str, Enum):
     INIT = "initialized"
     FINISHED = "finished"
     ERROR = "error"
     RUNNING = "running"
 
 
-class SelfCheckChain(Chain):
+class TargetedChain(Chain):
     system_prompt: BasePromptTemplate
     check_prompt: BasePromptTemplate
     llm: ChatOpenAI
     output_key: str = "text"
     max_retries: int = 0
-    process: str = SelfCheckChainStatus.INIT
+    process: str = TargetedChainStatus.INIT
     suffix: str = "The content you want to output first is:"
 
     class Config:
@@ -99,7 +99,7 @@ class SelfCheckChain(Chain):
         inputs.pop("chat_history", None)
 
         question = ""
-        if self.process == SelfCheckChainStatus.RUNNING:
+        if self.process == TargetedChainStatus.RUNNING:
             prompt_value = self.check_prompt.format_prompt(**inputs)
             messages = [SystemMessage(content=prompt_value.to_string())] + [
                 HumanMessage(
@@ -113,19 +113,19 @@ class SelfCheckChain(Chain):
                 callbacks=run_manager.get_child() if run_manager else None,
             )
             if response.generations[0][0].text == "Yes":
-                self.process = SelfCheckChainStatus.FINISHED
+                self.process = TargetedChainStatus.FINISHED
                 return {self.output_key: response.generations[0][0].text}
             else:
                 self.max_retries -= 1
                 if self.max_retries <= 0:
-                    self.process = SelfCheckChainStatus.ERROR
+                    self.process = TargetedChainStatus.ERROR
                     return {self.output_key: response.generations[0][0].text}
                 question = response.generations[0][0].text
         prompt_value = self.system_prompt.format_prompt(**inputs)
-        if self.process == SelfCheckChainStatus.INIT:
-            self.process = SelfCheckChainStatus.RUNNING
+        if self.process == TargetedChainStatus.INIT:
+            self.process = TargetedChainStatus.RUNNING
             system_message = prompt_value.to_string()
-        elif self.process == SelfCheckChainStatus.RUNNING:
+        elif self.process == TargetedChainStatus.RUNNING:
             system_message = f"{prompt_value.to_string()}\n{self.suffix}{question}\n"
         messages = [SystemMessage(content=system_message)] + bacis_messages
         response = await self.llm.agenerate(
@@ -135,11 +135,11 @@ class SelfCheckChain(Chain):
         return {self.output_key: response.generations[0][0].text}
 
 
-class SequentialSelfCheckChain(SequentialChain):
+class EnhanceSequentialChain(SequentialChain):
     queue: asyncio.Queue[str]
     done: asyncio.Event
     known_values: Dict[str, Any] = Field(default_factory=dict)
-    state_dependent_chains = [SelfCheckChain]
+    state_dependent_chains = [TargetedChain]
 
     class Config:
         extra = Extra.allow
@@ -163,8 +163,8 @@ class SequentialSelfCheckChain(SequentialChain):
         for i, chain in enumerate(self.chains):
             if type(chain) in self.state_dependent_chains:
                 if (
-                    chain.process == SelfCheckChainStatus.FINISHED
-                    or chain.process == SelfCheckChainStatus.ERROR
+                    chain.process == TargetedChainStatus.FINISHED
+                    or chain.process == TargetedChainStatus.ERROR
                 ):
                     logger.info(f"Skipping chain {i} as it is already {chain.process}")
                     continue
@@ -174,13 +174,19 @@ class SequentialSelfCheckChain(SequentialChain):
                     )
                     self.known_values.update(outputs)
                     if chain.process not in [
-                        SelfCheckChainStatus.FINISHED,
-                        SelfCheckChainStatus.ERROR,
+                        TargetedChainStatus.FINISHED,
+                        TargetedChainStatus.ERROR,
                     ]:
                         for token in outputs[chain.output_key]:
                             await self.queue.put(token)
                         while not self.queue.empty():
                             await asyncio.sleep(2)
+                        # I need to put all the output tokens into a queue so that
+                        # I can asynchronously fetch them from the queue later.
+                        # This code ensures that the queue becomes empty after all the tokens have been placed in it,
+                        # which ensures that all the tokens are processed.
+                        # If I don't do this, because of the competition between the two tasks in the aider function,
+                        # it will result in the loss of a token
                         self.done.set()
                         return_dict = {}
                         for k in self.output_variables:
