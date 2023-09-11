@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { cn } from '@/lib/utils'
 
+import { NotedDataProps } from '../../type'
 import DataForm from './data-form'
 
 interface StepProps {
@@ -56,8 +57,14 @@ interface DataProps {
   datasetId: string
   document_id: string
   defaultValues: any
+  apps: NotedDataProps[]
 }
-const SettingPage = ({ datasetId, document_id, defaultValues }: DataProps) => {
+const SettingPage = ({
+  datasetId,
+  document_id,
+  defaultValues,
+  apps,
+}: DataProps) => {
   const [active, setActive] = useState(1)
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
@@ -66,6 +73,7 @@ const SettingPage = ({ datasetId, document_id, defaultValues }: DataProps) => {
       </div>
       <Step active={active} />
       <DataForm
+        apps={apps}
         active={active}
         defaultValues={defaultValues}
         documentId={document_id}

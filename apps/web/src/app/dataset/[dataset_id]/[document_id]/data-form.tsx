@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 import { FileProps } from '@/components/upload/utils'
 
+import { NotedDataProps } from '../../type'
 import { DataConfigProps, DataSchema, DataSchemeProps } from '../data/utils'
 import DocumentLoader from './document-loader'
 import Preview from './preview'
@@ -24,6 +25,7 @@ export interface FormProps {
   documentId: string
   defaultValues: DataSchemeProps
   active: number
+  apps: NotedDataProps[]
   setActive: (s: number) => void
   setUploading?: (s: boolean) => void
 }
@@ -55,6 +57,7 @@ const DataForm = ({
   defaultValues,
   setActive,
   documentId,
+  apps,
 }: FormProps) => {
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
@@ -65,6 +68,12 @@ const DataForm = ({
     defaultValues,
   })
 
+  // the disabledApps is to get from api
+  // const disabledApps = apps?.filter(
+  //   (item) =>
+  //     notedData?.findIndex((chose: any) => chose?.id === item?.id) !== -1
+  // )
+  const disabledApps: any[] = []
   const { watch } = form
 
   const files = defaultValues?.dataConfig?.files
@@ -134,8 +143,10 @@ const DataForm = ({
           <form className="w-full">
             {active === 1 && (
               <DocumentLoader
+                disabledData={disabledApps}
                 form={form}
                 data={data}
+                apps={apps}
                 notedData={notedData}
                 setData={setData}
                 documentId={documentId}

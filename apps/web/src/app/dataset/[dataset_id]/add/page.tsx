@@ -1,7 +1,7 @@
-import { redirect, useParams } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 import { auth } from '@/lib/auth'
-import { getDataset } from '@/db/datasets/actions'
+import { getDataset, getNotedData } from '@/db/datasets/actions'
 
 import SettingPage from '../[document_id]/setting-page'
 
@@ -23,6 +23,7 @@ const DatasetEdit = async ({ params }: IProps) => {
   const { dataset_id } = params
   const { userId } = auth()
   const datasetDetail = await getDataset(dataset_id)
+  const apps = await getNotedData()
 
   if (datasetDetail.created_by !== userId) {
     redirect('/')
@@ -35,7 +36,8 @@ const DatasetEdit = async ({ params }: IProps) => {
         <SettingPage
           defaultValues={defaultValues}
           datasetId={dataset_id}
-          document_id={''}
+          document_id={'add'}
+          apps={apps?.data || []}
         />
 
         {/* Mobile version, view only */}

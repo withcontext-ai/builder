@@ -1,6 +1,5 @@
-import { getDataInfo } from '@/db/datasets/actions'
+import { getDataInfo, getNotedData } from '@/db/datasets/actions'
 
-import { DataSchemeProps } from '../data/utils'
 import SettingPage from './setting-page'
 
 interface IProps {
@@ -8,6 +7,7 @@ interface IProps {
 }
 export default async function Page({ params }: IProps) {
   const { dataset_id, document_id } = params
+  const list = await getNotedData()
 
   // getDataInfo just documents
   const { data } = await getDataInfo(dataset_id, document_id)
@@ -18,6 +18,7 @@ export default async function Page({ params }: IProps) {
       notedData: [],
     },
   }
+
   return (
     <div className="h-full overflow-auto">
       <div className="w-[600px]">
@@ -26,6 +27,7 @@ export default async function Page({ params }: IProps) {
           defaultValues={defaultValues}
           datasetId={dataset_id}
           document_id={document_id}
+          apps={list?.data || []}
         />
 
         {/* Mobile version, view only */}

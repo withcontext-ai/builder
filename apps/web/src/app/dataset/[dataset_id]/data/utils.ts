@@ -62,7 +62,7 @@ export const DataSchema = z.object({
       z.object({
         name: z.string(),
         icon: z.string(),
-        app_id: z.string(),
+        id: z.string(),
         config: z
           .object({
             loaderType: z.string().optional(),

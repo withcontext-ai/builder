@@ -3,7 +3,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { isEqual, omit } from 'lodash'
+import { isEqual, omit, pick } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
@@ -12,6 +12,8 @@ import { nanoid } from '@/lib/utils'
 import { FileProps } from '@/components/upload/utils'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
+import { getApps } from '../apps/actions'
+import { NewApp } from '../apps/schema'
 import { DatasetsTable, NewDataset } from './schema'
 
 export async function addDataset(
@@ -192,5 +194,28 @@ export async function getDataInfo(dataset_id: string, uid: string) {
   return {
     success: true,
     data: { dataset_id, files: [detail], config },
+  }
+}
+
+export async function getNotedData() {
+  const apps = await getApps()
+  const data = apps?.reduce((m: any[], item: NewApp) => {
+    const cur = pick(item, [
+      'name',
+      'icon',
+      'updated_at',
+      'short_id',
+      'id',
+      'archived',
+      'api_model_id',
+    ])
+    // @ts-ignore
+    cur.id = cur.short_id
+    m.push(cur)
+    return m
+  }, [])
+  return {
+    success: true,
+    data,
   }
 }

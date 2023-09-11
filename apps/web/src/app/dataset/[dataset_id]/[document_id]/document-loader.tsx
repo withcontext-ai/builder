@@ -16,6 +16,7 @@ import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
+import { NotedDataProps } from '../../type'
 import SearchSelect from '../data/search-select'
 import AddAnnotatedData from './add-annoted-data'
 import { SessionProps } from './splitter'
@@ -40,6 +41,8 @@ interface IProps extends SessionProps {
   data: FileProps[]
   notedData: any[]
   documentId?: string
+  disabledData?: NotedDataProps[]
+  apps?: NotedDataProps[]
   setData: (data: FileProps[]) => void
   setUploading?: (s: boolean) => void
 }
@@ -48,9 +51,11 @@ const DocumentLoader = ({
   form,
   setData,
   data,
+  apps,
   notedData,
   setUploading,
   documentId,
+  disabledData,
 }: IProps) => {
   const { watch, getValues } = form
 
@@ -117,7 +122,9 @@ const DocumentLoader = ({
                 ) : (
                   <AddAnnotatedData
                     form={form}
+                    disabledData={disabledData || []}
                     notedData={notedData}
+                    apps={apps || []}
                     documentId={documentId}
                   />
                 )}
