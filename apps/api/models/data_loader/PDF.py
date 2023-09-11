@@ -11,6 +11,7 @@ from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pydantic import BaseModel, Field
 from utils.StorageClient import GoogleCloudStorageClient
+from langchain.document_loaders import AsyncChromiumLoader
 
 
 class PDFSplitterOption(BaseModel):

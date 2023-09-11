@@ -110,6 +110,9 @@ class Workflow(BaseModel):
         )
         template = _chain.prompt.template
 
+        if _chain.prompt.basic_prompt is not None:
+            template = template + _chain.prompt.basic_prompt
+
         template = replace_dot_with_dash_for_tool_pattern(template)
         # transfer f-format to jinja2 format
         input_variables = extract_tool_patterns_from_brackets(template) + [

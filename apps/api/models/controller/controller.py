@@ -442,7 +442,9 @@ class SessionStateManager(BaseManager):
     def save_workflow_status(self, session_id, workflow):
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
-                self.save_chain_status(session_id, chain.output_keys[0], chain.process)
+                self.save_chain_status(
+                    session_id, chain.output_keys[0], chain.process, chain.max_retries
+                )
 
     def get_workflow(self, session_id, model):
         if model is None:
@@ -454,9 +456,12 @@ class SessionStateManager(BaseManager):
         # get chain status
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
-                status = self.get_chain_status(session_id, chain.output_keys[0])
+                status, max_retries = self.get_chain_status(
+                    session_id, chain.output_keys[0]
+                )
                 if status is not None:
                     chain.process = status
+                    chain.max_retries = max_retries
         return workflow
 
     def delete_session_state_cache_via_model(self, model_id):
@@ -475,11 +480,11 @@ class SessionStateManager(BaseManager):
         for session_id in session_ids:
             self.redis.delete(self.get_session_state_urn(session_id))
 
-    def save_chain_status(self, session_id, output_key, status):
+    def save_chain_status(self, session_id, output_key, status, max_retries):
         current_status = self.redis.get(self.get_session_state_urn(session_id))
         if current_status:
             current_status = json.loads(current_status)
-            current_status[output_key] = status
+            current_status[output_key] = (status, max_retries)
             self.redis.set(
                 self.get_session_state_urn(session_id), json.dumps(current_status)
             )
