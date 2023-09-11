@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { and, asc, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
+// why use pool at this action? see https://github.com/withcontext-ai/builder/pull/162
 import { db } from '@/lib/drizzle-pool'
 
 import { Message, MessagesTable, NewMessage } from './schema'
