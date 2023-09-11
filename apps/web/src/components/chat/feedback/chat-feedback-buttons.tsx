@@ -73,7 +73,7 @@ const ChatFeedbackButtons = (props: Props) => {
       }
 
       return (
-        <ChatAction onClick={handleClick(type)}>
+        <ChatAction onClick={clickable ? handleClick(type) : undefined}>
           <Comp {...actionCommonButtonProps} className={color} />
         </ChatAction>
       )
@@ -88,7 +88,7 @@ const ChatFeedbackButtons = (props: Props) => {
   const status = feedback
 
   return (
-    <>
+    <div className="flex w-[4.75rem] flex-row-reverse">
       {!status && (
         <>
           {renderButton('good', true)}
@@ -97,7 +97,7 @@ const ChatFeedbackButtons = (props: Props) => {
       )}
       {status === 'good' && renderButton('good', false)}
       {status === 'bad' && renderButton('bad', false)}
-    </>
+    </div>
   )
 }
 
