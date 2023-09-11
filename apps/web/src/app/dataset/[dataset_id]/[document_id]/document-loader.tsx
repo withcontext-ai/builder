@@ -115,7 +115,11 @@ const DocumentLoader = ({
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (
-                  <AddAnnotatedData form={form} notedData={notedData} />
+                  <AddAnnotatedData
+                    form={form}
+                    notedData={notedData}
+                    documentId={documentId}
+                  />
                 )}
               </FormControl>
               <FormMessage />

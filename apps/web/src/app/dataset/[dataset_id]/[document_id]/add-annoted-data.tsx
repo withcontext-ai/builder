@@ -22,11 +22,15 @@ import AnnotatedForm from './noted-form'
 interface IProps {
   form: UseFormReturn<any>
   notedData: any[]
+  documentId?: string
 }
 
-const AddAnnotatedData = ({ form, notedData }: IProps) => {
+const AddAnnotatedData = ({ form, notedData, documentId }: IProps) => {
   const { watch } = form
   const [data, setData] = useState(notedData)
+  const [selected, setSelected] = useState<any>()
+  const isAdd = documentId === 'add'
+
   const type = watch()?.dataConfig?.loaderType
 
   const deleteNotedData = (app_id: string) => {
@@ -47,15 +51,24 @@ const AddAnnotatedData = ({ form, notedData }: IProps) => {
           <AlertDialogHeader>
             <AlertDialogTitle>Add Annotated Data</AlertDialogTitle>
             <AlertDialogDescription>
-              <AnnotatedForm form={form} />
+              <AnnotatedForm
+                form={form}
+                selected={selected}
+                setSelected={setSelected}
+              />
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                const notedData = watch()?.dataConfig?.notedData
-                setData(notedData)
+                if (!isAdd) {
+                  setData([selected])
+                  form.setValue('dataConfig?.notedData', selected)
+                } else {
+                  const notedData = watch()?.dataConfig?.notedData
+                  setData(notedData)
+                }
               }}
             >
               Add

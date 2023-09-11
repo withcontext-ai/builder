@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
+import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,
@@ -35,15 +37,18 @@ const mockData = [
 ]
 interface IProps {
   form: UseFormReturn<any>
+  selected?: any
+  setSelected?: (s: any) => void
+  isAdd?: boolean
 }
 
-const AnnotatedForm = ({ form }: IProps) => {
+const AnnotatedForm = ({ form, isAdd, selected, setSelected }: IProps) => {
   return (
     <FormField
       control={form.control}
       name="dataConfig.notedData"
       render={() => (
-        <FormItem>
+        <FormItem className="">
           {mockData.map((item) => (
             <FormField
               key={item.app_id}
@@ -53,10 +58,22 @@ const AnnotatedForm = ({ form }: IProps) => {
                 return (
                   <FormItem
                     key={item.app_id}
-                    className="flex flex-row items-center space-x-3 space-y-0 rounded-lg border border-slate-200 p-4"
+                    onClick={() => {
+                      if (!isAdd) {
+                        setSelected?.(item)
+                      }
+                    }}
+                    className={cn(
+                      'flex flex-row items-center space-x-3 space-y-0 rounded-lg border border-slate-200 p-4',
+                      !isAdd && 'cursor-pointer',
+                      selected?.app_id === item?.app_id
+                        ? 'border-blue-500'
+                        : 'border-slate-200'
+                    )}
                   >
                     <FormControl>
                       <Checkbox
+                        className={!isAdd ? 'hidden' : 'block'}
                         onCheckedChange={(checked) => {
                           return checked
                             ? field.onChange([...field?.value, item])
@@ -68,11 +85,19 @@ const AnnotatedForm = ({ form }: IProps) => {
                         }}
                       />
                     </FormControl>
-                    <FormLabel className="flex items-center gap-2 truncate text-sm font-normal text-black">
+                    <FormLabel
+                      className={cn(
+                        'flex items-center gap-2 truncate text-sm font-normal text-black',
+                        !isAdd && 'cursor-pointer'
+                      )}
+                    >
                       <img
                         src={item?.icon}
                         alt="app icon"
-                        className="h-8 w-8 shrink-0 rounded-[5px]"
+                        className={cn(
+                          'h-8 w-8 shrink-0 rounded-[5px]',
+                          !isAdd && 'cursor-pointer'
+                        )}
                       />
                       {item.name}
                     </FormLabel>

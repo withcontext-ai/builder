@@ -62,7 +62,7 @@ const SettingPage = ({ datasetId, document_id, defaultValues }: DataProps) => {
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">
-        {document_id === 'add' ? 'Add' : 'Edit'} New Data
+        {document_id === 'add' ? 'Add New' : 'Edit'} Data
       </div>
       <Step active={active} />
       <DataForm
