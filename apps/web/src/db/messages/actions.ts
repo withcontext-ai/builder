@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { and, asc, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
-import { db } from '@/lib/drizzle-edge'
+import { db } from '@/lib/drizzle-pool'
 
 import { Message, MessagesTable, NewMessage } from './schema'
 
