@@ -44,7 +44,6 @@ function editData(
   url: string,
   { arg }: { arg: { dataset_id: string; dataConfig: any; document_id: string } }
 ) {
-  console.log(arg.dataConfig, '---args')
   return fetcher(url, {
     method: 'PATCH',
     body: JSON.stringify(arg),
