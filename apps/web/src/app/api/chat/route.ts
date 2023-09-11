@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
   }
 
   const requestId = nanoid()
-  await logsnag?.publish({
+  await logsnag?.track({
+    user_id: userId,
     channel: 'chat',
     event: 'Chat Request',
     icon: '➡️',
@@ -65,7 +66,8 @@ export async function POST(req: NextRequest) {
       async onStart() {
         const responseTimestamp = Date.now()
         const latencyMs = responseTimestamp - requestTimestamp
-        await logsnag?.publish({
+        await logsnag?.track({
+          user_id: userId,
           channel: 'chat',
           event: 'Chat Response',
           icon: '⬅️',
@@ -95,8 +97,8 @@ export async function POST(req: NextRequest) {
           feedback: null,
           feedback_content: null,
           latency,
-          ...(metadata?.total_tokens && {
-            total_tokens: metadata.total_tokens,
+          ...(metadata?.token?.total_tokens && {
+            total_tokens: metadata.token.total_tokens,
           }),
           ...(metadata?.raw && { raw: metadata.raw }),
         }
