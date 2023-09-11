@@ -191,11 +191,19 @@ export const MonitoringTable = ({ preloaded }: Props) => {
           },
           {
             value: 'userfeedback',
-            label: 'User Feedback',
+            label: `User Feedback (${data?.feedbacks ?? 0} items)`,
           },
           {
             value: 'nofeedback',
             label: 'No Feedback',
+          },
+          {
+            value: 'annotated',
+            label: `Annotated Improvements (${data?.annotations ?? 0} items)`,
+          },
+          {
+            value: 'notannotated',
+            label: 'Not Annotated',
           },
         ],
       },
@@ -205,7 +213,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
         placeholder: 'Search',
       },
     ],
-    []
+    [data?.annotations, data?.feedbacks]
   )
 
   const handleFilterChange = useCallback(
