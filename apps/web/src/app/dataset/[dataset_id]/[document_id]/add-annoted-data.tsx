@@ -18,26 +18,21 @@ import {
 import { Button } from '@/components/ui/button'
 
 import { NotedDataProps } from '../../type'
+import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
 import AnnotatedForm from './noted-form'
 
 interface IProps {
   form: UseFormReturn<any>
-  notedData: any[]
-  documentId?: string
-  disabledData: NotedDataProps[]
-  apps: NotedDataProps[]
 }
 
-const AddAnnotatedData = ({
-  form,
-  notedData,
-  documentId,
-  disabledData,
-  apps,
-}: IProps) => {
+const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
+  const { defaultValues, documentId, datasetId, step, setStep } =
+    useDataContext()
+  const notedData = defaultValues?.dataConfig?.notedData || []
   const [data, setData] = useState(notedData)
+
   const [selected, setSelected] = useState<any>()
   const isAdd = documentId === 'add'
   const type = watch()?.dataConfig?.loaderType
@@ -62,11 +57,8 @@ const AddAnnotatedData = ({
             <AlertDialogDescription>
               <AnnotatedForm
                 form={form}
-                isAdd={isAdd}
                 selected={selected}
                 setSelected={setSelected}
-                disabledData={disabledData}
-                apps={apps}
               />
             </AlertDialogDescription>
           </AlertDialogHeader>

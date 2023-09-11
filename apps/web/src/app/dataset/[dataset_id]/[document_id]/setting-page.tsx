@@ -5,11 +5,8 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 import { NotedDataProps } from '../../type'
+import { DataContextProvider, useDataContext } from './data-context'
 import DataForm from './data-form'
-
-interface StepProps {
-  active: number
-}
 
 const steps = [
   {
@@ -26,7 +23,8 @@ const steps = [
   },
 ]
 
-const Step = ({ active }: StepProps) => {
+const Step = () => {
+  const { step } = useDataContext()
   return (
     <div className="flex items-center gap-4">
       {steps?.map((item, index) => {
@@ -36,7 +34,7 @@ const Step = ({ active }: StepProps) => {
               <div
                 className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-full border text-center',
-                  active === item?.step && 'bg-black  text-white'
+                  step === item?.step && 'bg-black  text-white'
                 )}
               >
                 {item?.step}
@@ -65,21 +63,25 @@ const SettingPage = ({
   defaultValues,
   apps,
 }: DataProps) => {
-  const [active, setActive] = useState(1)
+  const [step, setStep] = useState(1)
+  const isAdd = document_id === 'add'
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">
         {document_id === 'add' ? 'Add New' : 'Edit'} Data
       </div>
-      <Step active={active} />
-      <DataForm
-        apps={apps}
-        active={active}
+      <DataContextProvider
+        notedData={apps || []}
+        datasetId={datasetId}
         defaultValues={defaultValues}
         documentId={document_id}
-        setActive={setActive}
-        datasetId={datasetId}
-      />
+        step={step}
+        setStep={setStep}
+        isAdd={isAdd}
+      >
+        <Step />
+        <DataForm />
+      </DataContextProvider>
     </div>
   )
 }

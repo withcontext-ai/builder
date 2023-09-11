@@ -1,10 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
-import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,
@@ -14,33 +12,24 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
-import { NotedDataProps } from '../../type'
+import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
 
 interface IProps {
   form: UseFormReturn<any>
   selected?: any
   setSelected?: (s: any) => void
-  isAdd?: boolean
-  disabledData: NotedDataProps[]
-  apps: NotedDataProps[]
 }
 
-const AnnotatedForm = ({
-  form,
-  isAdd,
-  selected,
-  setSelected,
-  disabledData,
-  apps,
-}: IProps) => {
+const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
+  const { disabledData, notedData, isAdd } = useDataContext()
   return (
     <FormField
       control={form.control}
       name="dataConfig.notedData"
       render={() => (
         <FormItem>
-          {apps.map((item) => {
+          {notedData?.map((item) => {
             const isDisabled =
               disabledData?.findIndex((cur) => cur?.id === item?.id) !== -1
             const isSelect = selected?.id === item?.id

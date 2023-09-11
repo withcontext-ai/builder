@@ -19,6 +19,7 @@ import { FileProps } from '@/components/upload/utils'
 import { NotedDataProps } from '../../type'
 import SearchSelect from '../data/search-select'
 import AddAnnotatedData from './add-annoted-data'
+import { useDataContext } from './data-context'
 import { SessionProps } from './splitter'
 
 const types = [
@@ -39,26 +40,14 @@ export const stringUrlToFile = (file: FileProps) => {
 
 interface IProps extends SessionProps {
   data: FileProps[]
-  notedData: any[]
-  documentId?: string
-  disabledData?: NotedDataProps[]
   apps?: NotedDataProps[]
   setData: (data: FileProps[]) => void
   setUploading?: (s: boolean) => void
 }
 
-const DocumentLoader = ({
-  form,
-  setData,
-  data,
-  apps,
-  notedData,
-  setUploading,
-  documentId,
-  disabledData,
-}: IProps) => {
+const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
+  const { isAdd } = useDataContext()
   const { watch, getValues } = form
-
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
     const config = omit(getValues().dataConfig, 'files')
@@ -72,7 +61,7 @@ const DocumentLoader = ({
   const type = watch()?.dataConfig?.loaderType
 
   const files = watch()?.dataConfig.files
-  const showButton = files?.length !== 0 && documentId
+  const showButton = (files?.length !== 0 && !isAdd) || isAdd
 
   return (
     <section id="loaders" className="w-full py-6">
@@ -112,7 +101,7 @@ const DocumentLoader = ({
                       showPreviewIcon: false,
                     }}
                     setUploading={setUploading}
-                    listType={showButton ? 'update-pdf' : 'pdf'}
+                    listType={!showButton ? 'update-pdf' : 'pdf'}
                     type="drag"
                     fileType={type}
                     accept="application/pdf"
@@ -120,13 +109,7 @@ const DocumentLoader = ({
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (
-                  <AddAnnotatedData
-                    form={form}
-                    disabledData={disabledData || []}
-                    notedData={notedData}
-                    apps={apps || []}
-                    documentId={documentId}
-                  />
+                  <AddAnnotatedData form={form} />
                 )}
               </FormControl>
               <FormMessage />

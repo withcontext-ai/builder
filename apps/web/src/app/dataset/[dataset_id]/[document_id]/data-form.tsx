@@ -12,10 +12,10 @@ import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
-import { FileProps } from '@/components/upload/utils'
 
 import { NotedDataProps } from '../../type'
 import { DataConfigProps, DataSchema, DataSchemeProps } from '../data/utils'
+import { DataContext, useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
 import Preview from './preview'
 import TextSplits from './splitter'
@@ -51,14 +51,9 @@ function editData(
     body: JSON.stringify(arg),
   })
 }
-const DataForm = ({
-  datasetId,
-  active,
-  defaultValues,
-  setActive,
-  documentId,
-  apps,
-}: FormProps) => {
+const DataForm = () => {
+  const { defaultValues, documentId, datasetId, step, setStep } =
+    useDataContext()
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
 
@@ -120,8 +115,8 @@ const DataForm = ({
       })
       return
     }
-    if (active < 3) {
-      setActive(active + 1)
+    if (step < 3) {
+      setStep?.(step + 1)
     } else {
       await onSubmit()
 
@@ -136,31 +131,21 @@ const DataForm = ({
       <div
         className={cn(
           'sm:w-full md:max-w-[600px]',
-          active === 3 && 'md:max-w-[740px]'
+          step === 3 && 'md:max-w-[740px]'
         )}
       >
         <Form {...form}>
           <form className="w-full">
-            {active === 1 && (
-              <DocumentLoader
-                disabledData={disabledApps}
-                form={form}
-                data={data}
-                apps={apps}
-                notedData={notedData}
-                setData={setData}
-                documentId={documentId}
-              />
+            {step === 1 && (
+              <DocumentLoader form={form} data={data} setData={setData} />
             )}
-            {active === 2 && <TextSplits form={form} />}
-            {active === 3 && <Preview />}
+            {step === 2 && <TextSplits form={form} />}
+            {step === 3 && <Preview />}
           </form>
         </Form>
-        <div
-          className={cn('flex justify-between', active == 1 && 'justify-end')}
-        >
-          {active !== 1 && (
-            <Button variant="outline" onClick={() => setActive(active - 1)}>
+        <div className={cn('flex justify-between', step == 1 && 'justify-end')}>
+          {step !== 1 && (
+            <Button variant="outline" onClick={() => setStep?.(step - 1)}>
               Previous
             </Button>
           )}
@@ -175,7 +160,7 @@ const DataForm = ({
               Cancel
             </Button>
             <Button onClick={handleClick} disabled={isPending || isMutating}>
-              {active !== 3
+              {step !== 3
                 ? 'Next'
                 : isPending || isMutating || editMutating
                 ? 'Saving'
