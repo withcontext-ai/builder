@@ -277,7 +277,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
               />
             </SheetClose>
           </SheetHeader>
-          <div className="px-6 pr-14">
+          <div className="px-6 pr-8">
             {selectedSessionId && (
               <ChatListWithData mode="history" sessionId={selectedSessionId} />
             )}
