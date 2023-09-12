@@ -9,12 +9,14 @@ import { PdfImage } from '@/components/upload/component'
 
 import AddOrEdit from './add-edit-segment'
 
-const SegmentHeader = () => {
-  const [isPending, startTransition] = useTransition()
-  const urlSearchParams = new URLSearchParams(window.location.search)
-  const params = Object.fromEntries(urlSearchParams.entries())
+interface IProps {
+  name: string
+  dataset_id: string
+  document_id: string
+}
 
-  const { name = '' } = params
+const SegmentHeader = ({ name, dataset_id, document_id }: IProps) => {
+  const [isPending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
   const router = useRouter()
 
@@ -46,7 +48,13 @@ const SegmentHeader = () => {
         <Plus size={16} />
         Add Segment
       </Button>
-      <AddOrEdit content="" open={open} setOpen={setOpen} />
+      <AddOrEdit
+        content=""
+        open={open}
+        setOpen={setOpen}
+        document_id={document_id}
+        dataset_id={dataset_id}
+      />
     </div>
   )
 }

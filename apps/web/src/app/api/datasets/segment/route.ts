@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
 // edit segment
 export async function PATCH(req: NextRequest) {
   const { dataset_id, uid, content, segment_id } = await req.json()
+  console.log(await req.json(), '---params')
   const data = await editSegment(dataset_id, uid, segment_id, content)
   return data
 }

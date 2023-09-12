@@ -170,8 +170,6 @@ const DatasetTable = ({ preload }: IProps) => {
 
   const handleRowClick = useCallback(
     (row: any) => () => {
-      console.log(row, '---row')
-
       if (row?.status === 1) {
         toast({
           variant: 'destructive',
@@ -186,9 +184,7 @@ const DatasetTable = ({ preload }: IProps) => {
         })
         return
       } else {
-        router.push(
-          `/dataset/${dataset_id}/${row?.uid}/segment?name=${row?.name}`
-        )
+        router.push(`/dataset/${dataset_id}/${row?.uid}/segments`)
         return
       }
     },

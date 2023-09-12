@@ -1,5 +1,6 @@
 import { ArrowLeft, Plus } from 'lucide-react'
 
+import { getDataInfo } from '@/db/datasets/actions'
 import { getSegments } from '@/db/segment/actions'
 import { Button } from '@/components/ui/button'
 import { PdfImage } from '@/components/upload/component'
@@ -39,11 +40,16 @@ const preload = [
 
 const Page = async ({ params }: IProps) => {
   const { dataset_id, document_id } = params
-  console.log(params, '--params')
+  const { data } = await getDataInfo(dataset_id, document_id)
+  const name = data?.name
   // const preload = await getSegments(dataset_id, document_id)
   return (
     <div className="py-[68px] pl-14 pr-8">
-      <SegmentHeader />
+      <SegmentHeader
+        name={name}
+        document_id={document_id}
+        dataset_id={dataset_id}
+      />
 
       <SegmentPage
         preload={preload}

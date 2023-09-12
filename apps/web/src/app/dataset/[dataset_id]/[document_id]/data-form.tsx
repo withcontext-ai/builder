@@ -83,7 +83,6 @@ const DataForm = () => {
   const onSubmit = async () => {
     try {
       const dataConfig = watch()?.dataConfig
-      const loaderType = dataConfig?.loaderType
       let json
       if (isAdd) {
         json = await addTrigger({

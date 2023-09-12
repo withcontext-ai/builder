@@ -204,7 +204,7 @@ export async function getDataInfo(dataset_id: string, uid: string) {
   const config = omit(detail, ['url', 'uid', 'type', 'name'])
   return {
     success: true,
-    data: { dataset_id, files: [detail], config },
+    data: { dataset_id, files: [detail], config, name: detail?.name },
   }
 }
 
