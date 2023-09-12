@@ -56,15 +56,21 @@ interface DataProps {
   document_id: string
   defaultValues: any
   apps: NotedDataProps[]
+  documents: NotedDataProps[]
 }
 const SettingPage = ({
   datasetId,
   document_id,
   defaultValues,
   apps,
+  documents,
 }: DataProps) => {
   const [step, setStep] = useState(1)
   const isAdd = document_id === 'add'
+  const disabledData = apps?.filter(
+    (item: any) =>
+      documents?.findIndex((file) => file?.uid === item?.uid) !== -1
+  )
   return (
     <div className="insert-0 w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">
@@ -77,7 +83,7 @@ const SettingPage = ({
         documentId={document_id}
         step={step}
         setStep={setStep}
-        disabledData={[]}
+        disabledData={disabledData}
         isAdd={isAdd}
       >
         <Step />

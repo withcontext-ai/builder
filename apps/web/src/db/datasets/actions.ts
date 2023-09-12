@@ -213,7 +213,7 @@ export async function getNotedData() {
   const data = apps?.reduce((m: any[], item: NewApp) => {
     const cur = pick(item, ['name', 'icon'])
     // @ts-ignore
-    cur.uid = item.short_id
+    cur.uid = item.api_model_id
     m.push(cur)
     return m
   }, [])
