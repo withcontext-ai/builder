@@ -56,8 +56,6 @@ class PDFLoader:
                                 page_content=page,
                                 metadata={
                                     "source": document.url,
-                                    # "page_number": page_number,
-                                    # "urn": f"{dataset.id}-{document.url}-{page_number}",
                                 },
                             )
                         )
@@ -70,6 +68,7 @@ class PDFLoader:
                     _d.metadata[
                         "urn"
                     ] = f"{dataset.id}-{document.url}-{_d.metadata['page_number']}"
+                    _d.metadata["page_size"] = len(_doc)
                 document.page_size = len(_doc)
                 logger.info(
                     f"got documents: {len(_doc)} while loading dataset {dataset.id}"

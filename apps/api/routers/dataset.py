@@ -32,16 +32,6 @@ def get_dataset(id: str):
         return {"data": dataset, "message": "success", "status": 200}
 
 
-@router.get("/", tags=["datasets"])
-def get_datasets():
-    with graphsignal.start_trace("get_datasets"):
-        return {
-            "data": dataset_manager.get_datasets(),
-            "message": "success",
-            "status": 200,
-        }
-
-
 def background_create_dataset(dataset: Dataset):
     try:
         dataset_manager.save_dataset(dataset)
@@ -101,14 +91,3 @@ def delete_dataset(id: str):
             raise HTTPException(
                 status_code=400, detail="Dataset not deleted with error: {}".format(e)
             )
-
-
-@router.post("/{id}/index", tags=["datasets"])
-def query(id: str, index: IndexResponse):
-    try:
-        retrieval = Retriever(index.options, id)
-        query = retrieval.query(index.content, index.index_type)
-        return {"data": {"query": query}, "message": "success", "status": 200}
-    except Exception as e:
-        logger.error(e)
-        raise HTTPException(status_code=400, detail="not supported")
