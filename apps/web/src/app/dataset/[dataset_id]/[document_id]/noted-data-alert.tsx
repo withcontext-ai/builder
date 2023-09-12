@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 
-import { NotedDataProps } from '../../type'
 import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
 import AnnotatedForm from './noted-form'
@@ -46,15 +45,17 @@ const AddAnnotatedData = ({ form }: IProps) => {
     const noted = watch()?.dataConfig?.notedData
     setData(noted)
   }, [type, watch])
-
+  const showButton = isAdd || (!isAdd && data?.length == 0)
   return (
     <div>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button type="button">
-            <Plus size={16} />
-            Add Annotated Data
-          </Button>
+          {showButton && (
+            <Button type="button">
+              <Plus size={16} />
+              Add Annotated Data
+            </Button>
+          )}
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>

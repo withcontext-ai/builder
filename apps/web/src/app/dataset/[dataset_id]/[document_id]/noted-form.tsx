@@ -74,6 +74,7 @@ const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
                             const config = omit(getValues().dataConfig, [
                               'files',
                               'notedData',
+                              'icon',
                             ])
                             const cur = { ...config, ...item }
                             return checked

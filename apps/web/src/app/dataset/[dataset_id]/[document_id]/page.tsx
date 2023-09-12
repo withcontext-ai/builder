@@ -10,11 +10,15 @@ export default async function Page({ params }: IProps) {
   const { data: apps = [] } = await getNotedData()
 
   const { data } = await getDataInfo(dataset_id, document_id)
+  const files = data?.files?.filter((item: any) => item?.type === 'pdf')
+  const notedData = data?.files?.filter(
+    (item: any) => item?.type === 'annotated data'
+  )
   const defaultValues = {
     dataConfig: {
       ...data?.config,
-      files: data?.files,
-      notedData: [],
+      files,
+      notedData,
     },
   }
 

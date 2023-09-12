@@ -159,7 +159,10 @@ const DataForm = () => {
             >
               Cancel
             </Button>
-            <Button onClick={handleClick} disabled={isPending || isMutating}>
+            <Button
+              onClick={handleClick}
+              disabled={isPending || isMutating || editMutating}
+            >
               {step !== 3
                 ? 'Next'
                 : isPending || isMutating || editMutating

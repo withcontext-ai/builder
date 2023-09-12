@@ -49,10 +49,16 @@ export async function PATCH(req: NextRequest) {
 
   // to replace the current
   const index = documents?.findIndex((item: any) => item?.uid === document_id)
-  const current = dataConfig?.files?.[0]
-  const currentConfig = omit(dataConfig, ['files', 'notedData'])
-  const file = assign(current, currentConfig)
-  documents[index] = file
+  let current = dataConfig?.files?.[0]
+  const isPdf = dataConfig?.loaderType === 'pdf'
+  if (!isPdf) {
+    current = dataConfig?.notedData?.[0]
+  }
+  current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap'])
+  const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
+  current = Object.assign(current, currentConfig)
+
+  documents[index] = current
   const newConfig = { ...config, files: documents }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
