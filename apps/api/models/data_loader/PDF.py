@@ -66,10 +66,10 @@ class PDFLoader:
                     raise Exception("Document type not supported")
                 _doc = text_splitter.split_documents(_doc)
                 for page_number, _d in enumerate(_doc):
+                    _d.medadata["page_number"] = page_number
                     _d.metadata[
                         "urn"
                     ] = f"{dataset.id}-{document.url}-{_d.metadata['page_number']}"
-                    _d.medadata["page_number"] = page_number
                 document.page_size = len(_doc)
                 logger.info(
                     f"got documents: {len(_doc)} while loading dataset {dataset.id}"
