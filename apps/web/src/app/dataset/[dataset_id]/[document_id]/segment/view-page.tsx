@@ -9,14 +9,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 
-import { PreviewCard } from '../[document_id]/preview'
+import { PreviewCard } from '../preview'
 import AddOrEdit from './add-edit-segment'
 
 interface IProps {
   preload: any
+  document_id?: string
+  dataset_id?: string
 }
 
-const SegmentPage = ({ preload }: IProps) => {
+const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
   const [data, setData] = useState(preload)
@@ -24,7 +26,7 @@ const SegmentPage = ({ preload }: IProps) => {
     pageSize: 10,
     pageIndex: 0,
   })
-  const current = useRef({ text: '', characters: 0 })
+  const current = useRef({ content: '', segment_id: '' })
   const table = useReactTable({
     data,
     columns: [],
@@ -60,11 +62,7 @@ const SegmentPage = ({ preload }: IProps) => {
                 current.current = item
               }}
             >
-              <PreviewCard
-                characters={item?.characters}
-                index={index}
-                text={item?.text}
-              />
+              <PreviewCard index={index} content={item?.content} />
               <Button
                 type="button"
                 className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
@@ -77,9 +75,11 @@ const SegmentPage = ({ preload }: IProps) => {
           )
         })}
         <AddOrEdit
-          text={current?.current?.text}
-          characters={current?.current?.characters}
+          content={current?.current?.content}
           open={open}
+          segment_id={current?.current?.segment_id}
+          dataset_id={dataset_id}
+          document_id={document_id}
           setOpen={setOpen}
         />
       </div>

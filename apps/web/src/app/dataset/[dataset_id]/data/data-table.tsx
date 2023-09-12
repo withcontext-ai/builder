@@ -135,24 +135,24 @@ const DatasetTable = ({ preload }: IProps) => {
           const { status, type, uid } = row.original
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
-              {/* {status === 0 && ( */}
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-8 w-8"
-                onClick={(e) => {
-                  currentUid.current.uid = uid
-                  e.stopPropagation()
-                  editData(uid)
-                }}
-              >
-                {isPending && currentUid?.current?.uid === uid ? (
-                  <Loader2Icon className="h-4 w-4 animate-spin" />
-                ) : (
-                  <FileType2 size={18} />
-                )}
-              </Button>
-              {/* )} */}
+              {status === 0 && (
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="h-8 w-8"
+                  onClick={(e) => {
+                    currentUid.current.uid = uid
+                    e.stopPropagation()
+                    editData(uid)
+                  }}
+                >
+                  {isPending && currentUid?.current?.uid === uid ? (
+                    <Loader2Icon className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileType2 size={18} />
+                  )}
+                </Button>
+              )}
               {status === 0 && type !== 'pdf' && (
                 <Button size="icon" variant="outline" className="h-8 w-8">
                   <RefreshCcw size={18} />
@@ -170,6 +170,8 @@ const DatasetTable = ({ preload }: IProps) => {
 
   const handleRowClick = useCallback(
     (row: any) => () => {
+      console.log(row, '---row')
+
       if (row?.status === 1) {
         toast({
           variant: 'destructive',
@@ -184,7 +186,9 @@ const DatasetTable = ({ preload }: IProps) => {
         })
         return
       } else {
-        router.push(`/dataset/${dataset_id}/segment`)
+        router.push(
+          `/dataset/${dataset_id}/${row?.uid}/segment?name=${row?.name}`
+        )
         return
       }
     },

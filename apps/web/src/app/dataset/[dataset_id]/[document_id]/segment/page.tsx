@@ -1,5 +1,6 @@
 import { ArrowLeft, Plus } from 'lucide-react'
 
+import { getSegments } from '@/db/segment/actions'
 import { Button } from '@/components/ui/button'
 import { PdfImage } from '@/components/upload/component'
 
@@ -13,8 +14,7 @@ interface IProps {
 
 const preload = [
   {
-    characters: 2356,
-    text: `The pursuit of wealth should be motivated by a desire for financial
+    content: `The pursuit of wealth should be motivated by a desire for financial
     security, not a longing for status or a luxurious lifestyle. If you
     start young and develop the right financial habits, a seven-digit net
     worth is an attainable goal. In his work with wealthy clients, Jason
@@ -22,10 +22,11 @@ const preload = [
     Woodstock, Georgia, has found that those he calls “true millionaires,”
     people who gain wealth and keep it, see the role of money in their lives
     very differently than those who focus on what money can buy.`,
+    segment_id: '1',
   },
   {
-    characters: 2356,
-    text: `The pursuit of wealth should be motivated by a desire for financial
+    segment_id: '2',
+    content: `The pursuit of wealth should be motivated by a desire for financial
     security, not a longing for status or a luxurious lifestyle. If you
     start young and develop the right financial habits, a seven-digit net
     worth is an attainable goal. In his work with wealthy clients, Jason
@@ -36,12 +37,19 @@ const preload = [
   },
 ]
 
-const Page = () => {
+const Page = async ({ params }: IProps) => {
+  const { dataset_id, document_id } = params
+  console.log(params, '--params')
+  // const preload = await getSegments(dataset_id, document_id)
   return (
     <div className="py-[68px] pl-14 pr-8">
       <SegmentHeader />
 
-      <SegmentPage preload={preload} />
+      <SegmentPage
+        preload={preload}
+        dataset_id={dataset_id}
+        document_id={document_id}
+      />
     </div>
   )
 }

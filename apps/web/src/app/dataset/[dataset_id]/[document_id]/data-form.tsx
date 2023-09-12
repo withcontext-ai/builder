@@ -65,10 +65,7 @@ const DataForm = () => {
   //   (item) =>
   //     notedData?.findIndex((chose: any) => chose?.id === item?.id) !== -1
   // )
-  const disabledApps: any[] = []
   const { watch } = form
-
-  const { dataConfig = {} } = watch()
 
   const files = defaultValues?.dataConfig?.files
   const [data, setData] = useState<any[]>(files)
