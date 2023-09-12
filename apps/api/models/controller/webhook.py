@@ -21,6 +21,7 @@ class WebhookHandler:
     )
     def update_status(self, dataset_id: str, status: int):
         logger.info(f"Updating status of {dataset_id} to {status}")
+        # add charcters and document's uid
         payload = DatasetStatusWebhookRequest(
             status=status, data={"api_dataset_id": dataset_id, "status": status}
         )
