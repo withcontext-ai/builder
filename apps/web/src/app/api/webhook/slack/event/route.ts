@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { throttle } from 'lodash'
 
 import { OpenAIStream } from '@/lib/openai-stream'
 
@@ -7,6 +8,35 @@ export const preferredRegion = 'cle1'
 export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
+
+function ask({
+  url,
+  token,
+  channel,
+  ts,
+  text,
+}: {
+  url: string
+  token: string
+  channel: string
+  text: string
+  ts?: string
+}) {
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      channel,
+      text,
+      ...(ts ? { ts } : {}),
+    }),
+  }).then((res) => res.json())
+}
+
+const throttledAsk = throttle(ask, 200)
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +49,7 @@ export async function POST(req: NextRequest) {
       !body.event.bot_id &&
       !body.event.message?.bot_id
     ) {
+      console.log(JSON.stringify(body, null, 2))
       const apiSessionId = '' // TODO: get apiSessionId from db
       const content = body.event.text
       const payload = {
@@ -29,17 +60,12 @@ export async function POST(req: NextRequest) {
       const token = '' // TODO: get token from db
       const channel = body.event.channel
 
-      const result = await fetch('https://slack.com/api/chat.postMessage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          channel,
-          text: '_Typing..._',
-        }),
-      }).then((res) => res.json())
+      const result = await throttledAsk({
+        url: 'https://slack.com/api/chat.postMessage',
+        token,
+        channel,
+        text: '_Typing..._',
+      })
 
       const ts = result.ts
 
@@ -51,35 +77,25 @@ export async function POST(req: NextRequest) {
         callback: {
           async onToken(text) {
             completion = completion + text
-            console.log('onToken completion:', completion)
-
-            const result = await fetch('https://slack.com/api/chat.update', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                channel,
-                ts,
-                text: completion,
-              }),
-            }).then((res) => res.json())
+            await throttledAsk({
+              url: 'https://slack.com/api/chat.update',
+              token,
+              channel,
+              text: completion,
+              ts,
+            })
           },
           async onCompletion(completion, metadata) {
-            console.log('onCompletion completion:', completion)
-            const result = await fetch('https://slack.com/api/chat.update', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
+            setTimeout(() => {
+              console.log('setTimeout')
+              throttledAsk({
+                url: 'https://slack.com/api/chat.update',
+                token,
                 channel,
-                ts,
                 text: completion,
-              }),
-            }).then((res) => res.json())
+                ts,
+              })
+            }, 800)
           },
         },
         data: {},
