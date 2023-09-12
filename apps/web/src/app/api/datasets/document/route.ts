@@ -27,7 +27,13 @@ export async function POST(req: NextRequest) {
   //   item.config = omit(dataConfig, 'files')
   //   return m
   // }, [])
-  const files = [...documents, ...dataConfig?.files]
+  const isPdf = dataConfig?.loaderType === 'pdf'
+  let files
+  if (isPdf) {
+    files = [...documents, ...dataConfig?.files]
+  } else {
+    files = [...documents, ...dataConfig?.notedData]
+  }
   const newConfig = { ...config, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({

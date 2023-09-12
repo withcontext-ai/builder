@@ -9,7 +9,7 @@ interface IProps {
 }
 
 const NotedDataCard = ({ data: item, isAdd = false }: IProps) => {
-  const color = getAvatarBgColor(item?.id || '')
+  const color = getAvatarBgColor(item?.uid || '')
 
   return (
     <div

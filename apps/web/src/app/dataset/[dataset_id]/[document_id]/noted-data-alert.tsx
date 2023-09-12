@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 
@@ -29,7 +29,7 @@ interface IProps {
 const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
   const { defaultValues, documentId } = useDataContext()
-  const notedData = defaultValues?.dataConfig?.files || []
+  const notedData = defaultValues?.dataConfig?.notedData || []
   const [data, setData] = useState(notedData)
 
   const [selected, setSelected] = useState<any>()
@@ -37,11 +37,16 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const type = watch()?.dataConfig?.loaderType
 
   const deleteNotedData = (id: string) => {
-    const newData = data?.filter((item: any) => item?.id !== id) || []
-    form.setValue('dataConfig?.files', newData)
+    const newData = data?.filter((item: any) => item?.uid !== id) || []
+    form.setValue('dataConfig?.notedData', newData)
     setData(newData)
   }
-  console.log(data, '---data')
+
+  useEffect(() => {
+    const noted = watch()?.dataConfig?.notedData
+    setData(noted)
+  }, [type, watch])
+
   return (
     <div>
       <AlertDialog>
@@ -63,14 +68,20 @@ const AddAnnotatedData = ({ form }: IProps) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                form.setValue('dataConfig?.notedData', notedData)
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (!isAdd) {
                   setData([selected])
-                  form.setValue('dataConfig?.files', selected)
+                  form.setValue('dataConfig?.notedData', selected)
                 } else {
-                  const notedData = watch()?.dataConfig?.files
+                  const notedData = watch()?.dataConfig?.notedData
                   setData(notedData)
                 }
               }}
@@ -92,7 +103,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
                 variant="outline"
                 type="button"
                 className="h-8 w-8 p-0 text-black"
-                onClick={() => deleteNotedData(item?.id)}
+                onClick={() => deleteNotedData(item?.uid)}
               >
                 <X size={16} />
               </Button>

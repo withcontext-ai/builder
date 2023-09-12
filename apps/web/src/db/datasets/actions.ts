@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
+import { Item } from '@radix-ui/react-dropdown-menu'
 import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { isEqual, omit, pick } from 'lodash'
@@ -117,12 +118,16 @@ export async function editDataset(
     if (update) {
       const documents = newFiles?.reduce(
         (m: Record<string, any>[], item: any) => {
-          const cur = omit(item, 'name')
+          if (item?.type === 'annotated data') {
+            item.url = ''
+          }
+          const cur = pick(item, ['url', 'type', 'uid'])
           const split_option = {
             split_type: item?.splitType,
             chunk_size: item?.chunkSize,
             chunk_overlap: item?.chunkOverlap,
           }
+          // @ts-ignore
           cur.split_option = split_option
           m.push(cur)
           return m
@@ -206,17 +211,9 @@ export async function getDataInfo(dataset_id: string, uid: string) {
 export async function getNotedData() {
   const apps = await getApps()
   const data = apps?.reduce((m: any[], item: NewApp) => {
-    const cur = pick(item, [
-      'name',
-      'icon',
-      'updated_at',
-      'short_id',
-      'id',
-      'archived',
-      'api_model_id',
-    ])
+    const cur = pick(item, ['name', 'icon'])
     // @ts-ignore
-    cur.id = cur.short_id
+    cur.uid = item.short_id
     m.push(cur)
     return m
   }, [])

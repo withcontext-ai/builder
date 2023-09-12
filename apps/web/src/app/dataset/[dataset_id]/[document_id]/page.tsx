@@ -14,6 +14,7 @@ export default async function Page({ params }: IProps) {
     dataConfig: {
       ...data?.config,
       files: data?.files,
+      notedData: [],
     },
   }
 

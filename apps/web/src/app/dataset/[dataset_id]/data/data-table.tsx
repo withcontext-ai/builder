@@ -16,9 +16,9 @@ import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 import { useToast } from '@/components/ui/use-toast'
 import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
-import { PdfImage } from '@/components/upload/component'
 
 import DeleteData from './delete-data'
+import FileIcon from './file-icon'
 import { DataProps } from './utils'
 
 interface IProps {
@@ -93,16 +93,7 @@ const DatasetTable = ({ preload }: IProps) => {
         accessorKey: 'name',
         header: 'Data Name',
         cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-1">
-              {row.original?.type == 'pdf' ? (
-                <PdfImage className="h-4 w-4" />
-              ) : (
-                'app icon'
-              )}
-              {row.getValue('name')}
-            </div>
-          )
+          return <FileIcon data={row.original} />
         },
       },
       {

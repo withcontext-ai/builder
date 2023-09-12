@@ -1,5 +1,7 @@
 'use client'
 
+import { I } from 'drizzle-orm/db.d-b9835153'
+import { omit } from 'lodash'
 import { UseFormReturn } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
@@ -23,26 +25,27 @@ interface IProps {
 
 const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
   const { disabledData, notedData, isAdd } = useDataContext()
+  const { getValues } = form
   return (
     <FormField
       control={form.control}
-      name="dataConfig.files"
+      name="dataConfig.notedData"
       render={() => (
         <FormItem>
           {notedData?.map((item) => {
             const isDisabled =
-              disabledData?.findIndex((cur) => cur?.id === item?.id) !== -1
-            const isSelect = selected?.id === item?.id
+              disabledData?.findIndex((cur) => cur?.uid === item?.uid) !== -1
+            const isSelect = selected?.uid === item?.uid
             return (
               <FormField
-                key={item.id}
+                key={item.uid}
                 control={form.control}
-                name="dataConfig.files"
+                name="dataConfig.notedData"
                 render={({ field }) => {
                   return (
                     <FormItem
                       data-disabled={isDisabled}
-                      key={item.id}
+                      key={item.uid}
                       onClick={() => {
                         if (!isAdd && !isDisabled) {
                           setSelected?.(item)
@@ -62,16 +65,22 @@ const AnnotatedForm = ({ form, selected, setSelected }: IProps) => {
                           disabled={isDisabled}
                           checked={
                             field.value?.findIndex(
-                              (cur: any) => cur?.id === item?.id
+                              (cur: any) => cur?.uid === item?.uid
                             ) !== -1 || isDisabled
                           }
                           className={!isAdd ? 'hidden' : 'block'}
                           onCheckedChange={(checked) => {
+                            item.type = 'annotated data'
+                            const config = omit(getValues().dataConfig, [
+                              'files',
+                              'notedData',
+                            ])
+                            const cur = { ...config, ...item }
                             return checked
-                              ? field.onChange([...field?.value, item])
+                              ? field.onChange([...field?.value, cur])
                               : field.onChange(
                                   field.value?.filter(
-                                    (value: any) => value?.id !== item.id
+                                    (value: any) => value?.uid !== item.uid
                                   )
                                 )
                           }}

@@ -32,6 +32,7 @@ export interface DataProps {
   status: number
   type: string
   url: string
+  icon?: string
   characters?: number
   config: DataConfigProps
 }

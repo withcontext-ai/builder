@@ -69,7 +69,6 @@ const DataForm = () => {
   const { watch } = form
 
   const { dataConfig = {} } = watch()
-  console.log(dataConfig, '---dataConfig')
 
   const files = defaultValues?.dataConfig?.files
   const [data, setData] = useState<any[]>(files)
@@ -86,7 +85,8 @@ const DataForm = () => {
   const router = useRouter()
   const onSubmit = async () => {
     try {
-      const { dataConfig = {} } = watch()
+      const dataConfig = watch()?.dataConfig
+      const loaderType = dataConfig?.loaderType
       let json
       if (isAdd) {
         json = await addTrigger({
