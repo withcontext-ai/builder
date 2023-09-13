@@ -149,6 +149,7 @@ async function endCall(eventType: string, data: any) {
 
 async function updateDataset(data: any) {
   const { api_dataset_id, status } = data
+
   await db
     .update(DatasetsTable)
     .set({ status })
