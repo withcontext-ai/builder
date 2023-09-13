@@ -1,7 +1,7 @@
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-import { NotedDataProps } from '../../type'
+import { NotedDataProps } from '../../../type'
 
 interface IProps {
   data: NotedDataProps

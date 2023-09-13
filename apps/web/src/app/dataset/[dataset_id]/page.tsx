@@ -9,5 +9,5 @@ interface IProps {
 export default function SettingsPage({ params }: IProps) {
   const { dataset_id } = params
 
-  redirect(`/dataset/${dataset_id}/data`)
+  redirect(`/dataset/${dataset_id}/settings/documents`)
 }

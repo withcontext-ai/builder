@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useMemo, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { omit } from 'lodash'
@@ -13,11 +13,11 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 
-import { NotedDataProps } from '../../type'
-import { DataSchema, DataSchemeProps } from '../data/utils'
+import { NotedDataProps } from '../../../type'
+import { DataSchema, DataSchemeProps } from '../../settings/documents/utils'
 import { useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
-import Preview, { LoadingCard } from './preview'
+import Preview from './preview'
 import TextSplits from './splitter'
 
 export interface FormProps {
@@ -183,7 +183,7 @@ const DataForm = () => {
               variant="outline"
               onClick={() => {
                 form.reset()
-                router.push(`/dataset/${datasetId}/data`)
+                router.push(`/dataset/${datasetId}/settings/documents`)
               }}
             >
               Cancel

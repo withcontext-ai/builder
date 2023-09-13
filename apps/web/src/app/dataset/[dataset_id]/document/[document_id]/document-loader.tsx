@@ -16,8 +16,8 @@ import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { NotedDataProps } from '../../type'
-import SearchSelect from '../data/search-select'
+import { NotedDataProps } from '../../../type'
+import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'
 import { SessionProps } from './splitter'
@@ -60,7 +60,9 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   }
   const type = watch()?.dataConfig?.loaderType
 
-  const files = watch()?.dataConfig.files
+  const files = watch()?.dataConfig.files?.filter(
+    (item: any) => item?.type === 'pdf'
+  )
   const showButton = (files?.length !== 0 && !isAdd) || isAdd
 
   return (

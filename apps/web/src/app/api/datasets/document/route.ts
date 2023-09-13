@@ -3,7 +3,7 @@ import { omit } from 'lodash'
 
 import { editDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
-import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
+import { DataProps } from '@/app/dataset/[dataset_id]/settings/[dataset_id]/documents/utils'
 
 // // Delete a data
 export async function DELETE(req: NextRequest) {

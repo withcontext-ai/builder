@@ -40,7 +40,8 @@ const SlideBar = ({ datasetId, name }: IProps) => {
   const router = useRouter()
   const handleClick = (name: string) => {
     setSelected(name)
-    router.push(`/dataset/${datasetId}/${name}`)
+    const path = name === 'basics' ? 'basics' : 'documents'
+    router.push(`/dataset/${datasetId}/settings/${path}`)
   }
 
   const handelDelete = async () => {

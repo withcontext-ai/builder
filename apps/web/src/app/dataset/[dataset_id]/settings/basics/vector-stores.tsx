@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { SessionProps } from '../[document_id]/splitter'
-import SearchSelect from '../data/search-select'
+import { SessionProps } from '../../document/[document_id]/splitter'
+import SearchSelect from '../documents/search-select'
 
 const types = [
   { label: 'Pinecone', value: 'pinecone' },

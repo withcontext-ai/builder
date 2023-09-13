@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { FileProps } from '@/components/upload/utils'
 
-import SearchSelect from '../data/search-select'
+import SearchSelect from '../../settings/documents/search-select'
 
 export interface SessionProps {
   form: UseFormReturn<any>

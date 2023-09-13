@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { FormSchema, SchemaProps } from '../data/utils'
+import { FormSchema, SchemaProps } from '../documents/utils'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
 

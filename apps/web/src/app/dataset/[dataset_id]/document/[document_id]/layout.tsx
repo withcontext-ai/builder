@@ -1,6 +1,6 @@
 import { getDataset } from '@/db/datasets/actions'
 
-import SlideBar from './sidebar'
+import SlideBar from '../../settings/sidebar'
 
 export const runtime = 'edge'
 

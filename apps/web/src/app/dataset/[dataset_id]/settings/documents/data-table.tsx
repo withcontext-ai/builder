@@ -56,7 +56,7 @@ const DatasetTable = ({ preload }: IProps) => {
   const editData = useCallback(
     async (uid: string) => {
       startTransition(() => {
-        router.push(`/dataset/${dataset_id}/${uid}`)
+        router.push(`/dataset/${dataset_id}/document/${uid}`)
       })
     },
     [dataset_id, router]
@@ -168,7 +168,7 @@ const DatasetTable = ({ preload }: IProps) => {
         })
         return
       } else {
-        router.push(`/dataset/${dataset_id}/${row?.uid}/segments`)
+        router.push(`/dataset/${dataset_id}/document/${row?.uid}/segments`)
         return
       }
     },

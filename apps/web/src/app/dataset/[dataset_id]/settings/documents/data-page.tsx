@@ -19,7 +19,7 @@ const DataPage = ({ dataset_id, preload }: IProps) => {
 
   const handelClick = () => {
     startTransition(() => {
-      router.push(`/dataset/${dataset_id}/add`)
+      router.push(`/dataset/${dataset_id}/document/add`)
     })
   }
 
