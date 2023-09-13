@@ -24,7 +24,8 @@ from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 def extract_text_from_pdf(contents: io.BytesIO) -> list:
     resource_manager = PDFResourceManager()
     fake_file_handle = io.StringIO()
-    converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams())
+    converter = TextConverter(
+        resource_manager, fake_file_handle, laparams=LAParams())
     page_interpreter = PDFPageInterpreter(resource_manager, converter)
     for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
         page_interpreter.process_page(page)
@@ -85,7 +86,8 @@ class PDFRetrieverMixin:
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]
         metadatas = [doc.metadata for doc in docs]
-        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        pinecone.init(api_key=PINECONE_API_KEY,
+                      environment=PINECONE_ENVIRONMENT)
         vector_store = Pinecone.from_texts(
             texts=texts,
             embedding=embedding,
@@ -98,7 +100,8 @@ class PDFRetrieverMixin:
 
     @classmethod
     def delete_index(self, dataset: Dataset):
-        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        pinecone.init(api_key=PINECONE_API_KEY,
+                      environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
         ids = []
         for doc in dataset.documents:
@@ -113,10 +116,12 @@ class PDFRetrieverMixin:
 
     @classmethod
     def get_relative_chains(self, dataset: Dataset):
-        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        pinecone.init(api_key=PINECONE_API_KEY,
+                      environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
         if len(dataset.documents) == 0:
-            logger.warning(f"Dataset {dataset.id} has no documents when getting chains")
+            logger.warning(
+                f"Dataset {dataset.id} has no documents when getting chains")
             return []
         id = f"{dataset.id}-{dataset.documents[0].url}-0"
         logger.info(f"Getting vector for id{id}")
@@ -138,7 +143,8 @@ class PDFRetrieverMixin:
     def add_relative_chain_to_dataset(
         self, dataset: Dataset, model_id: str, chain_key: str
     ):
-        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        pinecone.init(api_key=PINECONE_API_KEY,
+                      environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
         known_chains = self.get_relative_chains(dataset)
         chain_urn = f"{model_id}-{chain_key}"
@@ -154,7 +160,8 @@ class PDFRetrieverMixin:
                     f"Document {doc.url} has page_size 0 when adding relative chain"
                 )
                 doc.page_size = PDFLoader.get_document_page_size(doc)
-                logger.info(f"Updated Document {doc.url} page_size to {doc.page_size}")
+                logger.info(
+                    f"Updated Document {doc.url} page_size to {doc.page_size}")
             for i in range(doc.page_size):
                 id = f"{dataset.id}-{doc.url}-{i}"
                 index.update(
@@ -162,13 +169,15 @@ class PDFRetrieverMixin:
                     set_metadata={"relative_chains": known_chains},
                     namespace="withcontext",
                 )
-                logger.info(f"Updated {id} with relative chains {known_chains}")
+                logger.info(
+                    f"Updated {id} with relative chains {known_chains}")
 
     @classmethod
     def delete_relative_chain_from_dataset(
         self, dataset: Dataset, model_id: str, chain_key: str
     ):
-        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        pinecone.init(api_key=PINECONE_API_KEY,
+                      environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
         known_chains = self.get_relative_chains(dataset)
         chain_urn = f"{model_id}-{chain_key}"
