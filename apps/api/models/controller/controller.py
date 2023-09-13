@@ -236,6 +236,9 @@ class DatasetManager(BaseManager):
         else:
             self.update_dataset(dataset_id, dataset)
 
+    def update_segment(self, dataset_id: str, uid: str, segment_id: str, content: str):
+        pass
+
 
 dataset_manager = DatasetManager()
 

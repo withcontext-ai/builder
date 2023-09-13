@@ -91,3 +91,21 @@ def delete_dataset(id: str):
             raise HTTPException(
                 status_code=400, detail="Dataset not deleted with error: {}".format(e)
             )
+
+
+@router.patch("/{dataset_id}/document/{uid}/segment/{segment_id}", tags=["datasets"])
+def update_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
+    with graphsignal.start_trace("update_segment"):
+        logger.info(f"dataset: {dataset_id}, uid: {uid}, segment_id: {segment_id}")
+        if "content" not in segment:
+            return {"message": "content is required", "status": 400}
+        try:
+            dataset_manager.update_segment(
+                dataset_id, uid, segment_id, segment["content"]
+            )
+            return {"message": "success", "status": 200}
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(
+                status_code=400, detail="Segment not updated with error: {}".format(e)
+            )
