@@ -6,6 +6,7 @@ import { db } from '@/lib/drizzle-edge'
 import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds } from '@/lib/utils'
+import { getDatasetByApiId } from '@/db/datasets/documents/action'
 import { DatasetsTable } from '@/db/datasets/schema'
 import { addMessage } from '@/db/messages/actions'
 import { formatEventMessage } from '@/db/messages/utils'
@@ -148,10 +149,27 @@ async function endCall(eventType: string, data: any) {
 }
 
 async function updateDataset(data: any) {
-  const { api_dataset_id, status } = data
+  const {
+    api_dataset_id,
+    status,
+    document_status,
+    document_id,
+    document_characters,
+  } = data
+  const dataset = await getDatasetByApiId(api_dataset_id)
+  let update = {}
+  // @ts-ignore
+  const { config = {} } = dataset
+  const documents = config?.files || []
+  const cur = documents?.find((item: any) => item?.uid === document_id)
+  cur.status = document_status
+  cur.characters = document_characters
+  cur.update_at = new Date()
+  const index = documents?.findIndex((item: any) => item?.uid === document_id)
+  documents[index] = cur
 
   await db
     .update(DatasetsTable)
-    .set({ status })
+    .set({ status, config: { ...config, document } })
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
 }

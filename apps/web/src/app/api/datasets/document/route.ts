@@ -3,7 +3,7 @@ import { omit } from 'lodash'
 
 import { editDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
-import { DataProps } from '@/app/dataset/[dataset_id]/settings/[dataset_id]/documents/utils'
+import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
 
 // // Delete a data
 export async function DELETE(req: NextRequest) {
@@ -22,11 +22,6 @@ export async function DELETE(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
-  // to complete the history data
-  // const existedFiles = documents?.reduce((m: DataProps[], item: any) => {
-  //   item.config = omit(dataConfig, 'files')
-  //   return m
-  // }, [])
   const isPdf = dataConfig?.loaderType === 'pdf'
   let files
   if (isPdf) {
@@ -34,6 +29,7 @@ export async function POST(req: NextRequest) {
   } else {
     files = [...documents, ...dataConfig?.notedData]
   }
+  files?.map((item) => (item.update_at = new Date()))
   const newConfig = { ...config, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
@@ -57,6 +53,7 @@ export async function PATCH(req: NextRequest) {
   current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap'])
   const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
   current = Object.assign(current, currentConfig)
+  current.update_at = new Date()
 
   documents[index] = current
   const newConfig = { ...config, files: documents }

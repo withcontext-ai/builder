@@ -63,7 +63,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const files = watch()?.dataConfig.files?.filter(
     (item: any) => item?.type === 'pdf'
   )
-  const showButton = (files?.length !== 0 && !isAdd) || isAdd
+  const showButton = (files?.length === 0 && !isAdd) || isAdd
 
   return (
     <section id="loaders" className="w-full py-6">
