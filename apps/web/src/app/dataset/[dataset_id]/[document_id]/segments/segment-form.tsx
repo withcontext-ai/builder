@@ -45,7 +45,7 @@ function addSegment(
   })
 }
 
-function editSegment(
+export function editSegment(
   url: string,
   {
     arg,
@@ -133,10 +133,18 @@ const SegmentForm = ({
               <FileType2 size={18} /> {content?.length} characters
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setOpen?.(false)}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setOpen?.(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleSubmit(onSubmit)} disabled={disabled}>
+              <Button
+                onClick={handleSubmit(onSubmit)}
+                disabled={disabled}
+                type="button"
+              >
                 {disabled ? 'Saving' : 'Save'}
               </Button>
             </div>

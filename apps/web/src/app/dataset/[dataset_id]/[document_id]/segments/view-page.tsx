@@ -11,6 +11,7 @@ import { DataTablePagination } from '@/components/ui/table/pagination'
 
 import { PreviewCard } from '../preview'
 import AddOrEdit from './add-edit-segment'
+import DeleteSegment from './delete-segment'
 
 interface IProps {
   preload: any
@@ -20,6 +21,7 @@ interface IProps {
 
 const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
   const [open, setOpen] = useState(false)
+  const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
   const [data, setData] = useState(preload)
   const [pagination, setPagination] = useState({
@@ -58,7 +60,6 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
               onClick={(e) => {
                 setOpen(true)
                 e.preventDefault()
-                // @ts-ignore
                 current.current = item
               }}
             >
@@ -68,6 +69,11 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
                 className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
                 size="icon"
                 variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowDeleteAlter(true)
+                  current.current = item
+                }}
               >
                 <Trash size={18} />
               </Button>
@@ -81,6 +87,13 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
           dataset_id={dataset_id}
           document_id={document_id}
           setOpen={setOpen}
+        />
+        <DeleteSegment
+          dataset_id={dataset_id}
+          uid={document_id}
+          segment_id={current?.current?.segment_id}
+          showDeleteAlter={showDeleteAlter}
+          setShowDeleteAlter={setShowDeleteAlter}
         />
       </div>
       <div>
