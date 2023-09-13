@@ -23,33 +23,27 @@ interface IProps {
 export default function DeleteAppButton({ id, name }: IProps) {
   const router = useRouter()
   const { mutate } = useSWRConfig()
-  const { trigger, isMutating } = useSWRMutation(`/api/apps/${id}`, removeApp)
+  const { trigger } = useSWRMutation(`/api/apps/${id}`, removeApp)
 
   const confirmDialog = useModal(ConfirmDialog)
   const chatStore = useChatStore()
 
-  function handleDelete() {
-    confirmDialog
-      .show({
-        title: `Delete “${name}” App??`,
-        description: `Are you sure you want to delete “${name}” App? This action cannot be undone. `,
-        confirmText: 'Delete App',
-        loadingText: 'Deleting...',
-        isLoading: isMutating,
-      })
-      .then(handleConfirm)
+  async function onOk() {
+    await trigger()
+    mutate('/api/me/workspace')
+    router.push('/apps')
+    router.refresh()
+    chatStore.removeSession(id)
   }
 
-  async function handleConfirm() {
-    try {
-      console.log(2)
-      await trigger()
-      console.log(3)
-      mutate('/api/me/workspace')
-      router.push('/apps')
-      router.refresh()
-      chatStore.removeSession(id)
-    } catch (error) {}
+  function handleDelete() {
+    confirmDialog.show({
+      title: `Delete “${name}” App??`,
+      description: `Are you sure you want to delete “${name}” App? This action cannot be undone. `,
+      confirmText: 'Delete App',
+      loadingText: 'Deleting...',
+      onOk,
+    })
   }
 
   return (

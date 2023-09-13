@@ -1,3 +1,4 @@
+import * as React from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import {
@@ -14,32 +15,39 @@ import { Button } from '@/components/ui/button'
 interface IProps {
   title: string
   description: string
-  isLoading: boolean
   confirmText: string
   loadingText: string
+  onOk?: () => Promise<void>
 }
 
 export default NiceModal.create(
-  ({ title, description, isLoading, confirmText, loadingText }: IProps) => {
+  ({ title, description, confirmText, loadingText, onOk }: IProps) => {
     const modal = useModal()
+    const [loading, setLoading] = React.useState(false)
+
+    function closeModal() {
+      modal.hide()
+      setTimeout(() => {
+        modal.remove()
+      }, 200)
+    }
 
     function onOpenChange(open: boolean) {
       if (!open) {
-        modal.hide()
-        setTimeout(() => {
-          modal.remove()
-        }, 1000)
+        closeModal()
       }
     }
 
     async function handleConfirm() {
-      console.log('1')
-      await modal.resolve()
-      console.log('4')
-      modal.hide()
-      setTimeout(() => {
-        modal.remove()
-      }, 1000)
+      React.startTransition(() => setLoading(true))
+      try {
+        await onOk?.()
+        closeModal()
+      } catch (error) {
+        // TODO: handle error
+      } finally {
+        setLoading(false)
+      }
     }
 
     return (
@@ -56,9 +64,9 @@ export default NiceModal.create(
             <Button
               variant="destructive"
               onClick={handleConfirm}
-              disabled={isLoading}
+              disabled={loading}
             >
-              {isLoading ? loadingText : confirmText}
+              {loading ? loadingText : confirmText}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
