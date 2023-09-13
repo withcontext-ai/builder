@@ -85,6 +85,10 @@ function EventMessage({ data }: { data: any }) {
   let message
 
   switch (data.eventType) {
+    case 'basic.opening_remarks': {
+      message = data.content
+      break
+    }
     case 'call.created': {
       icon = <PhoneCallIcon className="mr-4" />
       message = 'Call Requested'
@@ -97,7 +101,7 @@ function EventMessage({ data }: { data: any }) {
     }
     case 'call.ended': {
       icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
-      message = `Call Ended ${formatSeconds(+data.duration || 0)}`
+      message = `Call Ended ${formatSeconds(+data.call_duration || 0)}`
       break
     }
     case 'call.canceled': {
@@ -154,11 +158,7 @@ const ChatCard = (props: IProps) => {
     if (!content) {
       return <Loader2 className="h-3 w-3 animate-spin" />
     }
-    return (
-      <Markdown className={cn(isUser ? 'text-white' : 'text-black	')}>
-        {content}
-      </Markdown>
-    )
+    return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message])
 
   return (
