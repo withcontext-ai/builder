@@ -3,6 +3,3 @@ __pycache__
 backend-secret.yaml
 test-backend-deployment.yaml
 Dockerfile.test
-test.py
-test.txt
-data
