@@ -1,6 +1,10 @@
 import { NextRequest } from 'next/server'
 
-import { addSegment, editSegment, getSegments } from '@/db/segment/actions'
+import {
+  addSegment,
+  editSegment,
+  getSegments,
+} from '@/db/datasets/segment/actions'
 
 // get segments
 export async function GET(req: NextRequest) {

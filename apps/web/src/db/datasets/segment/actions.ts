@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getDataset } from '../datasets/actions'
+import { getDataset } from '../actions'
 
 export async function getApiDatasetId(dataset_id: string) {
   const dataset = await getDataset(dataset_id)

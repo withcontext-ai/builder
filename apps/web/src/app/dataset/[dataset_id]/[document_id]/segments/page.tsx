@@ -1,5 +1,5 @@
-import { getDataInfo } from '@/db/datasets/actions'
-import { getSegments } from '@/db/segment/actions'
+import { getDataInfo } from '@/db/datasets/documents/action'
+import { getSegments } from '@/db/datasets/segment/actions'
 
 import SegmentHeader from './header'
 import SegmentPage from './view-page'

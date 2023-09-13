@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import {
-  addDataset,
-  editDataset,
-  getDocuments,
-  removeDataset,
-} from '@/db/datasets/actions'
+import { addDataset, editDataset, removeDataset } from '@/db/datasets/actions'
+import { getDocuments } from '@/db/datasets/documents/action'
 import { NewDataset } from '@/db/datasets/schema'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 

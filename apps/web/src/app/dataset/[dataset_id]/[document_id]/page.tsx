@@ -1,4 +1,8 @@
-import { getDataInfo, getDocuments, getNotedData } from '@/db/datasets/actions'
+import {
+  getDataInfo,
+  getDocuments,
+  getNotedData,
+} from '@/db/datasets/documents/action'
 
 import SettingPage from './setting-page'
 

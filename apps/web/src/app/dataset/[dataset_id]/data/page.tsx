@@ -1,4 +1,4 @@
-import { getDocuments } from '@/db/datasets/actions'
+import { getDocuments } from '@/db/datasets/documents/action'
 
 import DataPage from './data-page'
 

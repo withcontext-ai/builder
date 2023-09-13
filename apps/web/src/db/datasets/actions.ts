@@ -98,20 +98,17 @@ export async function getDataset(datasetId: string) {
   }
 }
 
-export async function editDataset(
+export async function getEditParams(
   datasetId: string,
   newValue: Partial<NewDataset>
 ) {
-  const { userId } = auth()
-  if (!userId) return Promise.resolve([])
-  const { name, config } = newValue
-
-  let api_dataset_id = null
+  const { config } = newValue
+  let editParams = {}
+  let api_dataset_id = ''
   if (flags.enabledAIService) {
     const dataset = await getDataset(datasetId)
     api_dataset_id = dataset?.api_dataset_id
-    if (!api_dataset_id) return Promise.resolve([])
-
+    if (!api_dataset_id) return Promise.resolve({ api_dataset_id, editParams })
     const oldFiles = (dataset?.config as any)?.files
     const newFiles = (config as any)?.files
     const update = !isEqual(oldFiles, newFiles)
@@ -134,16 +131,33 @@ export async function editDataset(
         },
         []
       )
-      const editParams = { documents }
-      let { data: res } = await axios.patch(
-        `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
-        editParams
-      )
-      if (res.status !== 200) {
-        return
-      }
+      editParams = { documents }
     }
   }
+  return Promise.resolve({ editParams, api_dataset_id })
+}
+
+export async function editDataset(
+  datasetId: string,
+  newValue: Partial<NewDataset>
+) {
+  const { name, config } = newValue
+  const { userId } = auth()
+  if (!userId) return Promise.resolve([])
+  const { api_dataset_id, editParams } = await getEditParams(
+    datasetId,
+    newValue
+  )
+  if (api_dataset_id && editParams) {
+    let { data: res } = await axios.patch(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
+      editParams
+    )
+    if (res.status !== 200) {
+      return
+    }
+  }
+
   const response = await db
     .update(DatasetsTable)
     .set({ name, config, updated_at: new Date() })
@@ -186,39 +200,4 @@ export async function removeDataset(datasetId: string) {
     )
 
   return response
-}
-
-export async function getDocuments({ dataset_id }: { dataset_id: string }) {
-  const datasetDetail = await getDataset(dataset_id)
-  const { updated_at, status } = datasetDetail
-  const config = datasetDetail?.config || {}
-  // @ts-ignore
-  const documents = datasetDetail?.config?.files || []
-  return { documents, updated_at, status, config }
-}
-
-// get data info
-export async function getDataInfo(dataset_id: string, uid: string) {
-  const { documents } = await getDocuments({ dataset_id })
-  const detail = documents?.find((item: any) => item?.uid === uid)
-  const config = omit(detail, ['url', 'uid', 'type', 'name'])
-  return {
-    success: true,
-    data: { dataset_id, files: [detail], config, name: detail?.name },
-  }
-}
-
-export async function getNotedData() {
-  const apps = await getApps()
-  const data = apps?.reduce((m: any[], item: NewApp) => {
-    const cur = pick(item, ['name', 'icon'])
-    // @ts-ignore
-    cur.uid = item.api_model_id
-    m.push(cur)
-    return m
-  }, [])
-  return {
-    success: true,
-    data,
-  }
 }

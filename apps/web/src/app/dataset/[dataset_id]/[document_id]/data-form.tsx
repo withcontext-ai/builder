@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { Suspense, useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { omit } from 'lodash'
@@ -14,10 +14,10 @@ import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 
 import { NotedDataProps } from '../../type'
-import { DataConfigProps, DataSchema, DataSchemeProps } from '../data/utils'
-import { DataContext, useDataContext } from './data-context'
+import { DataSchema, DataSchemeProps } from '../data/utils'
+import { useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
-import Preview from './preview'
+import Preview, { LoadingCard } from './preview'
 import TextSplits from './splitter'
 
 export interface FormProps {
@@ -49,10 +49,31 @@ function editData(
     body: JSON.stringify(arg),
   })
 }
+
+function getPreview(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
+      dataset_id: string
+      dataConfig: any
+      document_id: string
+      preview: number
+    }
+  }
+) {
+  return fetcher(url, {
+    method: 'PATCH',
+    body: JSON.stringify(arg),
+  })
+}
+
 const DataForm = () => {
   const { defaultValues, documentId, datasetId, step, setStep, isAdd } =
     useDataContext()
   const [isPending, startTransition] = useTransition()
+  const [previews, setPreviews] = useState([])
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof DataSchema>>({
@@ -60,11 +81,6 @@ const DataForm = () => {
     defaultValues,
   })
 
-  // the disabledApps is to get from api
-  // const disabledApps = apps?.filter(
-  //   (item) =>
-  //     notedData?.findIndex((chose: any) => chose?.id === item?.id) !== -1
-  // )
   const { watch } = form
 
   const files = defaultValues?.dataConfig?.files
@@ -75,10 +91,13 @@ const DataForm = () => {
     addData
   )
 
-  const { trigger: triggerEdit, isMutating: editMutating } = useSWRMutation(
+  const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
     `/api/datasets/document`,
     editData
   )
+
+  const { trigger: previewTrigger, isMutating: previewMutating } =
+    useSWRMutation(`/api/datasets/document`, getPreview)
   const router = useRouter()
   const onSubmit = async () => {
     try {
@@ -90,7 +109,7 @@ const DataForm = () => {
           dataConfig,
         })
       } else {
-        json = await triggerEdit({
+        json = await editTrigger({
           dataset_id: datasetId,
           dataConfig,
           document_id: documentId,
@@ -104,6 +123,7 @@ const DataForm = () => {
   const handleClick = async () => {
     const files = watch()?.dataConfig?.files
     const type = watch()?.dataConfig?.loaderType
+    const dataConfig = watch()?.dataConfig
     if (!files?.length && type === 'pdf') {
       toast({
         variant: 'destructive',
@@ -111,8 +131,20 @@ const DataForm = () => {
       })
       return
     }
-    if (step < 3) {
+    if (step == 1) {
       setStep?.(step + 1)
+      return
+    }
+    if (step === 2) {
+      setStep?.(step + 1)
+      const data = await previewTrigger({
+        dataset_id: datasetId,
+        dataConfig,
+        document_id: documentId,
+        preview: 5,
+      })
+      setPreviews(data)
+      return
     } else {
       await onSubmit()
 
@@ -121,7 +153,7 @@ const DataForm = () => {
       })
     }
   }
-
+  console.log(previewMutating, '---previewMutating')
   return (
     <div className={cn('h-full w-full')}>
       <div
@@ -136,7 +168,9 @@ const DataForm = () => {
               <DocumentLoader form={form} data={data} setData={setData} />
             )}
             {step === 2 && <TextSplits form={form} />}
-            {step === 3 && <Preview />}
+            {step === 3 && (
+              <Preview data={previews} isLoading={previewMutating} />
+            )}
           </form>
         </Form>
         <div className={cn('flex justify-between', step == 1 && 'justify-end')}>

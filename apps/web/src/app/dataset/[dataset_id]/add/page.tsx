@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 
 import { auth } from '@/lib/auth'
-import { getDataset, getDocuments, getNotedData } from '@/db/datasets/actions'
+import { getDataset } from '@/db/datasets/actions'
+import { getDocuments, getNotedData } from '@/db/datasets/documents/action'
 
 import SettingPage from '../[document_id]/setting-page'
 

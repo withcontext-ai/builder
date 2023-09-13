@@ -1,10 +1,8 @@
 import { FileType2 } from 'lucide-react'
 
-interface IProps {
-  index: number
-  content: string
-}
-export const PreviewCard = ({ content, index }: IProps) => {
+import { Skeleton } from '@/components/ui/skeleton'
+
+export const PreviewCard = ({ content, index }: segmentProps) => {
   return (
     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="mb-1 flex justify-between text-sm text-slate-500">
@@ -17,6 +15,17 @@ export const PreviewCard = ({ content, index }: IProps) => {
     </div>
   )
 }
+export const LoadingCard = () => (
+  <div className="mb-8 grid h-full w-full grid-cols-2 gap-4">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <Skeleton
+        key={i}
+        className="h-[148px] rounded-lg border border-transparent"
+      />
+    ))}
+  </div>
+)
+
 const mockData = [
   {
     segment_id: '01',
@@ -43,9 +52,20 @@ const mockData = [
   },
 ]
 
-const Preview = () => {
-  return (
-    <div className="mb-8 flex grid-cols-2 gap-4">
+interface segmentProps {
+  content: string
+  segment_id?: string
+  index?: number
+}
+interface IProps {
+  data: segmentProps[]
+  isLoading: boolean
+}
+const Preview = ({ data, isLoading }: IProps) => {
+  return isLoading ? (
+    <LoadingCard />
+  ) : (
+    <div className="gird mb-8 grid-cols-2 gap-4">
       {mockData?.map((item, index) => {
         return (
           <div key={index}>

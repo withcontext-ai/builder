@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { omit } from 'lodash'
 
-import { editDataset, getDocuments } from '@/db/datasets/actions'
+import { editDataset } from '@/db/datasets/actions'
+import { getDocuments } from '@/db/datasets/documents/action'
 import { DataProps } from '@/app/dataset/[dataset_id]/data/utils'
 
 // // Delete a data
