@@ -10,7 +10,6 @@ from models.controller import dataset_manager
 from models.retrieval import Retriever
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
-from typing import List
 import pinecone
 from pinecone import Index
 from fastapi import Query
