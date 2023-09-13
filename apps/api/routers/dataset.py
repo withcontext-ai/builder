@@ -10,6 +10,11 @@ from models.controller import dataset_manager
 from models.retrieval import Retriever
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
+from typing import List
+import pinecone
+from pinecone import Index
+from fastapi import Query
+from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 
 executor = ThreadPoolExecutor(max_workers=1000)
 
@@ -80,7 +85,8 @@ async def update_dataset(id: str, dataset: dict):
         logger.info(f"dataset updating: {dataset}")
         try:
             loop = asyncio.get_event_loop()
-            loop.run_in_executor(executor, background_upsert_dataset, id, dataset)
+            loop.run_in_executor(
+                executor, background_upsert_dataset, id, dataset)
             return {"message": "success", "status": 200}
         except Exception as e:
             logger.error(e)
@@ -101,6 +107,61 @@ def delete_dataset(id: str):
             raise HTTPException(
                 status_code=400, detail="Dataset not deleted with error: {}".format(e)
             )
+
+
+@router.get("/{dataset_id}/document/{uid}", tags=["datasets"])
+def get_document_segments(dataset_id: str, uid: str, offset: int = Query(0, description="Offset for pagination"), limit: int = Query(10, description="Limit for pagination")):
+    with graphsignal.start_trace("get_document_segments"):
+        # 初始化Pinecone
+        pinecone.init(api_key=PINECONE_API_KEY,
+                      environment=PINECONE_ENVIRONMENT)
+        index = Index("context-prod")
+        # 从get_dataset函数获取dataset对象
+        dataset_response = get_dataset(dataset_id)
+        dataset = dataset_response["data"][0]
+
+        matching_url = None
+        segment_size = None
+        for document in dataset.documents:
+            if document.uid == uid:
+                matching_url = document.url
+                segment_size = document.page_size
+                break
+
+        if not matching_url:
+            raise HTTPException(
+                status_code=404, detail="UID not found in dataset documents")
+
+        # 使用找到的url构造id
+        id = f"{dataset_id}-{matching_url}-0"
+        segment_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(
+            offset, offset+limit) if i < segment_size]
+        # 从Pinecone数据库中获取向量及对应文本
+        segments = []
+        for seg_id in segment_ids:
+            vectors = index.fetch(namespace="withcontext", ids=[
+                                  seg_id]).to_dict().get("vectors", {})
+            vector = vectors.get(seg_id)
+            if not vector or 'metadata' not in vector or 'text' not in vector['metadata']:
+                raise HTTPException(
+                    status_code=500, detail="Unexpected data format from Pinecone")
+            if vector:
+                text = vector['metadata']['text']
+                segments.append({
+                    "segment_id": seg_id,
+                    "content": text
+                })
+        # 构建响应
+        response_data = {
+            "totalItems": limit,
+            "segments": segments
+        }
+
+        return {
+            "message": "success",
+            "status": "200",
+            "data": response_data
+        }
 
 
 @router.post("/{id}/index", tags=["datasets"])

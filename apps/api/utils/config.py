@@ -1,6 +1,10 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+print(DATABASE_URL)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
