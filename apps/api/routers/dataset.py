@@ -82,8 +82,7 @@ async def update_dataset(id: str, dataset: dict):
         logger.info(f"dataset updating: {dataset}")
         try:
             loop = asyncio.get_event_loop()
-            loop.run_in_executor(
-                executor, background_upsert_dataset, id, dataset)
+            loop.run_in_executor(executor, background_upsert_dataset, id, dataset)
             return {"message": "success", "status": 200}
         except Exception as e:
             logger.error(e)
@@ -107,10 +106,24 @@ def delete_dataset(id: str):
 
 
 @router.get("/{dataset_id}/document/{uid}", tags=["datasets"])
-def retrieve_document_segments(dataset_id: str, uid: str, offset: int = Query(0, description="Offset for pagination"), limit: int = Query(10, description="Limit for pagination")):
+def retrieve_document_segments(
+    dataset_id: str,
+    uid: str,
+    offset: int = Query(0, description="Offset for pagination"),
+    limit: int = Query(10, description="Limit for pagination"),
+):
     with graphsignal.start_trace("get_document_segments"):
         logger.info(f"Retrieving segments for dataset: {dataset_id}, document: {uid}, offset: {offset}, limit: {limit}")
-        return dataset_manager.get_document_segments(dataset_id, uid, offset, limit)
+        error_mapping = {
+            "Dataset not found": {"message": "Dataset not found", "status": "404", "data": None},
+            "UID not found in dataset documents": {"message": "UID not found in dataset documents", "status": "404", "data": None},
+            "Unexpected data format from Pinecone": {"message": "Unexpected data format from Pinecone", "status": "500", "data": None},
+        }
+        try:
+            response_data = dataset_manager.get_document_segments(dataset_id, uid, offset, limit)
+            return {"message": "success", "status": "200", "data": response_data}
+        except ValueError as e:
+            return error_mapping.get(str(e), {"message": "Internal Server Error", "status": "500", "data": None})
 
 
 @router.post("/{id}/index", tags=["datasets"])

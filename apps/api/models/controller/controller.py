@@ -78,8 +78,7 @@ class RelativeManager(BaseManager):
             logger.info(f"Deleting relative {urn}")
             return self.table.delete().where(self.table.c.chain_urn == urn)
         else:
-            raise ValueError(
-                "dataset_id or model_id and chain_key must be provided")
+            raise ValueError("dataset_id or model_id and chain_key must be provided")
 
     def get_relative_datasets(self, model_id: str, chain_key: str):
         relative_datasets = self._get_relative_datasets(model_id, chain_key)
@@ -159,21 +158,18 @@ class DatasetManager(BaseManager):
             chains = []
             if len(dataset.documents) != 0:
                 if dataset.documents[0].type != "pdf":
-                    raise ValueError(
-                        f"Dataset {dataset.id} is not a pdf dataset")
+                    raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
                 chains = Retriever.get_relative_chains(dataset)
                 Retriever.delete_index(dataset)
             if len(update_data["documents"]) != 0:
                 if update_data["documents"][0]["type"] != "pdf":
-                    raise ValueError(
-                        f"Dataset {dataset.id} is not a pdf dataset")
+                    raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
                 dataset = Dataset(id=dataset_id, **update_data)
                 # pages updated
                 Retriever.create_index([dataset])
                 for chain in chains:
                     parts = chain.split("-", 1)
-                    Retriever.add_relative_chain_to_dataset(
-                        dataset, parts[0], parts[1])
+                    Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
                 handler.update_status(dataset_id, 0)
                 dataset_dict = dataset.dict()
                 self.redis.set(urn, json.dumps(dataset_dict))
@@ -228,8 +224,7 @@ class DatasetManager(BaseManager):
                     f'Error when parsing dataset {dataset._mapping["id"]}: {e}'
                 )
         for dataset in datasets:
-            self.redis.set(self.get_dataset_urn(dataset.id),
-                           json.dumps(dataset.dict()))
+            self.redis.set(self.get_dataset_urn(dataset.id), json.dumps(dataset.dict()))
         return datasets
 
     def upsert_dataset(self, dataset_id: str, dataset: dict):
@@ -245,14 +240,16 @@ class DatasetManager(BaseManager):
         else:
             self.update_dataset(dataset_id, dataset)
 
-    def get_document_segments(self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10):
+    def get_document_segments(
+        self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10
+    ):
         # Initialize Pinecone
-        pinecone.init(api_key=PINECONE_API_KEY,environment=PINECONE_ENVIRONMENT)
+        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = Index("context-prod")
         # Retrieve the dataset object
         dataset_response = self.get_datasets(dataset_id)
         if not dataset_response:
-            return {"message": "Dataset not found","status": "404","data": None}
+            raise ValueError("Dataset not found")
         dataset = dataset_response[0]
         matching_url = None
         segment_size = None
@@ -262,27 +259,24 @@ class DatasetManager(BaseManager):
                 segment_size = document.page_size
                 break
         if not matching_url:
-            return { "message": "UID not found in dataset documents","status": "404","data": None}
+            raise ValueError("UID not found in dataset documents")
         id = f"{dataset_id}-{matching_url}-0"
         segment_ids = [
-            f"{dataset_id}-{matching_url}-{i}" for i in range(offset, offset+limit) if i < segment_size]
+            f"{dataset_id}-{matching_url}-{i}"
+            for i in range(offset, offset + limit)
+            if i < segment_size
+        ]
         segments = []
         for seg_id in segment_ids:
-            vectors = index.fetch(namespace="withcontext", ids=[seg_id]).to_dict().get("vectors", {})
+            vectors = Retriever.fetch_vectors(ids=[seg_id])
             vector = vectors.get(seg_id)
-            if not vector or 'metadata' not in vector or 'text' not in vector['metadata']:
-                return {"message": "Unexpected data format from Pinecone","status": "500","data": None}
+            if not vector or "metadata" not in vector or "text" not in vector["metadata"]:
+                raise ValueError("Unexpected data format from Pinecone")
             if vector:
-                text = vector['metadata']['text']
-                segments.append({
-                    "segment_id": seg_id,
-                    "content": text
-                })
-        response_data = {
-            "totalItems": limit,
-            "segments": segments
-        }
-        return {"message": "success","status": "200","data": response_data}
+                text = vector["metadata"]["text"]
+                segments.append({"segment_id": seg_id, "content": text})
+        response_data = {"totalItems": limit, "segments": segments}
+        return response_data
 
 
 dataset_manager = DatasetManager()
@@ -319,8 +313,7 @@ class ModelManager(BaseManager):
                 handler.update_status(dataset_id, 1)
                 dataset = dataset_manager.get_datasets(dataset_id)[0]
                 relative_manager.save_relative(dataset.id, model.id, chain.key)
-                Retriever.add_relative_chain_to_dataset(
-                    dataset, model.id, chain.key)
+                Retriever.add_relative_chain_to_dataset(dataset, model.id, chain.key)
                 handler.update_status(dataset_id, 0)
         return self.table.insert().values(model.dict())
 
@@ -342,11 +335,9 @@ class ModelManager(BaseManager):
             for chain in model.chains:
                 for dataset_id in chain.datasets:
                     handler.update_status(dataset_id, 1)
-                    relative_manager.delete_relative(
-                        dataset_id, model_id, chain.key)
+                    relative_manager.delete_relative(dataset_id, model_id, chain.key)
                     Retriever.delete_relative_chain_from_dataset(
-                        dataset_manager.get_datasets(
-                            dataset_id)[0], model_id, chain.key
+                        dataset_manager.get_datasets(dataset_id)[0], model_id, chain.key
                     )
                     handler.update_status(dataset_id, 0)
             for chain in update_data["chains"]:
@@ -364,8 +355,7 @@ class ModelManager(BaseManager):
             model_dict = model.dict()
             model_dict.update(update_data)
             self.redis.set(urn, json.dumps(model_dict))
-            logger.info(
-                f"Updating model {model_id} in cache, model: {model_dict}")
+            logger.info(f"Updating model {model_id} in cache, model: {model_dict}")
         return (
             self.table.update().where(self.table.c.id == model_id).values(**update_data)
         )
@@ -403,11 +393,9 @@ class ModelManager(BaseManager):
             try:
                 models.append(Model(**model._mapping))
             except Exception as e:
-                logger.error(
-                    f"Error when parsing model {model._mapping['id']}: {e}")
+                logger.error(f"Error when parsing model {model._mapping['id']}: {e}")
         for model in models:
-            self.redis.set(self.get_model_urn(model.id),
-                           json.dumps(model.dict()))
+            self.redis.set(self.get_model_urn(model.id), json.dumps(model.dict()))
         return models
 
     def upsert_model(self, model_id: str, model: dict):
@@ -538,8 +526,7 @@ class SessionStateManager(BaseManager):
             current_status = json.loads(current_status)
             current_status[output_key] = (status, max_retries)
             self.redis.set(
-                self.get_session_state_urn(
-                    session_id), json.dumps(current_status)
+                self.get_session_state_urn(session_id), json.dumps(current_status)
             )
         else:
             self.redis.set(
