@@ -153,7 +153,6 @@ const DataForm = () => {
       })
     }
   }
-  console.log(previewMutating, '---previewMutating')
   return (
     <div className={cn('h-full w-full')}>
       <div
