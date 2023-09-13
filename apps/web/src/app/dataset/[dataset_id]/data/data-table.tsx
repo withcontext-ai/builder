@@ -7,15 +7,16 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { throttle } from 'lodash'
 import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 import { useToast } from '@/components/ui/use-toast'
-import GenericFilter, { GenericFilterType } from '@/components/generic-filter'
 
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
@@ -32,9 +33,7 @@ const DatasetTable = ({ preload }: IProps) => {
   const { dataset_id } = useParams() as {
     dataset_id: string
   }
-  const [queries, setQueries] = useState({
-    search: '',
-  })
+  const [value, setValue] = useState('')
   const [pagination, setPagination] = useState({
     pageSize: 10,
     pageIndex: 0,
@@ -52,10 +51,6 @@ const DatasetTable = ({ preload }: IProps) => {
     return fetcher(`/api/datasets/${dataset_id}?${search}`, { method: 'GET' })
   }
 
-  const handleFilterChange = useCallback(async (key: string, value: any) => {
-    setQueries((prev) => ({ ...prev, [key]: value }))
-  }, [])
-
   const { toast } = useToast()
 
   const editData = useCallback(
@@ -67,19 +62,8 @@ const DatasetTable = ({ preload }: IProps) => {
     [dataset_id, router]
   )
 
-  const filters: GenericFilterType[] = useMemo(
-    () => [
-      {
-        type: 'text',
-        key: 'search',
-        placeholder: 'Search',
-      },
-    ],
-    []
-  )
-
   const { data = [], isValidating } = useSWR<any>(
-    [queries, pagination],
+    [{ search: value }, pagination],
     getDatasetDocument,
     {
       fallbackData: preload,
@@ -199,14 +183,19 @@ const DatasetTable = ({ preload }: IProps) => {
     manualPagination: true,
     pageCount: Math.ceil((data?.length || 0) / pagination.pageSize),
   })
-
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e?.target?.value)
+  }, [])
+  const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
   return (
     <div className="space-y-8">
-      <GenericFilter
-        value={queries}
-        content={filters}
-        onChange={handleFilterChange}
-      />
+      <div className="mb-8 flex">
+        <Input
+          className="w-[240px]"
+          placeholder="Search"
+          onChange={throttledOnChange}
+        />
+      </div>
       <DataTable
         table={table}
         isLoading={isValidating}

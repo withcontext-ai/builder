@@ -33,6 +33,7 @@ const SegmentHeader = ({ name, dataset_id, document_id }: IProps) => {
           variant="outline"
           className="h-8 w-8 p-0"
           onClick={goBack}
+          type="button"
           disabled={isPending}
         >
           {isPending ? (
@@ -44,7 +45,7 @@ const SegmentHeader = ({ name, dataset_id, document_id }: IProps) => {
         <PdfImage className="h-6 w-6" />
         <div className="font-2xl font-semibold">{name}</div>
       </div>
-      <Button onClick={() => setOpen(true)}>
+      <Button onClick={() => setOpen(true)} type="button">
         <Plus size={16} />
         Add Segment
       </Button>
