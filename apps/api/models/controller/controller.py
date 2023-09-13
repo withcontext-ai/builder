@@ -11,10 +11,6 @@ from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
 import json
 
-import pinecone
-from pinecone import Index
-from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
-
 
 class RelativeManager(BaseManager):
     def __init__(self) -> None:
@@ -243,9 +239,6 @@ class DatasetManager(BaseManager):
     def get_document_segments(
         self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10
     ):
-        # Initialize Pinecone
-        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-        index = Index("context-prod")
         # Retrieve the dataset object
         dataset_response = self.get_datasets(dataset_id)
         if not dataset_response:
