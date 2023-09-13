@@ -20,7 +20,7 @@ export const TYPE_MAP = {
 
 export const SUB_TYPE_MAP = {
   conversation_chain: {
-    title: 'Conversation chain',
+    title: 'Conversation',
   },
   conversational_retrieval_qa_chain: {
     title: 'Conversational Retrieval QA',
