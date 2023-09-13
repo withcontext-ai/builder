@@ -1,11 +1,6 @@
-import { ArrowLeft, Plus } from 'lucide-react'
-
 import { getDataInfo } from '@/db/datasets/actions'
 import { getSegments } from '@/db/segment/actions'
-import { Button } from '@/components/ui/button'
-import { PdfImage } from '@/components/upload/component'
 
-import AddOrEdit from './add-edit-segment'
 import SegmentHeader from './header'
 import SegmentPage from './view-page'
 

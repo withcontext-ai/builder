@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { throttle } from 'lodash'
-import { Search, Trash } from 'lucide-react'
+import { Loader2, Search, Trash } from 'lucide-react'
+import useSWR from 'swr'
 
+import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTablePagination } from '@/components/ui/table/pagination'
@@ -23,12 +25,35 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
-  const [data, setData] = useState(preload)
+  // const [data, setData] = useState(preload)
   const [pagination, setPagination] = useState({
     pageSize: 10,
     pageIndex: 0,
   })
   const current = useRef({ content: '', segment_id: '' })
+
+  async function getDatasetDocument(
+    params: [queries: Record<string, any>, pagination: Record<string, any>]
+  ) {
+    const [queries, pagination] = params
+    const search = new URLSearchParams({
+      ...queries,
+      ...pagination,
+    }).toString()
+
+    return fetcher(`/api/datasets/segment?${search}`, { method: 'GET' })
+  }
+  const queries = { dataset_id, uid: document_id, search: value }
+  console.log(value, '---value')
+  const { data = [], isValidating } = useSWR<any>(
+    [queries, pagination],
+    getDatasetDocument,
+    {
+      fallbackData: preload,
+      keepPreviousData: true,
+    }
+  )
+
   const table = useReactTable({
     data,
     columns: [],
@@ -38,20 +63,27 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
     manualPagination: true,
     pageCount: Math.ceil((data?.length || 0) / pagination.pageSize),
   })
+
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e?.target?.value)
+  }, [])
+  const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
+
   return (
     <div>
       <div className="mb-8 flex">
         <Input
           className="w-[240px]"
           placeholder="Search"
-          onChange={(e) => {
-            throttle(() => {
-              setValue(e?.target?.value)
-            }, 500)
-          }}
+          onChange={throttledOnChange}
         />
       </div>
-      <div className="mb-8 flex grid-cols-2 gap-4">
+      <div className={cn('relative mb-8 flex grid-cols-2 gap-4')}>
+        {isValidating && (
+          <div className="absolute z-10 flex h-full w-full items-center justify-center rounded-md bg-white/80">
+            <Loader2 className="animate-spin" />
+          </div>
+        )}
         {data?.map((item: any, index: number) => {
           return (
             <div

@@ -1,6 +1,19 @@
 import { NextRequest } from 'next/server'
 
-import { addSegment, editSegment } from '@/db/segment/actions'
+import { addSegment, editSegment, getSegments } from '@/db/segment/actions'
+
+// get segments
+export async function GET(req: NextRequest) {
+  const query = req.nextUrl.searchParams
+  const dataset_id = query.get('dataset_id') || ''
+  const uid = query.get('uid') || ''
+  const limit = parseInt(query.get('pageSize') || '')
+  const page = parseInt(query.get('pageIndex') || '')
+  const search = query.get('search') || ''
+  const offset = page * limit
+  const data = await getSegments(dataset_id, uid, search, offset, limit)
+  return data
+}
 
 // add segment
 export async function POST(req: NextRequest) {
@@ -12,7 +25,6 @@ export async function POST(req: NextRequest) {
 // edit segment
 export async function PATCH(req: NextRequest) {
   const { dataset_id, uid, content, segment_id } = await req.json()
-  console.log(await req.json(), '---params')
   const data = await editSegment(dataset_id, uid, segment_id, content)
   return data
 }

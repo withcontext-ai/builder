@@ -13,8 +13,8 @@ export async function getSegments(
   dataset_id: string,
   uid: string,
   search?: string,
-  offset?: string,
-  limit?: string
+  offset?: number,
+  limit?: number
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
   const { data: res } = await axios({
