@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form'
 import AddTemplateButton from './add-template-button'
 import {
   MAX_MAX_TOKENS,
+  SUB_TYPE_MAP,
   SYSTEM_PROMPT_TEMPLATES,
   TASK_DEFAULT_VALUE_MAP,
 } from './const'
@@ -27,10 +28,7 @@ import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
 import useAutoSave from './use-auto-save'
 import useResetForm from './use-reset-form'
-import {
-  formatWorkflowDataToSuggestionData,
-  suggestionDataFormatter,
-} from './utils'
+import { formatWorkflowDataToSuggestionData } from './utils'
 
 interface IProps {
   taskId: string
@@ -68,7 +66,6 @@ const FormSchema = z.object({
   }),
   prompt: z.object({
     template: z.string().optional(),
-    basic_prompt: z.string().optional(),
   }),
 })
 
@@ -113,7 +110,9 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
     <div className="h-full w-[380px] shrink-0 overflow-auto border-l border-slate-200 scrollbar-none">
       <div className="space-y-6 p-6 pb-[280px]">
         <div className="space-y-[10px]">
-          <h2 className="text-lg font-semibold">Conversation Chain</h2>
+          <h2 className="text-lg font-semibold">
+            {SUB_TYPE_MAP['conversation_chain'].title}
+          </h2>
           {keyLabel && <Badge variant="secondary">key: {keyLabel}</Badge>}
         </div>
         <div className="space-y-6">
@@ -215,10 +214,7 @@ function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
   const suggestionData = React.useMemo(
-    () => [
-      ...['chat_history', 'question'].map(suggestionDataFormatter),
-      ...formatWorkflowDataToSuggestionData(workflowData),
-    ],
+    () => formatWorkflowDataToSuggestionData(workflowData),
     [workflowData]
   )
 
@@ -235,18 +231,6 @@ function FormItemPrompt() {
                 tip="If you want to quote the output results of another chain, please enter {key.output}."
               />
               <AddTemplateButton config={SYSTEM_PROMPT_TEMPLATES} />
-            </div>
-          }
-          data={suggestionData}
-        />
-        <MentionTextareaItem<IFormSchema>
-          name="prompt.basic_prompt"
-          label={
-            <div className="flex items-center justify-between">
-              <FormItemTitle
-                title="Basic Prompt"
-                tip="This is where the AI makes its judgments, and it is recommended not to make any modifications."
-              />
             </div>
           }
           data={suggestionData}
