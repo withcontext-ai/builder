@@ -22,7 +22,7 @@ export async function getSegments(
     url: `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}`,
     params: {
       offset: offset || 0,
-      limit: limit || 10,
+      limit: limit || 100,
     },
   })
   if (res.status !== 200) {
@@ -32,7 +32,7 @@ export async function getSegments(
   if (search) {
     data = res?.data?.filter((item: any) => item?.context?.includes(search))
   }
-  return { success: true, data }
+  return data
 }
 
 export async function addSegment(
@@ -48,7 +48,7 @@ export async function addSegment(
   if (data.status !== 200) {
     return
   }
-  return { success: true, data: { dataset_id, uid } }
+  return { dataset_id, uid }
 }
 
 export async function editSegment(
@@ -65,5 +65,5 @@ export async function editSegment(
   if (data.status !== 200) {
     return
   }
-  return { success: true, data: { dataset_id, uid, segment_id } }
+  return { dataset_id, uid, segment_id }
 }

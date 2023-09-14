@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export const PreviewCard = ({ content, index }: segmentProps) => {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+    <div className="h-[182px] rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="mb-1 flex justify-between text-sm text-slate-500">
         {`#00${index}`}
         <div className="flex gap-2">
@@ -15,16 +15,13 @@ export const PreviewCard = ({ content, index }: segmentProps) => {
     </div>
   )
 }
-export const LoadingCard = () => (
-  <div className="mb-8 grid h-full w-full grid-cols-2 gap-4">
-    {Array.from({ length: 5 }).map((_, i) => (
-      <Skeleton
-        key={i}
-        className="h-[148px] rounded-lg border border-transparent"
-      />
-    ))}
-  </div>
-)
+export const LoadingCard = () =>
+  Array.from({ length: 5 }).map((_, i) => (
+    <Skeleton
+      key={i}
+      className="h-[182px] rounded-lg border border-transparent"
+    />
+  ))
 
 const mockData = [
   {
@@ -62,17 +59,19 @@ interface IProps {
   isLoading: boolean
 }
 const Preview = ({ data, isLoading }: IProps) => {
-  return isLoading ? (
-    <LoadingCard />
-  ) : (
-    <div className="gird mb-8 grid-cols-2 gap-4">
-      {mockData?.map((item, index) => {
-        return (
-          <div key={index}>
-            <PreviewCard index={index} content={item?.content} />
-          </div>
-        )
-      })}
+  return (
+    <div className="mb-5 grid h-full w-full grid-cols-2 gap-4">
+      {isLoading ? (
+        <LoadingCard />
+      ) : (
+        mockData?.map((item, index) => {
+          return (
+            <div key={index}>
+              <PreviewCard index={index} content={item?.content} />
+            </div>
+          )
+        })
+      )}
     </div>
   )
 }

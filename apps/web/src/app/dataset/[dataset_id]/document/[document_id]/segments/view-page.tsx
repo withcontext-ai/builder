@@ -9,9 +9,10 @@ import useSWR from 'swr'
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 
-import { PreviewCard } from '../preview'
+import { LoadingCard, PreviewCard } from '../preview'
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
 
@@ -27,7 +28,7 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
   const [value, setValue] = useState('')
   // const [data, setData] = useState(preload)
   const [pagination, setPagination] = useState({
-    pageSize: 10,
+    pageSize: 100,
     pageIndex: 0,
   })
   const current = useRef({ content: '', segment_id: '' })
@@ -44,7 +45,6 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
     return fetcher(`/api/datasets/segment?${search}`, { method: 'GET' })
   }
   const queries = { dataset_id, uid: document_id, search: value }
-  console.log(value, '---value')
   const { data = [], isValidating } = useSWR<any>(
     [queries, pagination],
     getDatasetDocument,
@@ -55,13 +55,13 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
   )
 
   const table = useReactTable({
-    data,
+    data: data?.segments,
     columns: [],
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
     onPaginationChange: setPagination,
     manualPagination: true,
-    pageCount: Math.ceil((data?.length || 0) / pagination.pageSize),
+    pageCount: Math.ceil((data?.totalItems || 0) / pagination.pageSize),
   })
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,40 +78,42 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
           onChange={throttledOnChange}
         />
       </div>
-      <div className={cn('relative mb-8 flex grid-cols-2 gap-4')}>
-        {isValidating && (
-          <div className="absolute z-10 flex h-full w-full items-center justify-center rounded-md bg-white/80">
-            <Loader2 className="animate-spin" />
-          </div>
-        )}
-        {data?.map((item: any, index: number) => {
-          return (
-            <div
-              key={index}
-              className="group/card relative cursor-pointer"
-              onClick={(e) => {
-                setOpen(true)
-                e.preventDefault()
-                current.current = item
-              }}
-            >
-              <PreviewCard index={index} content={item?.content} />
-              <Button
-                type="button"
-                className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
-                size="icon"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowDeleteAlter(true)
-                  current.current = item
-                }}
-              >
-                <Trash size={18} />
-              </Button>
-            </div>
-          )
-        })}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
+        {isValidating
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton
+                key={i}
+                className="h-[182px] rounded-lg border border-transparent"
+              />
+            ))
+          : data?.map((item: any, index: number) => {
+              return (
+                <div
+                  key={index}
+                  className="group/card relative h-[182px] cursor-pointer"
+                  onClick={(e) => {
+                    setOpen(true)
+                    e.preventDefault()
+                    current.current = item
+                  }}
+                >
+                  <PreviewCard index={index} content={item?.content} />
+                  <Button
+                    type="button"
+                    className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
+                    size="icon"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowDeleteAlter(true)
+                      current.current = item
+                    }}
+                  >
+                    <Trash size={18} />
+                  </Button>
+                </div>
+              )
+            })}
         <AddOrEdit
           content={current?.current?.content}
           open={open}
@@ -129,7 +131,9 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
         />
       </div>
       <div>
-        <DataTablePagination table={table} />
+        {data?.length > 100 && (
+          <DataTablePagination table={table} showPageSizes={false} />
+        )}
       </div>
     </div>
   )
