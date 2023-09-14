@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { addDataset, editDataset, removeDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
 import { NewDataset } from '@/db/datasets/schema'
-import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
+import { DataProps } from '@/app/dataset/document/[dataset_id]/settings/documents/utils'
 
 // create a dataset
 export async function POST(req: NextRequest) {

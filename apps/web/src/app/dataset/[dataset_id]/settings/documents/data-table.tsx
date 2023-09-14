@@ -20,7 +20,7 @@ import { useToast } from '@/components/ui/use-toast'
 
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
-import { DataProps } from './utils'
+import { DataProps, formateDate, formateNumber } from './utils'
 
 interface IProps {
   preload: any
@@ -83,11 +83,13 @@ const DatasetTable = ({ preload }: IProps) => {
       {
         accessorKey: 'Characters',
         header: 'characters',
+        cell: ({ row }) => formateNumber(row.getValue('characters') || 0),
       },
       {
         accessorKey: 'update_at',
         header: 'Update Time',
-        cell: ({ row }) => new Date(row.getValue('update_at')).toLocaleString(),
+        cell: ({ row }) =>
+          formateDate(new Date(row.getValue('update_at')) || 0),
       },
       {
         accessorKey: 'status',

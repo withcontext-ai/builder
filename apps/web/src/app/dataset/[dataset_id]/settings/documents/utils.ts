@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import { z } from 'zod'
 
 export const FormSchema = z.object({
@@ -78,3 +79,14 @@ export const DataSchema = z.object({
 })
 
 export type DataSchemeProps = z.infer<typeof DataSchema>
+
+export function formateNumber(characters: number) {
+  const formatter = new Intl.NumberFormat('en', {
+    notation: 'compact',
+  })
+  return formatter.format(characters)
+}
+
+export function formateDate(time: Date) {
+  return format(time, 'MM/dd/yyyy hh:mm aa')
+}
