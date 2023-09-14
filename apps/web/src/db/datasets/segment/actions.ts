@@ -26,11 +26,12 @@ export async function getSegments(
       query: search,
     },
   })
+  console.log(res, '----segments')
+
   if (res.status !== 200) {
     return
   }
   let data = res?.data
-  console.log(data, '----segments')
   return data
 }
 

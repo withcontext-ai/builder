@@ -42,7 +42,7 @@ const SidebarLink = (props: SidebarLinkProps) => {
     </Link>
   )
 }
-function Sidebar({ children }: PropsWithChildren) {
+function Sidebar({ children, url }: PropsWithChildren & { url?: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextUrl = searchParams.get('nextUrl')
@@ -50,6 +50,9 @@ function Sidebar({ children }: PropsWithChildren) {
 
   function handleGoBack() {
     startTransition(() => {
+      if (url) {
+        router.push(url)
+      }
       if (nextUrl) {
         router.push(nextUrl as Route)
       } else {
