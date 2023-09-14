@@ -180,6 +180,7 @@ class DatasetManager(BaseManager):
                     f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict}"
                 )
                 self._update_dataset(dataset_id, dataset_dict)
+                return
         self._update_dataset(dataset_id, update_data)
 
     @BaseManager.db_session
