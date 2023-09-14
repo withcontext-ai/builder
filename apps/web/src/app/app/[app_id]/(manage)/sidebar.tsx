@@ -52,6 +52,7 @@ function Sidebar({ children, url }: PropsWithChildren & { url?: string }) {
     startTransition(() => {
       if (url) {
         router.push(url)
+        return
       }
       if (nextUrl) {
         router.push(nextUrl as Route)

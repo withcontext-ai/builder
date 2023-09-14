@@ -37,7 +37,6 @@ const Page = async ({ params }: IProps) => {
   const { dataset_id, document_id } = params
   const { data } = await getDataInfo(dataset_id, document_id)
   const name = data?.name
-  // const preload = await getSegments(dataset_id, document_id)
   return (
     <div className="py-[68px] pl-14 pr-8">
       <SegmentHeader

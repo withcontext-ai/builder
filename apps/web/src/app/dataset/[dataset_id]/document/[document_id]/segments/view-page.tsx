@@ -17,12 +17,12 @@ import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
 
 interface IProps {
-  preload: any
+  preload: any[]
   document_id?: string
   dataset_id?: string
 }
 
-const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
+const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
@@ -86,7 +86,7 @@ const SegmentPage = ({ preload, dataset_id, document_id }: IProps) => {
                 className="h-[182px] rounded-lg border border-transparent"
               />
             ))
-          : data?.map((item: any, index: number) => {
+          : data?.segments?.map((item: any, index: number) => {
               return (
                 <div
                   key={index}
