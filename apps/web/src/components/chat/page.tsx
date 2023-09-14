@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher, nanoid } from '@/lib/utils'
@@ -116,6 +117,7 @@ const Chat = (props: ChatProps) => {
   const [showProcess, setShowProcess] = useState(false)
 
   const { scrollRef, setAutoScroll } = useScrollToBottom()
+  const { mutate } = useSWRConfig()
 
   const {
     messages,
@@ -143,6 +145,9 @@ const Chat = (props: ChatProps) => {
           currentInput.current,
           message,
         ])
+      }
+      if (mode === 'live') {
+        mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
       }
     },
   })
@@ -184,8 +189,9 @@ const Chat = (props: ChatProps) => {
     )
   }, [messages, eventMessages])
 
-  const disabled = !input || input.trim() === '' || isLoading
-
+  const set = new Set(input?.split(''))
+  const isEmpty = set?.size === 1 && set.has('\n')
+  const disabled = isEmpty || !input || !input?.trim() || isLoading
   const handelReload = () => {
     setAutoScroll(true)
     reload()

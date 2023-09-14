@@ -125,7 +125,7 @@ class TargetedChain(Chain):
         if self.process == TargetedChainStatus.INIT:
             self.process = TargetedChainStatus.RUNNING
             system_message = prompt_value.to_string()
-        elif self.process == TargetedChainStatus.RUNNING:
+        else:
             system_message = f"{prompt_value.to_string()}\n{self.suffix}{question}\n"
         messages = [SystemMessage(content=system_message)] + bacis_messages
         response = await self.llm.agenerate(
@@ -166,8 +166,12 @@ class EnhanceSequentialChain(SequentialChain):
                     chain.process == TargetedChainStatus.FINISHED
                     or chain.process == TargetedChainStatus.ERROR
                 ):
+                    if i == len(self.chains) - 1:
+                        await self._handle_final_chain()
+                        return self._construct_return_dict()
                     logger.info(f"Skipping chain {i} as it is already {chain.process}")
                     continue
+
                 else:
                     outputs = await chain.acall(
                         self.known_values, return_only_outputs=True, callbacks=callbacks
@@ -177,24 +181,11 @@ class EnhanceSequentialChain(SequentialChain):
                         TargetedChainStatus.FINISHED,
                         TargetedChainStatus.ERROR,
                     ]:
-                        for token in outputs[chain.output_key]:
-                            await self.queue.put(token)
-                        while not self.queue.empty():
-                            await asyncio.sleep(2)
-                        # I need to put all the output tokens into a queue so that
-                        # I can asynchronously fetch them from the queue later.
-                        # This code ensures that the queue becomes empty after all the tokens have been placed in it,
-                        # which ensures that all the tokens are processed.
-                        # If I don't do this, because of the competition between the two tasks in the aider function,
-                        # it will result in the loss of a token
-                        self.done.set()
-                        return_dict = {}
-                        for k in self.output_variables:
-                            if k in self.known_values:
-                                return_dict[k] = self.known_values[k]
-                            else:
-                                return_dict[k] = ""
-                        return return_dict
+                        await self._put_tokens_into_queue(outputs[chain.output_key])
+                        return self._construct_return_dict()
+                    elif i == len(self.chains) - 1:
+                        await self._handle_final_chain()
+                        return self._construct_return_dict()
             else:
                 if i == len(self.chains) - 1:
                     callbacks.add_handler(
@@ -204,12 +195,30 @@ class EnhanceSequentialChain(SequentialChain):
                     self.known_values, return_only_outputs=True, callbacks=callbacks
                 )
                 self.known_values.update(outputs)
+        return self._construct_return_dict()
+
+    async def _handle_final_chain(self):
+        target_finished = "This chat has completed its goal. Please create a new chat to have a conversation."
+        logger.info(f"Putting {target_finished} into queue")
+        await self._put_tokens_into_queue(target_finished)
+
+    async def _put_tokens_into_queue(self, tokens: str):
+        for token in tokens:
+            await self.queue.put(token)
+        # I need to put all the output tokens into a queue so that
+        # I can asynchronously fetch them from the queue later.
+        # This code ensures that the queue becomes empty after all the tokens have been placed in it,
+        # which ensures that all the tokens are processed.
+        # If I don't do this, because of the competition between the two tasks in the aider function,
+        # it will result in the loss of a token
+        while not self.queue.empty():
+            await asyncio.sleep(2)
+        self.done.set()
+
+    def _construct_return_dict(self):
         return_dict = {}
         for k in self.output_variables:
-            if k in self.known_values:
-                return_dict[k] = self.known_values[k]
-            else:
-                return_dict[k] = ""
+            return_dict[k] = self.known_values.get(k, "")
         return return_dict
 
     async def aiter(self) -> AsyncIterator[str]:

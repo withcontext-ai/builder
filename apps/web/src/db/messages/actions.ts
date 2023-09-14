@@ -18,7 +18,19 @@ export async function getMessages(sessionId: string) {
     }
 
     const sq = db
-      .select()
+      .select({
+        short_id: MessagesTable.short_id,
+        session_id: MessagesTable.session_id,
+        created_at: MessagesTable.created_at,
+        type: MessagesTable.type,
+        query: MessagesTable.query,
+        answer: MessagesTable.answer,
+        feedback: MessagesTable.feedback,
+        content: MessagesTable.content,
+        event_type: MessagesTable.event_type,
+        call_duration: MessagesTable.call_duration,
+        // do not include `raw` data, it will cause neon error when the raw size is too big
+      })
       .from(MessagesTable)
       .where(
         and(
