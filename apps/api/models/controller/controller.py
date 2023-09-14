@@ -247,6 +247,9 @@ class DatasetManager(BaseManager):
         if preview is not None:
             logger.info(f"Preview found for dataset {dataset_id}, document {uid}")
             return len(preview), preview
+        if query is not None:
+            logger.info(f"Searching for query {query}")
+            return self.search_document_segments(dataset_id, uid, query=query)
         # Retrieve the dataset object
         dataset_response = self.get_datasets(dataset_id)
         if not dataset_response:
@@ -280,6 +283,24 @@ class DatasetManager(BaseManager):
                 text = vector["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
         return limit, segments
+
+    def search_document_segments(self, dataset_id, uid, query):
+        dataset = self.get_datasets(dataset_id)[0]
+        doc = None
+        for _doc in dataset.documents:
+            if _doc.uid == uid:
+                doc = _doc
+                break
+        if doc is None:
+            raise ValueError("UID not found in dataset documents")
+        retriever = Retriever.get_retriever(
+            filter={
+                "urn": {
+                    "$in": [f"{dataset_id}-{uid}-{i}" for i in range(doc.page_size)]
+                }
+            }
+        )
+        docs = asyncio.run(retriever.aget_relevant_documents(query))
 
     def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
         if content == "":
