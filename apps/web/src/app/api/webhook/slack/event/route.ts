@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { throttle } from 'lodash'
 
 import { OpenAIStream } from '@/lib/openai-stream'
+import { createSlackClient } from '@/lib/slack'
 
-export const runtime = 'edge'
-export const preferredRegion = 'cle1'
 export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
@@ -38,9 +37,49 @@ function ask({
 
 const throttledAsk = throttle(ask, 200)
 
+function postMessage({
+  token,
+  channel,
+  text,
+}: {
+  token: string
+  channel: string
+  text: string
+}) {
+  const client = createSlackClient(token)
+  return client.chat.postMessage({
+    channel,
+    text,
+  })
+}
+
+const throttledPostMessage = throttle(postMessage, 200)
+
+function updateMessage({
+  token,
+  channel,
+  ts,
+  text,
+}: {
+  token: string
+  channel: string
+  text: string
+  ts: string
+}) {
+  const client = createSlackClient(token)
+  return client.chat.update({
+    channel,
+    ts,
+    text,
+  })
+}
+
+const throttledUpdateMessage = throttle(updateMessage, 200)
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+    console.log(JSON.stringify(body, null, 2))
 
     if (body.challenge) return NextResponse.json(body)
 
@@ -49,7 +88,6 @@ export async function POST(req: NextRequest) {
       !body.event.bot_id &&
       !body.event.message?.bot_id
     ) {
-      console.log(JSON.stringify(body, null, 2))
       const apiSessionId = '' // TODO: get apiSessionId from db
       const content = body.event.text
       const payload = {
@@ -60,14 +98,17 @@ export async function POST(req: NextRequest) {
       const token = '' // TODO: get token from db
       const channel = body.event.channel
 
-      const result = await throttledAsk({
-        url: 'https://slack.com/api/chat.postMessage',
+      const result = await postMessage({
         token,
         channel,
-        text: '_Typing..._',
+        text: '_Thinking..._',
       })
 
       const ts = result.ts
+
+      if (!ts) {
+        return NextResponse.json(body)
+      }
 
       let completion = ''
 
@@ -77,8 +118,7 @@ export async function POST(req: NextRequest) {
         callback: {
           async onToken(text) {
             completion = completion + text
-            await throttledAsk({
-              url: 'https://slack.com/api/chat.update',
+            await throttledUpdateMessage({
               token,
               channel,
               text: completion,
@@ -87,9 +127,7 @@ export async function POST(req: NextRequest) {
           },
           async onCompletion(completion, metadata) {
             setTimeout(() => {
-              console.log('setTimeout')
-              throttledAsk({
-                url: 'https://slack.com/api/chat.update',
+              throttledUpdateMessage({
                 token,
                 channel,
                 text: completion,

@@ -67,6 +67,7 @@ export async function OpenAIStream({
               await callback.onCompletion(completion, metadata ?? {})
             }
             controller.close()
+            if (waitingId) clearInterval(waitingId)
             return
           }
           try {
