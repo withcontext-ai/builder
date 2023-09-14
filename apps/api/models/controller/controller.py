@@ -135,6 +135,13 @@ class DatasetManager(BaseManager):
         return self.table.insert().values(dataset.dict())
 
     @BaseManager.db_session
+    def _update_dataset(self, dataset_id: str, update_data: dict):
+        return (
+            self.table.update()
+            .where(self.table.c.id == dataset_id)
+            .values(**update_data)
+        )
+
     def update_dataset(self, dataset_id: str, update_data: dict):
         logger.info(f"Updating dataset {dataset_id}")
         urn = self.get_dataset_urn(dataset_id)
@@ -172,16 +179,8 @@ class DatasetManager(BaseManager):
                 logger.info(
                     f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict}"
                 )
-                return (
-                    self.table.update()
-                    .where(self.table.c.id == dataset.id)
-                    .values(**dataset.dict())
-                )
-        return (
-            self.table.update()
-            .where(self.table.c.id == dataset_id)
-            .values(**update_data)
-        )
+                self._update_dataset(dataset_id, dataset_dict)
+        self._update_dataset(dataset_id, update_data)
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
@@ -284,9 +283,10 @@ class DatasetManager(BaseManager):
             for doc in dataset.documents:
                 if doc.uid == uid:
                     doc.page_size += 1
-            self.table.update().where(self.table.c.id == dataset_id).values(
-                documents=dataset.documents
-            )
+                    break
+            self._update_dataset(dataset_id, dataset.dict())
+            urn = self.get_dataset_urn(dataset_id)
+            self.redis.set(urn, json.dumps(dataset.dict()))
         metadata = Retriever.get_metadata(first_segment)
         metadata["text"] = content
         Retriever.upsert_vector(segment_id, content, metadata)
