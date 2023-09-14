@@ -34,16 +34,6 @@ def get_dataset(id: str):
         return {"data": dataset, "message": "success", "status": 200}
 
 
-@router.get("/", tags=["datasets"])
-def get_datasets():
-    with graphsignal.start_trace("get_datasets"):
-        return {
-            "data": dataset_manager.get_datasets(),
-            "message": "success",
-            "status": 200,
-        }
-
-
 def background_create_dataset(dataset: Dataset):
     try:
         dataset_manager.save_dataset(dataset)
@@ -105,6 +95,7 @@ def delete_dataset(id: str):
             )
 
 
+
 @router.get("/{dataset_id}/document/{uid}", tags=["datasets"])
 def retrieve_document_segments(
     dataset_id: str,
@@ -135,3 +126,21 @@ def query(id: str, index: IndexResponse):
     except Exception as e:
         logger.error(e)
         raise HTTPException(status_code=400, detail="not supported")
+
+@router.patch("/{dataset_id}/document/{uid}/segment/{segment_id}", tags=["datasets"])
+def update_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
+    with graphsignal.start_trace("update_segment"):
+        logger.info(f"dataset: {dataset_id}, uid: {uid}, segment_id: {segment_id}")
+        if "content" not in segment:
+            return {"message": "content is required", "status": 400}
+        try:
+            dataset_manager.update_segment(
+                dataset_id, uid, segment_id, segment["content"]
+            )
+            return {"message": "success", "status": 200}
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(
+                status_code=400, detail="Segment not updated with error: {}".format(e)
+            )
+

@@ -236,6 +236,7 @@ class DatasetManager(BaseManager):
         else:
             self.update_dataset(dataset_id, dataset)
 
+
     def get_document_segments(
         self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10
     ):
@@ -270,6 +271,10 @@ class DatasetManager(BaseManager):
                 segments.append({"segment_id": seg_id, "content": text})
         response_data = {"totalItems": limit, "segments": segments}
         return response_data
+
+    def update_segment(self, dataset_id: str, uid: str, segment_id: str, content: str):
+        pass
+
 
 
 dataset_manager = DatasetManager()
