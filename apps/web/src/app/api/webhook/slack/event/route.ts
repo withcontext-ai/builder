@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { clerkClient } from '@clerk/nextjs'
 import { throttle } from 'lodash'
 
 import { OpenAIStream } from '@/lib/openai-stream'
@@ -83,11 +84,29 @@ export async function POST(req: NextRequest) {
 
     if (body.challenge) return NextResponse.json(body)
 
-    if (
+    const isFromUser =
       body.event.type === 'message' &&
       !body.event.bot_id &&
       !body.event.message?.bot_id
-    ) {
+
+    if (isFromUser) {
+      const teamId = body.team_id as string
+      const userId = body.event.user as string
+
+      const token = '' // TODO: get token from db
+      const client = createSlackClient(token)
+      const { user } = await client.users.info({ user: userId })
+      console.log('user:', user)
+
+      const clerkUser = await clerkClient.users.createUser({
+        emailAddress: ['genshang@gmail.com'],
+        firstName: user?.profile?.first_name,
+        lastName: user?.profile?.last_name,
+        skipPasswordChecks: false,
+        skipPasswordRequirement: false,
+      })
+      console.log('clerkUser:', clerkUser)
+
       const apiSessionId = '' // TODO: get apiSessionId from db
       const content = body.event.text
       const payload = {
@@ -95,7 +114,6 @@ export async function POST(req: NextRequest) {
         messages: [{ role: 'user', content }],
       }
 
-      const token = '' // TODO: get token from db
       const channel = body.event.channel
 
       const result = await postMessage({
