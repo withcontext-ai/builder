@@ -19,7 +19,7 @@ export async function getSegments(
   const api_dataset_id = await getApiDatasetId(dataset_id)
   const { data: res } = await axios({
     method: 'get',
-    url: `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}`,
+    url: `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}?query=${search}`,
     params: {
       offset: offset || 0,
       limit: limit || 100,
@@ -29,9 +29,6 @@ export async function getSegments(
     return
   }
   let data = res?.data
-  if (search) {
-    data = res?.data?.filter((item: any) => item?.context?.includes(search))
-  }
   return data
 }
 

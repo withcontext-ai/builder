@@ -64,7 +64,7 @@ function getPreview(
   }
 ) {
   return fetcher(url, {
-    method: 'PATCH',
+    method: 'CET',
     body: JSON.stringify(arg),
   })
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { FileType2 } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
@@ -23,32 +24,6 @@ export const LoadingCard = () =>
     />
   ))
 
-const mockData = [
-  {
-    segment_id: '01',
-    content: `The pursuit of wealth should be motivated by a desire for financial
-    security, not a longing for status or a luxurious lifestyle. If you
-    start young and develop the right financial habits, a seven-digit net
-    worth is an attainable goal. In his work with wealthy clients, Jason
-    Flurry, CFP, founder and president of Legacy Partners Financial Group in
-    Woodstock, Georgia, has found that those he calls “true millionaires,”
-    people who gain wealth and keep it, see the role of money in their lives
-    very differently than those who focus on what money can buy.`,
-  },
-  {
-    segment_id: '02',
-
-    content: `The pursuit of wealth should be motivated by a desire for financial
-    security, not a longing for status or a luxurious lifestyle. If you
-    start young and develop the right financial habits, a seven-digit net
-    worth is an attainable goal. In his work with wealthy clients, Jason
-    Flurry, CFP, founder and president of Legacy Partners Financial Group in
-    Woodstock, Georgia, has found that those he calls “true millionaires,”
-    people who gain wealth and keep it, see the role of money in their lives
-    very differently than those who focus on what money can buy.`,
-  },
-]
-
 interface segmentProps {
   content: string
   segment_id?: string
@@ -58,13 +33,13 @@ interface IProps {
   data: segmentProps[]
   isLoading: boolean
 }
-const Preview = ({ data, isLoading }: IProps) => {
+const Preview = ({ isLoading, data }: IProps) => {
   return (
     <div className="mb-5 grid h-full w-full grid-cols-2 gap-4">
       {isLoading ? (
         <LoadingCard />
       ) : (
-        mockData?.map((item, index) => {
+        data?.map((item, index) => {
           return (
             <div key={index}>
               <PreviewCard index={index} content={item?.content} />

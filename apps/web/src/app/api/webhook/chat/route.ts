@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { eq } from 'drizzle-orm'
+import { and, eq, inArray, isNotNull } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
 import { db } from '@/lib/drizzle-edge'
 import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds } from '@/lib/utils'
+import { AppsTable } from '@/db/apps/schema'
 import { getDatasetByApiId } from '@/db/datasets/documents/action'
 import { DatasetsTable } from '@/db/datasets/schema'
 import { addMessage } from '@/db/messages/actions'
+import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { UsersTable } from '@/db/users/schema'
@@ -52,6 +54,10 @@ export async function POST(req: NextRequest) {
       }
       case 'dataset.updated': {
         await updateDataset(event.data)
+        break
+      }
+      case 'annotations.get': {
+        await getAnnotations(event.data)
         break
       }
       default: {
@@ -157,7 +163,6 @@ async function updateDataset(data: any) {
     document_characters,
   } = data
   const dataset = await getDatasetByApiId(api_dataset_id)
-  let update = {}
   // @ts-ignore
   const { config = {} } = dataset
   const documents = config?.files || []
@@ -172,4 +177,26 @@ async function updateDataset(data: any) {
     .update(DatasetsTable)
     .set({ status, config: { ...config, document } })
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
+}
+
+async function getAnnotations(data: { api_model_ids: string[] }) {
+  const { api_model_ids = [] } = data
+  const result = await db
+    .select({
+      messages: MessagesTable.annotation,
+    })
+    .from(MessagesTable)
+    .leftJoin(
+      SessionsTable,
+      eq(SessionsTable.short_id, MessagesTable.session_id)
+    )
+    .leftJoin(AppsTable, eq(AppsTable.short_id, SessionsTable.app_id))
+    .where(
+      and(
+        inArray(AppsTable.api_model_id, api_model_ids),
+        isNotNull(MessagesTable.annotation)
+      )
+    )
+    .groupBy(MessagesTable.id, SessionsTable.id, AppsTable.id)
+  return result
 }

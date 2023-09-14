@@ -4,9 +4,10 @@ import {
   getDataSplitPreview,
   getDocuments,
 } from '@/db/datasets/documents/action'
+import { getSegments } from '@/db/datasets/segment/actions'
 
 // get document split preview
-export async function PATCH(req: NextRequest) {
+export async function GET(req: NextRequest) {
   const { dataset_id, dataConfig, document_id, preview } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
@@ -17,11 +18,12 @@ export async function PATCH(req: NextRequest) {
     files = [...documents, ...dataConfig?.notedData]
   }
   const newConfig = { ...config, files }
-  const data = await getDataSplitPreview(
+  await getDataSplitPreview(
     dataset_id,
     { config: newConfig },
     document_id,
     preview
   )
-  return data
+  const segments = await getSegments(dataset_id, document_id)
+  return segments
 }
