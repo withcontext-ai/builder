@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { FileType2 } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'

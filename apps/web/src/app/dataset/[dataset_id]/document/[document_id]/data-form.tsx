@@ -64,7 +64,7 @@ function getPreview(
   }
 ) {
   return fetcher(url, {
-    method: 'PATCH',
+    method: 'POST',
     body: JSON.stringify(arg),
   })
 }
@@ -137,14 +137,15 @@ const DataForm = () => {
     }
     if (step === 2) {
       setStep?.(step + 1)
-      const data = await previewTrigger({
+      previewTrigger({
         dataset_id: datasetId,
         dataConfig,
         document_id: documentId,
         preview: 5,
+      }).then((res) => {
+        setPreviews(res)
       })
-      console.log(data,'---data---preview')
-      setPreviews(data)
+
       return
     } else {
       await onSubmit()

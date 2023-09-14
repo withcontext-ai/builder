@@ -26,9 +26,7 @@ export async function getSegments(
       query: search,
     },
   })
-  console.log(res, '----segments')
-
-  if (res.status !== 200) {
+  if (res.message !== 'success') {
     return
   }
   let data = res?.data
@@ -45,7 +43,7 @@ export async function addSegment(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment`,
     content
   )
-  if (data.status !== 200) {
+  if (data.message !== 'success') {
     return
   }
   return { dataset_id, uid }
@@ -62,7 +60,7 @@ export async function editSegment(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment/${segment_id}`,
     content
   )
-  if (data.status !== 200) {
+  if (data.success !== 'success') {
     return
   }
   return { dataset_id, uid, segment_id }

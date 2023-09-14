@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import {
   getDataSplitPreview,
@@ -7,7 +7,7 @@ import {
 import { getSegments } from '@/db/datasets/segment/actions'
 
 // get document split preview
-export async function PATCH(req: NextRequest) {
+export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig, document_id, preview } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
@@ -21,5 +21,5 @@ export async function PATCH(req: NextRequest) {
   const uid = document_id !== 'add' ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)
   const segments = await getSegments(dataset_id, uid)
-  return segments
+  return NextResponse.json({ success: true, data: segments?.segments || [] })
 }
