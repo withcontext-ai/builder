@@ -253,7 +253,6 @@ class DatasetManager(BaseManager):
                 break
         if not matching_url:
             raise ValueError("UID not found in dataset documents")
-        id = f"{dataset_id}-{matching_url}-0"
         segment_ids = [
             f"{dataset_id}-{matching_url}-{i}"
             for i in range(offset, offset + limit)
@@ -268,24 +267,27 @@ class DatasetManager(BaseManager):
                 or "metadata" not in vector
                 or "text" not in vector["metadata"]
             ):
-                raise ValueError("Unexpected data format from Pinecone")
+                logger.info(f"Segment {seg_id} not found in Pinecone")
             if vector:
                 text = vector["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
-        response_data = {"totalItems": limit, "segments": segments}
-        return response_data
+        return limit, segments
 
-    def update_segment(self, segment_id: str, content: str):
+    def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
         if content == "":
             Retriever.delete_vector(segment_id)
             return
-        # TODO first segment should be "-".join(segment_id.split("-")[0:2])
-        first_segment = "-".join(segment_id.split("-")[0:2] + ["0"])
-        metadata = (
-            Retriever.fetch_vectors(ids=[first_segment])
-            .get(first_segment, {})
-            .get("metadata", {})
-        )
+        first_segment = "-".join(segment_id.split("-")[0:2])
+        vector = Retriever.fetch_vectors(ids=[first_segment])
+        if vector is {}:
+            dataset = self.get_datasets(dataset_id)[0]
+            for doc in dataset.documents:
+                if doc.uid == uid:
+                    doc.page_size += 1
+            self.table.update().where(self.table.c.id == dataset_id).values(
+                documents=dataset.documents
+            )
+        metadata = Retriever.get_metadata(first_segment)
         metadata["text"] = content
         Retriever.upsert_vector(segment_id, content, metadata)
 

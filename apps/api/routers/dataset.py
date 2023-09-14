@@ -124,10 +124,14 @@ def retrieve_document_segments(
             },
         }
         try:
-            response_data = dataset_manager.get_document_segments(
+            limit, segments = dataset_manager.get_document_segments(
                 dataset_id, uid, offset, limit
             )
-            return {"message": "success", "status": "200", "data": response_data}
+            return {
+                "message": "success",
+                "status": "200",
+                "data": {"limit": limit, "segments": segments},
+            }
         except ValueError as e:
             return error_mapping.get(
                 str(e),
@@ -136,13 +140,15 @@ def retrieve_document_segments(
 
 
 @router.patch("/{dataset_id}/document/{uid}/segment/{segment_id}", tags=["datasets"])
-def update_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
-    with graphsignal.start_trace("update_segment"):
+def upsert_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
+    with graphsignal.start_trace("upsert_segment"):
         logger.info(f"dataset: {dataset_id}, uid: {uid}, segment_id: {segment_id}")
         if "content" not in segment:
             return {"message": "content is required", "status": 400}
         try:
-            dataset_manager.update_segment(segment_id, segment["content"])
+            dataset_manager.upsert_segment(
+                dataset_id, uid, segment_id, segment["content"]
+            )
             return {"message": "success", "status": 200}
         except Exception as e:
             logger.error(e)

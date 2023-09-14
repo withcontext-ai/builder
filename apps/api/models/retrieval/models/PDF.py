@@ -78,7 +78,7 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
 
 class PDFRetrieverMixin:
     @classmethod
-    def create_index(self, datasets: List[Dataset]):
+    def create_index(cls, datasets: List[Dataset]):
         docs = PDFLoader.load_and_split_documents(datasets)
 
         embedding = OpenAIEmbeddings()
@@ -86,6 +86,8 @@ class PDFRetrieverMixin:
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]
         metadatas = [doc.metadata for doc in docs]
+        # metadata same for all pages in a document
+        metadata = docs[0].metadata
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         vector_store = Pinecone.from_texts(
             texts=texts,
@@ -95,17 +97,20 @@ class PDFRetrieverMixin:
             ids=ids,
             index_name="context-prod",
         )
+        id = "-".join(ids[0].split("-")[0:2])
+        cls.upsert_vector(id=id, content="", metadata=metadata)
         return vector_store
 
     @classmethod
-    def delete_index(self, dataset: Dataset):
+    def delete_index(cls, dataset: Dataset):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
         ids = []
         for doc in dataset.documents:
             for i in range(doc.page_size):
                 ids.append(f"{dataset.id}-{doc.url}-{i}")
-        if ids == []:
+            ids.append(f"{dataset.id}-{doc.url}")
+        if len(ids) == 1:
             logger.warning(
                 f"Dataset {dataset.id} has no documents when deleting, or page_size bug"
             )
@@ -113,13 +118,13 @@ class PDFRetrieverMixin:
         index.delete(ids=ids, namespace="withcontext")
 
     @classmethod
-    def get_relative_chains(self, dataset: Dataset):
+    def get_relative_chains(cls, dataset: Dataset):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
         if len(dataset.documents) == 0:
             logger.warning(f"Dataset {dataset.id} has no documents when getting chains")
             return []
-        id = f"{dataset.id}-{dataset.documents[0].url}-0"
+        id = f"{dataset.id}-{dataset.documents[0].url}"
         logger.info(f"Getting vector for id{id}")
         vector = (
             index.fetch(namespace="withcontext", ids=[id])
@@ -137,11 +142,11 @@ class PDFRetrieverMixin:
 
     @classmethod
     def add_relative_chain_to_dataset(
-        self, dataset: Dataset, model_id: str, chain_key: str
+        cls, dataset: Dataset, model_id: str, chain_key: str
     ):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
-        known_chains = self.get_relative_chains(dataset)
+        known_chains = cls.get_relative_chains(dataset)
         chain_urn = f"{model_id}-{chain_key}"
         known_chains.append(chain_urn)
         logger.info(f"Adding chain {chain_urn} to dataset {dataset.id}")
@@ -164,14 +169,21 @@ class PDFRetrieverMixin:
                     namespace="withcontext",
                 )
                 logger.info(f"Updated {id} with relative chains {known_chains}")
+            id = f"{dataset.id}-{doc.url}"
+            index.update(
+                id=id,
+                set_metadata={"relative_chains": known_chains},
+                namespace="withcontext",
+            )
+            logger.info(f"Updated {id} with relative chains {known_chains}")
 
     @classmethod
     def delete_relative_chain_from_dataset(
-        self, dataset: Dataset, model_id: str, chain_key: str
+        cls, dataset: Dataset, model_id: str, chain_key: str
     ):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
-        known_chains = self.get_relative_chains(dataset)
+        known_chains = cls.get_relative_chains(dataset)
         chain_urn = f"{model_id}-{chain_key}"
         try:
             known_chains.remove(chain_urn)
@@ -181,12 +193,17 @@ class PDFRetrieverMixin:
         for doc in dataset.documents:
             for i in range(doc.page_size):
                 id = f"{dataset.id}-{doc.url}-{i}"
-
                 index.update(
                     id=id,
                     set_metadata={"relative_chains": known_chains},
                     namespace="withcontext",
                 )
+            id = f"{dataset.id}-{doc.url}"
+            index.update(
+                id=id,
+                set_metadata={"relative_chains": known_chains},
+                namespace="withcontext",
+            )
 
     @classmethod
     def get_retriever(cls, filter: dict = {}) -> Pinecone:
@@ -227,7 +244,6 @@ class PDFRetrieverMixin:
         index = Index("context-prod")
         embeddings = OpenAIEmbeddings()
         vector = embeddings.embed_documents([content])[0]
-        # TODO add metadata to f"{dataset.id}-{document.url}"
         index.upsert(vectors=[(id, vector, metadata)], namespace="withcontext")
 
     @classmethod
@@ -235,3 +251,8 @@ class PDFRetrieverMixin:
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = Index("context-prod")
         index.delete(ids=[id], namespace="withcontext")
+
+    @classmethod
+    def get_metadata(cls, id):
+        vector = cls.fetch_vectors([id])
+        return vector.get(id, {}).get("metadata", {})
