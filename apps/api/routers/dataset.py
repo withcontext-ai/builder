@@ -130,7 +130,7 @@ def retrieve_document_segments(
             return {
                 "message": "success",
                 "status": "200",
-                "data": {"limit": limit, "segments": segments},
+                "data": {"totalItems": limit, "segments": segments},
             }
         except ValueError as e:
             return error_mapping.get(
