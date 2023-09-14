@@ -77,7 +77,7 @@ async def update_dataset(
         logger.info(f"dataset updating: {dataset}")
         try:
             if preview != 0 and uid is not None:
-                dataset_manager.upsert_preview(id, dataset, preview, uid)
+                dataset_manager.upsert_preview(id, preview, uid)
                 return {"message": "success", "status": 200}
             documents = dataset.get("documents", [])
             for doc in documents:

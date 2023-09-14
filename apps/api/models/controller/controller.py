@@ -245,6 +245,7 @@ class DatasetManager(BaseManager):
     ):
         preview = self.get_preview_segment(dataset_id, uid)
         if preview is not None:
+            logger.info(f"Preview found for dataset {dataset_id}, document {uid}")
             return len(preview), preview
         # Retrieve the dataset object
         dataset_response = self.get_datasets(dataset_id)
@@ -335,6 +336,7 @@ class DatasetManager(BaseManager):
         for i in range(preview_size):
             preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
         self.redis.set(f"preview:{dataset_id}-{document_uid}", json.dumps(preview_list))
+        logger.info(f"Upsert preview for dataset {dataset_id}, document {document_uid}")
 
     def delete_preview_segment(self, dataset_id, document_id):
         self.redis.delete(f"preview:{dataset_id}-{document_id}")
