@@ -1,3 +1,4 @@
+from fastapi import Query, HTTPException
 import asyncio
 import sys
 from uuid import uuid4
@@ -10,6 +11,7 @@ from models.controller import dataset_manager
 from models.retrieval import Retriever
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
+from fastapi import Query
 
 executor = ThreadPoolExecutor(max_workers=1000)
 
@@ -93,6 +95,38 @@ def delete_dataset(id: str):
             )
 
 
+
+@router.get("/{dataset_id}/document/{uid}", tags=["datasets"])
+def retrieve_document_segments(
+    dataset_id: str,
+    uid: str,
+    offset: int = Query(0, description="Offset for pagination"),
+    limit: int = Query(10, description="Limit for pagination"),
+):
+    with graphsignal.start_trace("get_document_segments"):
+        logger.info(f"Retrieving segments for dataset: {dataset_id}, document: {uid}, offset: {offset}, limit: {limit}")
+        error_mapping = {
+            "Dataset not found": {"message": "Dataset not found", "status": "404", "data": None},
+            "UID not found in dataset documents": {"message": "UID not found in dataset documents", "status": "404", "data": None},
+            "Unexpected data format from Pinecone": {"message": "Unexpected data format from Pinecone", "status": "500", "data": None},
+        }
+        try:
+            response_data = dataset_manager.get_document_segments(dataset_id, uid, offset, limit)
+            return {"message": "success", "status": "200", "data": response_data}
+        except ValueError as e:
+            return error_mapping.get(str(e), {"message": "Internal Server Error", "status": "500", "data": None})
+
+
+@router.post("/{id}/index", tags=["datasets"])
+def query(id: str, index: IndexResponse):
+    try:
+        retrieval = Retriever(index.options, id)
+        query = retrieval.query(index.content, index.index_type)
+        return {"data": {"query": query}, "message": "success", "status": 200}
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=400, detail="not supported")
+
 @router.patch("/{dataset_id}/document/{uid}/segment/{segment_id}", tags=["datasets"])
 def update_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
     with graphsignal.start_trace("update_segment"):
@@ -109,3 +143,4 @@ def update_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
             raise HTTPException(
                 status_code=400, detail="Segment not updated with error: {}".format(e)
             )
+

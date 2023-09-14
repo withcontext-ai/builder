@@ -236,8 +236,45 @@ class DatasetManager(BaseManager):
         else:
             self.update_dataset(dataset_id, dataset)
 
+
+    def get_document_segments(
+        self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10
+    ):
+        # Retrieve the dataset object
+        dataset_response = self.get_datasets(dataset_id)
+        if not dataset_response:
+            raise ValueError("Dataset not found")
+        dataset = dataset_response[0]
+        matching_url = None
+        segment_size = None
+        for document in dataset.documents:
+            if document.uid == uid:
+                matching_url = document.url
+                segment_size = document.page_size
+                break
+        if not matching_url:
+            raise ValueError("UID not found in dataset documents")
+        id = f"{dataset_id}-{matching_url}-0"
+        segment_ids = [
+            f"{dataset_id}-{matching_url}-{i}"
+            for i in range(offset, offset + limit)
+            if i < segment_size
+        ]
+        segments = []
+        for seg_id in segment_ids:
+            vectors = Retriever.fetch_vectors(ids=[seg_id])
+            vector = vectors.get(seg_id)
+            if not vector or "metadata" not in vector or "text" not in vector["metadata"]:
+                raise ValueError("Unexpected data format from Pinecone")
+            if vector:
+                text = vector["metadata"]["text"]
+                segments.append({"segment_id": seg_id, "content": text})
+        response_data = {"totalItems": limit, "segments": segments}
+        return response_data
+
     def update_segment(self, dataset_id: str, uid: str, segment_id: str, content: str):
         pass
+
 
 
 dataset_manager = DatasetManager()

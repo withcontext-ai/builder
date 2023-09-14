@@ -1,8 +1,9 @@
 import io
 import sys
-from typing import List
+from typing import List, Dict
 
 import pinecone
+from pinecone import Index
 from langchain.callbacks.manager import AsyncCallbackManagerForRetrieverRun
 from langchain.chains.query_constructor.base import AttributeInfo
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -211,3 +212,11 @@ class PDFRetrieverMixin:
         retriever.search_kwargs = {"filter": filter}
         retriever.search_type = "mmr"
         return retriever
+
+    @classmethod
+    def fetch_vectors(cls, ids: List[str]) -> Dict:
+        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        index = Index("context-prod")
+        return (
+            index.fetch(namespace="withcontext", ids=ids).to_dict().get("vectors", {})
+        )
