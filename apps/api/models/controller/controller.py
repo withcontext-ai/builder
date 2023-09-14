@@ -236,7 +236,6 @@ class DatasetManager(BaseManager):
         else:
             self.update_dataset(dataset_id, dataset)
 
-
     def get_document_segments(
         self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10
     ):
@@ -261,10 +260,14 @@ class DatasetManager(BaseManager):
             if i < segment_size
         ]
         segments = []
+        vectors = Retriever.fetch_vectors(ids=segment_ids)
         for seg_id in segment_ids:
-            vectors = Retriever.fetch_vectors(ids=[seg_id])
             vector = vectors.get(seg_id)
-            if not vector or "metadata" not in vector or "text" not in vector["metadata"]:
+            if (
+                not vector
+                or "metadata" not in vector
+                or "text" not in vector["metadata"]
+            ):
                 raise ValueError("Unexpected data format from Pinecone")
             if vector:
                 text = vector["metadata"]["text"]
@@ -272,9 +275,19 @@ class DatasetManager(BaseManager):
         response_data = {"totalItems": limit, "segments": segments}
         return response_data
 
-    def update_segment(self, dataset_id: str, uid: str, segment_id: str, content: str):
-        pass
-
+    def update_segment(self, segment_id: str, content: str):
+        if content == "":
+            Retriever.delete_vector(segment_id)
+            return
+        # TODO first segment should be "-".join(segment_id.split("-")[0:2])
+        first_segment = "-".join(segment_id.split("-")[0:2] + ["0"])
+        metadata = (
+            Retriever.fetch_vectors(ids=[first_segment])
+            .get(first_segment, {})
+            .get("metadata", {})
+        )
+        metadata["text"] = content
+        Retriever.upsert_vector(segment_id, content, metadata)
 
 
 dataset_manager = DatasetManager()

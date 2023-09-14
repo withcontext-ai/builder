@@ -220,3 +220,18 @@ class PDFRetrieverMixin:
         return (
             index.fetch(namespace="withcontext", ids=ids).to_dict().get("vectors", {})
         )
+
+    @classmethod
+    def upsert_vector(cls, id, content, metadata):
+        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        index = Index("context-prod")
+        embeddings = OpenAIEmbeddings()
+        vector = embeddings.embed_documents([content])[0]
+        # TODO add metadata to f"{dataset.id}-{document.url}"
+        index.upsert(vectors=[(id, vector, metadata)], namespace="withcontext")
+
+    @classmethod
+    def delete_vector(cls, id):
+        pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+        index = Index("context-prod")
+        index.delete(ids=[id], namespace="withcontext")
