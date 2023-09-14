@@ -69,7 +69,7 @@ const CreateDialog = () => {
       const json = await trigger(data)
       setOpen(false)
       router.refresh()
-      router.push(`/dataset/${json?.datasetId}/settings/document`)
+      router.push(`/dataset/${json?.datasetId}/settings/documents`)
     } catch (error) {}
   }
 

@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
         break
       }
       case 'annotations.get': {
-        await getAnnotations(event.data)
+        const data = await getAnnotations(event.data)
+        return NextResponse.json({ success: true, data })
         break
       }
       default: {
@@ -183,7 +184,7 @@ async function getAnnotations(data: { api_model_ids: string[] }) {
   const { api_model_ids = [] } = data
   const result = await db
     .select({
-      messages: MessagesTable.annotation,
+      annotations: MessagesTable.annotation,
     })
     .from(MessagesTable)
     .leftJoin(
