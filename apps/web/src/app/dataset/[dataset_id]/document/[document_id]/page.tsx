@@ -15,7 +15,6 @@ export default async function Page({ params }: IProps) {
   const documents = await getDocuments({ dataset_id })
 
   const { data } = await getDataInfo(dataset_id, document_id)
-  console.log(data, '---data')
   const files = data?.files?.filter((item: any) => item?.type === 'pdf')
   const notedData = data?.files?.filter(
     (item: any) => item?.type === 'annotated data'

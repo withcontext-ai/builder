@@ -64,7 +64,7 @@ function getPreview(
   }
 ) {
   return fetcher(url, {
-    method: 'CET',
+    method: 'PATCH',
     body: JSON.stringify(arg),
   })
 }
@@ -97,7 +97,7 @@ const DataForm = () => {
   )
 
   const { trigger: previewTrigger, isMutating: previewMutating } =
-    useSWRMutation(`/api/datasets/document`, getPreview)
+    useSWRMutation(`/api/datasets/preview`, getPreview)
   const router = useRouter()
   const onSubmit = async () => {
     try {
@@ -143,6 +143,7 @@ const DataForm = () => {
         document_id: documentId,
         preview: 5,
       })
+      console.log(data,'---data---preview')
       setPreviews(data)
       return
     } else {
