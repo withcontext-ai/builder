@@ -67,10 +67,24 @@ def background_upsert_dataset(id: str, dataset_info: dict):
 
 
 @router.patch("/{id}", tags=["datasets"])
-async def update_dataset(id: str, dataset: dict):
+async def update_dataset(
+    id: str,
+    dataset: dict,
+    preview: int = Query(0, description="Preview of the dataset"),
+    uid: str = Query(None, description="UID of the document"),
+):
     with graphsignal.start_trace("update_dataset"):
         logger.info(f"dataset updating: {dataset}")
         try:
+            if preview != 0 and uid is not None:
+                dataset_manager.upsert_preview(id, dataset, preview, uid)
+                return {"message": "success", "status": 200}
+            documents = dataset.get("documents", [])
+            for doc in documents:
+                uid = doc.get("uid", None)
+                if uid is None:
+                    logger.warning(f"UID not found in document {doc}")
+                dataset_manager.delete_preview_segment(id, uid)
             loop = asyncio.get_event_loop()
             loop.run_in_executor(executor, background_upsert_dataset, id, dataset)
             return {"message": "success", "status": 200}
@@ -101,10 +115,11 @@ def retrieve_document_segments(
     uid: str,
     offset: int = Query(0, description="Offset for pagination"),
     limit: int = Query(10, description="Limit for pagination"),
+    query: str = Query(None, description="Query to search for"),
 ):
     with graphsignal.start_trace("get_document_segments"):
         logger.info(
-            f"Retrieving segments for dataset: {dataset_id}, document: {uid}, offset: {offset}, limit: {limit}"
+            f"Retrieving segments for dataset: {dataset_id}, document: {uid}, offset: {offset}, limit: {limit}, query: {query}"
         )
         error_mapping = {
             "Dataset not found": {
@@ -125,7 +140,7 @@ def retrieve_document_segments(
         }
         try:
             limit, segments = dataset_manager.get_document_segments(
-                dataset_id, uid, offset, limit
+                dataset_id, uid, offset, limit, query
             )
             return {
                 "message": "success",

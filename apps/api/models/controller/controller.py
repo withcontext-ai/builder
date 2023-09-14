@@ -5,6 +5,10 @@ from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
 from models.workflow import Workflow
 from models.retrieval import Retriever
+from models.data_loader import PDFLoader
+from langchain.text_splitter import CharacterTextSplitter
+from utils import GoogleCloudStorageClient
+from langchain.schema import Document
 
 from .webhook import WebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
@@ -237,8 +241,11 @@ class DatasetManager(BaseManager):
             self.update_dataset(dataset_id, dataset)
 
     def get_document_segments(
-        self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10
+        self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10, query=None
     ):
+        preview = self.get_preview_segment(dataset_id, uid)
+        if preview is not None:
+            return len(preview), preview
         # Retrieve the dataset object
         dataset_response = self.get_datasets(dataset_id)
         if not dataset_response:
@@ -291,6 +298,52 @@ class DatasetManager(BaseManager):
         metadata = Retriever.get_metadata(first_segment)
         metadata["text"] = content
         Retriever.upsert_vector(segment_id, content, metadata)
+
+    def upsert_preview(self, dataset_id, preview_size, document_uid):
+        # todo change logic to retriever folder
+        dataset = self.get_datasets(dataset_id)[0]
+        url = None
+        splitter = {}
+        for doc in dataset.documents:
+            if doc.uid == document_uid:
+                url = doc.url
+                splitter = doc.split_option
+                break
+        if url == None:
+            raise ValueError("UID not found in dataset documents")
+        text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+            separator=" ",
+            chunk_size=splitter.get("chunk_size", 1000),
+            chunk_overlap=splitter.get("chunk_overlap", 0),
+        )
+        storage_client = GoogleCloudStorageClient()
+        pdf_content = storage_client.load(url)
+        text = PDFLoader.extract_text_from_pdf(pdf_content)
+        pages = text.split("\f")
+        _docs = []
+        for page in pages:
+            _docs.append(
+                Document(
+                    page_content=page,
+                    metadata={
+                        "source": url,
+                    },
+                )
+            )
+        docs = text_splitter.split_documents(_docs)
+        preview_list = []
+        for i in range(preview_size):
+            preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
+        self.redis.set(f"preview:{dataset_id}-{document_uid}", json.dumps(preview_list))
+
+    def delete_preview_segment(self, dataset_id, document_id):
+        self.redis.delete(f"preview:{dataset_id}-{document_id}")
+
+    def get_preview_segment(self, dataset_id, document_id):
+        preview = self.redis.get(f"preview:{dataset_id}-{document_id}")
+        if preview is None:
+            return None
+        return json.loads(preview)
 
 
 dataset_manager = DatasetManager()
