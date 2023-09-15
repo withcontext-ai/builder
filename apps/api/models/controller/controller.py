@@ -296,11 +296,20 @@ class DatasetManager(BaseManager):
         retriever = Retriever.get_retriever(
             filter={
                 "urn": {
-                    "$in": [f"{dataset_id}-{uid}-{i}" for i in range(doc.page_size)]
+                    "$in": [f"{dataset_id}-{doc.url}-{i}" for i in range(doc.page_size)]
                 }
             }
         )
         docs = asyncio.run(retriever.aget_relevant_documents(query))
+        segments = []
+        for _doc in docs:
+            segments.append(
+                {
+                    "segment_id": _doc.metadata["urn"],
+                    "content": _doc.page_content,
+                }
+            )
+        return len(segments), segments
 
     def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
         if content == "":
@@ -321,9 +330,8 @@ class DatasetManager(BaseManager):
         metadata["text"] = content
         Retriever.upsert_vector(segment_id, content, metadata)
 
-    def upsert_preview(self, dataset_id, preview_size, document_uid):
+    def upsert_preview(self, dataset, preview_size, document_uid):
         # todo change logic to retriever folder
-        dataset = self.get_datasets(dataset_id)[0]
         url = None
         splitter = {}
         for doc in dataset.documents:
@@ -354,10 +362,10 @@ class DatasetManager(BaseManager):
             )
         docs = text_splitter.split_documents(_docs)
         preview_list = []
-        for i in range(preview_size):
+        for i in range(min(preview_size, len(docs))):
             preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
-        self.redis.set(f"preview:{dataset_id}-{document_uid}", json.dumps(preview_list))
-        logger.info(f"Upsert preview for dataset {dataset_id}, document {document_uid}")
+        self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
+        logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
     def delete_preview_segment(self, dataset_id, document_id):
         self.redis.delete(f"preview:{dataset_id}-{document_id}")
