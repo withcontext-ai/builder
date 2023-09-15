@@ -43,7 +43,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
     submitAnnotation
   )
 
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLDivElement>(null)
 
   const entry = useIntersectionObserver(inputRef, {})
 
@@ -75,6 +75,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
         block: 'center',
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [annotating])
 
   if (!annotation && !annotating) {
@@ -83,15 +84,16 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
 
   const form = (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-      <Textarea
-        {...register('annotation')}
-        minRows={2}
-        className="min-w-[473px] bg-white placeholder:text-slate-400"
-        placeholder={
-          "Enter the response you expect the AI to provide. The annotated response data will be used for AI model learning, improving the accuracy of AI's responses."
-        }
-        ref={inputRef}
-      />
+      <div ref={inputRef}>
+        <Textarea
+          {...register('annotation')}
+          minRows={2}
+          className="min-w-[473px] bg-white placeholder:text-slate-400"
+          placeholder={
+            "Enter the response you expect the AI to provide. The annotated response data will be used for AI model learning, improving the accuracy of AI's responses."
+          }
+        />
+      </div>
       <div className="flex space-x-2">
         <Button type="submit" disabled={isMutating || !watch('annotation')}>
           Save
