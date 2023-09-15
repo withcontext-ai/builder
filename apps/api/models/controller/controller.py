@@ -311,6 +311,18 @@ class DatasetManager(BaseManager):
             )
         return len(segments), segments
 
+    def add_segment(self, dataset_id, uid, content):
+        dataset = self.get_datasets(dataset_id)[0]
+        page_size = 0
+        for doc in dataset.documents:
+            if doc.uid == uid:
+                page_size = doc.page_size
+                break
+        if page_size == 0:
+            raise ValueError("UID not found in dataset documents")
+        segment_id = f"{dataset_id}-{uid}-{page_size}"
+        self.upsert_segment(dataset_id, uid, segment_id, content)
+
     def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
         if content == "":
             Retriever.delete_vector(segment_id)

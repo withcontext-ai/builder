@@ -172,3 +172,19 @@ def upsert_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
             raise HTTPException(
                 status_code=400, detail="Segment not updated with error: {}".format(e)
             )
+
+
+@router.post("/{dataset_id}/document/{uid}/segment/", tags=["datasets"])
+def add_segment(dataset_id: str, uid: str, segment: dict):
+    with graphsignal.start_trace("add_segment"):
+        logger.info(f"dataset: {dataset_id}, uid: {uid}")
+        if "content" not in segment:
+            return {"message": "content is required", "status": 400}
+        try:
+            dataset_manager.add_segment(dataset_id, uid, segment["content"])
+            return {"message": "success", "status": 200}
+        except Exception as e:
+            logger.error(e)
+            raise HTTPException(
+                status_code=400, detail="Segment not added with error: {}".format(e)
+            )
