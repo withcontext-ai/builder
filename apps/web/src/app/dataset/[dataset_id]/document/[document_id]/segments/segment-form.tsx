@@ -24,6 +24,7 @@ interface IProps {
   document_id?: string
   open?: boolean
   setOpen?: (s: boolean) => void
+  handelConfirm?: () => void
 }
 
 function addSegment(
@@ -65,6 +66,7 @@ const SegmentForm = ({
   dataset_id = '',
   document_id = '',
   segment_id = '',
+  handelConfirm,
 }: IProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -86,7 +88,6 @@ const SegmentForm = ({
     const segment = watch().segment
     if (!segment_id) {
       await addTrigger({ dataset_id, uid: document_id, content: segment })
-      setOpen?.(false)
     } else {
       await editTrigger({
         dataset_id,
@@ -94,8 +95,9 @@ const SegmentForm = ({
         uid: document_id,
         content: segment,
       })
-      setOpen?.(false)
     }
+    setOpen?.(false)
+    handelConfirm?.()
   }
   const disabled = isMutating || editMutating
   return (
@@ -113,6 +115,7 @@ const SegmentForm = ({
                     placeholder="please input segment"
                     {...field}
                     minRows={4}
+                    maxRows={10}
                   />
                 </FormControl>
                 <FormMessage />

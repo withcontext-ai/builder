@@ -44,9 +44,10 @@ export async function addSegment(
   content: string
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
+
   const { data } = await axios.post(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment`,
-    content
+    { content }
   )
   if (data.message !== 'success') {
     return
@@ -61,9 +62,10 @@ export async function editSegment(
   content: string
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
+  const url = encodeURIComponent(segment_id)
   const { data } = await axios.patch(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment/${segment_id}`,
-    content
+    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment/${url}`,
+    { content }
   )
   if (data.success !== 'success') {
     return

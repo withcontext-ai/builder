@@ -90,3 +90,14 @@ export function formateNumber(characters: number) {
 export function formateDate(time: Date) {
   return format(time, 'MM/dd/yyyy hh:mm aa')
 }
+
+export function formateIndex(index: number) {
+  if (index < 10) {
+    return `#00${index}`
+  }
+  if (index > 10 && index < 100) {
+    return `#0${index}`
+  } else {
+    return `#${index}`
+  }
+}

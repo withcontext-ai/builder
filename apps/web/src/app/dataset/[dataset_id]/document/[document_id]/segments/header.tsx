@@ -25,9 +25,10 @@ const SegmentHeader = ({ name, dataset_id, document_id }: IProps) => {
       router.back()
     })
   }
+
   return (
-    <div className="flex justify-between">
-      <div className="mb-6 flex items-center gap-2">
+    <div className="flex justify-between pl-14 pr-8">
+      <div className="flex items-center gap-2">
         <Button
           size="icon"
           variant="outline"

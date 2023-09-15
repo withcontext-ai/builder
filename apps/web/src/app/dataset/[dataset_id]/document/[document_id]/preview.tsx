@@ -2,11 +2,13 @@ import { FileType2 } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { formateIndex } from '../../settings/documents/utils'
+
 export const PreviewCard = ({ content, index }: segmentProps) => {
   return (
     <div className="h-[182px] rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="mb-1 flex justify-between text-sm text-slate-500">
-        {`#00${index}`}
+        {index}
         <div className="flex gap-2">
           <FileType2 size={18} /> {content?.length?.toLocaleString()} characters
         </div>
@@ -26,7 +28,7 @@ export const LoadingCard = () =>
 interface segmentProps {
   content: string
   segment_id?: string
-  index?: number
+  index?: string
 }
 interface IProps {
   data: segmentProps[]
@@ -41,7 +43,10 @@ const Preview = ({ isLoading, data }: IProps) => {
         data?.map((item, index) => {
           return (
             <div key={index}>
-              <PreviewCard index={index} content={item?.content} />
+              <PreviewCard
+                index={formateIndex(index + 1)}
+                content={item?.content}
+              />
             </div>
           )
         })

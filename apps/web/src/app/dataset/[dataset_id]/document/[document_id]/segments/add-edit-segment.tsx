@@ -16,6 +16,7 @@ interface IProps {
   document_id?: string
   open?: boolean
   setOpen?: (s: boolean) => void
+  handelConfirm?: (s: void) => void
 }
 
 const AddOrEdit = (props: IProps) => {

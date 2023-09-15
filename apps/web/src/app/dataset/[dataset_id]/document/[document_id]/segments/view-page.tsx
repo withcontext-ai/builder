@@ -12,12 +12,12 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 
-import { LoadingCard, PreviewCard } from '../preview'
+import { formateIndex } from '../../../settings/documents/utils'
+import { PreviewCard } from '../preview'
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
 
 interface IProps {
-  preload: any[]
   document_id?: string
   dataset_id?: string
 }
@@ -26,7 +26,7 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
-  // const [data, setData] = useState(preload)
+  const [edited, setEdited] = useState(0)
   const [pagination, setPagination] = useState({
     pageSize: 100,
     pageIndex: 0,
@@ -46,7 +46,7 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
   }
   const queries = { dataset_id, uid: document_id, search: value }
   const { data = [], isValidating } = useSWR<any>(
-    [queries, pagination],
+    [queries, pagination, edited],
     getDatasetDocument,
     {
       fallbackData: preload,
@@ -68,10 +68,9 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
     setValue(e?.target?.value)
   }, [])
   const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
-
   return (
-    <div>
-      <div className="mb-8 flex">
+    <div className="h-[calc(100%-56px)] overflow-auto pl-14 pr-8">
+      <div className="mb-8 mt-6 flex">
         <Input
           className="w-[240px]"
           placeholder="Search"
@@ -98,7 +97,10 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
                       current.current = item
                     }}
                   >
-                    <PreviewCard index={index} content={item?.content} />
+                    <PreviewCard
+                      index={formateIndex(index + 1)}
+                      content={item?.content}
+                    />
                     <Button
                       type="button"
                       className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
@@ -123,6 +125,7 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
           dataset_id={dataset_id}
           document_id={document_id}
           setOpen={setOpen}
+          handelConfirm={() => setEdited((v) => v + 1)}
         />
         <DeleteSegment
           dataset_id={dataset_id}
