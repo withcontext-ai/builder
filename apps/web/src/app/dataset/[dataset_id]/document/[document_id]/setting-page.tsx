@@ -72,7 +72,7 @@ const SettingPage = ({
       documents?.findIndex((file) => file?.uid === item?.uid) !== -1
   )
   return (
-    <div className="w-max-[600px] fixed left-0 z-10 h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
+    <div className="w-max-[600px] left-0  h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">
         {document_id === 'add' ? 'Add New' : 'Edit'} Data
       </div>

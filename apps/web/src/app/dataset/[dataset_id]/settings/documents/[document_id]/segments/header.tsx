@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2Icon, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-import FileIcon from '../../../settings/documents/file-icon'
+import FileIcon from '../../file-icon'
 
 interface IProps {
   uid: string
@@ -40,7 +40,7 @@ const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
         </Button>
         <FileIcon className="h-6 w-6" data={{ name, uid, type, url: '' }} />
       </div>
-      <Button onClick={addNew} type="button">
+      <Button onClick={addNew} type="button" className="gap-1">
         <Plus size={16} />
         Add Segment
       </Button>

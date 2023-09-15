@@ -29,7 +29,7 @@ export default async function Page({ params }: IProps) {
 
   return (
     <div className="h-full overflow-auto">
-      <div className="w-[600px]">
+      <div className="w-full">
         {/* Desktop version, can edit */}
         <SettingPage
           defaultValues={defaultValues}

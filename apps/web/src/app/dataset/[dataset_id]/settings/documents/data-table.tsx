@@ -176,7 +176,9 @@ const DatasetTable = ({ preload }: IProps) => {
         })
         return
       } else {
-        router.push(`/dataset/${dataset_id}/document/${row?.uid}/segments`)
+        router.push(
+          `/dataset/${dataset_id}/settings/documents/${row?.uid}/segments`
+        )
         return
       }
     },
