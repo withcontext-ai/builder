@@ -30,12 +30,12 @@ export interface DataConfigProps {
 export interface DataProps {
   uid: string
   name: string
-  status: number
+  status?: number
   type: string
   url: string
   icon?: string
   characters?: number
-  config: DataConfigProps
+  config?: DataConfigProps
 }
 
 export const DataSchema = z.object({

@@ -1,31 +1,26 @@
-'use client'
-
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2Icon, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { PdfImage } from '@/components/upload/component'
 
-import AddOrEdit from './add-edit-segment'
+import FileIcon from '../../../settings/documents/file-icon'
 
 interface IProps {
+  uid: string
   name: string
-  dataset_id: string
-  document_id: string
+  type: string
+  addNew?: () => void
 }
 
-const SegmentHeader = ({ name, dataset_id, document_id }: IProps) => {
+const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
   const [isPending, startTransition] = useTransition()
-  const [open, setOpen] = useState(false)
   const router = useRouter()
-
   const goBack = () => {
     startTransition(() => {
       router.back()
     })
   }
-
   return (
     <div className="flex justify-between pl-14 pr-8">
       <div className="flex items-center gap-2">
@@ -43,22 +38,13 @@ const SegmentHeader = ({ name, dataset_id, document_id }: IProps) => {
             <ArrowLeft size={18} />
           )}
         </Button>
-        <PdfImage className="h-6 w-6" />
-        <div className="font-2xl font-semibold">{name}</div>
+        <FileIcon className="h-6 w-6" data={{ name, uid, type, url: '' }} />
       </div>
-      <Button onClick={() => setOpen(true)} type="button">
+      <Button onClick={addNew} type="button">
         <Plus size={16} />
         Add Segment
       </Button>
-      <AddOrEdit
-        content=""
-        open={open}
-        setOpen={setOpen}
-        document_id={document_id}
-        dataset_id={dataset_id}
-      />
     </div>
   )
 }
-
 export default SegmentHeader

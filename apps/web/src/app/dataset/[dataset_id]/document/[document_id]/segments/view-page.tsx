@@ -1,12 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { throttle } from 'lodash'
-import { Loader2, Search, Trash } from 'lucide-react'
+import { Trash } from 'lucide-react'
 import useSWR from 'swr'
 
-import { cn, fetcher } from '@/lib/utils'
+import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -16,17 +16,21 @@ import { formateIndex } from '../../../settings/documents/utils'
 import { PreviewCard } from '../preview'
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
+import SegmentHeader from './header'
 
 interface IProps {
-  document_id?: string
-  dataset_id?: string
+  document_id: string
+  dataset_id: string
+  name: string
+  type: string
 }
 
-const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
+const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
-  const [edited, setEdited] = useState(0)
+  const [fresh, setFresh] = useState(0)
+
   const [pagination, setPagination] = useState({
     pageSize: 100,
     pageIndex: 0,
@@ -46,10 +50,9 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
   }
   const queries = { dataset_id, uid: document_id, search: value }
   const { data = [], isValidating } = useSWR<any>(
-    [queries, pagination, edited],
+    [queries, pagination, fresh],
     getDatasetDocument,
     {
-      fallbackData: preload,
       keepPreviousData: true,
     }
   )
@@ -69,78 +72,90 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
   }, [])
   const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
   return (
-    <div className="h-[calc(100%-56px)] overflow-auto pl-14 pr-8">
-      <div className="mb-8 mt-6 flex">
-        <Input
-          className="w-[240px]"
-          placeholder="Search"
-          onChange={throttledOnChange}
-        />
-      </div>
-      <div className="flex-1 flex-col">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
-          {isValidating
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className="h-[182px] rounded-lg border border-transparent"
-                />
-              ))
-            : data?.segments?.map((item: any, index: number) => {
-                return (
-                  <div
-                    key={index}
-                    className="group/card relative h-[182px] cursor-pointer"
-                    onClick={(e) => {
-                      setOpen(true)
-                      e.preventDefault()
-                      current.current = item
-                    }}
-                  >
-                    <PreviewCard
-                      index={formateIndex(index + 1)}
-                      content={item?.content}
-                    />
-                    <Button
-                      type="button"
-                      className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
-                      size="icon"
-                      variant="outline"
+    <div className="h-full py-[68px]">
+      <SegmentHeader
+        name={name}
+        uid={document_id}
+        type={type}
+        addNew={() => {
+          setOpen(true)
+          current.current = { content: '', segment_id: '' }
+        }}
+      />
+      <div className="h-[calc(100%-56px)] overflow-auto pl-14 pr-8">
+        <div className="mb-8 mt-6 flex">
+          <Input
+            className="w-[240px]"
+            placeholder="Search"
+            onChange={throttledOnChange}
+          />
+        </div>
+        <div className="flex-1 flex-col">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
+            {isValidating
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton
+                    key={i}
+                    className="h-[182px] rounded-lg border border-transparent"
+                  />
+                ))
+              : data?.segments?.map((item: any, index: number) => {
+                  return (
+                    <div
+                      key={index}
+                      className="group/card relative h-[182px] cursor-pointer"
                       onClick={(e) => {
-                        e.stopPropagation()
-                        setShowDeleteAlter(true)
+                        setOpen(true)
+                        e.preventDefault()
                         current.current = item
                       }}
                     >
-                      <Trash size={18} />
-                    </Button>
-                  </div>
-                )
-              })}
+                      <PreviewCard
+                        index={formateIndex(index + 1)}
+                        content={item?.content}
+                      />
+                      <Button
+                        type="button"
+                        className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
+                        size="icon"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDeleteAlter(true)
+                          current.current = item
+                        }}
+                      >
+                        <Trash size={18} />
+                      </Button>
+                    </div>
+                  )
+                })}
+          </div>
         </div>
-        <AddOrEdit
-          content={current?.current?.content}
-          open={open}
-          segment_id={current?.current?.segment_id}
-          dataset_id={dataset_id}
-          document_id={document_id}
-          setOpen={setOpen}
-          handelConfirm={() => setEdited((v) => v + 1)}
-        />
-        <DeleteSegment
-          dataset_id={dataset_id}
-          uid={document_id}
-          segment_id={current?.current?.segment_id}
-          showDeleteAlter={showDeleteAlter}
-          setShowDeleteAlter={setShowDeleteAlter}
-        />
-      </div>
 
-      <div>
-        {data?.length > 100 && (
-          <DataTablePagination table={table} showPageSizes={false} />
-        )}
+        <div>
+          {data?.length > 100 && (
+            <DataTablePagination table={table} showPageSizes={false} />
+          )}
+        </div>
       </div>
+      <DeleteSegment
+        dataset_id={dataset_id}
+        uid={document_id}
+        segment_id={current?.current?.segment_id}
+        showDeleteAlter={showDeleteAlter}
+        setShowDeleteAlter={setShowDeleteAlter}
+        handelConfirm={() => setFresh((v) => v + 1)}
+      />
+      <AddOrEdit
+        content={current?.current?.content}
+        open={open}
+        segment_id={current?.current?.segment_id}
+        dataset_id={dataset_id}
+        document_id={document_id}
+        setOpen={setOpen}
+        handelConfirm={() => setFresh((v) => v + 1)}
+      />
     </div>
   )
 }

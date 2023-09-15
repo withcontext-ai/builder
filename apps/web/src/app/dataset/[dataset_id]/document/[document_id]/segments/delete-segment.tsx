@@ -19,6 +19,7 @@ interface IProps {
   segment_id?: string
   showDeleteAlter?: boolean
   setShowDeleteAlter?: (s: boolean) => void
+  handelConfirm?: () => void
 }
 
 const DeleteSegment = ({
@@ -27,6 +28,7 @@ const DeleteSegment = ({
   segment_id = '',
   setShowDeleteAlter,
   showDeleteAlter,
+  handelConfirm,
 }: IProps) => {
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/segment`,
@@ -36,6 +38,7 @@ const DeleteSegment = ({
   const handelDelete = async () => {
     await trigger({ dataset_id, uid, segment_id, content: '' })
     setShowDeleteAlter?.(false)
+    handelConfirm?.()
   }
   return (
     <AlertDialog onOpenChange={setShowDeleteAlter} open={showDeleteAlter}>

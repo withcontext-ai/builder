@@ -6,21 +6,23 @@ import { DataProps } from './utils'
 
 interface IProps {
   data: DataProps
+  className?: string
 }
 
-const FileIcon = ({ data }: IProps) => {
+const FileIcon = ({ data, className }: IProps) => {
   const isPdf = data?.type === 'pdf'
   const color = getAvatarBgColor(data?.uid || '')
 
   return (
     <div className="flex items-center gap-1">
       {isPdf ? (
-        <PdfImage className="h-4 w-4" />
+        <PdfImage className={cn('h-4 w-4', className)} />
       ) : (
         <Avatar
           className={cn(
             'relative h-4 w-4',
-            data?.icon ? 'bg-white' : `bg-${color}-600`
+            data?.icon ? 'bg-white' : `bg-${color}-600`,
+            className
           )}
         >
           <AvatarFallback className="bg-transparent text-white">

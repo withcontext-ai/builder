@@ -1,6 +1,5 @@
 import { getDataInfo } from '@/db/datasets/documents/action'
 
-import SegmentHeader from './header'
 import SegmentPage from './view-page'
 
 interface IProps {
@@ -12,15 +11,12 @@ const Page = async ({ params }: IProps) => {
   const { data } = await getDataInfo(dataset_id, document_id)
   const name = data?.name
   return (
-    <div className="h-full py-[68px]">
-      <SegmentHeader
-        name={name}
-        document_id={document_id}
-        dataset_id={dataset_id}
-      />
-
-      <SegmentPage dataset_id={dataset_id} document_id={document_id} />
-    </div>
+    <SegmentPage
+      dataset_id={dataset_id}
+      document_id={document_id}
+      name={name}
+      type={data?.type}
+    />
   )
 }
 

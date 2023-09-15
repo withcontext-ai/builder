@@ -27,7 +27,13 @@ export async function getDataInfo(dataset_id: string, uid: string) {
   const detail = documents?.find((item: any) => item?.uid === uid)
   return {
     success: true,
-    data: { dataset_id, files: [detail], config, name: detail?.name },
+    data: {
+      dataset_id,
+      files: [detail],
+      config,
+      name: detail?.name,
+      type: detail?.type,
+    },
   }
 }
 
