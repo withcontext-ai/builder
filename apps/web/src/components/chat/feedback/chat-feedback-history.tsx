@@ -1,9 +1,8 @@
 'use client'
 
-import { TooltipTrigger } from '@radix-ui/react-tooltip'
+import { TooltipPortal, TooltipTrigger } from '@radix-ui/react-tooltip'
 import { Clock, Code2, PenLine, ThumbsDown, ThumbsUp } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent } from '@/components/ui/tooltip'
 
 import ChatAction, { actionCommonButtonProps } from '../chat-action'
@@ -35,34 +34,36 @@ const ChatFeedbackHistory = (props: Props) => {
             <Code2 {...actionCommonButtonProps} />
           </ChatAction>
         </TooltipTrigger>
-        <TooltipContent
-          side="bottom"
-          className="max-h-fit min-h-min max-w-lg space-y-3 p-4"
-        >
-          <div className="font-medium">API request detail:</div>
+        <TooltipPortal>
+          <TooltipContent
+            side="bottom"
+            className="max-h-fit min-h-min max-w-lg space-y-3 p-4"
+          >
+            <div className="font-medium">API request detail:</div>
 
-          <div className="flex items-center space-x-2">
-            {latency && (
-              <>
-                <Clock size={18} />
-                <div className="font-medium">
-                  {(latency / 1000).toPrecision(3)}s
-                </div>
-              </>
-            )}
-            {latency && token && <div className="px-2 font-medium">|</div>}
-            {total_tokens !== undefined && (
-              <div className="text-slate-500">{total_tokens} tokens</div>
-            )}
-          </div>
-          {raw && (
-            <div className="rounded-lg bg-slate-100 p-2">
-              <pre className="max-h-80 overflow-y-scroll whitespace-pre-wrap break-all">
-                {JSON.stringify(raw, null, 2)}
-              </pre>
+            <div className="flex items-center space-x-2">
+              {latency && (
+                <>
+                  <Clock size={18} />
+                  <div className="font-medium">
+                    {(latency / 1000).toPrecision(3)}s
+                  </div>
+                </>
+              )}
+              {latency && token && <div className="px-2 font-medium">|</div>}
+              {total_tokens !== undefined && (
+                <div className="text-slate-500">{total_tokens} tokens</div>
+              )}
             </div>
-          )}
-        </TooltipContent>
+            {raw && (
+              <div className="rounded-lg bg-slate-100 p-2">
+                <pre className="max-h-80 overflow-y-scroll whitespace-pre-wrap break-all">
+                  {JSON.stringify(raw, null, 2)}
+                </pre>
+              </div>
+            )}
+          </TooltipContent>
+        </TooltipPortal>
       </Tooltip>
       {message.feedback && (
         <Tooltip>
@@ -71,31 +72,45 @@ const ChatFeedbackHistory = (props: Props) => {
               <Comp {...actionCommonButtonProps} className={color} />
             </ChatAction>
           </TooltipTrigger>
+          <TooltipPortal>
+            <TooltipContent
+              side="bottom"
+              className="max-w-lg space-y-3 break-words p-4"
+            >
+              <div className="font-semibold">
+                {feedback === 'good' && 'User liked this'}
+                {feedback === 'bad' && 'User disliked this'}
+                {feedback_content && ':'}
+              </div>
+              {feedback_content
+                ?.split('\n')
+                .map((line, index) => <div key={index}>{line}</div>)}
+            </TooltipContent>
+          </TooltipPortal>
+        </Tooltip>
+      )}
+      <Tooltip>
+        <TooltipTrigger>
+          <ChatAction
+            // only allow clicking when not already annotating
+            {...(!annotating
+              ? {
+                  onClick: onAnnotate,
+                }
+              : {})}
+          >
+            <PenLine {...actionCommonButtonProps} />
+          </ChatAction>
+        </TooltipTrigger>
+        <TooltipPortal>
           <TooltipContent
             side="bottom"
             className="max-w-lg space-y-3 break-words p-4"
           >
-            <div className="font-semibold">
-              {feedback === 'good' && 'User liked this'}
-              {feedback === 'bad' && 'User disliked this'}
-              {feedback_content && ':'}
-            </div>
-            {feedback_content
-              ?.split('\n')
-              .map((line, index) => <div key={index}>{line}</div>)}
+            Annotate
           </TooltipContent>
-        </Tooltip>
-      )}
-      <ChatAction
-        // only allow clicking when not already annotating
-        {...(!annotating
-          ? {
-              onClick: onAnnotate,
-            }
-          : {})}
-      >
-        <PenLine {...actionCommonButtonProps} />
-      </ChatAction>
+        </TooltipPortal>
+      </Tooltip>
     </>
   )
 }
