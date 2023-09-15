@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clerkClient } from '@clerk/nextjs'
 import { throttle } from 'lodash'
+import * as EventsApi from 'seratch-slack-types/events-api'
 
 import { OpenAIStream } from '@/lib/openai-stream'
 import { createSlackClient } from '@/lib/slack'
@@ -85,13 +86,15 @@ export async function POST(req: NextRequest) {
     if (body.challenge) return NextResponse.json(body)
 
     const isFromUser =
-      body.event.type === 'message' &&
-      !body.event.bot_id &&
-      !body.event.message?.bot_id
+      body.event?.type === 'message' &&
+      !body.event?.bot_id &&
+      !body.event?.message?.bot_id
 
     if (isFromUser) {
-      const teamId = body.team_id as string
-      const userId = body.event.user as string
+      const message = body as EventsApi.MessagePayload
+      if (!message.event) throw new Error('message.event is undefined')
+      const teamId = message.team_id as string
+      const userId = message.event.user as string
 
       const token = '' // TODO: get token from db
       const client = createSlackClient(token)
@@ -108,13 +111,14 @@ export async function POST(req: NextRequest) {
       console.log('clerkUser:', clerkUser)
 
       const apiSessionId = '' // TODO: get apiSessionId from db
-      const content = body.event.text
+      const content = message.event.text
       const payload = {
         session_id: apiSessionId,
         messages: [{ role: 'user', content }],
       }
 
-      const channel = body.event.channel
+      const channel = message.event.channel
+      if (!channel) throw new Error('channel is undefined')
 
       const result = await postMessage({
         token,
