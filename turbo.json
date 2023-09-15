@@ -24,7 +24,9 @@
     "PUSHER_APP_SECRET",
     "NEXT_PUBLIC_PUSHER_APP_KEY",
     "NEXT_PUBLIC_PUSHER_APP_CLUSTER",
-    "LOGSNAG_TOKEN"
+    "LOGSNAG_TOKEN",
+    "SLACK_CLIENT_ID",
+    "SLACK_CLIENT_SECRET"
   ],
   "pipeline": {
     "build": {
