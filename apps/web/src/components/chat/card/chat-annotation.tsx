@@ -54,7 +54,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
     [annotation]
   )
 
-  const { handleSubmit, register, watch } = useForm({
+  const { handleSubmit, register, watch, reset } = useForm({
     defaultValues: {
       annotation,
     },
@@ -74,6 +74,9 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
         behavior: 'smooth',
         block: 'center',
       })
+    }
+    if (!annotating) {
+      reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [annotating])
