@@ -1,6 +1,5 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { useIntersectionObserver } from 'usehooks-ts'
 
@@ -8,9 +7,7 @@ import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { ChatAnnotationRequest } from '@/app/api/chat/annotation/route'
 
-import { useChatContext } from '../chat-context'
 import { ChatMessage } from '../types'
 
 interface Props {
@@ -45,11 +42,18 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
     ['/api/chat/annotation', message.id],
     submitAnnotation
   )
-  const annotation = message.annotation || data
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const entry = useIntersectionObserver(inputRef, {})
+
+  const annotation = useMemo(() => data || message.annotation, [data, message])
+
+  const formattedAnnotation = useMemo(
+    () => annotation?.split('\n').map((line, i) => <div key={i}>{line}</div>),
+    [annotation]
+  )
+
   const { handleSubmit, register, watch } = useForm({
     defaultValues: {
       annotation,
@@ -108,7 +112,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
         </div>
         <Separator className="w-auto flex-1" />
       </div>
-      {annotating ? form : annotation}
+      {annotating ? form : formattedAnnotation}
     </div>
   )
 }
