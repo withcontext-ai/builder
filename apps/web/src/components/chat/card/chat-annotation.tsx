@@ -76,7 +76,9 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
       })
     }
     if (!annotating) {
-      reset()
+      reset({
+        annotation,
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [annotating])
