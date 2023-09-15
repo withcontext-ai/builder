@@ -17,14 +17,19 @@ export async function getSegments(
   limit?: number
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
+  let params = {}
+  if (search) {
+    params = { query: search }
+  } else {
+    params = {
+      offset: offset || 0,
+      limit: limit || 100,
+    }
+  }
   const { data: res } = await axios({
     method: 'get',
     url: `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}`,
-    params: {
-      offset: offset || 0,
-      limit: limit || 100,
-      query: search,
-    },
+    params,
   })
   if (res.message !== 'success') {
     return

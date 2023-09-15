@@ -78,42 +78,44 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
           onChange={throttledOnChange}
         />
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
-        {isValidating
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                className="h-[182px] rounded-lg border border-transparent"
-              />
-            ))
-          : data?.segments?.map((item: any, index: number) => {
-              return (
-                <div
-                  key={index}
-                  className="group/card relative h-[182px] cursor-pointer"
-                  onClick={(e) => {
-                    setOpen(true)
-                    e.preventDefault()
-                    current.current = item
-                  }}
-                >
-                  <PreviewCard index={index} content={item?.content} />
-                  <Button
-                    type="button"
-                    className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
-                    size="icon"
-                    variant="outline"
+      <div className="flex-1 flex-col">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
+          {isValidating
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className="h-[182px] rounded-lg border border-transparent"
+                />
+              ))
+            : data?.segments?.map((item: any, index: number) => {
+                return (
+                  <div
+                    key={index}
+                    className="group/card relative h-[182px] cursor-pointer"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      setShowDeleteAlter(true)
+                      setOpen(true)
+                      e.preventDefault()
                       current.current = item
                     }}
                   >
-                    <Trash size={18} />
-                  </Button>
-                </div>
-              )
-            })}
+                    <PreviewCard index={index} content={item?.content} />
+                    <Button
+                      type="button"
+                      className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
+                      size="icon"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setShowDeleteAlter(true)
+                        current.current = item
+                      }}
+                    >
+                      <Trash size={18} />
+                    </Button>
+                  </div>
+                )
+              })}
+        </div>
         <AddOrEdit
           content={current?.current?.content}
           open={open}
@@ -130,6 +132,7 @@ const SegmentPage = ({ preload = [], dataset_id, document_id }: IProps) => {
           setShowDeleteAlter={setShowDeleteAlter}
         />
       </div>
+
       <div>
         {data?.length > 100 && (
           <DataTablePagination table={table} showPageSizes={false} />

@@ -55,7 +55,12 @@ const DeleteSegment = ({
           >
             Cancel
           </Button>
-          <Button onClick={handelDelete} variant="destructive" type="button"disabled={isMutating}>
+          <Button
+            onClick={handelDelete}
+            variant="destructive"
+            type="button"
+            disabled={isMutating}
+          >
             {isMutating ? 'Deleting' : 'Delete'}
           </Button>
         </AlertDialogFooter>
