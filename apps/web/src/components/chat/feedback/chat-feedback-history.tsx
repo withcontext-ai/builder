@@ -1,12 +1,14 @@
 'use client'
 
+import { useModal } from '@ebay/nice-modal-react'
 import { TooltipPortal, TooltipTrigger } from '@radix-ui/react-tooltip'
-import { Clock, Code2, PenLine, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Code2, PenLine, ThumbsDown, ThumbsUp } from 'lucide-react'
 
 import { Tooltip, TooltipContent } from '@/components/ui/tooltip'
 
 import ChatAction, { actionCommonButtonProps } from '../chat-action'
 import { ChatMessage } from '../types'
+import chatFeedbackDetailDialog from './chat-feedback-detail-dialog'
 
 type Props = {
   message: ChatMessage
@@ -19,6 +21,7 @@ const ChatFeedbackHistory = (props: Props) => {
   const { id, feedback, feedback_content, meta } = message
   const { latency, token, raw } = meta || {}
   const { total_tokens } = token || {}
+  const modal = useModal(chatFeedbackDetailDialog)
   if (!id) {
     return null
   }
@@ -30,39 +33,20 @@ const ChatFeedbackHistory = (props: Props) => {
     <>
       <Tooltip>
         <TooltipTrigger>
-          <ChatAction>
+          <ChatAction
+            onClick={() =>
+              modal.show({
+                latency,
+                total_tokens,
+                raw,
+              })
+            }
+          >
             <Code2 {...actionCommonButtonProps} />
           </ChatAction>
         </TooltipTrigger>
         <TooltipPortal>
-          <TooltipContent
-            side="bottom"
-            className="max-h-fit min-h-min max-w-lg space-y-3 p-4"
-          >
-            <div className="font-medium">API request detail:</div>
-
-            <div className="flex items-center space-x-2">
-              {latency && (
-                <>
-                  <Clock size={18} />
-                  <div className="font-medium">
-                    {(latency / 1000).toPrecision(3)}s
-                  </div>
-                </>
-              )}
-              {latency && token && <div className="px-2 font-medium">|</div>}
-              {total_tokens !== undefined && (
-                <div className="text-slate-500">{total_tokens} tokens</div>
-              )}
-            </div>
-            {raw && (
-              <div className="rounded-lg bg-slate-100 p-2">
-                <pre className="max-h-80 overflow-y-scroll whitespace-pre-wrap break-all">
-                  {JSON.stringify(raw, null, 2)}
-                </pre>
-              </div>
-            )}
-          </TooltipContent>
+          <TooltipContent side="bottom">API Request Detail</TooltipContent>
         </TooltipPortal>
       </Tooltip>
       {message.feedback && (
