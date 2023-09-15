@@ -168,6 +168,39 @@ export async function POST(req: NextRequest) {
     if (body.event?.type === 'app_home_opened') {
       console.log('!!! app_home_opened')
       console.log(body)
+      const payload = body as EventsApi.AppHomeOpenedPayload
+      if (!payload.event) throw new Error('payload.event is undefined')
+      const user_id = payload.event.user
+      if (!user_id) throw new Error('user_id is undefined')
+
+      const token = '' // TODO: get token from db
+      const client = createSlackClient(token)
+      const response = await client.views.publish({
+        user_id,
+        view: {
+          type: 'home',
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: 'This is a section block with a button.',
+              },
+              accessory: {
+                type: 'button',
+                text: {
+                  type: 'plain_text',
+                  text: 'Click Me',
+                  emoji: true,
+                },
+                value: 'click_me_123',
+                action_id: 'button-action',
+              },
+            },
+          ],
+        },
+      })
+      console.log('response:', response)
     }
 
     return NextResponse.json(body)
