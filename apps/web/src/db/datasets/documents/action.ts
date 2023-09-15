@@ -64,9 +64,9 @@ export async function getDataSplitPreview(
       editParams
     )
     if (res.status !== 200) {
-      return
+      return Promise.resolve([])
     }
-    return res?.data
+    return Promise.resolve(res?.data)
   }
   return Promise.resolve([])
 }

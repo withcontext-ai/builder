@@ -8,7 +8,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 
@@ -56,7 +55,7 @@ const DeleteSegment = ({
           >
             Cancel
           </Button>
-          <Button onClick={handelDelete} variant="destructive" type="button">
+          <Button onClick={handelDelete} variant="destructive" type="button"disabled={isMutating}>
             {isMutating ? 'Deleting' : 'Delete'}
           </Button>
         </AlertDialogFooter>

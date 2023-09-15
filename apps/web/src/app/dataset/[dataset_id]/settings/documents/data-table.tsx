@@ -28,6 +28,8 @@ interface IProps {
 
 const DatasetTable = ({ preload }: IProps) => {
   const [isPending, startTransition] = useTransition()
+  // to refresh table when deleted data
+  const [deleted, setDeleted] = useState(0)
   const currentUid = useRef({ uid: '' })
   const router = useRouter()
   const { dataset_id } = useParams() as {
@@ -63,7 +65,7 @@ const DatasetTable = ({ preload }: IProps) => {
   )
 
   const { data = [], isValidating } = useSWR<any>(
-    [{ search: value }, pagination],
+    [{ search: value }, pagination, deleted],
     getDatasetDocument,
     {
       fallbackData: preload,
@@ -145,7 +147,11 @@ const DatasetTable = ({ preload }: IProps) => {
                 </Button>
               )}
 
-              <DeleteData datasetId={dataset_id} uid={uid} />
+              <DeleteData
+                datasetId={dataset_id}
+                uid={uid}
+                confirmDelete={() => setDeleted((v) => v + 1)}
+              />
             </div>
           )
         },

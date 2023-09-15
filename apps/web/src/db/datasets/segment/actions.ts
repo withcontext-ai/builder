@@ -26,7 +26,6 @@ export async function getSegments(
       query: search,
     },
   })
-  console.log(res, '----res')
   if (res.message !== 'success') {
     return
   }

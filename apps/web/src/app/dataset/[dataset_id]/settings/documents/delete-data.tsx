@@ -20,9 +20,10 @@ function deleteData(
 interface IProps {
   datasetId: string
   uid: string
+  confirmDelete?: () => void
 }
 
-const DeleteData = ({ datasetId, uid }: IProps) => {
+const DeleteData = ({ datasetId, uid, confirmDelete }: IProps) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const { trigger, isMutating } = useSWRMutation(
@@ -33,7 +34,7 @@ const DeleteData = ({ datasetId, uid }: IProps) => {
   const handelDelete = () => {
     trigger({ dataset_id: datasetId, uid }).then((res) => {
       setOpen(false)
-      router.refresh()
+      confirmDelete?.()
     })
   }
 
