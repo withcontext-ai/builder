@@ -103,12 +103,7 @@ const ChatFeedbackHistory = (props: Props) => {
           </ChatAction>
         </TooltipTrigger>
         <TooltipPortal>
-          <TooltipContent
-            side="bottom"
-            className="max-w-lg space-y-3 break-words p-4"
-          >
-            Annotate
-          </TooltipContent>
+          <TooltipContent side="bottom">Annotate</TooltipContent>
         </TooltipPortal>
       </Tooltip>
     </>
