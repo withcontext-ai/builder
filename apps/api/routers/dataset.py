@@ -1,4 +1,4 @@
-from fastapi import Query, HTTPException
+from fastapi import Query, HTTPException, Path
 import asyncio
 import sys
 from uuid import uuid4
@@ -154,7 +154,9 @@ def retrieve_document_segments(
             )
 
 
-@router.patch("/{dataset_id}/document/{uid}/segment/{segment_id}", tags=["datasets"])
+@router.patch(
+    "/{dataset_id}/document/{uid}/segment/{segment_id:path}", tags=["datasets"]
+)
 def upsert_segment(dataset_id: str, uid: str, segment_id: str, segment: dict):
     with graphsignal.start_trace("upsert_segment"):
         logger.info(f"dataset: {dataset_id}, uid: {uid}, segment_id: {segment_id}")
