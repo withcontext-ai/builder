@@ -81,7 +81,7 @@ const throttledUpdateMessage = throttle(updateMessage, 200)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    console.log(JSON.stringify(body, null, 2))
+    // console.log(JSON.stringify(body, null, 2))
 
     if (body.challenge) return NextResponse.json(body)
 
@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
       !body.event?.message?.bot_id
 
     if (isFromUser) {
+      console.log('!!! message, from user')
       const message = body as EventsApi.MessagePayload
       if (!message.event) throw new Error('message.event is undefined')
       const teamId = message.team_id as string
@@ -162,6 +163,11 @@ export async function POST(req: NextRequest) {
       })
 
       return NextResponse.json(body)
+    }
+
+    if (body.event?.type === 'app_home_opened') {
+      console.log('!!! app_home_opened')
+      console.log(body)
     }
 
     return NextResponse.json(body)
