@@ -1,6 +1,8 @@
+import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import { useIntersectionObserver } from 'usehooks-ts'
 
 import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -44,6 +46,10 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
     submitAnnotation
   )
   const annotation = message.annotation || data
+
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  const entry = useIntersectionObserver(inputRef, {})
   const { handleSubmit, register, watch } = useForm({
     defaultValues: {
       annotation,
@@ -58,6 +64,15 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
     stopAnnotation()
   }
 
+  useLayoutEffect(() => {
+    if (annotating && !entry?.isIntersecting) {
+      inputRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }
+  }, [annotating])
+
   if (!annotation && !annotating) {
     return null
   }
@@ -71,6 +86,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
         placeholder={
           "Enter the response you expect the AI to provide. The annotated response data will be used for AI model learning, improving the accuracy of AI's responses."
         }
+        ref={inputRef}
       />
       <div className="flex space-x-2">
         <Button type="submit" disabled={isMutating || !watch('annotation')}>
