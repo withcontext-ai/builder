@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { NotedDataProps } from '@/app/dataset/type'
 
 import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
@@ -30,8 +31,9 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const { defaultValues, documentId } = useDataContext()
   const notedData = defaultValues?.dataConfig?.notedData || []
   const [data, setData] = useState(notedData)
+  const [open, setOpen] = useState(false)
 
-  const [selected, setSelected] = useState<any>()
+  const [current, setCurrent] = useState<NotedDataProps[]>(data)
   const isAdd = documentId === 'add'
   const type = watch()?.dataConfig?.loaderType
 
@@ -39,16 +41,18 @@ const AddAnnotatedData = ({ form }: IProps) => {
     const newData = data?.filter((item: any) => item?.uid !== id) || []
     form.setValue('dataConfig?.notedData', newData)
     setData(newData)
+    setCurrent(newData)
   }
 
   useEffect(() => {
     const noted = watch()?.dataConfig?.notedData
     setData(noted)
+    setCurrent(noted)
   }, [type, watch])
   const showButton = isAdd || (!isAdd && data?.length == 0)
   return (
     <div>
-      <AlertDialog>
+      <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           {showButton && (
             <Button type="button">
@@ -60,36 +64,15 @@ const AddAnnotatedData = ({ form }: IProps) => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Add Annotated Data</AlertDialogTitle>
-            <AlertDialogDescription>
-              <AnnotatedForm
-                form={form}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => {
-                form.setValue('dataConfig?.notedData', notedData)
-              }}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (!isAdd) {
-                  setData([selected])
-                  form.setValue('dataConfig?.notedData', selected)
-                } else {
-                  const notedData = watch()?.dataConfig?.notedData
-                  setData(notedData)
-                }
-              }}
-            >
-              Add
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          <AnnotatedForm
+            form={form}
+            current={current}
+            data={data}
+            setData={setData}
+            setCurrent={setCurrent}
+            setOpen={setOpen}
+          />
         </AlertDialogContent>
       </AlertDialog>
       <div className="mt-4 space-y-2">
