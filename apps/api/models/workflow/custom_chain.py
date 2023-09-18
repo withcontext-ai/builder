@@ -274,7 +274,6 @@ class EnhanceConversationChain(Chain):
         ):
             inputs["chat_history"] = [inputs["chat_history"]]
         messages = inputs.get("chat_history", [])
-        inputs.pop("chat_history", None)
         prompt_value = self.prompt.format_prompt(**inputs)
         messages = [SystemMessage(content=prompt_value.to_string())] + messages
         response = await self.llm.agenerate(

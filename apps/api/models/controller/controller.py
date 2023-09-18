@@ -514,6 +514,7 @@ class SessionStateManager(BaseManager):
         def get_human_input(content):
             if "Human:" in content["input"]:
                 return content["input"].split("Human:")[1].strip()
+            return ""
 
         for content in contents:
             current_chain_memory = self.get_chain_memory(

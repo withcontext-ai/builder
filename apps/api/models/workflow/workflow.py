@@ -57,6 +57,7 @@ class Workflow(BaseModel):
     io_traces: List[str] = []
     known_keys: List[str] = []
     current_memory: dict = {}
+    dialog_keys: List[str] = []
 
     def __init__(self, model: Model, session_id: str) -> None:
         super().__init__()
@@ -65,6 +66,7 @@ class Workflow(BaseModel):
         self.model = model
         self.known_keys = []
         self.cost_content = TokenCostProcess()
+        self.dialog_keys = []
         for index, _chain in enumerate(model.chains):
             llm, prompt_template = self._prepare_llm_and_template(_chain, index)
             chain = self._prepare_chain(_chain, llm, prompt_template)
@@ -75,9 +77,11 @@ class Workflow(BaseModel):
             self.known_keys.append(chain.output_key)
             chain_dialog_key = self.get_chain_dialog_key(_chain.key)
             self.known_keys.append(chain_dialog_key)
+            self.dialog_keys.append(chain_dialog_key)
         self.context = EnhanceSequentialChain(
             chains=chains,
-            input_variables=[QUESTION_KEY, CHAT_HISTORY_KEY, CONTEXT_KEY],
+            input_variables=[QUESTION_KEY, CHAT_HISTORY_KEY, CONTEXT_KEY]
+            + self.dialog_keys,
             callbacks=[
                 SequentialChainAsyncIteratorCallbackHandler(),
                 OpenAICallbackHandler(),
