@@ -97,8 +97,7 @@ const DatasetTable = ({ preload }: IProps) => {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          const status = row.getValue('status')
-          // @ts-ignore
+          const { status } = row.original
           const { text, color } = formateStatus(status || 0)
           return <div className={cn('text-left', color)}>{text}</div>
         },
