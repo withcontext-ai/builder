@@ -10,8 +10,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
-import '../apps/schema'
-
+import { AppsTable } from '../apps/schema'
 import { DatasetsTable } from '../datasets/schema'
 import { UsersTable } from '../users/schema'
 
@@ -19,25 +18,28 @@ export const DocumentsTable = pgTable(
   'documents',
   {
     id: serial('id').primaryKey(),
-    uid: text('uid').unique().notNull(),
-    name: text('name').notNull(),
-    type: text('type').notNull(),
-    icon: text('icon'),
+    short_id: text('short_id').unique().notNull(),
+    uid: text('uid').notNull(), // pdf:file_id, annotated_data:api_model_id
     dataset_id: text('dataset_id')
       .references(() => DatasetsTable.short_id)
       .notNull(),
+    type: text('type').notNull(), // pdf, annotated_data
+    name: text('name'), // pdf
+    url: text('url'), // pdf
+    app_id: text('app_id').references(() => AppsTable.short_id), // get app info
     status: integer('status').default(0).notNull(),
     characters: integer('characters'),
     config: json('config'),
     created_by: text('created_by')
       .references(() => UsersTable.short_id)
       .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
     archived: boolean('archived').default(false).notNull(),
   },
   (documents) => {
     return {
-      unique_idx: uniqueIndex('unique_idx').on(documents.uid),
+      unique_idx: uniqueIndex('unique_idx').on(documents.short_id),
     }
   }
 )
