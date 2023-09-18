@@ -275,7 +275,7 @@ class Workflow(BaseModel):
             }
         )
 
-    def get_messages_from_redis_memory(self) -> Dict[str:str]:
+    def get_messages_from_redis_memory(self):
         res = {}
         for dialog_key in self.current_memory:
             chain_memorys = self.current_memory[dialog_key]
