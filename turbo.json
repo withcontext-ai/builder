@@ -26,7 +26,8 @@
     "NEXT_PUBLIC_PUSHER_APP_CLUSTER",
     "LOGSNAG_TOKEN",
     "SLACK_CLIENT_ID",
-    "SLACK_CLIENT_SECRET"
+    "SLACK_CLIENT_SECRET",
+    "BASE_URL"
   ],
   "pipeline": {
     "build": {

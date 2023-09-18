@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createSlackClient } from '@/lib/slack'
+import { SlackUtils } from '../utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,21 +10,43 @@ export async function GET(req: NextRequest) {
 
     const client_id = process.env.SLACK_CLIENT_ID
     const client_secret = process.env.SLACK_CLIENT_SECRET
-    const redirect_uri =
-      'https://local.lililulu.com/api/webhook/slack/redirect_uri'
+    const redirect_uri = `${process.env.BASE_URL}/api/webhook/slack/redirect_uri`
 
     if (!client_id || !client_secret)
       throw new Error('client_id or client_secret is undefined')
 
-    const slackClient = createSlackClient('')
-    const response = await slackClient.oauth.v2.access({
+    const slack = new SlackUtils('')
+    const accessInfo = await slack.client.oauth.v2.access({
       client_id,
       client_secret,
       code,
       redirect_uri,
       grant_type: 'authorization_code',
     })
-    // TODO: save (app_id, team_id, team_name, access_token, scope) to db
+    if (!accessInfo.app_id) throw new Error('app_id is undefined')
+    if (!accessInfo.access_token) throw new Error('app_id is undefined')
+    if (!accessInfo.team?.id) throw new Error('team_id is undefined')
+
+    const teamInfo = await slack.client.team.info({ team: accessInfo.team?.id })
+    if (!teamInfo.team) throw new Error('team is undefined')
+
+    const team = {
+      app_id: accessInfo.app_id,
+      team_id: accessInfo.team.id,
+      team_name: teamInfo.team.name ?? 'Default Team name',
+      team_url: teamInfo.team.url,
+      team_icon: teamInfo.team.icon?.image_132 || '',
+      access_token: accessInfo.access_token,
+      scope: accessInfo.scope,
+    }
+    slack.addOrUpdateTeam(team)
+
+    const user = {
+      app_id: accessInfo.app_id,
+      team_id: accessInfo.team.id,
+      user_id: accessInfo.authed_user?.id ?? '',
+    }
+    slack.addOrUpdateUser(user)
 
     return NextResponse.redirect('/')
   } catch (error: any) {
