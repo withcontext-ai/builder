@@ -26,10 +26,10 @@ export default async function Page({ params }: IProps) {
       notedData,
     },
   }
+  console.log(data, '----data---')
   return (
     <div className="h-full overflow-auto">
       <div className="w-full">
-        {/* Desktop version, can edit */}
         <SettingPage
           defaultValues={defaultValues}
           datasetId={dataset_id}

@@ -23,7 +23,7 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
 
 // get data info
 export async function getDataInfo(dataset_id: string, uid: string) {
-  const { documents, config } = await getDocuments({ dataset_id })
+  const { documents } = await getDocuments({ dataset_id })
   const detail = documents?.find((item: any) => item?.uid === uid)
   const fileConfig = pick(detail, [
     'loaderType',
@@ -31,12 +31,19 @@ export async function getDataInfo(dataset_id: string, uid: string) {
     'chunkSize',
     'chunkOverlap',
   ])
+  const defaultConfig = {
+    loaderType: 'pdf',
+    splitType: 'character',
+    chunkSize: 1000,
+    chunkOverlap: 0,
+  }
   return {
     success: true,
     data: {
       dataset_id,
       files: [detail],
-      config: Object.entries(fileConfig)?.length !== 0 ? fileConfig : config,
+      config:
+        Object.entries(fileConfig)?.length !== 0 ? fileConfig : defaultConfig,
       name: detail?.name,
       type: detail?.type,
     },
