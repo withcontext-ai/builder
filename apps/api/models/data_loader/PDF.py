@@ -37,8 +37,8 @@ class PDFLoader:
         doc = []
         for dataset in datasets:
             logger.info(f"Loading dataset {dataset.id}")
-            _doc = []
             for document in dataset.documents:
+                _doc = []
                 if document.type == "pdf":
                     options = PDFRetrivalOption(
                         splitter=PDFSplitterOption(
