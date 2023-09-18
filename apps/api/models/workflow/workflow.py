@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
 
 import redis
 from langchain.callbacks import (
@@ -11,7 +11,7 @@ from langchain.chains import LLMChain, SequentialChain
 from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
-from langchain.schema import BaseMessage
+from langchain.schema import BaseMessage, HumanMessage, AIMessage
 from langchain.schema.messages import get_buffer_string
 from loguru import logger
 from models.base.model import Model
@@ -56,6 +56,7 @@ class Workflow(BaseModel):
     cost_content: TokenCostProcess = TokenCostProcess()
     io_traces: List[str] = []
     known_keys: List[str] = []
+    current_memory: dict = {}
 
     def __init__(self, model: Model, session_id: str) -> None:
         super().__init__()
@@ -69,9 +70,11 @@ class Workflow(BaseModel):
             chain = self._prepare_chain(_chain, llm, prompt_template)
             if _chain.key is None:
                 logger.warning(f"Chain key is None. model_id: {model.id}")
-            chain.output_key = f"{_chain.key}-output".replace("-", "_")
+            chain.output_key = self.get_chain_output_key(_chain.key)
             chains.append(chain)
             self.known_keys.append(chain.output_key)
+            chain_dialog_key = self.get_chain_dialog_key(_chain.key)
+            self.known_keys.append(chain_dialog_key)
         self.context = EnhanceSequentialChain(
             chains=chains,
             input_variables=[QUESTION_KEY, CHAT_HISTORY_KEY, CONTEXT_KEY],
@@ -82,6 +85,12 @@ class Workflow(BaseModel):
             queue=asyncio.Queue(),
             done=asyncio.Event(),
         )
+
+    def get_chain_output_key(self, chain_key):
+        return f"{chain_key}-output".replace("-", "_")
+
+    def get_chain_dialog_key(self, chain_key):
+        return f"{chain_key}-dialog".replace("-", "_")
 
     def clear(self):
         self.context.done = asyncio.Event()
@@ -111,7 +120,9 @@ class Workflow(BaseModel):
                 streaming=True,
                 callbacks=[
                     CostCalcAsyncHandler(llm_model, self.cost_content),
-                    IOTraceCallbackHandler(self.io_traces),
+                    IOTraceCallbackHandler(
+                        self.io_traces, self.get_chain_output_key(_chain.key)
+                    ),
                 ],
                 top_p=top_p,
                 frequency_penalty=frequency_penalty,
@@ -125,7 +136,9 @@ class Workflow(BaseModel):
                 temperature=temperature,
                 callbacks=[
                     CostCalcAsyncHandler(llm_model, self.cost_content),
-                    IOTraceCallbackHandler(self.io_traces),
+                    IOTraceCallbackHandler(
+                        self.io_traces, self.get_chain_output_key(_chain.key)
+                    ),
                 ],
                 top_p=top_p,
                 frequency_penalty=frequency_penalty,
@@ -252,11 +265,24 @@ class Workflow(BaseModel):
     async def agenerate(self, messages: List[BaseMessage]) -> str:
         # TODO buffer size limit
         prompt = messages[-1].content
-
+        dialog = self.get_messages_from_redis_memory()
         await self.context.arun(
             {
                 CHAT_HISTORY_KEY: messages,
                 QUESTION_KEY: prompt,
                 CONTEXT_KEY: "",
+                **dialog,
             }
         )
+
+    def get_messages_from_redis_memory(self) -> Dict[str:str]:
+        res = {}
+        for dialog_key in self.current_memory:
+            chain_memorys = self.current_memory[dialog_key]
+            messages = []
+            for chain_memory in chain_memorys:
+                input = chain_memory.get("input", "")
+                output = chain_memory.get("output", "")
+                messages += [HumanMessage(content=input), AIMessage(content=output)]
+            res[dialog_key] = get_buffer_string(messages)
+        return res
