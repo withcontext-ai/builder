@@ -19,9 +19,10 @@ export const DocumentsTable = pgTable(
   'documents',
   {
     id: serial('id').primaryKey(),
-    short_id: text('short_id').unique().notNull(),
+    uid: text('uid').unique().notNull(),
     name: text('name').notNull(),
     type: text('type').notNull(),
+    icon: text('icon'),
     dataset_id: text('dataset_id')
       .references(() => DatasetsTable.short_id)
       .notNull(),
@@ -36,7 +37,7 @@ export const DocumentsTable = pgTable(
   },
   (documents) => {
     return {
-      unique_idx: uniqueIndex('unique_idx').on(documents.short_id),
+      unique_idx: uniqueIndex('unique_idx').on(documents.uid),
     }
   }
 )
