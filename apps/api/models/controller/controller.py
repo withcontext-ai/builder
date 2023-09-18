@@ -5,6 +5,10 @@ from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
 from models.workflow import Workflow
 from models.retrieval import Retriever
+from models.data_loader import PDFLoader
+from langchain.text_splitter import CharacterTextSplitter
+from utils import GoogleCloudStorageClient
+from langchain.schema import Document
 
 from .webhook import WebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
@@ -135,6 +139,13 @@ class DatasetManager(BaseManager):
         return self.table.insert().values(dataset.dict())
 
     @BaseManager.db_session
+    def _update_dataset(self, dataset_id: str, update_data: dict):
+        return (
+            self.table.update()
+            .where(self.table.c.id == dataset_id)
+            .values(**update_data)
+        )
+
     def update_dataset(self, dataset_id: str, update_data: dict):
         logger.info(f"Updating dataset {dataset_id}")
         urn = self.get_dataset_urn(dataset_id)
@@ -172,16 +183,9 @@ class DatasetManager(BaseManager):
                 logger.info(
                     f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict}"
                 )
-                return (
-                    self.table.update()
-                    .where(self.table.c.id == dataset.id)
-                    .values(**dataset.dict())
-                )
-        return (
-            self.table.update()
-            .where(self.table.c.id == dataset_id)
-            .values(**update_data)
-        )
+                self._update_dataset(dataset_id, dataset_dict)
+                return
+        self._update_dataset(dataset_id, update_data)
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
@@ -235,6 +239,154 @@ class DatasetManager(BaseManager):
                 raise e
         else:
             self.update_dataset(dataset_id, dataset)
+
+    def get_document_segments(
+        self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10, query=None
+    ):
+        preview = self.get_preview_segment(dataset_id, uid)
+        if preview is not None:
+            logger.info(f"Preview found for dataset {dataset_id}, document {uid}")
+            return len(preview), preview
+        if query is not None:
+            logger.info(f"Searching for query {query}")
+            return self.search_document_segments(dataset_id, uid, query=query)
+        # Retrieve the dataset object
+        dataset_response = self.get_datasets(dataset_id)
+        if not dataset_response:
+            raise ValueError("Dataset not found")
+        dataset = dataset_response[0]
+        matching_url = None
+        segment_size = None
+        for document in dataset.documents:
+            if document.uid == uid:
+                matching_url = document.url
+                segment_size = document.page_size
+                break
+        if not matching_url:
+            raise ValueError("UID not found in dataset documents")
+        segment_ids = [
+            f"{dataset_id}-{matching_url}-{i}"
+            for i in range(offset, offset + limit)
+            if i < segment_size
+        ]
+        segments = []
+        vectors = Retriever.fetch_vectors(ids=segment_ids)
+        for seg_id in segment_ids:
+            vector = vectors.get(seg_id)
+            if (
+                not vector
+                or "metadata" not in vector
+                or "text" not in vector["metadata"]
+            ):
+                logger.info(f"Segment {seg_id} not found in Pinecone")
+            if vector:
+                text = vector["metadata"]["text"]
+                segments.append({"segment_id": seg_id, "content": text})
+        return limit, segments
+
+    def search_document_segments(self, dataset_id, uid, query):
+        dataset = self.get_datasets(dataset_id)[0]
+        doc = None
+        for _doc in dataset.documents:
+            if _doc.uid == uid:
+                doc = _doc
+                break
+        if doc is None:
+            raise ValueError("UID not found in dataset documents")
+        retriever = Retriever.get_retriever(
+            filter={
+                "urn": {
+                    "$in": [f"{dataset_id}-{doc.url}-{i}" for i in range(doc.page_size)]
+                }
+            }
+        )
+        docs = asyncio.run(retriever.aget_relevant_documents(query))
+        segments = []
+        for _doc in docs:
+            segments.append(
+                {
+                    "segment_id": _doc.metadata["urn"],
+                    "content": _doc.page_content,
+                }
+            )
+        return len(segments), segments
+
+    def add_segment(self, dataset_id, uid, content):
+        dataset = self.get_datasets(dataset_id)[0]
+        page_size = 0
+        for doc in dataset.documents:
+            if doc.uid == uid:
+                page_size = doc.page_size
+                break
+        if page_size == 0:
+            raise ValueError("UID not found in dataset documents")
+        segment_id = f"{dataset_id}-{uid}-{page_size}"
+        self.upsert_segment(dataset_id, uid, segment_id, content)
+
+    def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
+        if content == "":
+            Retriever.delete_vector(segment_id)
+            return
+        first_segment = "-".join(segment_id.split("-")[0:2])
+        vector = Retriever.fetch_vectors(ids=[first_segment])
+        if vector is {}:
+            dataset = self.get_datasets(dataset_id)[0]
+            for doc in dataset.documents:
+                if doc.uid == uid:
+                    doc.page_size += 1
+                    break
+            self._update_dataset(dataset_id, dataset.dict())
+            urn = self.get_dataset_urn(dataset_id)
+            self.redis.set(urn, json.dumps(dataset.dict()))
+        metadata = Retriever.get_metadata(first_segment)
+        metadata["text"] = content
+        Retriever.upsert_vector(segment_id, content, metadata)
+
+    def upsert_preview(self, dataset, preview_size, document_uid):
+        # todo change logic to retriever folder
+        url = None
+        splitter = {}
+        for doc in dataset.documents:
+            if doc.uid == document_uid:
+                url = doc.url
+                splitter = doc.split_option
+                break
+        if url == None:
+            raise ValueError("UID not found in dataset documents")
+        text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+            separator=" ",
+            chunk_size=splitter.get("chunk_size", 1000),
+            chunk_overlap=splitter.get("chunk_overlap", 0),
+        )
+        storage_client = GoogleCloudStorageClient()
+        pdf_content = storage_client.load(url)
+        text = PDFLoader.extract_text_from_pdf(pdf_content)
+        pages = text.split("\f")
+        _docs = []
+        for page in pages:
+            _docs.append(
+                Document(
+                    page_content=page,
+                    metadata={
+                        "source": url,
+                    },
+                )
+            )
+        docs = text_splitter.split_documents(_docs)
+        preview_list = []
+        for i in range(min(preview_size, len(docs))):
+            preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
+        self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
+        logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
+
+    def delete_preview_segment(self, dataset_id, document_id):
+        self.redis.delete(f"preview:{dataset_id}-{document_id}")
+
+    def get_preview_segment(self, dataset_id, document_id):
+        preview = self.redis.get(f"preview:{dataset_id}-{document_id}")
+        if preview is None:
+            return None
+        return json.loads(preview)
 
 
 dataset_manager = DatasetManager()

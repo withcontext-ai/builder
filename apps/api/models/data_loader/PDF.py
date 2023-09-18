@@ -38,35 +38,42 @@ class PDFLoader:
         for dataset in datasets:
             logger.info(f"Loading dataset {dataset.id}")
             _doc = []
-            options = PDFRetrivalOption(**dataset.retrieval)
-
-            text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                separator=" ",
-                chunk_size=options.splitter.chunk_size,
-                chunk_overlap=options.splitter.chunk_overlap,
-            )
             for document in dataset.documents:
                 if document.type == "pdf":
+                    options = PDFRetrivalOption(
+                        splitter=PDFSplitterOption(
+                            chunk_overlap=document.split_option.get("chunk_overlap", 0),
+                            chunk_size=document.split_option.get("chunk_size", 1000),
+                        )
+                    )
+                    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                        separator=" ",
+                        chunk_size=options.splitter.chunk_size,
+                        chunk_overlap=options.splitter.chunk_overlap,
+                    )
                     pdf_content = storage_client.load(document.url)
                     text = PDFLoader.extract_text_from_pdf(pdf_content)
                     pages = text.split("\f")
-                    for page_number, page in enumerate(pages):
+                    for page in pages:
                         _doc.append(
                             Document(
                                 page_content=page,
                                 metadata={
                                     "source": document.url,
-                                    "page_number": page_number,
-                                    "urn": f"{dataset.id}-{document.url}-{page_number}",
                                 },
                             )
                         )
-                    # warning!!! it is a bad idea to change the page size here!!!
-                    document.page_size = page_number
                 else:
                     logger.error(f"Document type {document.type} not supported")
                     raise Exception("Document type not supported")
                 _doc = text_splitter.split_documents(_doc)
+                for page_number, _d in enumerate(_doc):
+                    _d.metadata["page_number"] = page_number
+                    _d.metadata[
+                        "urn"
+                    ] = f"{dataset.id}-{document.url}-{_d.metadata['page_number']}"
+
+                document.page_size = len(_doc)
                 logger.info(
                     f"got documents: {len(_doc)} while loading dataset {dataset.id}"
                 )

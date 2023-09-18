@@ -11,6 +11,7 @@ class Document(BaseModel):
     url: str = Field(default_factory=str)
     type: str = Field(default_factory=str)
     page_size: int = Field(default_factory=int)
+    split_option: Optional[dict] = Field(default_factory=dict)
 
 
 class Dataset(BaseModel):
