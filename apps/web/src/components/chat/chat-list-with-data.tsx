@@ -19,13 +19,13 @@ interface IProps {
 }
 
 export default function ChatListWithData({ mode, sessionId }: IProps) {
-  const { data: sessionData, isLoading: isLoadingSessionData } =
+  const { data: sessionData, isValidating: isLoadingSessionData } =
     useSWR<SessionData>(`/api/sessions/${sessionId}`, fetcher, {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     })
 
-  const { data: rawMessages, isLoading: isLoadingMessagesData } =
+  const { data: rawMessages, isValidating: isLoadingMessagesData } =
     useSWR<MessagesData>(`/api/sessions/${sessionId}/messages`, fetcher, {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
