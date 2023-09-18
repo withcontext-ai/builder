@@ -1,12 +1,20 @@
 import { NextRequest } from 'next/server'
 import { Message } from 'ai'
+import { and, eq } from 'drizzle-orm'
 
 import { auth, currentUserEmail } from '@/lib/auth'
+import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
-import { addMessage, editMessage, removeMessage } from '@/db/messages/actions'
+import {
+  addMessage,
+  editMessage,
+  getMessages,
+  removeMessage,
+} from '@/db/messages/actions'
+import { MessagesTable } from '@/db/messages/schema'
 
 export const runtime = 'edge'
 // TODO: move to pdx1 (us-west-2) where db is located
@@ -27,15 +35,51 @@ export async function POST(req: NextRequest) {
   const appId = body.appId as string
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
-  const messages = body.messages as Message[]
-  const reloadMessageId = body.reload_message_id as string
+  // const messages = body.messages as Message[]
+  const query = body.query as string
+  const reloadMessageId = body.reloadId as string
+
+  let messages: any[] = await db
+    .select({
+      query: MessagesTable.query,
+      content: MessagesTable.answer,
+      id: MessagesTable.short_id,
+    })
+    .from(MessagesTable)
+    .where(
+      and(
+        eq(MessagesTable.session_id, sessionId),
+        eq(MessagesTable.type, 'chat')
+      )
+    )
+  messages = messages
+    .map((message) => {
+      if (reloadMessageId && message.id === reloadMessageId) {
+        return { role: 'user', content: query }
+      }
+
+      return [
+        {
+          role: 'user',
+          content: message.query,
+        },
+        {
+          role: 'assistant',
+          content: message.content,
+        },
+      ]
+    })
+    .flat()
+  if (!reloadMessageId) {
+    messages = messages.concat({
+      role: 'user',
+      content: query,
+    })
+  }
 
   const payload = {
     session_id: apiSessionId,
-    messages: messages.map((message) => ({
-      role: message.role,
-      content: message.content,
-    })),
+    messages,
   }
 
   const requestId = nanoid()

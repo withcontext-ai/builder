@@ -10,27 +10,25 @@ import useSubmitHandler from '@/hooks/use-submit-handler'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { useChatContext } from './chat-context'
+import { useChat } from './useChat'
 
 interface InputProps {
-  input: string
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   reload: () => void
   stop: () => void
   showResend?: boolean
-  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   disabled?: boolean
 }
 
 const ChatInput = ({
-  input,
   onSubmit,
   reload,
   stop,
   showResend,
-  handleInputChange,
   disabled,
 }: InputProps) => {
-  const { isLoading, mode } = useChatContext()
+  const { handleInputChange, isLoading, input } = useChat()
+  const { mode } = useChatContext()
   const isDebug = mode === 'debug'
 
   const { formRef, onKeyDown } = useEnterSubmit()

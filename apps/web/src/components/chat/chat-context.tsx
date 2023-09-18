@@ -11,24 +11,22 @@ interface BaseChatContextType {
   session: ChatSession
   user?: ChatUser | null
   mode: ChatMode
-  isLoading?: boolean
+  id: string
 }
 
 interface LiveChatContextType extends BaseChatContextType {
   mode: 'live'
-  isLoading: boolean
 }
 
 interface DebugChatContextType extends BaseChatContextType {
   mode: 'debug'
-  isLoading: boolean
 }
 
 interface HistoryChatContextType extends BaseChatContextType {
   mode: 'history'
 }
 
-type ChatContextType =
+export type ChatContextType =
   | LiveChatContextType
   | DebugChatContextType
   | HistoryChatContextType

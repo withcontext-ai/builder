@@ -16,6 +16,7 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 import ChatProcess from './chat-process'
+import ChatDebugger from './debugger'
 import RestartConfirmPage from './restart-confirm'
 import {
   ChatApp,
@@ -94,15 +95,8 @@ const createInputMessage = (input: string) => {
   return inputMsg
 }
 
-const Chat = (props: ChatProps) => {
-  const {
-    app,
-    session,
-    user,
-    mode,
-    initialMessages = [],
-    initialEvents = [],
-  } = props
+const WrappedChat = (props: ChatProps) => {
+  const { app, session, mode, initialMessages = [], initialEvents = [] } = props
   const appId = app?.short_id
   const appName = app?.name || ''
   const {
@@ -129,24 +123,17 @@ const Chat = (props: ChatProps) => {
     error,
     setMessages,
     handleSubmit,
-    handleInputChange,
   } = useChat({
     id: sessionId,
     initialMessages,
-    body: {
-      appId,
-      sessionId,
-      apiSessionId,
-    },
-    sendExtraMessageFields: true,
     onFinish: (message) => {
-      if (isDebug && currentInput?.current) {
-        props?.setInitialMessages?.([
-          ...messages,
-          currentInput.current,
-          message,
-        ])
-      }
+      // if (isDebug && currentInput?.current) {
+      //   props?.setInitialMessages?.([
+      //     ...messages,
+      //     currentInput.current,
+      //     message,
+      //   ])
+      // }
       if (mode === 'live') {
         mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
       }
@@ -278,13 +265,7 @@ const Chat = (props: ChatProps) => {
   })
 
   return (
-    <ChatContextProvider
-      app={app}
-      session={session}
-      user={user}
-      mode={mode}
-      isLoading={isLoading}
-    >
+    <>
       <div className="relative h-full w-full">
         {confirmReset && (
           <RestartConfirmPage
@@ -308,12 +289,10 @@ const Chat = (props: ChatProps) => {
                 setAutoScroll={setAutoScroll}
               />
               <ChatInput
-                input={input}
                 onSubmit={onSubmit}
                 showResend={showResend}
                 reload={handelReload}
                 stop={handelStop}
-                handleInputChange={handleInputChange}
                 disabled={disabled}
               />
             </div>
@@ -325,6 +304,22 @@ const Chat = (props: ChatProps) => {
           </div>
         </div>
       </div>
+    </>
+  )
+}
+
+const Chat = (props: ChatProps) => {
+  const { app, session, user, mode } = props
+  return (
+    <ChatContextProvider
+      app={app}
+      session={session}
+      user={user}
+      mode={mode}
+      id={session.short_id}
+    >
+      <ChatDebugger />
+      <WrappedChat {...props} />
     </ChatContextProvider>
   )
 }
