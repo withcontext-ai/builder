@@ -25,7 +25,7 @@ const Documents = ({ documents }: { documents: any[] }) => {
     <div className="space-y-4">
       <Input placeholder="Search" onChange={throttledOnChange} />
       {documents?.length === 0 ? (
-        <div className="mt-[88px]">
+        <div className="pt-[88px]">
           <div>There is no data yet. </div>
           <div>
             You can upload data from different channels, such as PDF files,
