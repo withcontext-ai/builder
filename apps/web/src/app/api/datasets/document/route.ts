@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     documents: files,
     config: newConfig,
     dataset_id,
+    type: dataConfig?.loaderType,
   })
   // const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
