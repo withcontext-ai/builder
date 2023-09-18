@@ -73,6 +73,7 @@ class Workflow(BaseModel):
             if _chain.key is None:
                 logger.warning(f"Chain key is None. model_id: {model.id}")
             chain.output_key = self.get_chain_output_key(_chain.key)
+            chain.dialog_key = self.get_chain_dialog_key(_chain.key)
             chains.append(chain)
             self.known_keys.append(chain.output_key)
             chain_dialog_key = self.get_chain_dialog_key(_chain.key)
