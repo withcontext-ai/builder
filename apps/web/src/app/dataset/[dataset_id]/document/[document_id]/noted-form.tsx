@@ -116,13 +116,6 @@ const AnnotatedForm = ({
                                   ) || []
                                 setCurrent?.(newData)
                               }
-                              return checked
-                                ? field.onChange([...field?.value, cur])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value: any) => value?.uid !== item.uid
-                                    )
-                                  )
                             }}
                           />
                         </FormControl>
@@ -138,6 +131,7 @@ const AnnotatedForm = ({
           </FormItem>
         )}
       />
+
       <div className="mt-4 flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
