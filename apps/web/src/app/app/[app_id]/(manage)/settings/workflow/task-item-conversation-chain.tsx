@@ -214,7 +214,10 @@ function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
   const suggestionData = React.useMemo(
-    () => formatWorkflowDataToSuggestionData(workflowData),
+    () => [
+      ...formatWorkflowDataToSuggestionData(workflowData, 'output'),
+      ...formatWorkflowDataToSuggestionData(workflowData, 'dialogs'),
+    ],
     [workflowData]
   )
 

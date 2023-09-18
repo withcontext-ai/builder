@@ -35,11 +35,12 @@ export function formatTreeWithData(
 }
 
 export const formatWorkflowDataToSuggestionData = (
-  workflowData: WorkflowItem[]
+  workflowData: WorkflowItem[],
+  keyword: string
 ) => {
   return workflowData?.reduce(
     (m: { id: string; display: string }[], item: WorkflowItem) => {
-      const key = `${item?.type}-${item?.key}.output`
+      const key = `${item?.type}-${item?.key}.${keyword}`
       m?.push({ id: key, display: key })
       return m
     },
