@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     if (!client_id || !client_secret)
       throw new Error('client_id or client_secret is undefined')
 
-    const slack = new SlackUtils('')
+    let slack = new SlackUtils('')
     const accessInfo = await slack.client.oauth.v2.access({
       client_id,
       client_secret,
@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     if (!accessInfo.access_token) throw new Error('app_id is undefined')
     if (!accessInfo.team?.id) throw new Error('team_id is undefined')
 
+    slack = new SlackUtils(accessInfo.access_token)
     const teamInfo = await slack.client.team.info({ team: accessInfo.team?.id })
     if (!teamInfo.team) throw new Error('team is undefined')
 
