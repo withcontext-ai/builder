@@ -43,9 +43,9 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
     submitAnnotation
   )
 
-  const inputRef = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
 
-  const entry = useIntersectionObserver(inputRef, {})
+  const entry = useIntersectionObserver(ref, {})
 
   const annotation = useMemo(() => data || message.annotation, [data, message])
 
@@ -70,7 +70,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
 
   useLayoutEffect(() => {
     if (annotating && !entry?.isIntersecting) {
-      inputRef.current?.scrollIntoView({
+      ref.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       })
@@ -89,16 +89,14 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
 
   const form = (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-      <div ref={inputRef}>
-        <Textarea
-          {...register('annotation')}
-          minRows={2}
-          className="min-w-[473px] bg-white placeholder:text-slate-400"
-          placeholder={
-            "Enter the response you expect the AI to provide. The annotated response data will be used for AI model learning, improving the accuracy of AI's responses."
-          }
-        />
-      </div>
+      <Textarea
+        {...register('annotation')}
+        minRows={2}
+        className="min-w-[473px] bg-white placeholder:text-slate-400"
+        placeholder={
+          "Enter the response you expect the AI to provide. The annotated response data will be used for AI model learning, improving the accuracy of AI's responses."
+        }
+      />
       <div className="flex space-x-2">
         <Button type="submit" disabled={isMutating || !watch('annotation')}>
           Save
@@ -119,7 +117,7 @@ const ChatAnnotation = ({ message, stopAnnotation, annotating }: Props) => {
         </div>
         <Separator className="w-auto flex-1" />
       </div>
-      {annotating ? form : formattedAnnotation}
+      <div ref={ref}>{annotating ? form : formattedAnnotation}</div>
     </div>
   )
 }
