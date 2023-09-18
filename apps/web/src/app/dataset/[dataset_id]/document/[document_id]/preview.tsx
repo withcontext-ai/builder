@@ -35,12 +35,12 @@ interface IProps {
   isLoading: boolean
 }
 const Preview = ({ isLoading, data }: IProps) => {
+  const isEmpty = data?.length === 0
   return (
     <div className="mb-5 grid h-full w-full grid-cols-2 gap-4">
       {isLoading ? (
         <LoadingCard />
-      ) : (
-        data?.map((item, index) => {
+      ) : data?.map((item, index) => {
           return (
             <div key={index}>
               <PreviewCard
@@ -49,7 +49,10 @@ const Preview = ({ isLoading, data }: IProps) => {
               />
             </div>
           )
-        })
+        }) ? (
+        isEmpty
+      ) : (
+        <PreviewCard index={formateIndex(1)} content="" />
       )}
     </div>
   )

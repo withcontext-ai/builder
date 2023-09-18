@@ -10,13 +10,13 @@ import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { DataTablePagination } from '@/components/ui/table/pagination'
 
 import { PreviewCard } from '../../../../document/[document_id]/preview'
 import { formateIndex } from '../../utils'
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
 import SegmentHeader from './header'
+import { DataTablePagination } from './pagination'
 
 interface IProps {
   document_id: string
@@ -72,7 +72,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
   }, [])
   const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
   return (
-    <div className="h-full py-[68px]">
+    <div className="h-full overflow-auto py-[68px]">
       <SegmentHeader
         name={name}
         uid={document_id}
@@ -82,7 +82,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
           current.current = { content: '', segment_id: '' }
         }}
       />
-      <div className="h-[calc(100%-56px)] overflow-auto pl-14 pr-8">
+      <div className="pl-14 pr-8">
         <div className="mb-8 mt-6 flex">
           <Input
             className="w-[240px]"
@@ -133,10 +133,8 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
           </div>
         </div>
 
-        <div>
-          {data?.length > 100 && (
-            <DataTablePagination table={table} showPageSizes={false} />
-          )}
+        <div className="mt-8">
+          <DataTablePagination table={table} />
         </div>
       </div>
       <DeleteSegment

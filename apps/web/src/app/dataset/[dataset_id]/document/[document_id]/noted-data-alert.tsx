@@ -35,11 +35,10 @@ const AddAnnotatedData = ({ form }: IProps) => {
 
   const deleteNotedData = (id: string) => {
     const newData = data?.filter((item: any) => item?.uid !== id) || []
-    form.setValue('dataConfig?.notedData', newData)
+    form.setValue('dataConfig.notedData', newData)
     setData(newData)
     setCurrent(newData)
   }
-
   useEffect(() => {
     const noted = watch()?.dataConfig?.notedData
     setData(noted)

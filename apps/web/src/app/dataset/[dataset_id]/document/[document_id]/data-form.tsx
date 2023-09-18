@@ -122,12 +122,15 @@ const DataForm = () => {
 
   const handleClick = async () => {
     const files = watch()?.dataConfig?.files
+    const notedData = watch()?.dataConfig?.notedData
     const type = watch()?.dataConfig?.loaderType
+    const isPdf = type === 'pdf'
     const dataConfig = watch()?.dataConfig
-    if (!files?.length && type === 'pdf') {
+    const text = type === 'pdf' ? 'document' : 'Annotated Data'
+    if ((!files?.length && isPdf) || (!notedData?.length && !isPdf)) {
       toast({
         variant: 'destructive',
-        description: 'Please select a document.',
+        description: `Please select a ${text}.`,
       })
       return
     }

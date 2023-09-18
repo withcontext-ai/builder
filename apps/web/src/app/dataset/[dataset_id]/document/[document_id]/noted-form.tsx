@@ -51,11 +51,10 @@ const AnnotatedForm = ({
 
   const onSave = () => {
     setData?.(current)
-    form.setValue('dataConfig?.notedData', current)
+    form.setValue('dataConfig.notedData', current)
     setOpen(false)
   }
 
-  console.log(current, '----current', data)
   return (
     <div>
       <FormField
@@ -109,7 +108,7 @@ const AnnotatedForm = ({
                               ])
                               const cur = { ...config, ...item }
                               if (checked) {
-                                setCurrent?.([...current, item])
+                                setCurrent?.([...current, cur])
                               } else {
                                 const newData =
                                   current?.filter(

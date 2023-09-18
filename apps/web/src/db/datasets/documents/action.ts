@@ -23,9 +23,9 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
 
 // get data info
 export async function getDataInfo(dataset_id: string, uid: string) {
-  const { documents } = await getDocuments({ dataset_id })
+  const { documents, config } = await getDocuments({ dataset_id })
   const detail = documents?.find((item: any) => item?.uid === uid)
-  const config = pick(detail, [
+  const fileConfig = pick(detail, [
     'loaderType',
     'splitType',
     'chunkSize',
@@ -36,7 +36,7 @@ export async function getDataInfo(dataset_id: string, uid: string) {
     data: {
       dataset_id,
       files: [detail],
-      config,
+      config: Object.entries(fileConfig)?.length !== 0 ? fileConfig : config,
       name: detail?.name,
       type: detail?.type,
     },
