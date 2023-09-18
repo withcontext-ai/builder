@@ -95,7 +95,7 @@ export class SlackUtils {
         .from(UsersTable)
         .where(and(eq(UsersTable.email, email), eq(UsersTable.archived, false)))
       if (found) {
-        const user = await db
+        const slackUser = await db
           .insert(SlackUsersTable)
           .values({
             short_id: nanoid(),
@@ -103,9 +103,10 @@ export class SlackUtils {
             team_id,
             user_id,
             context_user_id: found.short_id,
+            is_admin: user.is_admin,
           })
           .returning()
-        return user
+        return slackUser
       } else {
         const clerkUser = await clerkClient.users.createUser({
           emailAddress: [email],
@@ -122,7 +123,7 @@ export class SlackUtils {
         } catch (error) {
           console.error(error)
         }
-        const newUser = await db
+        const slackUser = await db
           .insert(SlackUsersTable)
           .values({
             short_id: nanoid(),
@@ -133,7 +134,7 @@ export class SlackUtils {
             is_admin: user.is_admin,
           })
           .returning()
-        return newUser
+        return slackUser
       }
     }
   }

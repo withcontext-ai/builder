@@ -40,16 +40,21 @@ export async function GET(req: NextRequest) {
       access_token: accessInfo.access_token,
       scope: accessInfo.scope,
     }
-    slack.addOrUpdateTeam(team)
+    const slack_team = await slack.addOrUpdateTeam(team)
 
     const user = {
       app_id: accessInfo.app_id,
       team_id: accessInfo.team.id,
       user_id: accessInfo.authed_user?.id ?? '',
     }
-    slack.addOrUpdateUser(user)
+    const slack_user = await slack.addOrUpdateUser(user)
 
-    return NextResponse.redirect('/')
+    const data = {
+      slack_team,
+      slack_user,
+    }
+
+    return NextResponse.json({ success: false, data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }
