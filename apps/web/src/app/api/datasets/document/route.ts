@@ -3,6 +3,7 @@ import { omit } from 'lodash'
 
 import { editDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
+import { addDocuments } from '@/db/documents/action'
 import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
 
 // // Delete a data
@@ -31,7 +32,12 @@ export async function POST(req: NextRequest) {
   }
   files?.map((item) => (item.update_at = new Date()))
   const newConfig = { ...config, files }
-  const response = (await editDataset(dataset_id, { config: newConfig })) as any
+  const response = await addDocuments({
+    documents: files,
+    config: newConfig,
+    dataset_id,
+  })
+  // const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,
     data: { dataset_id, response },
