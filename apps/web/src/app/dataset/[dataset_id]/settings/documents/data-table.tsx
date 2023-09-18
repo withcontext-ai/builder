@@ -20,7 +20,7 @@ import { useToast } from '@/components/ui/use-toast'
 
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
-import { DataProps, formateDate, formateNumber } from './utils'
+import { DataProps, formateDate, formateNumber, formateStatus } from './utils'
 
 interface IProps {
   preload: any
@@ -98,22 +98,8 @@ const DatasetTable = ({ preload }: IProps) => {
         header: 'Status',
         cell: ({ row }) => {
           const status = row.getValue('status')
-          const text =
-            status === 0 ? 'Available' : status === 1 ? 'Indexing' : 'Error'
-          return (
-            <div
-              className={cn(
-                'text-left',
-                status === 0
-                  ? 'text-green-600'
-                  : status === 2
-                  ? 'text-red-600'
-                  : 'text-black'
-              )}
-            >
-              {text}
-            </div>
-          )
+          const { text, color } = formateStatus(status || 0)
+          return <div className={cn('text-left', color)}>{text}</div>
         },
       },
       {

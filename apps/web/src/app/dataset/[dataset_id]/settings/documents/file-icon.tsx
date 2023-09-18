@@ -25,7 +25,7 @@ const FileIcon = ({ data, className }: IProps) => {
             className
           )}
         >
-          <AvatarFallback className="bg-transparent text-white">
+          <AvatarFallback className="break-words bg-transparent text-white">
             {getFirstLetter(data?.name || '')}
           </AvatarFallback>
         </Avatar>

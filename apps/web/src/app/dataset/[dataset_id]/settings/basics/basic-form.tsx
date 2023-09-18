@@ -79,7 +79,7 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
   }, [JSON.stringify(debouncedFormValue)])
 
   return (
-    <div className="h-full w-full overflow-auto px-14 pb-[100px] pt-12">
+    <div className="hidden h-full w-full overflow-auto px-14 pb-[100px] pt-12 lg:block">
       <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
           <form className="w-full">

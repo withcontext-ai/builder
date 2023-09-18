@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { NotedDataProps } from '../../../type'
 
 interface IProps {
-  data: NotedDataProps
+  data?: NotedDataProps
   isAdd?: boolean
 }
 
@@ -25,10 +25,10 @@ const NotedDataCard = ({ data: item, isAdd = false }: IProps) => {
         )}
       >
         <AvatarFallback className="bg-transparent text-white">
-          {getFirstLetter(item?.name)}
+          {getFirstLetter(item?.name || '')}
         </AvatarFallback>
       </Avatar>
-      {item.name}
+      {item?.name || ''}
     </div>
   )
 }

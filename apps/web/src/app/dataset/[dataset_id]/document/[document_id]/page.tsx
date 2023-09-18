@@ -26,7 +26,6 @@ export default async function Page({ params }: IProps) {
       notedData,
     },
   }
-
   return (
     <div className="h-full overflow-auto">
       <div className="w-full">
@@ -38,12 +37,6 @@ export default async function Page({ params }: IProps) {
           apps={apps}
           documents={documents?.documents}
         />
-
-        {/* Mobile version, view only */}
-        {/* <DatasetViewer
-        name={datasetDetail?.name}
-        config={datasetDetail?.config || {}}
-      /> */}
       </div>
     </div>
   )
