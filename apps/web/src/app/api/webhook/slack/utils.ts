@@ -79,12 +79,25 @@ export class SlackUtils {
         and(
           eq(SlackUsersTable.app_id, app_id),
           eq(SlackUsersTable.team_id, team_id),
-          eq(SlackUsersTable.user_id, user_id)
+          eq(SlackUsersTable.user_id, user_id),
+          eq(SlackUsersTable.archived, false)
         )
       )
     if (found) {
       const user = await this.getUserInfo(user_id)
-      return found
+      const slackUser = await db
+        .update(SlackUsersTable)
+        .set({ is_admin: user?.is_admin })
+        .where(
+          and(
+            eq(SlackUsersTable.app_id, app_id),
+            eq(SlackUsersTable.team_id, team_id),
+            eq(SlackUsersTable.user_id, user_id),
+            eq(SlackUsersTable.archived, false)
+          )
+        )
+        .returning()
+      return slackUser
     } else {
       const user = await this.getUserInfo(user_id)
       const email = user?.profile?.email
