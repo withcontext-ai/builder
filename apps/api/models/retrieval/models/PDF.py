@@ -97,8 +97,9 @@ class PDFRetrieverMixin:
             ids=ids,
             index_name="context-prod",
         )
-        id = "-".join(ids[0].split("-")[0:2])
-        cls.upsert_vector(id=id, content="", metadata=metadata)
+        for id in ids:
+            _id = "-".join(ids[0].split("-")[0:2])
+            cls.upsert_vector(id=_id, content="", metadata=metadata)
         return vector_store
 
     @classmethod
