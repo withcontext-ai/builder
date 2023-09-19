@@ -33,4 +33,3 @@ class WebhookHandler:
         )
         headers = {"Content-Type": "application/json"}
         response = requests.post(self.target_url, json=payload.dict(), headers=headers)
-        response.raise_for_status()
