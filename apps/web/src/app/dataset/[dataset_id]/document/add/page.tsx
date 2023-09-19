@@ -7,13 +7,13 @@ import { getDocuments, getNotedData } from '@/db/datasets/documents/action'
 import SettingPage from '../[document_id]/setting-page'
 
 const defaultValues = {
-  dataConfig: {
-    loaderType: 'pdf',
-    splitType: 'character',
-    files: [],
-    notedData: [],
+  loaderType: 'pdf',
+  files: [],
+  notedData: [],
+  splitConfig: {
     chunkSize: 1000,
     chunkOverlap: 0,
+    splitType: 'character',
   },
 }
 

@@ -51,7 +51,7 @@ const AnnotatedForm = ({
 
   const onSave = () => {
     setData?.(current)
-    form.setValue('dataConfig.notedData', current)
+    form.setValue('notedData', current)
     setOpen(false)
   }
 
@@ -59,7 +59,7 @@ const AnnotatedForm = ({
     <div>
       <FormField
         control={form.control}
-        name="dataConfig.notedData"
+        name="notedData"
         render={() => (
           <FormItem>
             {notedData?.map((item) => {
@@ -70,7 +70,7 @@ const AnnotatedForm = ({
                 <FormField
                   key={item.uid}
                   control={form.control}
-                  name="dataConfig.notedData"
+                  name="notedData"
                   render={({ field }) => {
                     return (
                       <FormItem
@@ -101,7 +101,7 @@ const AnnotatedForm = ({
                             className={!isAdd ? 'hidden' : 'block'}
                             onCheckedChange={(checked) => {
                               item.type = 'annotated data'
-                              const config = omit(getValues().dataConfig, [
+                              const config = omit(getValues(), [
                                 'files',
                                 'notedData',
                                 'icon',

@@ -11,7 +11,7 @@ interface IProps {
 
 const FileIcon = ({ data, className }: IProps) => {
   const isPdf = data?.type === 'pdf'
-  const color = getAvatarBgColor(data?.uid || '')
+  const color = getAvatarBgColor(data?.short_id || '')
 
   return (
     <div className="flex items-center gap-1">

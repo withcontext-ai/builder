@@ -55,6 +55,7 @@ async function findApps(ids: string[]) {
       name: AppsTable.name,
       icon: AppsTable.icon,
       uid: AppsTable.api_model_id,
+      appId: AppsTable.short_id,
     })
     .from(AppsTable)
     .where(
@@ -88,13 +89,9 @@ export async function addDocuments(data: newDocumentParams) {
     let documents = []
     if (isPdf) {
       documents = _documents?.reduce((m: any[], cur: FileProps) => {
-        const config = pick(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
-        const attributes = omit(cur, [
-          'splitType',
-          'chunkSize',
-          'chunkOverlap',
-          'loaderType',
-        ])
+        // @ts-ignore
+        const config = cur?.splitConfig
+        const attributes = omit(cur, ['splitConfig', 'loaderType'])
         const item = createEmptyDocument(dataset_id, userId, config, attributes)
         m.push(item)
         return m
@@ -103,7 +100,7 @@ export async function addDocuments(data: newDocumentParams) {
       const ids = _documents?.map((item) => item?.uid)
       const apps = await findApps(ids)
       documents = _documents?.reduce((m: any[], cur: any, index) => {
-        const config = pick(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
+        const config = cur?.splitConfig
         const attributes = apps[index]
         const item = createEmptyDocument(dataset_id, userId, config, attributes)
         m.push(item)
@@ -118,7 +115,6 @@ export async function addDocuments(data: newDocumentParams) {
     })
 
     await Promise.all(queue)
-    console.log(documents, '--documents', queue)
     return { success: true, documents }
   } catch (error) {
     console.log('error error:', error)
@@ -135,7 +131,7 @@ export async function getDocumentDetail(id: string) {
       .from(DocumentsTable)
       .where(eq(DocumentsTable.short_id, id))
       .limit(1)
-
+    console.log(item, '-----item')
     if (!item) {
       throw new Error('Document not found')
     }

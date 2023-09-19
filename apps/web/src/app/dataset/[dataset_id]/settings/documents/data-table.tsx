@@ -58,9 +58,9 @@ const DatasetTable = ({ preload }: IProps) => {
   const { toast } = useToast()
 
   const editData = useCallback(
-    async (uid: string) => {
+    async (document_id: string) => {
       startTransition(() => {
-        router.push(`/dataset/${dataset_id}/document/${uid}`)
+        router.push(`/dataset/${dataset_id}/document/${document_id}`)
       })
     },
     [dataset_id, router]
@@ -108,7 +108,7 @@ const DatasetTable = ({ preload }: IProps) => {
         accessorKey: 'id',
         header: '',
         cell: ({ row }) => {
-          const { status, type, uid } = row.original
+          const { status, type, uid, short_id } = row.original
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
@@ -119,7 +119,7 @@ const DatasetTable = ({ preload }: IProps) => {
                   onClick={(e) => {
                     currentUid.current.uid = uid
                     e.stopPropagation()
-                    editData(uid)
+                    editData(short_id || '')
                   }}
                 >
                   {isPending && currentUid?.current?.uid === uid ? (

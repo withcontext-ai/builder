@@ -9,6 +9,7 @@ interface IProps {
 const Page = async ({ params }: IProps) => {
   const { dataset_id, document_id } = params
   const { data } = await getDataInfo(dataset_id, document_id)
+
   const name = data?.name
   return (
     <SegmentPage

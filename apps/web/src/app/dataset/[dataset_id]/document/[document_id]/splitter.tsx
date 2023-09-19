@@ -39,13 +39,13 @@ const TextSplits = ({ form }: SessionProps) => {
       </div>
       <SearchSelect
         form={form}
-        name="dataConfig.splitType"
+        name="splitConfig.splitType"
         values={types}
         title="Text Splitters"
       />
       <FormField
         control={form.control}
-        name="dataConfig.chunkSize"
+        name="splitConfig.chunkSize"
         render={({ field }) => (
           <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">Chunk size</FormLabel>
@@ -66,7 +66,7 @@ const TextSplits = ({ form }: SessionProps) => {
       />
       <FormField
         control={form.control}
-        name="dataConfig.chunkOverlap"
+        name="splitConfig.chunkOverlap"
         render={({ field }) => (
           <FormItem className="w-[332px]">
             <FormLabel className="flex">Chunk overlap</FormLabel>

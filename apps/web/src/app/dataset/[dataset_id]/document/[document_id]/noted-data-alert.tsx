@@ -35,7 +35,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
 
   const deleteNotedData = (id: string) => {
     const newData = data?.filter((item: any) => item?.uid !== id) || []
-    form.setValue('dataConfig.notedData', newData)
+    form.setValue('notedData', newData)
     setData(newData)
     setCurrent(newData)
   }

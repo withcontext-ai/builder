@@ -1,6 +1,6 @@
 import { getDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
-import { getDocumentByTable } from '@/db/documents/action'
+import { getDocumentByTable, getDocumentDetail } from '@/db/documents/action'
 
 import ViewPage from '../viewer/view-page'
 import DataPage from './data-page'
@@ -11,7 +11,6 @@ interface IProps {
 
 const Page = async ({ params }: IProps) => {
   const { dataset_id } = params
-  const preload = await getDocuments({ dataset_id })
 
   const data = await getDocumentByTable({ dataset_id, params: {} })
 

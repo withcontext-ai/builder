@@ -42,6 +42,7 @@ export async function DELETE(req: NextRequest) {
 // add data
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
+  console.log(dataConfig, '---dataconfig')
   const { documents, config } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
   let files

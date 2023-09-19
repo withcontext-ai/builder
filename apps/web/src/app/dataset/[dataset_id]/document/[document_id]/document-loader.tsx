@@ -50,19 +50,17 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const { watch, getValues } = form
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
-    const config = omit(getValues().dataConfig, ['files', 'notedData'])
+    const config = omit(getValues(), ['files', 'notedData'])
     const files = values?.reduce((m: any, item) => {
       const fileConfig = { ...config, ...item }
       m.push(fileConfig)
       return m
     }, [])
-    form.setValue('dataConfig.files', [...files])
+    form.setValue('files', [...files])
   }
-  const type = watch()?.dataConfig?.loaderType
+  const type = watch()?.loaderType
 
-  const files = watch()?.dataConfig.files?.filter(
-    (item: any) => item?.type === 'pdf'
-  )
+  const files = watch()?.files?.filter((item: any) => item?.type === 'pdf')
   const showButton = (files?.length === 0 && !isAdd) || isAdd
 
   return (
@@ -80,7 +78,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
       <SearchSelect
         form={form}
         values={types}
-        name="dataConfig.loaderType"
+        name="loaderType"
         label={
           <div className="flex">
             Data Source<div className="text-red-500">*</div>
@@ -90,7 +88,7 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
       />
       <FormField
         control={form.control}
-        name="dataConfig.files"
+        name="files"
         render={(field) => {
           return (
             <FormItem className="w-[332px]">
