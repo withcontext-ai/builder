@@ -38,3 +38,4 @@ class DatasetChainAssociation(Base):
 class DatasetStatusWebhookRequest(BaseModel):
     type: str = Field(default="dataset.updated")
     data: dict = Field(default_factory=dict)
+    object: str = Field(default="event")

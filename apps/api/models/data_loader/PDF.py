@@ -11,12 +11,12 @@ from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pydantic import BaseModel, Field
 from utils.StorageClient import GoogleCloudStorageClient
-from langchain.document_loaders import AsyncChromiumLoader
+from .webhook import WebhookHandler
 
 
 class PDFSplitterOption(BaseModel):
     type: str = Field(default="character")
-    chunk_size: int = Field(default=1000)
+    chunk_size: int = Field(default=100)
     chunk_overlap: int = Field(default=0)
 
 
@@ -43,7 +43,7 @@ class PDFLoader:
                     options = PDFRetrivalOption(
                         splitter=PDFSplitterOption(
                             chunk_overlap=document.split_option.get("chunk_overlap", 0),
-                            chunk_size=document.split_option.get("chunk_size", 1000),
+                            chunk_size=document.split_option.get("chunk_size", 100),
                         )
                     )
                     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
@@ -65,7 +65,23 @@ class PDFLoader:
                             )
                         )
                 elif document.type == "annotated_data":
-                    pass
+                    webhook_handler = WebhookHandler()
+                    annotated_data = webhook_handler.get_annotated_data(document.uid)
+                    options = PDFRetrivalOption(
+                        splitter=PDFSplitterOption(
+                            chunk_overlap=document.split_option.get("chunk_overlap", 0),
+                            chunk_size=document.split_option.get("chunk_size", 100),
+                        )
+                    )
+                    _doc.append(
+                        Document(
+                            page_content=annotated_data,
+                            metadata={
+                                "source": document.uid,
+                            },
+                        )
+                    )
+                    document.content_size = sys.getsizeof(annotated_data)
                 else:
                     logger.error(f"Document type {document.type} not supported")
                     raise Exception("Document type not supported")
