@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const code = query.get('code')
     if (!code) throw new Error('code is undefined')
 
-    const client_id = process.env.SLACK_CLIENT_ID
+    const client_id = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID
     const client_secret = process.env.SLACK_CLIENT_SECRET
     const redirect_uri = `${process.env.BASE_URL}/api/webhook/slack/redirect_uri`
 

@@ -22,6 +22,14 @@ import {
 
 interface IProps {}
 
+const redirect_uri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/slack/redirect_uri`
+
+export const authorizeUrl = `https://slack.com/oauth/v2/authorize?client_id=${
+  process.env.NEXT_PUBLIC_SLACK_CLIENT_ID
+}&scope=app_mentions:read,chat:write,im:history,users:read,users:read.email,team:read&user_scope=&redirect_uri=${encodeURIComponent(
+  redirect_uri
+)}`
+
 function TeamCard({
   icon,
   name,
@@ -48,7 +56,8 @@ const SlackDialog = NiceModal.create(({}: IProps) => {
 
   const { data: teamList = [] } = useSWR<string[]>(
     '/api/me/slack/teams',
-    fetcher
+    fetcher,
+    { revalidateOnFocus: true, keepPreviousData: true }
   )
 
   return (
@@ -60,6 +69,17 @@ const SlackDialog = NiceModal.create(({}: IProps) => {
             Allow team members to chat with your app
           </DialogDescription>
         </DialogHeader>
+
+        <a href={authorizeUrl} target="_blank">
+          <img
+            alt="Add to Slack"
+            height="40"
+            width="139"
+            src="https://platform.slack-edge.com/img/add_to_slack.png"
+            srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
+          />
+        </a>
+
         <div className="space-y-2">
           {teamList.map(
             ({ app_id, team_id, team_name, team_url, team_icon }: any, idx) => (

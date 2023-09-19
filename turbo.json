@@ -4,7 +4,7 @@
   "globalEnv": [
     "PORT",
     "NODE_ENV",
-    "BASE_URL",
+    "NEXT_PUBLIC_BASE_URL",
     "CI",
     "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
     "CLERK_SECRET_KEY",
@@ -25,9 +25,8 @@
     "NEXT_PUBLIC_PUSHER_APP_KEY",
     "NEXT_PUBLIC_PUSHER_APP_CLUSTER",
     "LOGSNAG_TOKEN",
-    "SLACK_CLIENT_ID",
-    "SLACK_CLIENT_SECRET",
-    "BASE_URL"
+    "NEXT_PUBLIC_SLACK_CLIENT_ID",
+    "SLACK_CLIENT_SECRET"
   ],
   "pipeline": {
     "build": {
