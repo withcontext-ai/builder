@@ -3,15 +3,12 @@ import { auth } from '@clerk/nextjs'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { omit, pick } from 'lodash'
 import { nanoid } from 'nanoid'
-import pLimit from 'p-limit'
 
 import { db } from '@/lib/drizzle-edge'
 import { FileProps } from '@/components/upload/utils'
 
 import { AppsTable } from '../apps/schema'
 import { Documents, DocumentsTable, NewDocument } from './schema'
-
-const limit = pLimit(30)
 
 export type newDocumentParams = {
   config: Record<string, any>
@@ -20,7 +17,20 @@ export type newDocumentParams = {
   type?: string
 }
 
-export async function getDocumentByTable(datasetId: string) {
+export type searchParams = {
+  pageSize?: number
+  search?: string
+  pageIndex?: number
+}
+export type geDocumentParams = {
+  params: searchParams
+  dataset_id: string
+}
+export async function getDocumentByTable({
+  dataset_id,
+  params,
+}: geDocumentParams) {
+  const { search = '', pageSize = 10, pageIndex = 0 } = params
   const item = await db
     .select()
     .from(DocumentsTable)
@@ -28,10 +38,15 @@ export async function getDocumentByTable(datasetId: string) {
     .where(
       and(
         eq(DocumentsTable.archived, false),
-        eq(DocumentsTable.dataset_id, datasetId)
+        eq(DocumentsTable.dataset_id, dataset_id)
       )
     )
-  return item
+  let res = item
+  if (search) {
+    res = item?.filter((item: NewDocument) => item?.name?.includes(search))
+  }
+  res?.slice(pageIndex * pageSize, pageSize * (pageIndex + 1))
+  return res
 }
 
 async function findApps(ids: string[]) {
@@ -58,7 +73,7 @@ function createEmptyDocument(
     ...attributes,
     updated_at: new Date(),
     dataset_id,
-    create_by: user_id,
+    created_by: user_id,
     short_id: nanoid(),
   }
 }
@@ -97,18 +112,16 @@ export async function addDocuments(data: newDocumentParams) {
     }
     const queue: any[] = []
 
-    documents?.map((item: any) => {
-      const task = limit(async () => {
-        await db.insert(DocumentsTable).values(item)
-      })
+    documents?.forEach((item: NewDocument) => {
+      const task = db.insert(DocumentsTable).values(item)
       queue.push(task)
     })
 
-    await Promise.allSettled(queue)
+    await Promise.all(queue)
     console.log(documents, '--documents', queue)
     return { success: true, documents }
   } catch (error) {
-    redirect('/')
+    console.log('error error:', error)
   }
 }
 

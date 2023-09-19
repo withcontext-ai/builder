@@ -50,7 +50,9 @@ const DatasetTable = ({ preload }: IProps) => {
       ...pagination,
     }).toString()
 
-    return fetcher(`/api/datasets/${dataset_id}?${search}`, { method: 'GET' })
+    return fetcher(`/api/datasets/document/?${search}`, {
+      method: 'GET',
+    })
   }
 
   const { toast } = useToast()
@@ -65,7 +67,7 @@ const DatasetTable = ({ preload }: IProps) => {
   )
 
   const { data = [], isValidating } = useSWR<any>(
-    [{ search: value }, pagination, deleted],
+    [{ search: value }, { dataset_id }, pagination, deleted],
     getDatasetDocument,
     {
       fallbackData: preload,

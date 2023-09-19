@@ -28,7 +28,7 @@ export const DocumentsTable = pgTable(
     url: text('url'), // pdf
     app_id: text('app_id').references(() => AppsTable.short_id), // get app info
     status: integer('status').default(0).notNull(),
-    characters: integer('characters'),
+    characters: integer('characters').default(0),
     config: json('config'),
     created_by: text('created_by')
       .references(() => UsersTable.short_id)

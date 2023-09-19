@@ -3,8 +3,25 @@ import { omit } from 'lodash'
 
 import { editDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
-import { addDocuments } from '@/db/documents/action'
+import { addDocuments, getDocumentByTable } from '@/db/documents/action'
 import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { dataset_id: string } }
+) {
+  const query = req.nextUrl.searchParams
+  const pageSize = parseInt(query.get('pageSize') || '')
+  const pageIndex = parseInt(query.get('pageIndex') || '')
+  const search = query.get('search') || ''
+  const dataset_id = query.get('dataset_id') || ''
+  const data = await getDocumentByTable({
+    dataset_id,
+    params: { pageSize, pageIndex, search },
+  })
+
+  return NextResponse.json({ success: true, data })
+}
 
 // // Delete a data
 export async function DELETE(req: NextRequest) {
@@ -38,7 +55,6 @@ export async function POST(req: NextRequest) {
     dataset_id,
     type: dataConfig?.loaderType,
   })
-  console.log('---addd---')
   // const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,
