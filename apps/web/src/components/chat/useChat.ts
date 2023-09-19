@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { createChunkDecoder } from 'ai'
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import { createChunkDecoder, nanoid } from 'ai'
 import useSWR from 'swr'
 
 import { ChatContextType, useChatContext } from './chat-context'
@@ -34,7 +41,7 @@ interface StreamData {
 }
 
 const buildUserMessage = (content: string): ChatMessage => ({
-  id: '',
+  id: nanoid(),
   content,
   role: 'user',
   type: 'chat',
@@ -87,7 +94,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
 
         const currMessages = messagesRef.current
 
-        const res = await fetch(`/api/chat/`, {
+        const res = await fetch(`/api/chat`, {
           method: 'POST',
           body: JSON.stringify({
             query,
@@ -144,7 +151,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
 
           responseMessage.content = streamedResponse
 
-          mutate([...currMessages, responseMessage], false)
+          mutate([...currMessages, { ...responseMessage }], false)
 
           // The request has been aborted, stop reading the stream.
           if (abortControllerRef.current === null) {
@@ -153,7 +160,10 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
           }
         }
 
-        responseMessage.id = streamedData.id
+        if (streamedData.id) {
+          responseMessage.id = streamedData.id
+          mutate([...currMessages, responseMessage], false)
+        }
 
         if (onFinish) {
           onFinish(responseMessage, streamedData)
@@ -197,6 +207,8 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     if (lastMessage.role !== 'assistant' || lastMessage.type !== 'chat') {
       return
     }
+    messagesRef.current = messagesRef.current.slice(0, -1)
+    mutate(messagesRef.current, false)
     const currMessages = messagesRef.current
     try {
       triggerRequest({ query: lastMessage.content, reloadId: lastMessage.id })

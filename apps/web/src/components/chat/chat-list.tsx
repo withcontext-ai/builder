@@ -9,6 +9,7 @@ import { useChatContext } from './chat-context'
 import { ChatFeedbackContextProvider } from './feedback/chat-feedback-context'
 import ChatFeedbackDialog from './feedback/chat-feedback-dialog'
 import { Message } from './types'
+import { useChat } from './useChat'
 import { keyBuilder } from './utils'
 
 interface IProps {
@@ -19,7 +20,8 @@ interface IProps {
 }
 
 const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
-  const { mode, isLoading } = useChatContext()
+  const { mode } = useChatContext()
+  const { isLoading } = useChat()
   const isDebug = mode === 'debug'
 
   return (
