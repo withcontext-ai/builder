@@ -239,11 +239,14 @@ const Chat = (props: ChatProps) => {
 
   const openModal = useCallback(() => {
     modal.show({
+      appId: app?.short_id ?? '',
+      appIcon: app?.icon ?? '',
+      appName: app?.name ?? '',
       onAccept: handleAccept,
       onDecline: handleDecline,
       onCancel: handleCancel,
     })
-  }, [modal, handleAccept, handleDecline, handleCancel])
+  }, [modal, app, handleAccept, handleDecline, handleCancel])
 
   const handleRestart = () => {
     handelStop()
@@ -304,7 +307,6 @@ const Chat = (props: ChatProps) => {
                 error={error?.message}
                 setAutoScroll={setAutoScroll}
               />
-              <button onClick={openModal}>open modal</button>
               <ChatInput
                 input={input}
                 onSubmit={onSubmit}
