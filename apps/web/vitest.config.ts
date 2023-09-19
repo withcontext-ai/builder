@@ -11,7 +11,7 @@ export default defineConfig({
     include: ['**/*.test.tsx'],
     coverage: {
       provider: 'istanbul',
-      reporter: ['text', 'html', 'lcov'],
+      reporter: ['html', 'lcov'],
     },
   },
   resolve: {
