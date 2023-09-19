@@ -614,7 +614,7 @@ class SessionStateManager(BaseManager):
                     chain.process = tup[0]
                     chain.max_retries = tup[1]
         # get chain memory
-        # memory example: {"tool_%d_dialog"}
+        # memory example: {"tool_%d_dialog": [{"input": "human input", "output": "tool output"}]}
         workflow.current_memory = {}
         for chain in workflow.context.chains:
             workflow.current_memory[chain.dialog_key] = self.get_chain_memory(
