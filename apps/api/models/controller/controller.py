@@ -128,13 +128,13 @@ class DatasetManager(BaseManager):
         # check if dataset is pdf
         handler = WebhookHandler()
         urn = self.get_dataset_urn(dataset.id)
-        handler.update_status(dataset.id, 1)
+        handler.update_dataset_status(dataset.id, 1)
         if len(dataset.documents) != 0:
             if dataset.documents[0].type != "pdf":
                 raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
-            Retriever.create_index([dataset])
+            Retriever.create_index(dataset)
         self.redis.set(urn, json.dumps(dataset.dict()))
-        handler.update_status(dataset.id, 0)
+        handler.update_dataset_status(dataset.id, 0)
 
         return self.table.insert().values(dataset.dict())
 
@@ -153,7 +153,7 @@ class DatasetManager(BaseManager):
             self.redis.delete(urn)
         if update_data.get("documents"):
             handler = WebhookHandler()
-            handler.update_status(dataset_id, 1)
+            handler.update_dataset_status(dataset_id, 1)
             dataset = self.get_datasets(dataset_id)[0]
             if update_data.get("retrieval"):
                 retrieval_dict = update_data["retrieval"]
@@ -173,11 +173,11 @@ class DatasetManager(BaseManager):
                     raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
                 dataset = Dataset(id=dataset_id, **update_data)
                 # pages updated
-                Retriever.create_index([dataset])
+                Retriever.create_index(dataset)
                 for chain in chains:
                     parts = chain.split("-", 1)
                     Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
-                handler.update_status(dataset_id, 0)
+                handler.update_dataset_status(dataset_id, 0)
                 dataset_dict = dataset.dict()
                 self.redis.set(urn, json.dumps(dataset_dict))
                 logger.info(
@@ -420,11 +420,11 @@ class ModelManager(BaseManager):
         self.redis.set(urn, json.dumps(model.dict()))
         for chain in model.chains:
             for dataset_id in chain.datasets:
-                handler.update_status(dataset_id, 1)
+                handler.update_dataset_status(dataset_id, 1)
                 dataset = dataset_manager.get_datasets(dataset_id)[0]
                 relative_manager.save_relative(dataset.id, model.id, chain.key)
                 Retriever.add_relative_chain_to_dataset(dataset, model.id, chain.key)
-                handler.update_status(dataset_id, 0)
+                handler.update_dataset_status(dataset_id, 0)
         return self.table.insert().values(model.dict())
 
     @BaseManager.db_session
@@ -444,16 +444,16 @@ class ModelManager(BaseManager):
             # Let's start all over again first
             for chain in model.chains:
                 for dataset_id in chain.datasets:
-                    handler.update_status(dataset_id, 1)
+                    handler.update_dataset_status(dataset_id, 1)
                     relative_manager.delete_relative(dataset_id, model_id, chain.key)
                     Retriever.delete_relative_chain_from_dataset(
                         dataset_manager.get_datasets(dataset_id)[0], model_id, chain.key
                     )
-                    handler.update_status(dataset_id, 0)
+                    handler.update_dataset_status(dataset_id, 0)
             for chain in update_data["chains"]:
                 if "datasets" in chain:
                     for dataset_id in chain["datasets"]:
-                        handler.update_status(dataset_id, 1)
+                        handler.update_dataset_status(dataset_id, 1)
                         dataset = dataset_manager.get_datasets(dataset_id)[0]
                         relative_manager.save_relative(
                             dataset.id, model_id, chain["key"]
@@ -461,7 +461,7 @@ class ModelManager(BaseManager):
                         Retriever.add_relative_chain_to_dataset(
                             dataset, model_id, chain["key"]
                         )
-                        handler.update_status(dataset_id, 0)
+                        handler.update_dataset_status(dataset_id, 0)
             model_dict = model.dict()
             model_dict.update(update_data)
             self.redis.set(urn, json.dumps(model_dict))
