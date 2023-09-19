@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { useParams } from 'next/navigation'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { SlackIcon } from 'lucide-react'
-import useSWR from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
+import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
 import { SlackTeamApp } from '@/db/slack_team_apps/schema'
@@ -37,12 +37,14 @@ function TeamCard({
   url,
   checked,
   onCheckedChange,
+  disabled = false,
 }: {
   icon: string
   name: string
   url: string
   checked: boolean
   onCheckedChange: (checked: boolean) => void
+  disabled?: boolean
 }) {
   return (
     <div className="flex items-center space-x-4 rounded-md border p-4">
@@ -51,9 +53,32 @@ function TeamCard({
         <p className="text-sm font-medium leading-none">{name}</p>
         <p className="text-sm text-muted-foreground">{url}</p>
       </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <Switch
+        defaultChecked={checked}
+        onCheckedChange={onCheckedChange}
+        disabled={disabled}
+      />
     </div>
   )
+}
+
+function linkTeamToApp(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
+      app_id: string
+      team_id: string
+      context_app_id: string
+      unlink?: boolean
+    }
+  }
+) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
 }
 
 interface ISlackDialogProps {
@@ -64,6 +89,8 @@ const SlackDialog = NiceModal.create(
   ({ context_app_id }: ISlackDialogProps) => {
     const { modal, closeModal, onOpenChange } = useNiceModal()
 
+    const { mutate } = useSWRConfig()
+
     const { data: teamList = [] } = useSWR<Partial<SlackTeam>[]>(
       '/api/me/slack/teams',
       fetcher,
@@ -73,7 +100,15 @@ const SlackDialog = NiceModal.create(
     const { data: linkedTeamList = [] } = useSWR<Partial<SlackTeamApp>[]>(
       `/api/slack/linked-teams/${context_app_id}`,
       fetcher,
-      { revalidateOnFocus: true, keepPreviousData: true }
+      {
+        revalidateOnFocus: true,
+        keepPreviousData: true,
+      }
+    )
+
+    const { trigger: linkTeamToAppTrigger } = useSWRMutation(
+      `/api/slack/link-team-to-app`,
+      linkTeamToApp
     )
 
     const checkIsLinked = React.useCallback(
@@ -87,14 +122,16 @@ const SlackDialog = NiceModal.create(
 
     const checkedChangeHandler = React.useCallback(
       (app_id: string, team_id: string, context_app_id: string) =>
-        (checked: boolean) => {
-          if (checked) {
-            console.log('link app:', app_id, team_id, context_app_id)
-          } else {
-            console.log('unlink app:', app_id, team_id, context_app_id)
-          }
+        async (checked: boolean) => {
+          await linkTeamToAppTrigger({
+            app_id,
+            team_id,
+            context_app_id,
+            unlink: !checked,
+          })
+          await mutate(`/api/slack/linked-teams/${context_app_id}`)
         },
-      []
+      [linkTeamToAppTrigger, mutate]
     )
 
     return (
@@ -121,23 +158,25 @@ const SlackDialog = NiceModal.create(
 
           <div className="space-y-2">
             {teamList.map(
-              (
-                { app_id, team_id, team_name, team_url, team_icon }: any,
-                idx
-              ) => (
-                <TeamCard
-                  key={`${app_id}-${team_id}-${idx}`}
-                  icon={team_icon}
-                  name={team_name}
-                  url={team_url}
-                  checked={checkIsLinked(app_id, team_id)}
-                  onCheckedChange={checkedChangeHandler(
-                    app_id,
-                    team_id,
-                    context_app_id
-                  )}
-                />
-              )
+              ({ app_id, team_id, team_name, team_url, team_icon }: any) => {
+                const checked = checkIsLinked(app_id, team_id)
+                return (
+                  <TeamCard
+                    key={`${app_id}-${team_id}-${
+                      checked ? 'checked' : 'unchecked'
+                    }`}
+                    icon={team_icon}
+                    name={team_name}
+                    url={team_url}
+                    checked={checked}
+                    onCheckedChange={checkedChangeHandler(
+                      app_id,
+                      team_id,
+                      context_app_id
+                    )}
+                  />
+                )
+              }
             )}
           </div>
         </DialogContent>
