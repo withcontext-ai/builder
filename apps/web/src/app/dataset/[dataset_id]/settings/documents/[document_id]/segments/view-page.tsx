@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { throttle } from 'lodash'
+import { debounce, throttle } from 'lodash'
 import { Trash } from 'lucide-react'
 import useSWR from 'swr'
 
@@ -75,7 +75,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
     },
     [value]
   )
-  const throttledOnChange = useMemo(() => throttle(onChange, 1000), [onChange])
+  const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
     <div className="h-full overflow-auto py-[68px]">
       <SegmentHeader
