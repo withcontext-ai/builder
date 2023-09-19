@@ -56,10 +56,13 @@ export async function POST(req: NextRequest) {
         await updateDataset(event.data)
         break
       }
+      case 'document.update': {
+        await updateDocument(event.data)
+        return NextResponse.json({ success: true, data })
+      }
       case 'annotations.get': {
         const data = await getAnnotations(event.data)
         return NextResponse.json({ success: true, data })
-        break
       }
       default: {
         throw new Error(`Unknown event type: ${event.type}`)
@@ -156,27 +159,10 @@ async function endCall(eventType: string, data: any) {
 }
 
 async function updateDataset(data: any) {
-  const {
-    api_dataset_id,
-    status,
-    document_status,
-    document_id,
-    document_characters,
-  } = data
-  const dataset = await getDatasetByApiId(api_dataset_id)
-  // @ts-ignore
-  const { config = {} } = dataset
-  const documents = config?.files || []
-  const cur = documents?.find((item: any) => item?.uid === document_id)
-  cur.status = document_status
-  cur.characters = document_characters
-  cur.updated_at = new Date()
-  const index = documents?.findIndex((item: any) => item?.uid === document_id)
-  documents[index] = cur
-
+  const { api_dataset_id, status } = data
   await db
     .update(DatasetsTable)
-    .set({ status, config: { ...config, document } })
+    .set({ status })
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
 }
 
@@ -200,4 +186,24 @@ async function getAnnotations(data: { api_model_ids: string[] }) {
     )
     .groupBy(MessagesTable.id, SessionsTable.id, AppsTable.id)
   return result
+}
+
+async function updateDocument(data: any) {
+  const { api_dataset_id, document_status, document_id, document_characters } =
+    data
+  const dataset = await getDatasetByApiId(api_dataset_id)
+  // @ts-ignore
+  const { config = {} } = dataset
+  const documents = config?.files || []
+  const cur = documents?.find((item: any) => item?.uid === document_id)
+  cur.status = document_status
+  cur.characters = document_characters
+  cur.updated_at = new Date()
+  const index = documents?.findIndex((item: any) => item?.uid === document_id)
+  documents[index] = cur
+
+  await db
+    .update(DatasetsTable)
+    .set({ config: { ...config, document } })
+    .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
 }

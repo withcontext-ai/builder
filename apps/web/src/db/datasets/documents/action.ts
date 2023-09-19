@@ -53,7 +53,7 @@ export async function getDataInfo(dataset_id: string, uid: string) {
 export async function getNotedData() {
   const apps = await getApps()
   const data = apps?.reduce((m: any[], item: NewApp) => {
-    const cur = pick(item, ['name', 'icon'])
+    const cur = pick(item, ['name', 'icon', 'short_id'])
     // @ts-ignore
     cur.uid = item.api_model_id
     m.push(cur)
