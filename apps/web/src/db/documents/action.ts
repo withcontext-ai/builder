@@ -169,21 +169,22 @@ export async function editDocument(
   }
 }
 
-export async function deleteDocument(id: string) {
+export async function deleteDocument(id: string, dataset_id: string) {
   try {
     const { userId } = auth()
     if (!userId) return Promise.resolve([])
-
+    console.log(id, dataset_id, '----id')
     const response = await db
       .update(DocumentsTable)
       .set({ archived: true, updated_at: new Date() })
       .where(
         and(
+          eq(DocumentsTable.dataset_id, dataset_id),
           eq(DocumentsTable.short_id, id),
           eq(DocumentsTable.created_by, userId)
         )
       )
-
+    console.log(response, '---response')
     return { data: response, success: true }
   } catch (error) {
     redirect('/')

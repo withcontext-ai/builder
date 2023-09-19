@@ -29,6 +29,7 @@ export interface DataConfigProps {
 
 export interface DataProps {
   uid: string
+  short_id?: string
   name: string
   status?: number
   type: string

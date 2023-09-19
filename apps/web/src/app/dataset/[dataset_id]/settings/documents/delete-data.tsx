@@ -30,7 +30,6 @@ const DeleteData = ({ datasetId, uid, confirmDelete }: IProps) => {
     `/api/datasets/document`,
     deleteData
   )
-
   const handelDelete = () => {
     trigger({ dataset_id: datasetId, uid }).then((res) => {
       setOpen(false)

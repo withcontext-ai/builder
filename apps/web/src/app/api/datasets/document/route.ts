@@ -3,13 +3,14 @@ import { omit } from 'lodash'
 
 import { editDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
-import { addDocuments, getDocumentByTable } from '@/db/documents/action'
+import {
+  addDocuments,
+  deleteDocument,
+  getDocumentByTable,
+} from '@/db/documents/action'
 import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { dataset_id: string } }
-) {
+export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams
   const pageSize = parseInt(query.get('pageSize') || '')
   const pageIndex = parseInt(query.get('pageIndex') || '')
@@ -29,10 +30,12 @@ export async function DELETE(req: NextRequest) {
   const { documents, config } = await getDocuments({ dataset_id })
   const files = documents?.filter((item: DataProps) => item?.uid !== uid)
   const newConfig = { ...config, files }
-  const response = (await editDataset(dataset_id, { config: newConfig })) as any
+
+  await deleteDocument(uid, dataset_id)
+  // const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,
-    data: { dataset_id, uid, response },
+    data: { dataset_id, uid },
   })
 }
 

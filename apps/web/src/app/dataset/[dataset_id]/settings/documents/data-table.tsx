@@ -137,7 +137,7 @@ const DatasetTable = ({ preload }: IProps) => {
 
               <DeleteData
                 datasetId={dataset_id}
-                uid={uid}
+                uid={row.original?.short_id || ''}
                 confirmDelete={() => setDeleted((v) => v + 1)}
               />
             </div>
