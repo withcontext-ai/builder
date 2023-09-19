@@ -51,7 +51,7 @@ const ShareApp = () => {
         <div className="mb-6 gap-2">
           <Text>Use this App in</Text>
           <div className="mt-2 flex gap-4">
-            <Slack />
+            <Slack appId={app_id} />
           </div>
         </div>
         <div className="gap-2">
