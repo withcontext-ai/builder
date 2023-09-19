@@ -12,8 +12,8 @@ interface IProps {
 const Page = async ({ params }: IProps) => {
   const { dataset_id } = params
   const preload = await getDocuments({ dataset_id })
-  // const data = await getDocumentByTable(dataset_id)
-  // console.log(data, 'db----data')
+  const data = await getDocumentByTable(dataset_id)
+  console.log(data, 'db----data')
 
   const datasetDetail = await getDataset(dataset_id)
 

@@ -1,15 +1,17 @@
-import { useId } from 'react'
 import { redirect } from 'next/navigation'
-import { auth, useAuth } from '@clerk/nextjs'
-import { and, eq, inArray } from 'drizzle-orm'
+import { auth } from '@clerk/nextjs'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 import { omit, pick } from 'lodash'
 import { nanoid } from 'nanoid'
+import pLimit from 'p-limit'
 
 import { db } from '@/lib/drizzle-edge'
 import { FileProps } from '@/components/upload/utils'
 
 import { AppsTable } from '../apps/schema'
 import { Documents, DocumentsTable, NewDocument } from './schema'
+
+const limit = pLimit(30)
 
 export type newDocumentParams = {
   config: Record<string, any>
@@ -19,27 +21,17 @@ export type newDocumentParams = {
 }
 
 export async function getDocumentByTable(datasetId: string) {
-  try {
-    const { userId } = auth()
-    if (!userId) {
-      return {
-        error: 'Not authenticated',
-      }
-    }
-    const [item] = await db
-      .select()
-      .from(DocumentsTable)
-      .where(
-        and(
-          eq(DocumentsTable.dataset_id, datasetId)
-          // eq(DocumentsTable.created_by, userId)
-        )
+  const item = await db
+    .select()
+    .from(DocumentsTable)
+    .orderBy(desc(DocumentsTable.created_at))
+    .where(
+      and(
+        eq(DocumentsTable.archived, false),
+        eq(DocumentsTable.dataset_id, datasetId)
       )
-    console.log(item, '---item')
-    return item || []
-  } catch (error) {
-    redirect('/')
-  }
+    )
+  return item
 }
 
 async function findApps(ids: string[]) {
@@ -74,6 +66,7 @@ function createEmptyDocument(
 export async function addDocuments(data: newDocumentParams) {
   try {
     const { userId } = auth()
+
     if (!userId) return Promise.resolve([])
     const { type, documents: _documents, dataset_id } = data
     const isPdf = type === 'pdf'
@@ -81,7 +74,12 @@ export async function addDocuments(data: newDocumentParams) {
     if (isPdf) {
       documents = _documents?.reduce((m: any[], cur: FileProps) => {
         const config = pick(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
-        const attributes = omit(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
+        const attributes = omit(cur, [
+          'splitType',
+          'chunkSize',
+          'chunkOverlap',
+          'loaderType',
+        ])
         const item = createEmptyDocument(dataset_id, userId, config, attributes)
         m.push(item)
         return m
@@ -97,9 +95,18 @@ export async function addDocuments(data: newDocumentParams) {
         return m
       }, [])
     }
-    await db.insert(DocumentsTable).values(documents).returning()
+    const queue: any[] = []
 
-    return { documents, success: true }
+    documents?.map((item: any) => {
+      const task = limit(async () => {
+        await db.insert(DocumentsTable).values(item)
+      })
+      queue.push(task)
+    })
+
+    await Promise.allSettled(queue)
+    console.log(documents, '--documents', queue)
+    return { success: true, documents }
   } catch (error) {
     redirect('/')
   }

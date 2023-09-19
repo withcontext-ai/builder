@@ -15,7 +15,7 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
   documents?.map((item: any) => {
-    item.update_at = item.update || updated_at
+    item.updated_at = item.update || updated_at
     item.status = item.status || status
   })
   return { documents, updated_at, status, config }

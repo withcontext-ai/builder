@@ -140,14 +140,14 @@ const DataForm = () => {
     }
     if (step === 2) {
       setStep?.(step + 1)
-      previewTrigger({
-        dataset_id: datasetId,
-        dataConfig,
-        document_id: documentId,
-        preview: 5,
-      }).then((res) => {
-        setPreviews(res)
-      })
+      // previewTrigger({
+      //   dataset_id: datasetId,
+      //   dataConfig,
+      //   document_id: documentId,
+      //   preview: 5,
+      // }).then((res) => {
+      //   setPreviews(res)
+      // })
 
       return
     } else {
