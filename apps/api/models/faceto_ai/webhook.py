@@ -37,6 +37,11 @@ class WebhookHandler:
         response = requests.post(
             self.target_url, data=json.dumps(_data.dict()), headers=headers
         )
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(e)
+            logger.error(response.text)
 
     @retry(
         stop=stop_after_attempt(3),
@@ -56,3 +61,8 @@ class WebhookHandler:
         response = requests.post(
             self.target_url, data=json.dumps(data.dict()), headers=headers
         )
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(e)
+            logger.error(response.text)

@@ -20,4 +20,9 @@ class WebhookHandler:
         )
         headers = {"Content-Type": "application/json"}
         response = requests.post(self.target_url, json=payload.dict(), headers=headers)
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(e)
+            logger.error(response.text)
         return response.json().get("data", [])
