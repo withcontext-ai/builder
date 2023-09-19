@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { throttle } from 'lodash'
+import { debounce, throttle } from 'lodash'
 import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
 import useSWR from 'swr'
 
@@ -182,7 +182,7 @@ const DatasetTable = ({ preload }: IProps) => {
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e?.target?.value)
   }, [])
-  const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
+  const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
     <div className="space-y-8">
       <div className="mb-8 flex">

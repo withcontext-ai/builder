@@ -50,7 +50,7 @@ const ChatFeedbackDialog = () => {
 
   useEffect(() => {
     resetForm()
-  }, [messageId])
+  }, [messageId, resetForm])
 
   if (!messageId || !type) {
     return null
