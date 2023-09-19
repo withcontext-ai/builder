@@ -4,6 +4,8 @@ import { omit, pick } from 'lodash'
 
 import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
+import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
+import { NotedDataProps } from '@/app/dataset/type'
 
 import { getDataset, getDatasets, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
@@ -14,8 +16,8 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const config = datasetDetail?.config || {}
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
-  documents?.map((item: any) => {
-    item.updated_at = item.update || updated_at
+  documents?.map((item: DataProps) => {
+    item.updated_at = item?.updated_at || updated_at
     item.status = item.status || status
   })
   return { documents, updated_at, status, config }
@@ -24,7 +26,7 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
 // get data info
 export async function getDataInfo(dataset_id: string, uid: string) {
   const { documents } = await getDocuments({ dataset_id })
-  const detail = documents?.find((item: any) => item?.uid === uid)
+  const detail = documents?.find((item: DataProps) => item?.uid === uid)
   const fileConfig = pick(detail, [
     'loaderType',
     'splitType',
@@ -52,9 +54,9 @@ export async function getDataInfo(dataset_id: string, uid: string) {
 
 export async function getNotedData() {
   const apps = await getApps()
-  const data = apps?.reduce((m: any[], item: NewApp) => {
+  const data = apps?.reduce((m: NotedDataProps[], item: NewApp) => {
     const cur = pick(item, ['name', 'icon', 'short_id'])
-    // @ts-ignore
+
     cur.uid = item.api_model_id
     m.push(cur)
     return m
@@ -93,7 +95,7 @@ export async function getDataSplitPreview(
 export async function getDatasetByApiId(api_dataset_id: string) {
   const datasets = await getDatasets()
   const dataset = datasets?.find(
-    (item: any) => item?.api_dataset_id === api_dataset_id
+    (item: Partial<NewDataset>) => item?.api_dataset_id === api_dataset_id
   )
   return dataset
 }

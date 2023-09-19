@@ -20,11 +20,9 @@ export default async function Page({ params }: IProps) {
     (item: any) => item?.type === 'annotated_data'
   )
   const defaultValues = {
-    dataConfig: {
-      ...data?.config,
-      files,
-      notedData,
-    },
+    ...data?.config,
+    files,
+    notedData,
   }
   return (
     <div className="h-full overflow-auto">

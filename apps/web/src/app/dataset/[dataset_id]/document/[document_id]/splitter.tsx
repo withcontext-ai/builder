@@ -39,13 +39,13 @@ const TextSplits = ({ form }: SessionProps) => {
       </div>
       <SearchSelect
         form={form}
-        name="dataConfig.splitType"
+        name="splitType"
         values={types}
         title="Text Splitters"
       />
       <FormField
         control={form.control}
-        name="dataConfig.chunkSize"
+        name="chunkSize"
         render={({ field }) => (
           <FormItem className="my-6 w-[332px]">
             <FormLabel className="flex">Chunk size</FormLabel>

@@ -106,7 +106,6 @@ const DatasetTable = ({ preload }: IProps) => {
         header: '',
         cell: ({ row }) => {
           const { status, type, uid } = row.original
-          console.log(status, '---status')
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (

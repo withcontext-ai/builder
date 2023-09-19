@@ -25,22 +25,22 @@ interface IProps {
 const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
   const { defaultValues, documentId } = useDataContext()
-  const notedData = defaultValues?.dataConfig?.notedData || []
+  const notedData = defaultValues?.notedData || []
   const [data, setData] = useState(notedData)
   const [open, setOpen] = useState(false)
 
   const [current, setCurrent] = useState<NotedDataProps[]>(data)
   const isAdd = documentId === 'add'
-  const type = watch()?.dataConfig?.loaderType
+  const type = watch()?.loaderType
 
   const deleteNotedData = (id: string) => {
     const newData = data?.filter((item: any) => item?.uid !== id) || []
-    form.setValue('dataConfig.notedData', newData)
+    form.setValue('notedData', newData)
     setData(newData)
     setCurrent(newData)
   }
   useEffect(() => {
-    const noted = watch()?.dataConfig?.notedData
+    const noted = watch()?.notedData
     setData(noted)
     setCurrent(noted)
   }, [type, watch])

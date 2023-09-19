@@ -68,7 +68,7 @@ const SettingPage = ({
   const [step, setStep] = useState(1)
   const isAdd = document_id === 'add'
   const disabledData = apps?.filter(
-    (item: any) =>
+    (item: NotedDataProps) =>
       documents?.findIndex((file) => file?.uid === item?.uid) !== -1
   )
   return (

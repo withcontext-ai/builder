@@ -43,7 +43,7 @@ export async function GET(
       item.updated_at = item?.update_at
       delete item.update_at
     }
-    if (!item?.status) {
+    if (![0, 1, 2]?.includes(item?.status)) {
       item.status = status
     }
     m.push(item)

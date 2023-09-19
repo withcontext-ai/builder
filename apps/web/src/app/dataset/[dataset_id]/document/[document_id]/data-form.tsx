@@ -83,8 +83,7 @@ const DataForm = () => {
 
   const { watch } = form
 
-  const files = defaultValues?.dataConfig?.files
-  const [data, setData] = useState<any[]>(files)
+  const [data, setData] = useState<any[]>(defaultValues?.files || [])
 
   const { trigger: addTrigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
@@ -101,7 +100,7 @@ const DataForm = () => {
   const router = useRouter()
   const onSubmit = async () => {
     try {
-      const dataConfig = watch()?.dataConfig
+      const dataConfig = { ...watch() }
       let json
       if (isAdd) {
         json = await addTrigger({
@@ -121,11 +120,11 @@ const DataForm = () => {
   }
 
   const handleClick = async () => {
-    const files = watch()?.dataConfig?.files
-    const notedData = watch()?.dataConfig?.notedData
-    const type = watch()?.dataConfig?.loaderType
+    const files = watch()?.files
+    const notedData = watch()?.notedData
+    const type = watch()?.loaderType
     const isPdf = type === 'pdf'
-    const dataConfig = watch()?.dataConfig
+    const dataConfig = { ...watch() }
     const text = type === 'pdf' ? 'document' : 'Annotated Data'
     if ((!files?.length && isPdf) || (!notedData?.length && !isPdf)) {
       toast({

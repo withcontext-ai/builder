@@ -7,14 +7,12 @@ import { getDocuments, getNotedData } from '@/db/datasets/documents/action'
 import SettingPage from '../[document_id]/setting-page'
 
 const defaultValues = {
-  dataConfig: {
-    loaderType: 'pdf',
-    splitType: 'character',
-    files: [],
-    notedData: [],
-    chunkSize: 1000,
-    chunkOverlap: 0,
-  },
+  loaderType: 'pdf',
+  splitType: 'character',
+  files: [],
+  notedData: [],
+  chunkSize: 1000,
+  chunkOverlap: 0,
 }
 
 interface IProps {

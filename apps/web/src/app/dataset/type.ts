@@ -1,9 +1,9 @@
 export interface NotedDataProps {
-  name: string
+  name?: string
   short_id?: string
   updated_at?: Date
   icon?: string
-  uid: string
+  uid?: string
   characters?: number
   status?: number
 }
