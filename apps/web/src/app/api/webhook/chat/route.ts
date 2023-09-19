@@ -170,7 +170,7 @@ async function updateDataset(data: any) {
   const cur = documents?.find((item: any) => item?.uid === document_id)
   cur.status = document_status
   cur.characters = document_characters
-  cur.update_at = new Date()
+  cur.updated_at = new Date()
   const index = documents?.findIndex((item: any) => item?.uid === document_id)
   documents[index] = cur
 

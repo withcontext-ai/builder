@@ -88,10 +88,9 @@ const DatasetTable = ({ preload }: IProps) => {
         cell: ({ row }) => formateNumber(row.getValue('characters') || 0),
       },
       {
-        accessorKey: 'update_at',
+        accessorKey: 'updated_at',
         header: 'Update Time',
-        cell: ({ row }) =>
-          formateDate(new Date(row.getValue('update_at')) || 0),
+        cell: ({ row }) => formateDate(row.getValue('updated_at') || 0),
       },
       {
         accessorKey: 'status',
@@ -109,24 +108,24 @@ const DatasetTable = ({ preload }: IProps) => {
           const { status, type, uid } = row.original
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
-              {status === 0 && (
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-8 w-8"
-                  onClick={(e) => {
-                    currentUid.current.uid = uid
-                    e.stopPropagation()
-                    editData(uid)
-                  }}
-                >
-                  {isPending && currentUid?.current?.uid === uid ? (
-                    <Loader2Icon className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileType2 size={18} />
-                  )}
-                </Button>
-              )}
+              {/* {status === 0 && ( */}
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  currentUid.current.uid = uid
+                  e.stopPropagation()
+                  editData(uid)
+                }}
+              >
+                {isPending && currentUid?.current?.uid === uid ? (
+                  <Loader2Icon className="h-4 w-4 animate-spin" />
+                ) : (
+                  <FileType2 size={18} />
+                )}
+              </Button>
+              {/* )} */}
               {status === 0 && type !== 'pdf' && (
                 <Button size="icon" variant="outline" className="h-8 w-8">
                   <RefreshCcw size={18} />

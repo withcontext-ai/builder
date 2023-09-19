@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   } else {
     files = [...documents, ...dataConfig?.notedData]
   }
-  files?.map((item) => (item.update_at = new Date()))
+  files?.map((item) => (item.updated_at = new Date()))
   const newConfig = { ...config, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
   current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap'])
   const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
   current = Object.assign(current, currentConfig)
-  current.update_at = new Date()
+  current.updated_at = new Date()
 
   documents[index] = current
   const newConfig = { ...config, files: documents }

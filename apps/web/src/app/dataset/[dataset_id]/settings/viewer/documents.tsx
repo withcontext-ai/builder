@@ -44,7 +44,8 @@ const Documents = ({ documents }: { documents: any[] }) => {
               >
                 <FileIcon data={item} />
                 <div className="text-sm text-slate-500">
-                  Uploaded Time: {formateDate(new Date(item.update_at))}
+                  Uploaded Time:
+                  {formateDate(item.updated_at)}
                 </div>
                 <div className="flex items-center justify-between text-sm text-slate-500">
                   {formateNumber(item?.characters || 0)} characters

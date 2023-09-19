@@ -36,8 +36,12 @@ export async function GET(
 
   // Compat the historical data
   const result = res?.reduce((m: DataProps[], item: any) => {
-    if (!item?.update_at) {
-      item.update_at = updated_at
+    if (!item?.updated_at) {
+      item.updated_at = updated_at
+    }
+    if (item?.update_at) {
+      item.updated_at = item?.update_at
+      delete item.update_at
     }
     if (!item?.status) {
       item.status = status
