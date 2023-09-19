@@ -97,7 +97,7 @@ const DatasetTable = ({ preload }: IProps) => {
         header: 'Status',
         cell: ({ row }) => {
           const { status } = row.original
-          const { text, color } = formateStatus(status || 0)
+          const { text, color } = formateStatus(status || 1)
           return <div className={cn('text-left', color)}>{text}</div>
         },
       },

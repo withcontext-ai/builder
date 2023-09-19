@@ -201,9 +201,9 @@ async function updateDocument(data: any) {
   cur.updated_at = new Date()
   const index = documents?.findIndex((item: any) => item?.uid === document_id)
   documents[index] = cur
-
+  console.log(documents, '----documents')
   await db
     .update(DatasetsTable)
-    .set({ config: { ...config, document } })
+    .set({ config: { ...config, files: documents } })
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
 }
