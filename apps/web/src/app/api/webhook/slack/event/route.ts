@@ -169,42 +169,18 @@ export async function POST(req: NextRequest) {
 
     if (body.event?.type === 'app_home_opened') {
       console.log('!!! app_home_opened')
-      console.log(body)
       const payload = body as EventsApi.AppHomeOpenedPayload
       if (!payload.event) throw new Error('payload.event is undefined')
       const user_id = payload.event.user
+      const app_id = payload.api_app_id
+      const team_id = payload.team_id
       if (!user_id) throw new Error('user_id is undefined')
-      if (!payload.api_app_id) throw new Error('api_app_id is undefined')
-      if (!payload.team_id) throw new Error('team_id is undefined')
+      if (!app_id) throw new Error('api_app_id is undefined')
+      if (!team_id) throw new Error('team_id is undefined')
 
-      const token = await getAccessToken(payload.api_app_id, payload.team_id)
-      const { client } = new SlackUtils(token)
-      const response = await client.views.publish({
-        user_id,
-        view: {
-          type: 'home',
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: 'This is a section block with a button.',
-              },
-              accessory: {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: 'Click Me',
-                  emoji: true,
-                },
-                value: 'click_me_12345',
-                action_id: 'button-action',
-              },
-            },
-          ],
-        },
-      })
-      console.log('response:', response)
+      const token = await getAccessToken(app_id, team_id)
+      const slack = new SlackUtils(token)
+      await slack.publishHomeViews(app_id, team_id, user_id)
     }
 
     return NextResponse.json(body)

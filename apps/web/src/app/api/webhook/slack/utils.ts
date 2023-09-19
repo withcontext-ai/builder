@@ -5,6 +5,8 @@ import { and, eq } from 'drizzle-orm'
 import { db } from '@/lib/drizzle-edge'
 import { createSlackClient } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
+import { AppsTable } from '@/db/apps/schema'
+import { SlackTeamAppsTable } from '@/db/slack_team_apps/schema'
 import { NewSlackTeam, SlackTeamsTable } from '@/db/slack_teams/schema'
 import { SlackUsersTable } from '@/db/slack_users/schema'
 import { UsersTable } from '@/db/users/schema'
@@ -174,5 +176,85 @@ export class SlackUtils {
     })
 
     return userInfo.user
+  }
+
+  async publishHomeViews(app_id: string, team_id: string, user_id: string) {
+    const linkedApps = await db
+      .select({
+        short_id: AppsTable.short_id,
+        name: AppsTable.name,
+        icon: AppsTable.icon,
+        description: AppsTable.description,
+      })
+      .from(SlackTeamAppsTable)
+      .leftJoin(
+        AppsTable,
+        eq(SlackTeamAppsTable.context_app_id, AppsTable.short_id)
+      )
+      .where(
+        and(
+          eq(SlackTeamAppsTable.app_id, app_id),
+          eq(SlackTeamAppsTable.team_id, team_id)
+        )
+      )
+
+    const appListBlocks = []
+    for (const linkedApp of linkedApps) {
+      const sections = [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*${linkedApp.name}*\n${linkedApp.description ?? ''}`,
+          },
+          ...(linkedApp.icon && {
+            accessory: {
+              type: 'image',
+              image_url: linkedApp.icon,
+              alt_text: linkedApp.name,
+            },
+          }),
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Chat',
+                emoji: true,
+              },
+              value: linkedApp.short_id,
+              action_id: 'new_session',
+            },
+          ],
+        },
+        {
+          type: 'divider',
+        },
+      ]
+      appListBlocks.push(...sections)
+    }
+
+    await this.client.views.publish({
+      user_id,
+      view: {
+        type: 'home',
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Select an App to chat*',
+            },
+          },
+          {
+            type: 'divider',
+          },
+          ...appListBlocks,
+        ],
+      },
+    })
   }
 }
