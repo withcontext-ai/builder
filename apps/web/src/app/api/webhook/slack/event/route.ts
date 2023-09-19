@@ -6,6 +6,8 @@ import * as EventsApi from 'seratch-slack-types/events-api'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { createSlackClient } from '@/lib/slack'
 
+import { getAccessToken, SlackUtils } from '../utils'
+
 export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
@@ -172,9 +174,11 @@ export async function POST(req: NextRequest) {
       if (!payload.event) throw new Error('payload.event is undefined')
       const user_id = payload.event.user
       if (!user_id) throw new Error('user_id is undefined')
+      if (!payload.api_app_id) throw new Error('api_app_id is undefined')
+      if (!payload.team_id) throw new Error('team_id is undefined')
 
-      const token = '' // TODO: get token from db
-      const client = createSlackClient(token)
+      const token = await getAccessToken(payload.api_app_id, payload.team_id)
+      const { client } = new SlackUtils(token)
       const response = await client.views.publish({
         user_id,
         view: {
@@ -193,7 +197,7 @@ export async function POST(req: NextRequest) {
                   text: 'Click Me',
                   emoji: true,
                 },
-                value: 'click_me_123',
+                value: 'click_me_12345',
                 action_id: 'button-action',
               },
             },

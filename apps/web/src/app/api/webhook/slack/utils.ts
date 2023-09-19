@@ -9,6 +9,22 @@ import { NewSlackTeam, SlackTeamsTable } from '@/db/slack_teams/schema'
 import { SlackUsersTable } from '@/db/slack_users/schema'
 import { UsersTable } from '@/db/users/schema'
 
+export async function getAccessToken(app_id: string, team_id: string) {
+  const [item] = await db
+    .select()
+    .from(SlackTeamsTable)
+    .where(
+      and(
+        eq(SlackTeamsTable.app_id, app_id),
+        eq(SlackTeamsTable.team_id, team_id),
+        eq(SlackTeamsTable.archived, false)
+      )
+    )
+    .limit(1)
+
+  return item.access_token
+}
+
 export class SlackUtils {
   client: WebClient
 
