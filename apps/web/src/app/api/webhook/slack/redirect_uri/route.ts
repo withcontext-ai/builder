@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
     const client_id = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID
     const client_secret = process.env.SLACK_CLIENT_SECRET
-    const redirect_uri = `${process.env.BASE_URL}/api/webhook/slack/redirect_uri`
+    const redirect_uri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/slack/redirect_uri`
 
     if (!client_id || !client_secret)
       throw new Error('client_id or client_secret is undefined')
