@@ -63,6 +63,8 @@ class PDFLoader:
                                 },
                             )
                         )
+                elif document.type == "annotated_data":
+                    pass
                 else:
                     logger.error(f"Document type {document.type} not supported")
                     raise Exception("Document type not supported")
