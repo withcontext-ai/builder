@@ -201,9 +201,17 @@ async function updateDocument(data: any) {
   cur.updated_at = new Date()
   const index = documents?.findIndex((item: any) => item?.uid === document_id)
   documents[index] = cur
-  console.log(documents, '----documents')
-  await db
-    .update(DatasetsTable)
-    .set({ config: { ...config, files: documents } })
-    .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
+  console.log(documents, '----documents', { ...config, files: documents })
+  // await db
+  //   .update(DatasetsTable)
+  //   .set({ config: { ...config, files: documents } })
+  //   .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
 }
+
+const data = {
+  api_dataset_id: '12',
+  document_status: 0,
+  document_id: '4566',
+  document_characters: 10,
+}
+export async function GET(data) {}

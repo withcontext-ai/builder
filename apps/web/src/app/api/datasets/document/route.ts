@@ -50,10 +50,11 @@ export async function PATCH(req: NextRequest) {
   if (!isPdf) {
     current = dataConfig?.notedData?.[0]
   }
-  current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap'])
+  current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap', 'uid'])
   const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
   current = Object.assign(current, currentConfig)
   current.updated_at = new Date()
+  current.uid = document_id
 
   documents[index] = current
   const newConfig = { ...config, files: documents }

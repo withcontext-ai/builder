@@ -31,6 +31,7 @@ export interface DataProps {
   uid: string
   name: string
   status?: number
+  short_id?: string
   type: string
   url: string
   icon?: string

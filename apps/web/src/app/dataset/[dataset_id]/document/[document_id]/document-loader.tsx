@@ -24,7 +24,7 @@ import { SessionProps } from './splitter'
 
 const types = [
   { label: 'PDF loader', value: 'pdf' },
-  { label: 'Annotated data', value: 'annotated data' },
+  { label: 'Annotated data', value: 'annotated_data' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 

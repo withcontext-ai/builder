@@ -17,7 +17,7 @@ export default async function Page({ params }: IProps) {
   const { data } = await getDataInfo(dataset_id, document_id)
   const files = data?.files?.filter((item: any) => item?.type === 'pdf')
   const notedData = data?.files?.filter(
-    (item: any) => item?.type === 'annotated data'
+    (item: any) => item?.type === 'annotated_data'
   )
   const defaultValues = {
     dataConfig: {
@@ -26,6 +26,7 @@ export default async function Page({ params }: IProps) {
       notedData,
     },
   }
+  console.log(defaultValues, '---default')
   return (
     <div className="h-full overflow-auto">
       <div className="w-full">

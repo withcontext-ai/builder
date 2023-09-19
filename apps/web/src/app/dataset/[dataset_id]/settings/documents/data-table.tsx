@@ -97,7 +97,7 @@ const DatasetTable = ({ preload }: IProps) => {
         header: 'Status',
         cell: ({ row }) => {
           const { status } = row.original
-          const { text, color } = formateStatus(status || 1)
+          const { text, color } = formateStatus(status || 0)
           return <div className={cn('text-left', color)}>{text}</div>
         },
       },
@@ -106,6 +106,7 @@ const DatasetTable = ({ preload }: IProps) => {
         header: '',
         cell: ({ row }) => {
           const { status, type, uid } = row.original
+          console.log(status, '---status')
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
