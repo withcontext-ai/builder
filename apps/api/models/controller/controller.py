@@ -130,8 +130,6 @@ class DatasetManager(BaseManager):
         urn = self.get_dataset_urn(dataset.id)
         handler.update_dataset_status(dataset.id, 1)
         if len(dataset.documents) != 0:
-            if dataset.documents[0].type != "pdf":
-                raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
             Retriever.create_index(dataset)
         self.redis.set(urn, json.dumps(dataset.dict()))
         handler.update_dataset_status(dataset.id, 0)
@@ -164,13 +162,9 @@ class DatasetManager(BaseManager):
             # Let's start all over again first
             chains = []
             if len(dataset.documents) != 0:
-                if dataset.documents[0].type != "pdf":
-                    raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
                 chains = Retriever.get_relative_chains(dataset)
                 Retriever.delete_index(dataset)
             if len(update_data["documents"]) != 0:
-                if update_data["documents"][0]["type"] != "pdf":
-                    raise ValueError(f"Dataset {dataset.id} is not a pdf dataset")
                 dataset = Dataset(id=dataset_id, **update_data)
                 # pages updated
                 Retriever.create_index(dataset)
