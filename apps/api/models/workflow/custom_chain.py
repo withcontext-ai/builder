@@ -352,7 +352,6 @@ class EnhanceConversationalRetrievalChain(Chain):
         inputs["context"] = context
         prompt_value = self.prompt.format_prompt(**inputs)
         messages = [SystemMessage(content=prompt_value.to_string())] + messages
-        messages = [SystemMessage(content=prompt_value.to_string())] + messages
         response = await self.llm.agenerate(
             messages=[messages],
             callbacks=run_manager.get_child() if run_manager else None,

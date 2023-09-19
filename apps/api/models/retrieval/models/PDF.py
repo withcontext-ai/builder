@@ -20,6 +20,7 @@ from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pydantic import Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+from ..webhook import WebhookHandler
 
 
 def extract_text_from_pdf(contents: io.BytesIO) -> list:
@@ -30,21 +31,6 @@ def extract_text_from_pdf(contents: io.BytesIO) -> list:
     for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
         page_interpreter.process_page(page)
     text = fake_file_handle.getvalue()
-    pages = text.split("\f")
-
-    # Remove the last line of each page if it's a number or its length is less than 5
-    for i in range(len(pages)):
-        lines = pages[i].split("\n")
-        if len(lines) > 1:  # Ensure there is more than one line
-            last_line = lines[-1]
-            if last_line.isdigit() or len(last_line) < 5:
-                logger.debug(f"Removing last line: {last_line}")
-                lines = lines[:-1]  # Remove the last line
-                pages[i] = "\n".join(lines)
-
-    # Join the pages back together
-    text = "\f".join(pages)
-
     converter.close()
     fake_file_handle.close()
 
@@ -78,8 +64,8 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
 
 class PDFRetrieverMixin:
     @classmethod
-    def create_index(cls, datasets: List[Dataset]):
-        docs = PDFLoader.load_and_split_documents(datasets)
+    def create_index(cls, dataset: Dataset):
+        docs = PDFLoader.load_and_split_documents([dataset])
 
         embedding = OpenAIEmbeddings()
 
@@ -97,9 +83,21 @@ class PDFRetrieverMixin:
             ids=ids,
             index_name="context-prod",
         )
+        # TODO efficiency can be optimized
+        meta_ids = []
         for id in ids:
-            _id = "-".join(ids[0].split("-")[0:2])
-            cls.upsert_vector(id=_id, content="", metadata=metadata)
+            _id = "-".join(id.split("-")[0:2])
+            if _id not in meta_ids:
+                meta_ids.append(_id)
+        for id in meta_ids:
+            cls.upsert_vector(id=id, content="", metadata=metadata)
+
+        webhook_handler = WebhookHandler()
+        for doc in dataset.documents:
+            webhook_handler.update_document_status(
+                dataset.id, doc.uid, doc.content_size, 0
+            )
+
         return vector_store
 
     @classmethod
