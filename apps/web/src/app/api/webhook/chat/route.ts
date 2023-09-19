@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       }
       case 'document.update': {
         await updateDocument(event.data)
-        return NextResponse.json({ success: true, data })
+        break
       }
       case 'annotations.get': {
         const data = await getAnnotations(event.data)
