@@ -12,7 +12,7 @@ class Document(BaseModel):
     type: str = Field(default_factory=str)
     page_size: int = Field(default_factory=int)
     split_option: Optional[dict] = Field(default_factory=dict)
-    content_size: int = Field(default_factory=0)
+    content_size: int = Field(default=0)
 
 
 class Dataset(BaseModel):
