@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { omit } from 'lodash'
 
 import {
   getDataSplitPreview,
@@ -17,8 +18,15 @@ export async function POST(req: NextRequest) {
   } else {
     files = dataConfig?.notedData
   }
+  const isAdd = document_id === 'add'
+  if (!isAdd) {
+    files[0].uid = document_id
+    const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
+    files[0] = Object.assign(files[0], currentConfig)
+  }
+
   const newConfig = { ...config, files }
-  const uid = document_id !== 'add' ? document_id : files?.[0]?.uid
+  const uid = !isAdd ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)
   const { segments } = await getSegments(dataset_id, uid)
   return NextResponse.json({
