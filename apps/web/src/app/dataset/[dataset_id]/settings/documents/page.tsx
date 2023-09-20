@@ -15,7 +15,7 @@ const Page = async ({ params }: IProps) => {
 
   const { config = {}, name = '' } = datasetDetail
   return (
-    <div>
+    <div className="h-full overflow-hidden">
       <DataPage dataset_id={dataset_id} preload={preload} />
       <ViewPage config={config} name={name} />
     </div>

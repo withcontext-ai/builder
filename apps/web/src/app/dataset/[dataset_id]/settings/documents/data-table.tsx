@@ -65,7 +65,7 @@ const DatasetTable = ({ preload }: IProps) => {
   )
 
   const { data = [], isValidating } = useSWR<any>(
-    [{ search: value }, pagination, deleted],
+    [{ search: value }, pagination, deleted, dataset_id],
     getDatasetDocument,
     {
       fallbackData: preload,

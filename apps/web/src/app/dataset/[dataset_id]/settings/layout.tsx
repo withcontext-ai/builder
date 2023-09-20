@@ -17,7 +17,7 @@ export default async function SettingsLayout({ children, params }: IProps) {
       <div className="hidden w-[276px] shrink-0 border-r border-slate-200 bg-slate-50 lg:block">
         <SlideBar datasetId={dataset_id} name={datasetDetail?.name} />
       </div>
-      <div className="h-full w-full">{children}</div>
+      <div>{children}</div>
     </div>
   )
 }
