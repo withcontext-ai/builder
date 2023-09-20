@@ -32,6 +32,7 @@ class WebhookHandler:
             },
         )
         headers = {"Content-Type": "application/json"}
+        logger.info(f"Sending payload {payload.dict()} to {self.target_url}")
         response = requests.post(self.target_url, json=payload.dict(), headers=headers)
         try:
             response.raise_for_status()
