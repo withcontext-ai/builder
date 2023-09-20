@@ -87,7 +87,8 @@ const AnnotatedForm = ({
                           !isAdd && 'space-x-0',
                           isSelect && !isDisabled
                             ? 'border-blue-500'
-                            : 'border-slate-200'
+                            : 'border-slate-200',
+                          isDisabled && 'opacity-70'
                         )}
                       >
                         <FormControl>
@@ -120,7 +121,11 @@ const AnnotatedForm = ({
                           />
                         </FormControl>
                         <FormLabel>
-                          <NotedDataCard data={item} isAdd={isAdd} />
+                          <NotedDataCard
+                            data={item}
+                            isAdd={isAdd}
+                            isDisabled={isDisabled}
+                          />
                         </FormLabel>
                       </FormItem>
                     )

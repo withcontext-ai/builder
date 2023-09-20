@@ -67,9 +67,8 @@ const SettingPage = ({
 }: DataProps) => {
   const [step, setStep] = useState(1)
   const isAdd = document_id === 'add'
-  const disabledData = apps?.filter(
-    (item: NotedDataProps) =>
-      documents?.findIndex((file) => file?.uid === item?.uid) !== -1
+  const disabledData = documents?.filter(
+    (item) => item?.type === 'annotated_data'
   )
   return (
     <div className="w-max-[600px] left-0  h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">

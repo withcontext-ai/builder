@@ -74,7 +74,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
         {data?.map((item: any) => {
           return (
             <div
-              key={item?.app_id}
+              key={item?.uid}
               className="flex flex-row items-center justify-between gap-2 space-x-3 space-y-0 truncate rounded-lg border border-slate-200 p-4"
             >
               <NotedDataCard data={item} />

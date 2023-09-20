@@ -6,4 +6,5 @@ export interface NotedDataProps {
   uid?: string
   characters?: number
   status?: number
+  type?: string
 }
