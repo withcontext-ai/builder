@@ -66,12 +66,20 @@ class PDFLoader:
                         )
                 elif document.type == "annotated_data":
                     webhook_handler = WebhookHandler()
-                    annotated_data = webhook_handler.get_annotated_data(document.uid)
+                    annotated_datas = webhook_handler.get_annotated_data(document.uid)
+                    annotated_data = ""
+                    for data in annotated_datas:
+                        annotated_data += data.get("annotations", "")
                     options = PDFRetrivalOption(
                         splitter=PDFSplitterOption(
                             chunk_overlap=document.split_option.get("chunk_overlap", 0),
                             chunk_size=document.split_option.get("chunk_size", 100),
                         )
+                    )
+                    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                        separator=" ",
+                        chunk_size=options.splitter.chunk_size,
+                        chunk_overlap=options.splitter.chunk_overlap,
                     )
                     _doc.append(
                         Document(
