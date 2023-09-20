@@ -77,7 +77,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
   )
   const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
-    <div className="h-full overflow-auto py-[68px]">
+    <div className="h-full w-full overflow-auto py-[68px]">
       <SegmentHeader
         name={name}
         uid={document_id}

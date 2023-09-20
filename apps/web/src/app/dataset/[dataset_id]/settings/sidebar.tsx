@@ -14,7 +14,6 @@ import BaseSideBar from '../../../app/[app_id]/(manage)/sidebar'
 interface IProps {
   name: string
   datasetId?: string
-  showMore?: boolean
 }
 
 function deleteDataset(url: string) {
