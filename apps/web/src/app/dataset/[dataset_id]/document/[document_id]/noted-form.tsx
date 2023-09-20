@@ -56,7 +56,7 @@ const AnnotatedForm = ({
   }
 
   return (
-    <div className="overflow-auto p-6">
+    <div className="overflow-auto px-6 pb-6">
       <FormField
         control={form.control}
         name="notedData"
