@@ -140,7 +140,7 @@ const SlackDialog = NiceModal.create(
           <DialogHeader>
             <DialogTitle>Slack</DialogTitle>
             <DialogDescription>
-              Allow team members to chat with your app
+              Allow team members to chat with this app
             </DialogDescription>
           </DialogHeader>
 
