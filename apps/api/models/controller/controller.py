@@ -7,7 +7,7 @@ from models.workflow import Workflow
 from models.retrieval import Retriever
 from models.data_loader import PDFLoader
 from langchain.text_splitter import CharacterTextSplitter
-from utils import GoogleCloudStorageClient
+from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
 from langchain.schema import Document
 
 from .webhook import WebhookHandler
@@ -342,32 +342,43 @@ class DatasetManager(BaseManager):
         # todo change logic to retriever folder
         url = None
         splitter = {}
+        doc_type = None
+        uid = None
         for doc in dataset.documents:
             if doc.uid == document_uid:
                 url = doc.url
                 splitter = doc.split_option
+                doc_type = doc.type
+                uid = doc.uid
                 break
-        if url == None:
+        if doc_type == None:
             raise ValueError("UID not found in dataset documents")
         text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
             separator=" ",
             chunk_size=splitter.get("chunk_size", 1000),
             chunk_overlap=splitter.get("chunk_overlap", 0),
         )
-        storage_client = GoogleCloudStorageClient()
-        pdf_content = storage_client.load(url)
-        text = PDFLoader.extract_text_from_pdf(pdf_content)
-        pages = text.split("\f")
-        _docs = []
-        for page in pages:
-            _docs.append(
-                Document(
-                    page_content=page,
-                    metadata={
-                        "source": url,
-                    },
+        if doc_type == "pdf":
+            storage_client = GoogleCloudStorageClient()
+            pdf_content = storage_client.load(url)
+            text = PDFLoader.extract_text_from_pdf(pdf_content)
+            pages = text.split("\f")
+            _docs = []
+            for page in pages:
+                _docs.append(
+                    Document(
+                        page_content=page,
+                        metadata={
+                            "source": url,
+                        },
+                    )
                 )
-            )
+        elif doc_type == "annotated_data":
+            storage_client = AnnotatedDataStorageClient()
+            annotated_data = storage_client.load(uid)
+            _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
+        else:
+            raise ValueError("Document type not supported")
         docs = text_splitter.split_documents(_docs)
         preview_list = []
         for i in range(min(preview_size, len(docs))):
