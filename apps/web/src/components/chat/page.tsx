@@ -6,7 +6,6 @@ import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher, nanoid } from '@/lib/utils'
-import { useChatEvent } from '@/hooks/use-chat-event'
 import usePageTitle from '@/hooks/use-page-title'
 import useSubscribe from '@/hooks/use-subscribe'
 import { useScrollToBottom } from '@/hooks/useScrollToBottom'
@@ -97,7 +96,6 @@ const createInputMessage = (input: string) => {
 
 const WrappedChat = (props: ChatProps) => {
   const { app, session, mode, initialMessages = [], initialEvents = [] } = props
-  const appId = app?.short_id
   const appName = app?.name || ''
   const {
     short_id: sessionId,
@@ -117,15 +115,16 @@ const WrappedChat = (props: ChatProps) => {
   const {
     messages,
     input,
-    isLoading,
+    loading,
     reload,
     stop,
     error,
     setMessages,
     handleSubmit,
+    events,
+    setEvents,
   } = useChat({
     id: sessionId,
-    initialMessages,
     onFinish: (message) => {
       // if (isDebug && currentInput?.current) {
       //   props?.setInitialMessages?.([
@@ -140,25 +139,20 @@ const WrappedChat = (props: ChatProps) => {
     },
   })
 
-  const { eventMessages, setEventMessages } = useChatEvent({
-    id: sessionId,
-    initialEvents,
-  })
-
   const callLinkRef = useRef('')
   const configStr = useConfigBase64({ appName })
 
   const currentInput = useRef<ChatMessage>()
 
   const chatMessages = useMemo(() => {
-    return [...messages, ...eventMessages].sort(
+    return [...messages, ...events].sort(
       (a, b) => formatToTimestamp(a.createdAt) - formatToTimestamp(b.createdAt)
     )
-  }, [messages, eventMessages])
+  }, [messages, events])
 
   const set = new Set(input?.split(''))
   const isEmpty = set?.size === 1 && set.has('\n')
-  const disabled = isEmpty || !input || !input?.trim() || isLoading
+  const disabled = isEmpty || !input || !input?.trim() || loading
   const handelReload = () => {
     setAutoScroll(true)
     reload()
@@ -212,17 +206,17 @@ const WrappedChat = (props: ChatProps) => {
 
   const handleDecline = useCallback(() => {
     const message = eventMessageBuilder('call.declined')
-    setEventMessages((prev) => [...prev, message])
+    setEvents((prev) => [...prev, message])
     addEventTrigger({ session_id: sessionId, event: message })
     closeModal()
-  }, [sessionId, addEventTrigger, setEventMessages, closeModal])
+  }, [setEvents, addEventTrigger, sessionId, closeModal])
 
   const handleCancel = useCallback(() => {
     const message = eventMessageBuilder('call.canceled')
-    setEventMessages((prev) => [...prev, message])
+    setEvents((prev) => [...prev, message])
     addEventTrigger({ session_id: sessionId, event: message })
     closeModal()
-  }, [sessionId, addEventTrigger, setEventMessages, closeModal])
+  }, [setEvents, addEventTrigger, sessionId, closeModal])
 
   const openModal = useCallback(() => {
     modal.show({
@@ -252,9 +246,9 @@ const WrappedChat = (props: ChatProps) => {
         openModal()
         return
       }
-      setEventMessages((prev) => [...prev, newEventMessage])
+      setEvents((prev) => [...prev, newEventMessage])
     },
-    [setEventMessages, configStr, openModal]
+    [setEvents, configStr, openModal]
   )
   useSubscribe({
     channelId: `session-${sessionId}`,
@@ -309,14 +303,15 @@ const WrappedChat = (props: ChatProps) => {
 }
 
 const Chat = (props: ChatProps) => {
-  const { app, session, user, mode } = props
+  const { app, session, user, mode, initialEvents, initialMessages } = props
   return (
     <ChatContextProvider
       app={app}
       session={session}
       user={user}
       mode={mode}
-      id={session.short_id}
+      initialEvents={initialEvents}
+      initialMessages={initialMessages}
     >
       <ChatDebugger />
       <WrappedChat {...props} />

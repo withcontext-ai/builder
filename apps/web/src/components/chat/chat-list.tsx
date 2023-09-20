@@ -21,7 +21,7 @@ interface IProps {
 
 const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
   const { mode } = useChatContext()
-  const { isLoading } = useChat()
+  const { loading } = useChat()
   const isDebug = mode === 'debug'
 
   return (
@@ -47,7 +47,7 @@ const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
         })}
         {mode === 'live' && <ChatFeedbackDialog />}
       </ChatFeedbackContextProvider>
-      {isLoading && messages[messages.length - 1]?.role === 'user' && (
+      {loading && messages[messages.length - 1]?.role === 'user' && (
         <ChatCard
           message={{ id: '', content: '', role: 'assistant', type: 'chat' }}
         />

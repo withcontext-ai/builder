@@ -1,10 +1,10 @@
 import {
-  startTransition,
+  Dispatch,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react'
 import { createChunkDecoder, nanoid } from 'ai'
 import useSWR from 'swr'
@@ -14,7 +14,6 @@ import { ChatApp, ChatMessage, EventMessage, Message } from './types'
 
 interface UseChatOptions {
   id?: string
-  initialMessages?: Message[]
   initialInput?: string
   onResponse?: (response: Response) => Promise<void> | void
   onFinish?: (message: Message, data: StreamData) => Promise<void> | void
@@ -22,15 +21,25 @@ interface UseChatOptions {
 }
 
 type UseChatHelpers = {
-  messages: Message[]
-  setMessages: (messages: Message[]) => void
-  mutateMessage: (id: string, message: Message) => void
-  reload: () => void
+  // all messages for display
+  allMessages: Message[]
+
+  // chat messages
+  messages: ChatMessage[]
+  setMessages: Dispatch<SetStateAction<ChatMessage[]>>
+  updateMessage: (id: string, message: ChatMessage) => void
+  loading: boolean
   error?: Error
-  append: (message: Message) => void
+  reload: () => void
+  append: (message: ChatMessage) => void
   complete: (query: string) => void
   stop: () => void
-  isLoading: boolean
+
+  // events
+  events: EventMessage[]
+  setEvents: Dispatch<SetStateAction<EventMessage[]>>
+
+  // input
   input?: string
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
@@ -48,46 +57,67 @@ const buildUserMessage = (content: string): ChatMessage => ({
   createdAt: new Date(),
 })
 
+function formatToTimestamp(date?: Date | number | null) {
+  if (!date) return 0
+  if (Object.prototype.toString.call(date) === '[object Date]') {
+    return new Date(date).getTime()
+  }
+  if (typeof date === 'number') {
+    return date
+  }
+  return 0
+}
+
 export function useChat(props?: UseChatOptions): UseChatHelpers {
   const ctx = useChatContext()
-  const { app, session, id: contextualId } = ctx
   const {
-    id = contextualId,
-    initialMessages = [],
-    onError,
-    onFinish,
-    onResponse,
-    initialInput,
-  } = props ?? {}
+    app,
+    session,
+    _setError,
+    _setLoading,
+    loading,
+    messages,
+    mode,
+    setMessages: _setMessages,
+    error,
+    events,
+    setEvents,
+  } = ctx
+  const { onError, onFinish, onResponse, initialInput } = props ?? {}
   const { short_id: appId } = app || ({} as ChatApp)
   const { short_id: sessionId, api_session_id: apiSessionId } = session
-  const { data: messages = [], mutate } = useSWR<Message[]>(id, null, {
-    fallbackData: initialMessages,
-  })
 
-  const { data: isLoading = false, mutate: mutateLoading } = useSWR<boolean>(
-    [id, 'loading'],
-    null
-  )
-
-  const [error, setError] = useState<undefined | Error>()
+  const id = `chat/${session.short_id}`
 
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  const messagesRef = useRef<Message[]>(messages)
+  const messagesRef = useRef<ChatMessage[]>(messages)
   useEffect(() => {
     messagesRef.current = messages
   }, [messages])
 
-  const chatMessages = useMemo(
-    () => messages.filter((m) => m.type === 'chat'),
-    [messages]
+  const allMessages = useMemo(
+    () =>
+      [...messages, ...events].sort(
+        (a, b) =>
+          formatToTimestamp(a.createdAt) - formatToTimestamp(b.createdAt)
+      ),
+    [messages, events]
+  )
+
+  const setMessages = useCallback(
+    (m: ChatMessage[] | ((m: ChatMessage[]) => ChatMessage[])) => {
+      const messages = typeof m === 'function' ? m(messagesRef.current) : m
+      _setMessages(messages)
+      messagesRef.current = messages
+    },
+    [_setMessages]
   )
 
   const triggerRequest = useCallback(
     async ({ query, reloadId }: { query: string; reloadId?: string }) => {
       try {
-        mutateLoading(true)
+        _setLoading(true)
 
         const abortController = new AbortController()
         abortControllerRef.current = abortController
@@ -151,7 +181,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
 
           responseMessage.content = streamedResponse
 
-          mutate([...currMessages, { ...responseMessage }], false)
+          setMessages([...currMessages, { ...responseMessage }])
 
           // The request has been aborted, stop reading the stream.
           if (abortControllerRef.current === null) {
@@ -162,7 +192,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
 
         if (streamedData.id) {
           responseMessage.id = streamedData.id
-          mutate([...currMessages, responseMessage], false)
+          setMessages([...currMessages, responseMessage])
         }
 
         if (onFinish) {
@@ -181,21 +211,22 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
           onError(err)
         }
 
-        setError(err as Error)
+        _setError(err as Error)
         throw err
       } finally {
-        mutateLoading(false)
+        _setLoading(false)
       }
     },
     [
+      _setError,
+      _setLoading,
       apiSessionId,
       appId,
-      mutate,
-      mutateLoading,
       onError,
       onFinish,
       onResponse,
       sessionId,
+      setMessages,
     ]
   )
 
@@ -207,29 +238,30 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     if (lastMessage.role !== 'assistant' || lastMessage.type !== 'chat') {
       return
     }
+
     messagesRef.current = messagesRef.current.slice(0, -1)
-    mutate(messagesRef.current, false)
+    setMessages(messagesRef.current)
     const currMessages = messagesRef.current
     try {
       triggerRequest({ query: lastMessage.content, reloadId: lastMessage.id })
     } catch (err) {
-      mutate(currMessages, false)
+      setMessages(currMessages)
     }
-  }, [mutate, triggerRequest])
+  }, [setMessages, triggerRequest])
 
   const complete = useCallback(
     (query: string) => {
       const prevMessages = messagesRef.current
       const nextMessages = [...prevMessages, buildUserMessage(query)]
       messagesRef.current = nextMessages
-      mutate(nextMessages, false)
+      setMessages(nextMessages)
       try {
         triggerRequest({ query })
       } catch (err) {
-        mutate(prevMessages, false)
+        setMessages(prevMessages)
       }
     },
-    [mutate, triggerRequest]
+    [setMessages, triggerRequest]
   )
 
   const stop = useCallback(() => {
@@ -240,31 +272,23 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
   }, [])
 
   const append = useCallback(
-    (message: Message) => {
-      mutate([...messagesRef.current, message], false)
+    (message: ChatMessage) => {
+      setMessages([...messagesRef.current, message])
     },
-    [mutate]
+    [setMessages]
   )
 
-  const setMessages = useCallback(
-    (messages: Message[]) => {
-      mutate(messages, false)
-      messagesRef.current = messages
-    },
-    [mutate]
-  )
-
-  const mutateMessage = useCallback(
-    (id: string, message: Message) => {
+  const updateMessage = useCallback(
+    (id: string, message: ChatMessage) => {
       const currMessages = messagesRef.current
       const index = currMessages.findIndex((m) => m.id === id)
       if (index === -1) {
         return
       }
       currMessages[index] = message
-      mutate([...currMessages], false)
+      setMessages([...currMessages])
     },
-    [mutate]
+    [setMessages]
   )
 
   // Input state and handlers.
@@ -278,28 +302,31 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
       if (!input) return
 
       complete(input)
-      setInput('', false)
+      setInput('')
     },
     [input, complete, setInput]
   )
 
   const handleInputChange = (e: any) => {
-    setInput(e.target.value, false)
+    setInput(e.target.value)
   }
 
   return {
+    ...ctx,
     messages,
     setMessages,
     reload,
     stop,
     error,
     append,
-    isLoading,
     complete,
-    mutateMessage,
+    updateMessage,
     input,
     handleInputChange,
     handleSubmit,
-    ...ctx,
+    events,
+    setEvents,
+    loading,
+    allMessages,
   }
 }
