@@ -7,12 +7,14 @@ import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
+import { getDatasets } from '@/db/datasets/actions'
 import { DatasetsTable, NewDataset } from '@/db/datasets/schema'
 import { addMessage } from '@/db/messages/actions'
 import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { UsersTable } from '@/db/users/schema'
+import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
 
 async function getSession(api_session_id: string) {
   const [session] = await db
@@ -194,11 +196,10 @@ async function updateDocument(data: any) {
     .select()
     .from(DatasetsTable)
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
-  console.log(dataset, '---dataset')
+  const config = dataset[0]?.config || {}
   // @ts-ignore
-  const config = dataset?.config || { files: [] }
-  const documents = config?.files || []
-  const cur = documents?.find((item: any) => item?.uid === document_id)
+  const documents = config?.files
+  const cur = documents?.find((item: DataProps) => item?.uid === document_id)
   if (cur) {
     cur.status = document_status
     cur.characters = document_characters
@@ -217,10 +218,10 @@ async function updateDocument(data: any) {
 }
 
 const data = {
-  api_dataset_id: '0f25e15639f241a0986c1c97e16af465',
+  api_dataset_id: '0592c6a8ef2c491e852d3068df047ef6',
   document_status: 0,
-  document_id: 'rymWofQOqyV6',
-  document_characters: 916,
+  document_id: 'gMeWHzDaTxyF',
+  document_characters: 10,
 }
 export async function GET() {
   try {

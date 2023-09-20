@@ -126,11 +126,6 @@ const DatasetTable = ({ preload }: IProps) => {
                   )}
                 </Button>
               )}
-              {status === 0 && type !== 'pdf' && (
-                <Button size="icon" variant="outline" className="h-8 w-8">
-                  <RefreshCcw size={18} />
-                </Button>
-              )}
 
               <DeleteData
                 datasetId={dataset_id}
