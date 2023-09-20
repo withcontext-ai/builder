@@ -56,7 +56,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
             </Button>
           )}
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="flex max-h-[60%] flex-col overflow-hidden p-0">
           <AlertDialogHeader>
             <AlertDialogTitle>Add Annotated Data</AlertDialogTitle>
           </AlertDialogHeader>

@@ -14,7 +14,7 @@ const NotedDataCard = ({ data: item, isAdd = false }: IProps) => {
   return (
     <div
       className={cn(
-        'flex items-center gap-2 truncate text-sm font-normal text-black',
+        'flex items-center gap-2 overflow-auto truncate text-sm font-normal text-black',
         !isAdd && 'cursor-pointer'
       )}
     >
