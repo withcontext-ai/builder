@@ -1,6 +1,5 @@
 import { InferModel } from 'drizzle-orm'
 import {
-  boolean,
   pgTable,
   serial,
   text,
@@ -8,23 +7,25 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
 
-import { UsersTable } from '../users/schema'
+import { AppsTable } from '../apps/schema'
+import { SessionsTable } from '../sessions/schema'
 
-export const SlackUsersTable = pgTable(
-  'slack_users',
+export const SlackUserAppsTable = pgTable(
+  'slack_user_apps',
   {
     id: serial('id').primaryKey(),
     short_id: text('short_id').unique().notNull(),
     app_id: text('app_id').notNull(),
     team_id: text('team_id').notNull(),
     user_id: text('user_id').notNull(),
-    context_user_id: text('context_user_id')
-      .references(() => UsersTable.short_id)
+    context_app_id: text('context_app_id')
+      .references(() => AppsTable.short_id)
       .notNull(),
-    is_admin: boolean('is_admin').default(false).notNull(),
+    context_session_id: text('context_session_id')
+      .references(() => SessionsTable.short_id)
+      .notNull(),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
-    archived: boolean('archived').default(false).notNull(),
   },
   (apps) => {
     return {
@@ -33,5 +34,5 @@ export const SlackUsersTable = pgTable(
   }
 )
 
-export type SlackUser = InferModel<typeof SlackUsersTable>
-export type NewSlackUser = InferModel<typeof SlackUsersTable, 'insert'>
+export type SlackUserApp = InferModel<typeof SlackUserAppsTable>
+export type NewSlackUserApp = InferModel<typeof SlackUserAppsTable, 'insert'>

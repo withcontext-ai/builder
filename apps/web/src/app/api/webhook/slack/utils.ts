@@ -1,14 +1,23 @@
 import { clerkClient } from '@clerk/nextjs'
 import { WebClient } from '@slack/web-api'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 
 import { db } from '@/lib/drizzle-edge'
+import { flags } from '@/lib/flags'
 import { createSlackClient } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
+import { addMessage } from '@/db/messages/actions'
+import { formatEventMessage } from '@/db/messages/utils'
+import { SessionsTable } from '@/db/sessions/schema'
 import { SlackTeamAppsTable } from '@/db/slack_team_apps/schema'
 import { NewSlackTeam, SlackTeamsTable } from '@/db/slack_teams/schema'
-import { SlackUsersTable } from '@/db/slack_users/schema'
+import {
+  NewSlackUserApp,
+  SlackUserApp,
+  SlackUserAppsTable,
+} from '@/db/slack_user_apps/schema'
+import { SlackUser, SlackUsersTable } from '@/db/slack_users/schema'
 import { UsersTable } from '@/db/users/schema'
 
 export async function getAccessToken(app_id: string, team_id: string) {
@@ -62,7 +71,7 @@ export class SlackUtils {
           access_token,
           scope,
         })
-        .where(eq(SlackTeamsTable.id, found.id))
+        .where(eq(SlackTeamsTable.short_id, found.short_id))
         .returning()
     } else {
       return db
@@ -89,7 +98,7 @@ export class SlackUtils {
     app_id: string
     team_id: string
     user_id: string
-  }) {
+  }): Promise<SlackUser> {
     const [found] = await db
       .select()
       .from(SlackUsersTable)
@@ -103,7 +112,7 @@ export class SlackUtils {
       )
     if (found) {
       const user = await this.getUserInfo(user_id)
-      const slackUser = await db
+      const [slackUser] = await db
         .update(SlackUsersTable)
         .set({ is_admin: user?.is_admin })
         .where(
@@ -126,7 +135,7 @@ export class SlackUtils {
         .from(UsersTable)
         .where(and(eq(UsersTable.email, email), eq(UsersTable.archived, false)))
       if (found) {
-        const slackUser = await db
+        const [slackUser] = await db
           .insert(SlackUsersTable)
           .values({
             short_id: nanoid(),
@@ -154,7 +163,7 @@ export class SlackUtils {
         } catch (error) {
           console.error(error)
         }
-        const slackUser = await db
+        const [slackUser] = await db
           .insert(SlackUsersTable)
           .values({
             short_id: nanoid(),
@@ -226,7 +235,7 @@ export class SlackUtils {
                 emoji: true,
               },
               value: linkedApp.short_id,
-              action_id: 'new_session',
+              action_id: 'create_session',
             },
           ],
         },
@@ -256,5 +265,118 @@ export class SlackUtils {
         ],
       },
     })
+  }
+
+  async createSession(context_user_id: string, context_app_id: string) {
+    const [foundApp] = await db
+      .select()
+      .from(AppsTable)
+      .where(eq(AppsTable.short_id, context_app_id))
+      .limit(1)
+    if (!foundApp) {
+      throw new Error('App not found')
+    }
+
+    let api_session_id = null
+    if (flags.enabledAIService) {
+      const res = await fetch(
+        `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model_id: foundApp?.api_model_id,
+          }),
+        }
+      )
+      const json = await res.json()
+      if (json.status !== 200) {
+        throw new Error(`AI service error: ${json.message}`)
+      }
+      api_session_id = json?.data?.session_id
+    }
+
+    const [allSessions] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(SessionsTable)
+      .where(
+        and(
+          eq(SessionsTable.app_id, context_app_id),
+          eq(SessionsTable.created_by, context_user_id)
+        )
+      )
+    const sessionCount = Number(allSessions?.count) || 0
+
+    const sessionVal = {
+      short_id: nanoid(),
+      name: `Chat ${sessionCount + 1}`,
+      app_id: context_app_id,
+      api_session_id,
+      created_by: context_user_id,
+    }
+    const [newSession] = await db
+      .insert(SessionsTable)
+      .values(sessionVal)
+      .returning()
+
+    if (foundApp.opening_remarks) {
+      const message = formatEventMessage({
+        session_id: newSession.short_id,
+        event_type: 'basic.opening_remarks',
+        content: foundApp.opening_remarks,
+      })
+      await addMessage(message)
+    }
+
+    return {
+      app: foundApp,
+      session: newSession,
+    }
+  }
+
+  async addOrUpdateUserApp({
+    app_id,
+    team_id,
+    user_id,
+    context_app_id,
+    context_session_id,
+  }: Omit<NewSlackUserApp, 'short_id'>): Promise<SlackUserApp> {
+    const [found] = await db
+      .select()
+      .from(SlackUserAppsTable)
+      .where(
+        and(
+          eq(SlackUserAppsTable.app_id, app_id),
+          eq(SlackUserAppsTable.team_id, team_id),
+          eq(SlackUserAppsTable.user_id, user_id)
+        )
+      )
+    if (found) {
+      const [slackUserApp] = await db
+        .update(SlackUserAppsTable)
+        .set({
+          context_app_id,
+          context_session_id,
+          updated_at: new Date(),
+        })
+        .where(eq(SlackUserAppsTable.short_id, found.short_id))
+        .returning()
+      return slackUserApp
+    } else {
+      const [slackUserApp] = await db
+        .insert(SlackUserAppsTable)
+        .values({
+          short_id: nanoid(),
+          app_id,
+          team_id,
+          user_id,
+          context_app_id,
+          context_session_id,
+        })
+        .returning()
+      return slackUserApp
+    }
   }
 }
