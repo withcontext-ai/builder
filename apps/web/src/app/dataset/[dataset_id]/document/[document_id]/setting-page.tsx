@@ -4,9 +4,8 @@ import { useState } from 'react'
 import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
-import { NotedDataProps } from '@/app/dataset/type'
+import { DataProps, DataSchemeProps, NotedDataProps } from '@/app/dataset/type'
 
-import { DataProps, DataSchemeProps } from '../../settings/documents/utils'
 import { DataContextProvider, useDataContext } from './data-context'
 import DataForm from './data-form'
 

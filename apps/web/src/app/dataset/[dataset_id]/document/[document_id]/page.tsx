@@ -3,9 +3,8 @@ import {
   getDocuments,
   getNotedData,
 } from '@/db/datasets/documents/action'
-import { NotedDataProps } from '@/app/dataset/type'
+import { DataProps, NotedDataProps } from '@/app/dataset/type'
 
-import { DataProps, DataSchemeProps } from '../../settings/documents/utils'
 import SettingPage from './setting-page'
 
 interface IProps {

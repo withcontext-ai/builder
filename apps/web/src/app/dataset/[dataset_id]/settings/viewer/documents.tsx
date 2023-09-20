@@ -4,17 +4,18 @@ import { throttle } from 'lodash'
 
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
+import { DataProps } from '@/app/dataset/type'
 
 import FileIcon from '../documents/file-icon'
 import { formateDate, formateNumber, formateStatus } from '../documents/utils'
 
-const Documents = ({ documents }: { documents: any[] }) => {
-  const [data, setData] = useState<any[]>(documents)
+const Documents = ({ documents }: { documents: DataProps[] }) => {
+  const [data, setData] = useState<DataProps[]>(documents)
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newData =
         documents?.filter(
-          (item: any) => item?.name?.includes(e?.target?.value || '')
+          (item: DataProps) => item?.name?.includes(e?.target?.value || '')
         ) || []
       setData(newData)
     },

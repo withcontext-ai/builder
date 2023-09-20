@@ -1,4 +1,3 @@
-import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import {

@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'

@@ -19,8 +19,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { SchemaProps } from '@/app/dataset/type'
 
-import { FormSchema, SchemaProps } from '../documents/utils'
+import { FormSchema } from '../documents/utils'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
 

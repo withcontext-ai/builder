@@ -10,9 +10,6 @@ const Basics = ({ name, config }: IProps) => {
     <div className="space-y-8 p-8">
       <Title>Dataset Name</Title>
       <Item label="Dataset Name" value={name} />
-      {/* <Title>Document Loaders</Title>
-      <Item label="Type" value={config.loaderType} />
-      <Item label="Files" value={config.files} type="files" /> */}
       <div className="h-px bg-slate-100" />
       <Title>Text Embedding Models</Title>
       <Item label="Type" value={config.embeddingType} />
