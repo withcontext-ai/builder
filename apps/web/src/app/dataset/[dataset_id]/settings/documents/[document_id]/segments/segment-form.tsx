@@ -124,7 +124,7 @@ const SegmentForm = ({
           />
           <div className="flex items-center justify-between">
             <div className="flex gap-2 text-sm text-slate-500">
-              <FileType2 size={18} /> {content?.length} characters
+              <FileType2 size={18} /> {watch()?.segment?.length} characters
             </div>
             <div className="flex justify-end gap-2">
               <Button

@@ -85,12 +85,12 @@ const DatasetTable = ({ preload }: IProps) => {
       {
         accessorKey: 'Characters',
         header: 'characters',
-        cell: ({ row }) => formateNumber(row.getValue('characters') || 0),
+        cell: ({ row }) => formateNumber(row.original?.characters || 0),
       },
       {
         accessorKey: 'updated_at',
         header: 'Update Time',
-        cell: ({ row }) => formateDate(row.getValue('updated_at') || 0),
+        cell: ({ row }) => formateDate(row?.original?.updated_at || new Date()),
       },
       {
         accessorKey: 'status',

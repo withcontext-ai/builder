@@ -18,7 +18,7 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const documents = datasetDetail?.config?.files || []
   documents?.map((item: DataProps) => {
     item.updated_at = item?.updated_at || updated_at
-    item.status = item.status || status
+    // item.status = [0, 1, 2]?.includes(item.status) ? item?.status : status
   })
   return { documents, updated_at, status, config }
 }
