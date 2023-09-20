@@ -25,15 +25,18 @@ export async function POST(req: NextRequest) {
   const isPdf = dataConfig?.loaderType === 'pdf'
   let files
   if (isPdf) {
-    files = [...documents, ...dataConfig?.files]
+    dataConfig?.files?.map((item: any) => {
+      item.status = 1
+      item.updated_at = new Date()
+    })
+    files = [...dataConfig?.files, ...documents]
   } else {
-    files = [...documents, ...dataConfig?.notedData]
+    dataConfig?.notedData?.map((item: any) => {
+      item.status = 1
+      item.updated_at = new Date()
+    })
+    files = [...dataConfig?.notedData, ...documents]
   }
-  files?.map((item) => {
-    item.updated_at = new Date()
-    item.status = 1 //indexing
-    return item
-  })
   const newConfig = { ...config, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
