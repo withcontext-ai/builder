@@ -308,13 +308,15 @@ class DatasetManager(BaseManager):
     def add_segment(self, dataset_id, uid, content):
         dataset = self.get_datasets(dataset_id)[0]
         page_size = 0
+        matching_url = None
         for doc in dataset.documents:
             if doc.uid == uid:
                 page_size = doc.page_size
+                matching_url = doc.url
                 break
         if page_size == 0:
             raise ValueError("UID not found in dataset documents")
-        segment_id = f"{dataset_id}-{uid}-{page_size}"
+        segment_id = f"{dataset_id}-{matching_url}-{page_size}"
         self.upsert_segment(dataset_id, uid, segment_id, content)
 
     def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
