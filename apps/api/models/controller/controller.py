@@ -317,14 +317,14 @@ class DatasetManager(BaseManager):
         if page_size == 0:
             raise ValueError("UID not found in dataset documents")
         segment_id = f"{dataset_id}-{matching_url}-{page_size}"
-        self.upsert_segment(dataset_id, uid, segment_id, content)
+        self.upsert_segment(dataset_id, uid, segment_id, content, True)
 
-    def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
+    def upsert_segment(self, dataset_id, uid, segment_id: str, content: str, new=False):
         if content == "":
             Retriever.delete_vector(segment_id)
             return
         vector = Retriever.fetch_vectors(ids=[segment_id])
-        if vector is {}:
+        if new:
             dataset = self.get_datasets(dataset_id)[0]
             for doc in dataset.documents:
                 if doc.uid == uid:
