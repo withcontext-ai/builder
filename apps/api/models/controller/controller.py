@@ -334,6 +334,9 @@ class DatasetManager(BaseManager):
             self._update_dataset(dataset_id, dataset.dict())
             urn = self.get_dataset_urn(dataset_id)
             self.redis.set(urn, json.dumps(dataset.dict()))
+            logger.info(
+                f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
+            )
         metadata = Retriever.get_metadata(first_segment)
         metadata["text"] = content
         Retriever.upsert_vector(segment_id, content, metadata)
