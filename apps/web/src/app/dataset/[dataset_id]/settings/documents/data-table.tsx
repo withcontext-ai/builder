@@ -7,8 +7,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { debounce, throttle } from 'lodash'
-import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
+import { debounce } from 'lodash'
+import { FileType2, Loader2Icon, Trash } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -30,6 +30,7 @@ const DatasetTable = ({ preload }: IProps) => {
   const [isPending, startTransition] = useTransition()
   // to refresh table when deleted data
   const [deleted, setDeleted] = useState(0)
+  const [open, setOpen] = useState(false)
   const currentUid = useRef({ uid: '' })
   const router = useRouter()
   const { dataset_id } = useParams() as {
@@ -126,18 +127,24 @@ const DatasetTable = ({ preload }: IProps) => {
                   )}
                 </Button>
               )}
-
-              <DeleteData
-                datasetId={dataset_id}
-                uid={uid}
-                confirmDelete={() => setDeleted((v) => v + 1)}
-              />
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 text-red-600"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setOpen(true)
+                  currentUid.current.uid = uid
+                }}
+              >
+                <Trash size={18} />
+              </Button>
             </div>
           )
         },
       },
     ],
-    [dataset_id, editData, isPending]
+    [editData, isPending]
   )
 
   const handleRowClick = useCallback(
@@ -199,6 +206,13 @@ const DatasetTable = ({ preload }: IProps) => {
         onRowClick={handleRowClick}
       />
       <DataTablePagination table={table} />
+      <DeleteData
+        datasetId={dataset_id}
+        uid={currentUid?.current?.uid}
+        open={open}
+        setOpen={setOpen}
+        confirmDelete={() => setDeleted((v) => v + 1)}
+      />
     </div>
   )
 }
