@@ -323,8 +323,7 @@ class DatasetManager(BaseManager):
         if content == "":
             Retriever.delete_vector(segment_id)
             return
-        first_segment = "-".join(segment_id.split("-")[0:2])
-        vector = Retriever.fetch_vectors(ids=[first_segment])
+        vector = Retriever.fetch_vectors(ids=[segment_id])
         if vector is {}:
             dataset = self.get_datasets(dataset_id)[0]
             for doc in dataset.documents:
@@ -337,6 +336,7 @@ class DatasetManager(BaseManager):
             logger.info(
                 f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
             )
+        first_segment = "-".join(segment_id.split("-")[0:2])
         metadata = Retriever.get_metadata(first_segment)
         metadata["text"] = content
         Retriever.upsert_vector(segment_id, content, metadata)
