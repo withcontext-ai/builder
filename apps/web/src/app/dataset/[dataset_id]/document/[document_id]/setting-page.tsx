@@ -77,7 +77,7 @@ const SettingPage = ({
         {document_id === 'add' ? 'Add New' : 'Edit'} Data
       </div>
       <DataContextProvider
-        notedData={[...apps, ...apps, ...apps, ...apps] || []}
+        notedData={apps || []}
         datasetId={datasetId}
         defaultValues={defaultValues}
         documentId={document_id}

@@ -62,7 +62,6 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
 
   const files = watch().files?.filter((item: any) => item?.type === 'pdf')
   const showButton = (files?.length === 0 && !isAdd) || isAdd
-  console.log(files, '----loader--files')
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
