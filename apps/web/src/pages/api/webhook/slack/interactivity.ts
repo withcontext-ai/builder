@@ -15,6 +15,8 @@ export default async function handler(
       })
     }
 
+    res.status(200).json({ success: true }) // response must be sent within 3 seconds
+
     const payload = JSON.parse(req.body.payload) || {}
     console.log('payload:', payload)
     const type = payload.type
@@ -32,18 +34,24 @@ export default async function handler(
           team_id,
           user_id,
         })
-        const context_app_id = payload.actions?.[0]?.value
+        const action_value = payload.actions?.[0]?.value
+        const { channel_id, context_app_id } = JSON.parse(action_value) || {}
         const { app, session } = await slack.createSession(
           context_user_id,
           context_app_id
         )
-        const userApp = await slack.addOrUpdateUserApp({
+        await slack.addOrUpdateUserApp({
           app_id,
           team_id,
           user_id,
           context_app_id,
           context_session_id: session.short_id,
         })
+        const text = `Chat with ${app.name}.`
+        await slack.postMessage(channel_id, text)
+        if (app.opening_remarks) {
+          await slack.postMessage(channel_id, app.opening_remarks)
+        }
       }
     }
 

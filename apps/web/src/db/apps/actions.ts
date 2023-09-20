@@ -1,5 +1,3 @@
-import 'server-only'
-
 import { redirect } from 'next/navigation'
 import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'

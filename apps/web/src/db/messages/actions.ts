@@ -1,5 +1,3 @@
-import 'server-only'
-
 import { redirect } from 'next/navigation'
 import { and, asc, desc, eq } from 'drizzle-orm'
 

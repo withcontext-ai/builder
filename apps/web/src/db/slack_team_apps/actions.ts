@@ -1,5 +1,3 @@
-import 'server-only'
-
 import { and, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'

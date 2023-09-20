@@ -174,14 +174,16 @@ export async function POST(req: NextRequest) {
       const user_id = payload.event.user
       const app_id = payload.api_app_id
       const team_id = payload.team_id
+      const channel_id = payload.event?.channel
       if (!user_id) throw new Error('user_id is undefined')
       if (!app_id) throw new Error('api_app_id is undefined')
       if (!team_id) throw new Error('team_id is undefined')
+      if (!channel_id) throw new Error('channel_id is undefined')
 
       const token = await getAccessToken(app_id, team_id)
       if (!token) throw new Error('access_token is not found')
       const slack = new SlackUtils(token)
-      await slack.publishHomeViews(app_id, team_id, user_id)
+      await slack.publishHomeViews(app_id, team_id, user_id, channel_id)
     }
 
     return NextResponse.json(body)

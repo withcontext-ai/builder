@@ -187,7 +187,12 @@ export class SlackUtils {
     return userInfo.user
   }
 
-  async publishHomeViews(app_id: string, team_id: string, user_id: string) {
+  async publishHomeViews(
+    app_id: string,
+    team_id: string,
+    user_id: string,
+    channel_id: string
+  ) {
     const linkedApps = await db
       .select({
         short_id: AppsTable.short_id,
@@ -234,7 +239,10 @@ export class SlackUtils {
                 text: 'Chat',
                 emoji: true,
               },
-              value: linkedApp.short_id,
+              value: JSON.stringify({
+                channel_id,
+                context_app_id: linkedApp.short_id,
+              }),
               action_id: 'create_session',
             },
           ],
@@ -378,5 +386,12 @@ export class SlackUtils {
         .returning()
       return slackUserApp
     }
+  }
+
+  async postMessage(channel: string, text: string) {
+    return this.client.chat.postMessage({
+      channel,
+      text,
+    })
   }
 }
