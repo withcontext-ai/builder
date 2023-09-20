@@ -91,11 +91,3 @@ export async function getDataSplitPreview(
   }
   return Promise.resolve([])
 }
-
-export async function getDatasetByApiId(api_dataset_id: string) {
-  const datasets = await getDatasets()
-  const dataset = datasets?.find(
-    (item: Partial<NewDataset>) => item?.api_dataset_id === api_dataset_id
-  )
-  return dataset
-}

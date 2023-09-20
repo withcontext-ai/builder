@@ -7,8 +7,7 @@ import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
-import { getDatasetByApiId } from '@/db/datasets/documents/action'
-import { DatasetsTable } from '@/db/datasets/schema'
+import { DatasetsTable, NewDataset } from '@/db/datasets/schema'
 import { addMessage } from '@/db/messages/actions'
 import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
@@ -191,21 +190,44 @@ async function getAnnotations(data: { api_model_ids: string[] }) {
 async function updateDocument(data: any) {
   const { api_dataset_id, document_status, document_id, document_characters } =
     data
-  const dataset = await getDatasetByApiId(api_dataset_id)
+  const dataset = await db
+    .select()
+    .from(DatasetsTable)
+    .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
+  console.log(dataset, '---dataset')
   // @ts-ignore
-  const { config = {} } = dataset
+  const config = dataset?.config || { files: [] }
   const documents = config?.files || []
   const cur = documents?.find((item: any) => item?.uid === document_id)
-  cur.status = document_status
-  cur.characters = document_characters
-  cur.updated_at = new Date()
-  const index = documents?.findIndex((item: any) => item?.uid === document_id)
-  documents[index] = cur
-  const newConfig = { ...config, files: documents }
+  if (cur) {
+    cur.status = document_status
+    cur.characters = document_characters
+    cur.updated_at = new Date()
+    const index = documents?.findIndex((item: any) => item?.uid === document_id)
+    documents[index] = cur
+    const newConfig = { ...config, files: documents }
+    const res = await db
+      .update(DatasetsTable)
+      .set({ config: newConfig })
+      .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
+    return { success: true, res }
+  }
 
-  const res = await db
-    .update(DatasetsTable)
-    .set({ config: newConfig })
-    .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
-  return res
+  return { success: false, message: 'could not find the document' }
+}
+
+const data = {
+  api_dataset_id: '0f25e15639f241a0986c1c97e16af465',
+  document_status: 0,
+  document_id: 'rymWofQOqyV6',
+  document_characters: 916,
+}
+export async function GET() {
+  try {
+    const res = await updateDocument(data)
+    return NextResponse.json({ success: true, data: res })
+  } catch (error: any) {
+    console.log('error:', error)
+    return NextResponse.json({ success: false, error: error.message })
+  }
 }
