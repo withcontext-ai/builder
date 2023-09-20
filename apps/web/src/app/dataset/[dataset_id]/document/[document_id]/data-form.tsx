@@ -32,7 +32,7 @@ export interface FormProps {
 
 function addData(
   url: string,
-  { arg }: { arg: { dataset_id: string; dataConfig: any } }
+  { arg }: { arg: { dataset_id: string; dataConfig: DataSchemeProps } }
 ) {
   return fetcher(url, {
     method: 'POST',
@@ -42,7 +42,15 @@ function addData(
 
 function editData(
   url: string,
-  { arg }: { arg: { dataset_id: string; dataConfig: any; document_id: string } }
+  {
+    arg,
+  }: {
+    arg: {
+      dataset_id: string
+      dataConfig: DataSchemeProps
+      document_id: string
+    }
+  }
 ) {
   return fetcher(url, {
     method: 'PATCH',
@@ -57,7 +65,7 @@ function getPreview(
   }: {
     arg: {
       dataset_id: string
-      dataConfig: any
+      dataConfig: DataSchemeProps
       document_id: string
       preview: number
     }

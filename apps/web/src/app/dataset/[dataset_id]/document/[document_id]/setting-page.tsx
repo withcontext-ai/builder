@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
+import { NotedDataProps } from '@/app/dataset/type'
 
-import { NotedDataProps } from '../../../type'
+import { DataProps, DataSchemeProps } from '../../settings/documents/utils'
 import { DataContextProvider, useDataContext } from './data-context'
 import DataForm from './data-form'
 
@@ -51,12 +53,12 @@ const Step = () => {
   )
 }
 
-interface DataProps {
+interface DataParams {
   datasetId: string
   document_id: string
-  defaultValues: any
+  defaultValues: DataSchemeProps
   apps: NotedDataProps[]
-  documents: NotedDataProps[]
+  documents: DataProps[]
 }
 const SettingPage = ({
   datasetId,
@@ -64,11 +66,11 @@ const SettingPage = ({
   defaultValues,
   apps,
   documents,
-}: DataProps) => {
+}: DataParams) => {
   const [step, setStep] = useState(1)
   const isAdd = document_id === 'add'
   const disabledData = documents?.filter(
-    (item) => item?.type === 'annotated_data'
+    (item: DataProps) => item?.type === 'annotated_data'
   )
   return (
     <div className="w-max-[600px] left-0  h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">

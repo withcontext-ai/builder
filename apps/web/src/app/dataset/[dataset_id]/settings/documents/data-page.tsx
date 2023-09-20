@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation'
 import { Loader2Icon, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { DataProps } from '@/app/dataset/type'
 
 import DatasetTable from './data-table'
 
 interface IProps {
   dataset_id: string
-  preload?: any
+  preload?: DataProps[]
 }
 
 const DataPage = ({ dataset_id, preload }: IProps) => {

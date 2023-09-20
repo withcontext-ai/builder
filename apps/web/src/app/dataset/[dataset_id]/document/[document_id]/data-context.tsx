@@ -2,8 +2,6 @@
 
 import { createContext, PropsWithChildren, useContext } from 'react'
 
-export type ChatMode = 'live' | 'debug' | 'history'
-
 interface BaseContextType {
   documentId: string
   notedData?: any[]

@@ -7,14 +7,13 @@ import { logsnag } from '@/lib/logsnag'
 import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
-import { getDatasets } from '@/db/datasets/actions'
-import { DatasetsTable, NewDataset } from '@/db/datasets/schema'
+import { DatasetsTable } from '@/db/datasets/schema'
 import { addMessage } from '@/db/messages/actions'
 import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { UsersTable } from '@/db/users/schema'
-import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
+import { DataProps } from '@/app/dataset/type'
 
 async function getSession(api_session_id: string) {
   const [session] = await db
@@ -215,20 +214,4 @@ async function updateDocument(data: any) {
   }
 
   return { success: false, message: 'could not find the document' }
-}
-
-const data = {
-  api_dataset_id: '0592c6a8ef2c491e852d3068df047ef6',
-  document_status: 0,
-  document_id: '45c2093545764168907398f9303ea783',
-  document_characters: 10,
-}
-export async function GET() {
-  try {
-    const res = await updateDocument(data)
-    return NextResponse.json({ success: true, data: res })
-  } catch (error: any) {
-    console.log('error:', error)
-    return NextResponse.json({ success: false, error: error.message })
-  }
 }

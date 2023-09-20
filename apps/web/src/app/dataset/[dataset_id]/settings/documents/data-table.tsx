@@ -17,16 +17,17 @@ import { Input } from '@/components/ui/input'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 import { useToast } from '@/components/ui/use-toast'
+import { DataProps } from '@/app/dataset/type'
 
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
-import { DataProps, formateDate, formateNumber, formateStatus } from './utils'
+import { formateDate, formateNumber, formateStatus } from './utils'
 
 interface IProps {
-  preload: any
+  preload?: DataProps[]
 }
 
-const DatasetTable = ({ preload }: IProps) => {
+const DatasetTable = ({ preload = [] }: IProps) => {
   const [isPending, startTransition] = useTransition()
   // to refresh table when deleted data
   const [deleted, setDeleted] = useState(0)

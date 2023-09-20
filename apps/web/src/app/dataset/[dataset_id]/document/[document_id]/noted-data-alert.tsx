@@ -34,7 +34,8 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const type = watch()?.loaderType
 
   const deleteNotedData = (id: string) => {
-    const newData = data?.filter((item: any) => item?.uid !== id) || []
+    const newData =
+      data?.filter((item: NotedDataProps) => item?.uid !== id) || []
     form.setValue('notedData', newData)
     setData(newData)
     setCurrent(newData)
@@ -71,7 +72,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
         </AlertDialogContent>
       </AlertDialog>
       <div className="mt-4 space-y-2">
-        {data?.map((item: any) => {
+        {data?.map((item: NotedDataProps) => {
           return (
             <div
               key={item?.uid}
@@ -82,7 +83,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
                 variant="outline"
                 type="button"
                 className="h-8 w-8 p-0 text-black"
-                onClick={() => deleteNotedData(item?.uid)}
+                onClick={() => deleteNotedData(item?.uid || '')}
               >
                 <X size={16} />
               </Button>

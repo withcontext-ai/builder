@@ -16,30 +16,6 @@ export const FormSchema = z.object({
   apiVersion: z.string().optional(),
 })
 
-export type SchemaProps = z.infer<typeof FormSchema>
-
-export interface DataConfigProps {
-  type?: string
-  splitType?: string
-  chunkSize?: number
-  chunkOverlap?: number
-  uid: string
-  name: string
-}
-
-export interface DataProps {
-  uid: string
-  name: string
-  status?: number
-  short_id?: string
-  type: string
-  url: string
-  icon?: string
-  characters?: number
-  config?: DataConfigProps
-  updated_at?: Date
-}
-
 export const DataSchema = z.object({
   loaderType: z.string().optional(),
   splitType: z.string().optional(),
@@ -77,8 +53,6 @@ export const DataSchema = z.object({
     })
   ),
 })
-
-export type DataSchemeProps = z.infer<typeof DataSchema>
 
 export function formateNumber(characters: number) {
   const formatter = new Intl.NumberFormat('en', {
