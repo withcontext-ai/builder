@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       slack_team,
       slack_user,
     }
-
+    // TODO: redirect to success page
     return NextResponse.json({ success: false, data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })

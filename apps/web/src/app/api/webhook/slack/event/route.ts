@@ -179,6 +179,7 @@ export async function POST(req: NextRequest) {
       if (!team_id) throw new Error('team_id is undefined')
 
       const token = await getAccessToken(app_id, team_id)
+      if (!token) throw new Error('access_token is not found')
       const slack = new SlackUtils(token)
       await slack.publishHomeViews(app_id, team_id, user_id)
     }

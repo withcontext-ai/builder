@@ -24,7 +24,7 @@ export async function getAccessToken(app_id: string, team_id: string) {
     )
     .limit(1)
 
-  return item.access_token
+  return item?.access_token
 }
 
 export class SlackUtils {
