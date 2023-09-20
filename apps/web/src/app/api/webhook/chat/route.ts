@@ -204,18 +204,20 @@ async function updateDocument(data: any) {
   const newConfig = { ...config, files: documents }
 
   console.log(documents, '----documents', newConfig)
-  await db
+  const res = await db
     .update(DatasetsTable)
     .set({ config: newConfig })
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
+  return res
 }
 
-// const data = {
-//   api_dataset_id: '12',
-//   document_status: 0,
-//   document_id: '4566',
-//   document_characters: 10,
-// }
-// export async function GET(data) {
-
-// }
+const data = {
+  api_dataset_id: '12',
+  document_status: 0,
+  document_id: '4566',
+  document_characters: 10,
+}
+export async function GET() {
+  const res = await updateDocument(data)
+  return res
+}
