@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import * as EventsApi from 'seratch-slack-types/events-api'
 
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     if (isUserMessage) {
       console.log('!!! message, from user')
-      const message = body as EventsApi.MessagePayload
+      const message = body as any
       const app_id = message.api_app_id
       if (!app_id) throw new Error('app_id is undefined')
       const team_id = message.team_id
@@ -119,7 +118,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (body.event?.type === 'app_home_opened') {
-      const payload = body as EventsApi.AppHomeOpenedPayload
+      const payload = body as any
       if (!payload.event) throw new Error('payload.event is undefined')
       const user_id = payload.event.user
       const app_id = payload.api_app_id

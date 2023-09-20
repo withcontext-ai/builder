@@ -299,9 +299,6 @@ importers:
       request:
         specifier: ^2.88.2
         version: 2.88.2
-      seratch-slack-types:
-        specifier: ^0.8.0
-        version: 0.8.0
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -8582,10 +8579,6 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: false
-
-  /seratch-slack-types@0.8.0:
-    resolution: {integrity: sha512-Fc5fEZOl0njrC6TknYsqU3x6P5iu5rpLcdTr40nYaVVy/IsFF/e6u17ADVzfEaOr4t7tbV2EFUX2lGCi+u4+aw==}
     dev: false
 
   /seroval@0.5.1:

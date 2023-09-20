@@ -93,7 +93,6 @@
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
     "request": "^2.88.2",
-    "seratch-slack-types": "^0.8.0",
     "server-only": "^0.0.1",
     "swr": "^2.2.0",
     "tailwind-merge": "^1.14.0",
