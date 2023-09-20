@@ -320,6 +320,9 @@ class DatasetManager(BaseManager):
         self.upsert_segment(dataset_id, uid, segment_id, content)
 
     def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
+        def get_page_size_via_segment_id(segment):
+            return int(segment.split("-")[-1])
+
         if content == "":
             Retriever.delete_vector(segment_id)
             return
@@ -327,7 +330,7 @@ class DatasetManager(BaseManager):
         dataset = self.get_datasets(dataset_id)[0]
         for doc in dataset.documents:
             if doc.uid == uid:
-                if doc.page_size == int(segment_id.split("-")[2]):
+                if doc.page_size == get_page_size_via_segment_id(segment_id):
                     doc.page_size += 1
                     dataset_change = True
                 break
