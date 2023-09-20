@@ -1,10 +1,15 @@
 import requests
 from io import BytesIO
 from loguru import logger
-from models.base import DatasetStatusWebhookRequest
-from tenacity import after_log, retry, stop_after_attempt, wait_fixed
 from utils.config import WEBHOOK_ENDPOINT
 import requests
+from pydantic import BaseModel, Field
+
+
+class DatasetStatusWebhookRequest(BaseModel):
+    type: str = Field(default="dataset.updated")
+    data: dict = Field(default_factory=dict)
+    object: str = Field(default="event")
 
 
 class BaseStorageClient:
