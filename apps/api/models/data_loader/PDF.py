@@ -10,8 +10,7 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pydantic import BaseModel, Field
-from utils.StorageClient import GoogleCloudStorageClient
-from .webhook import WebhookHandler
+from utils.StorageClient import GoogleCloudStorageClient, AnnotatedDataStorageClient
 
 
 class PDFSplitterOption(BaseModel):
@@ -65,11 +64,8 @@ class PDFLoader:
                             )
                         )
                 elif document.type == "annotated_data":
-                    webhook_handler = WebhookHandler()
-                    annotated_datas = webhook_handler.get_annotated_data(document.uid)
-                    annotated_data = ""
-                    for data in annotated_datas:
-                        annotated_data += data.get("annotations", "")
+                    webhook_handler = AnnotatedDataStorageClient()
+                    annotated_data = webhook_handler.load(document.uid)
                     options = PDFRetrivalOption(
                         splitter=PDFSplitterOption(
                             chunk_overlap=document.split_option.get("chunk_overlap", 0),
