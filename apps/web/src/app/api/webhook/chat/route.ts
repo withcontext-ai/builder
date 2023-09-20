@@ -197,7 +197,6 @@ async function updateDocument(data: any) {
     .from(DatasetsTable)
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
   const config = dataset[0]?.config || {}
-  console.log(dataset, '---dataset')
   // @ts-ignore
   const documents = config?.files
   const cur = documents?.find((item: DataProps) => item?.uid === document_id)
@@ -208,8 +207,6 @@ async function updateDocument(data: any) {
     const index = documents?.findIndex((item: any) => item?.uid === document_id)
     documents[index] = cur
     const newConfig = { ...config, files: documents }
-    console.log(newConfig, '---config')
-
     const res = await db
       .update(DatasetsTable)
       .set({ config: newConfig })

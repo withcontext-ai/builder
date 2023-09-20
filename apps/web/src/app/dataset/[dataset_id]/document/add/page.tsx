@@ -32,7 +32,6 @@ const DatasetEdit = async ({ params }: IProps) => {
   return (
     <div className="h-full overflow-auto">
       <div className="w-full">
-        {/* Desktop version, can edit */}
         <SettingPage
           defaultValues={defaultValues}
           datasetId={dataset_id}
@@ -40,12 +39,6 @@ const DatasetEdit = async ({ params }: IProps) => {
           apps={apps?.data || []}
           documents={documents?.documents}
         />
-
-        {/* Mobile version, view only */}
-        {/* <DatasetViewer
-        name={datasetDetail?.name}
-        config={datasetDetail?.config || {}}
-      /> */}
       </div>
     </div>
   )

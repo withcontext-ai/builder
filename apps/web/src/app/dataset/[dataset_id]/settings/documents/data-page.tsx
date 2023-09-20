@@ -28,7 +28,12 @@ const DataPage = ({ dataset_id, preload }: IProps) => {
       <div className="mb-10 mt-18 w-full pl-16 pr-8">
         <div className="mb-6 flex items-center justify-between">
           <div className="text-2xl font-semibold">Data</div>
-          <Button onClick={handelClick} type="button" disabled={isPending}>
+          <Button
+            onClick={handelClick}
+            type="button"
+            disabled={isPending}
+            className="flex gap-1"
+          >
             {isPending ? (
               <Loader2Icon className="h-4 w-4 animate-spin" />
             ) : (
