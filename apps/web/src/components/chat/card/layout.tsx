@@ -150,7 +150,12 @@ const ChatCardLayout = (prop: Props) => {
     }
     const { content } = message
     if (!content) {
-      return <Loader2 className="h-3 w-3 animate-spin" />
+      return (
+        <Loader2
+          className="h-3 w-3 animate-spin"
+          data-testid="chat-card-loading"
+        />
+      )
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message])
@@ -199,6 +204,7 @@ const ChatCardLayout = (prop: Props) => {
                 isUser ? 'bg-primary' : 'bg-gray-100',
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
               )}
+              data-testid="chat-card-content"
             >
               {renderContent}
               <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
