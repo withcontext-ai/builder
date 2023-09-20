@@ -101,7 +101,7 @@ const AnnotatedForm = ({
                             className={!isAdd ? 'hidden' : 'block'}
                             onCheckedChange={(checked) => {
                               item.type = 'annotated_data'
-                              const config = omit(getValues().dataConfig, [
+                              const config = omit(getValues(), [
                                 'files',
                                 'notedData',
                                 'icon',

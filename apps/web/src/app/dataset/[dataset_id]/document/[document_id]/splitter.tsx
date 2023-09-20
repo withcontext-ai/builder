@@ -66,7 +66,7 @@ const TextSplits = ({ form }: SessionProps) => {
       />
       <FormField
         control={form.control}
-        name="dataConfig.chunkOverlap"
+        name="chunkOverlap"
         render={({ field }) => (
           <FormItem className="w-[332px]">
             <FormLabel className="flex">Chunk overlap</FormLabel>
