@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { clerkClient } from '@clerk/nextjs'
-import { throttle } from 'lodash'
 import * as EventsApi from 'seratch-slack-types/events-api'
 
 import { OpenAIStream } from '@/lib/openai-stream'
-import { createSlackClient } from '@/lib/slack'
+import { nanoid } from '@/lib/utils'
+import { addMessage } from '@/db/messages/actions'
 
 import { getAccessToken, SlackUtils } from '../utils'
 
@@ -12,122 +11,64 @@ export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
-function ask({
-  url,
-  token,
-  channel,
-  ts,
-  text,
-}: {
-  url: string
-  token: string
-  channel: string
-  text: string
-  ts?: string
-}) {
-  return fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      channel,
-      text,
-      ...(ts ? { ts } : {}),
-    }),
-  }).then((res) => res.json())
-}
-
-const throttledAsk = throttle(ask, 200)
-
-function postMessage({
-  token,
-  channel,
-  text,
-}: {
-  token: string
-  channel: string
-  text: string
-}) {
-  const client = createSlackClient(token)
-  return client.chat.postMessage({
-    channel,
-    text,
-  })
-}
-
-const throttledPostMessage = throttle(postMessage, 200)
-
-function updateMessage({
-  token,
-  channel,
-  ts,
-  text,
-}: {
-  token: string
-  channel: string
-  text: string
-  ts: string
-}) {
-  const client = createSlackClient(token)
-  return client.chat.update({
-    channel,
-    ts,
-    text,
-  })
-}
-
-const throttledUpdateMessage = throttle(updateMessage, 200)
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    // console.log(JSON.stringify(body, null, 2))
 
     if (body.challenge) return NextResponse.json(body)
+    NextResponse.json({ ok: true })
 
-    const isFromUser =
+    const isUserMessage =
       body.event?.type === 'message' &&
       !body.event?.bot_id &&
       !body.event?.message?.bot_id
 
-    if (isFromUser) {
+    if (isUserMessage) {
       console.log('!!! message, from user')
       const message = body as EventsApi.MessagePayload
+      const app_id = message.api_app_id
+      if (!app_id) throw new Error('app_id is undefined')
+      const team_id = message.team_id
+      if (!team_id) throw new Error('team_id is undefined')
       if (!message.event) throw new Error('message.event is undefined')
-      const teamId = message.team_id as string
-      const userId = message.event.user as string
+      const user_id = message.event.user
+      if (!user_id) throw new Error('user_id is undefined')
+      const channel_id = message.event.channel
+      if (!channel_id) throw new Error('channel_id is undefined')
 
-      const token = '' // TODO: get token from db
-      const client = createSlackClient(token)
-      const { user } = await client.users.info({ user: userId })
-      console.log('user:', user)
+      const token = await getAccessToken(app_id, team_id)
+      const slack = new SlackUtils(token)
 
-      const clerkUser = await clerkClient.users.createUser({
-        emailAddress: ['genshang@gmail.com'],
-        firstName: user?.profile?.first_name,
-        lastName: user?.profile?.last_name,
-        skipPasswordChecks: false,
-        skipPasswordRequirement: false,
+      const result = await slack.postMessage(channel_id, '_Thinking..._')
+
+      const slackUser = await slack.addOrUpdateUser({
+        app_id,
+        team_id,
+        user_id,
       })
-      console.log('clerkUser:', clerkUser)
 
-      const apiSessionId = '' // TODO: get apiSessionId from db
-      const content = message.event.text
-      const payload = {
-        session_id: apiSessionId,
-        messages: [{ role: 'user', content }],
+      const { session_id, api_session_id } = await slack.getCurrentSession(
+        app_id,
+        team_id,
+        user_id
+      )
+      if (!api_session_id) throw new Error('api_session_id is undefined')
+
+      const messages = await slack.getMessages(session_id)
+      const formattedMessages = []
+      for (const message of messages) {
+        if (message.query)
+          formattedMessages.push({ role: 'user', content: message.query })
+        if (message.answer)
+          formattedMessages.push({ role: 'assistant', content: message.answer })
       }
 
-      const channel = message.event.channel
-      if (!channel) throw new Error('channel is undefined')
-
-      const result = await postMessage({
-        token,
-        channel,
-        text: '_Thinking..._',
-      })
+      const content = message.event.text
+      const payload = {
+        session_id: api_session_id,
+        messages: [...formattedMessages, { role: 'user', content }],
+      }
+      console.log('payload:', payload)
 
       const ts = result.ts
 
@@ -137,28 +78,38 @@ export async function POST(req: NextRequest) {
 
       let completion = ''
 
+      const requestTimestamp = Date.now()
+
       await OpenAIStream({
         baseUrl,
         payload,
         callback: {
           async onToken(text) {
             completion = completion + text
-            await throttledUpdateMessage({
-              token,
-              channel,
-              text: completion,
-              ts,
-            })
+            await slack.updateMessage(channel_id, ts, completion)
           },
           async onCompletion(completion, metadata) {
             setTimeout(() => {
-              throttledUpdateMessage({
-                token,
-                channel,
-                text: completion,
-                ts,
-              })
+              slack.updateMessage(channel_id, ts, completion)
             }, 800)
+
+            const responseTimestamp = Date.now()
+            const latency = responseTimestamp - requestTimestamp
+            const newMessage = {
+              type: 'chat',
+              short_id: nanoid(),
+              session_id,
+              query: content,
+              answer: completion,
+              feedback: null,
+              feedback_content: null,
+              latency,
+              ...(metadata?.token?.total_tokens && {
+                total_tokens: metadata.token.total_tokens,
+              }),
+              ...(metadata?.raw && { raw: metadata.raw }),
+            }
+            await addMessage(newMessage)
           },
         },
         data: {},
@@ -168,7 +119,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (body.event?.type === 'app_home_opened') {
-      console.log('!!! app_home_opened')
       const payload = body as EventsApi.AppHomeOpenedPayload
       if (!payload.event) throw new Error('payload.event is undefined')
       const user_id = payload.event.user

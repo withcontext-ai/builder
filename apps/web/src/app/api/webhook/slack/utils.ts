@@ -1,6 +1,7 @@
 import { clerkClient } from '@clerk/nextjs'
 import { WebClient } from '@slack/web-api'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, sql } from 'drizzle-orm'
+import { throttle } from 'lodash'
 
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
@@ -8,6 +9,7 @@ import { createSlackClient } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
 import { addMessage } from '@/db/messages/actions'
+import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { SlackTeamAppsTable } from '@/db/slack_team_apps/schema'
@@ -393,5 +395,61 @@ export class SlackUtils {
       channel,
       text,
     })
+  }
+
+  updateMessage = throttle(
+    async (channel: string, ts: string, text: string) => {
+      return this.client.chat.update({
+        channel,
+        ts,
+        text,
+      })
+    },
+    200
+  )
+
+  async getCurrentSession(app_id: string, team_id: string, user_id: string) {
+    const [slackUserApp] = await db
+      .select({
+        session_id: SessionsTable.short_id,
+        api_session_id: SessionsTable.api_session_id,
+      })
+      .from(SlackUserAppsTable)
+      .innerJoin(
+        SessionsTable,
+        eq(SessionsTable.short_id, SlackUserAppsTable.context_session_id)
+      )
+      .where(
+        and(
+          eq(SlackUserAppsTable.app_id, app_id),
+          eq(SlackUserAppsTable.team_id, team_id),
+          eq(SlackUserAppsTable.user_id, user_id)
+        )
+      )
+      .orderBy(desc(SlackUserAppsTable.updated_at))
+      .limit(1)
+    return slackUserApp
+  }
+
+  async getMessages(session_id: string) {
+    const sq = await db
+      .select({
+        query: MessagesTable.query,
+        answer: MessagesTable.answer,
+        created_at: MessagesTable.created_at,
+      })
+      .from(MessagesTable)
+      .where(
+        and(
+          eq(MessagesTable.session_id, session_id),
+          eq(MessagesTable.archived, false)
+        )
+      )
+      .orderBy(desc(MessagesTable.created_at))
+      .limit(10)
+      .as('sq')
+
+    const messages = await db.select().from(sq).orderBy(asc(sq.created_at))
+    return messages
   }
 }
