@@ -84,7 +84,7 @@ export default async function handler(
       if (!ts) return
 
       let completion = ''
-
+      const messageId = nanoid()
       const requestTimestamp = Date.now()
 
       await OpenAIStream({
@@ -101,14 +101,53 @@ export default async function handler(
           },
           async onCompletion(completion, metadata) {
             setTimeout(() => {
-              slack.updateMessage({ channel: channel_id, ts, text: completion })
+              const blocks = [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: completion,
+                  },
+                },
+                {
+                  type: 'actions',
+                  elements: [
+                    {
+                      type: 'button',
+                      text: {
+                        type: 'plain_text',
+                        text: '👍',
+                        emoji: true,
+                      },
+                      action_id: 'chat_feedback_good',
+                      value: messageId,
+                    },
+                    {
+                      type: 'button',
+                      text: {
+                        type: 'plain_text',
+                        text: '👎',
+                        emoji: true,
+                      },
+                      action_id: 'chat_feedback_bad',
+                      value: messageId,
+                    },
+                  ],
+                },
+              ]
+              slack.updateMessage({
+                channel: channel_id,
+                ts,
+                blocks,
+                text: completion,
+              })
             }, 800)
 
             const responseTimestamp = Date.now()
             const latency = responseTimestamp - requestTimestamp
             const newMessage = {
               type: 'chat',
-              short_id: nanoid(),
+              short_id: messageId,
               session_id,
               query: content,
               answer: completion,

@@ -1,6 +1,7 @@
 // via https://github.com/vercel-labs/slacker/blob/main/pages/api/response.ts
 import { NextApiRequest, NextApiResponse } from 'next'
 
+import { addFeedback } from '@/db/messages/actions'
 import { getAccessToken, SlackUtils } from '@/app/api/webhook/slack/utils'
 
 export default async function handler(
@@ -21,14 +22,15 @@ export default async function handler(
     console.log('payload:', payload)
     const type = payload.type
     if (type === 'block_actions') {
+      const app_id = payload.api_app_id
+      const team_id = payload.team?.id
+      const token = await getAccessToken(app_id, team_id)
+      if (!token) throw new Error('access_token is not found')
+      const slack = new SlackUtils(token)
+
       const action_id = payload.actions?.[0]?.action_id
       if (action_id === 'create_session') {
-        const app_id = payload.api_app_id
-        const team_id = payload.team?.id
         const user_id = payload.user?.id
-        const token = await getAccessToken(app_id, team_id)
-        if (!token) throw new Error('access_token is not found')
-        const slack = new SlackUtils(token)
         const { context_user_id } = await slack.addOrUpdateUser({
           app_id,
           team_id,
@@ -55,10 +57,70 @@ export default async function handler(
             text: app.opening_remarks,
           })
         }
+      } else if (action_id === 'chat_feedback_good') {
+        const messageId = payload.actions?.[0]?.value
+        if (messageId) {
+          await addFeedback({ messageId, feedback: 'good' })
+          const channel = payload.channel?.id
+          const ts = payload.message?.ts
+          const text = payload.message?.text
+          const blocks = [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text,
+              },
+            },
+            {
+              type: 'section',
+              text: {
+                type: 'plain_text',
+                text: '👍',
+                emoji: true,
+              },
+            },
+          ]
+          await slack.updateMessage({
+            channel,
+            ts,
+            blocks,
+            text,
+          })
+        }
+      } else if (action_id === 'chat_feedback_bad') {
+        const messageId = payload.actions?.[0]?.value
+        if (messageId) {
+          await addFeedback({ messageId, feedback: 'bad' })
+          const channel = payload.channel?.id
+          const ts = payload.message?.ts
+          const text = payload.message?.text
+          const blocks = [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text,
+              },
+            },
+            {
+              type: 'section',
+              text: {
+                type: 'plain_text',
+                text: '👎',
+                emoji: true,
+              },
+            },
+          ]
+          await slack.updateMessage({
+            channel,
+            ts,
+            blocks,
+            text,
+          })
+        }
       }
     }
-
-    return res.status(200).json({ success: true })
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message })
   }
