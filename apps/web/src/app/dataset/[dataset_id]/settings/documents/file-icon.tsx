@@ -1,3 +1,5 @@
+import { AvatarImage } from '@radix-ui/react-avatar'
+
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { PdfImage } from '@/components/upload/component'
@@ -14,7 +16,7 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
   const color = getAvatarBgColor(data?.short_id || '')
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 truncate">
       {isPdf ? (
         <PdfImage className={cn('h-4 w-4', className)} />
       ) : (
@@ -25,12 +27,13 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
             className
           )}
         >
+          <AvatarImage src={data?.icon} alt="Annotated data icon" />
           <AvatarFallback className="break-words bg-transparent text-white">
             {getFirstLetter(data?.name || '')}
           </AvatarFallback>
         </Avatar>
       )}
-      <div className={cn(isSegment && 'text-lg font-semibold')}>
+      <div className={cn(isSegment && 'text-lg font-semibold', 'truncate')}>
         {data?.name}
       </div>
     </div>

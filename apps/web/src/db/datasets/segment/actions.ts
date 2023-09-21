@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { CopySlash } from 'lucide-react'
 
 import { getDataset } from '../actions'
 

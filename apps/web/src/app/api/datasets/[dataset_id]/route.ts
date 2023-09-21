@@ -32,9 +32,9 @@ export async function GET(
     res = documents?.filter((item: DataProps) => item?.name?.includes(search))
   }
   res = res?.slice(page * pageSize, pageSize * (page + 1))
-  const total = documents?.length
+  const count = Math.ceil(documents?.length / pageSize)
 
-  return NextResponse.json({ success: true, data: { data: res, total } })
+  return NextResponse.json({ success: true, data: { data: res, count } })
 }
 
 // // Update a dataset

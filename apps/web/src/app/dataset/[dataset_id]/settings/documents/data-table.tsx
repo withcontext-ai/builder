@@ -3,6 +3,7 @@
 import {
   ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -15,7 +16,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { debounce } from 'lodash'
-import { FileType2, Loader2Icon, Settings2, Trash } from 'lucide-react'
+import { Loader2Icon, Settings2, Trash } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -56,8 +57,18 @@ const TooltipButton = ({
   )
 }
 
+const NodeDataChildren = () => (
+  <div className="py-[74px] text-base">
+    <div>There is no data yet.</div>You can upload data from different channels,
+    such as PDF files, Notion documents, and so on.
+  </div>
+)
+
 const DatasetTable = ({ preload = [] }: IProps) => {
   const [isPending, startTransition] = useTransition()
+  const [noteDataNode, setNoDataNode] = useState<ReactNode | null>(
+    NodeDataChildren
+  )
   // to refresh table when deleted data
   const [deleted, setDeleted] = useState(0)
   const [open, setOpen] = useState(false)
@@ -116,7 +127,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         accessorKey: 'Characters',
         header: 'Characters',
         cell: ({ row }) => (
-          <div className="w-full text-right">
+          <div className="w-[85px] text-right">
             {formateNumber(row.original?.characters || 0)}
           </div>
         ),
@@ -124,7 +135,11 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       {
         accessorKey: 'updated_at',
         header: 'Update Time',
-        cell: ({ row }) => formateDate(row?.original?.updated_at || new Date()),
+        cell: ({ row }) => (
+          <div className="w-[146px]">
+            {formateDate(row?.original?.updated_at || new Date())}
+          </div>
+        ),
       },
       {
         accessorKey: 'status',
@@ -132,7 +147,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => {
           const { status } = row.original
           const { text, color } = formateStatus(status || 0)
-          return <div className={cn('text-left', color)}>{text}</div>
+          return <div className={cn('w-[60px] text-left', color)}>{text}</div>
         },
       },
       {
@@ -141,7 +156,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => {
           const { status, type, uid } = row.original
           return (
-            <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
+            <div className="invisible z-10 flex w-[60px] gap-2 group-hover/cell:visible">
               {status === 0 && (
                 <TooltipButton text="Edit">
                   <Button
@@ -208,6 +223,12 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     },
     [dataset_id, router, toast]
   )
+
+  useEffect(() => {
+    if (value && data?.data?.length === 0) {
+      setNoDataNode(null)
+    }
+  }, [value, data?.data])
   const table = useReactTable({
     data: data?.data || [],
     columns,
@@ -215,12 +236,13 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     state: { pagination },
     onPaginationChange: setPagination,
     manualPagination: true,
-    pageCount: Math.ceil((data?.total || 0) / pagination.pageSize),
+    pageCount: Math.ceil(data?.count || 0),
   })
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e?.target?.value)
   }, [])
   const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
+
   return (
     <div className="space-y-8">
       <div className="mb-8 flex">
@@ -234,12 +256,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         table={table}
         isLoading={isValidating}
         colSpan={5}
-        noDataChildren={
-          <div className="py-[74px] text-base">
-            <div>There is no data yet.</div>You can upload data from different
-            channels, such as PDF files, Notion documents, and so on.
-          </div>
-        }
+        noDataChildren={noteDataNode}
         onRowClick={handleRowClick}
       />
       <DataTablePagination table={table} />
