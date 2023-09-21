@@ -1,8 +1,7 @@
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { PdfImage } from '@/components/upload/component'
-
-import { DataProps } from './utils'
+import { DataProps } from '@/app/dataset/type'
 
 interface IProps {
   data: DataProps

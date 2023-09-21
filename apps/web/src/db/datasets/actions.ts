@@ -115,7 +115,7 @@ export async function getEditParams(
     if (update) {
       const documents = newFiles?.reduce(
         (m: Record<string, any>[], item: any) => {
-          if (item?.type === 'annotated data') {
+          if (item?.type === 'annotated_data') {
             item.url = ''
           }
           const cur = pick(item, ['url', 'type', 'uid'])

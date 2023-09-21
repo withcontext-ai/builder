@@ -1,11 +1,15 @@
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import ConfirmDialog from '@/components/confirm-dialog'
 
 function deleteData(
   url: string,
@@ -20,12 +24,18 @@ function deleteData(
 interface IProps {
   datasetId: string
   uid: string
+  open: boolean
+  setOpen: (s: boolean) => void
   confirmDelete?: () => void
 }
 
-const DeleteData = ({ datasetId, uid, confirmDelete }: IProps) => {
-  const [open, setOpen] = useState(false)
-  const router = useRouter()
+const DeleteData = ({
+  datasetId,
+  uid,
+  open,
+  setOpen,
+  confirmDelete,
+}: IProps) => {
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
     deleteData
@@ -39,27 +49,34 @@ const DeleteData = ({ datasetId, uid, confirmDelete }: IProps) => {
 
   return (
     <div>
-      <Button
-        size="icon"
-        variant="outline"
-        className="h-8 w-8 text-red-600"
-        onClick={(e) => {
-          e.stopPropagation()
-          setOpen(true)
-        }}
-      >
-        <Trash size={18} />
-      </Button>
-      <ConfirmDialog
-        open={open}
-        onOpenChange={setOpen}
-        title="Delete Data?"
-        description={` Are you sure you want to delete this data? This action cannot be undone.`}
-        confirmText="Delete Data"
-        loadingText="Deleting..."
-        handleConfirm={handelDelete}
-        isLoading={isMutating}
-      />
+      <AlertDialog onOpenChange={setOpen} open={open}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Data?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this data? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setOpen?.(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handelDelete}
+              variant="destructive"
+              type="button"
+              disabled={isMutating}
+            >
+              {isMutating ? 'Deleting' : 'Delete Data'}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

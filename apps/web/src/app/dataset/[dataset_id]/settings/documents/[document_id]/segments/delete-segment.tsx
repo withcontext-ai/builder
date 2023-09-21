@@ -1,4 +1,3 @@
-import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import {
@@ -44,7 +43,7 @@ const DeleteSegment = ({
     <AlertDialog onOpenChange={setShowDeleteAlter} open={showDeleteAlter}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Segment??</AlertDialogTitle>
+          <AlertDialogTitle>Delete Segment?</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete this segment? This action cannot be
             undone.

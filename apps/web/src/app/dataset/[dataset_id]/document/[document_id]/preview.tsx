@@ -35,7 +35,6 @@ interface IProps {
   isLoading: boolean
 }
 const Preview = ({ isLoading, data }: IProps) => {
-  const isEmpty = data?.length === 0
   return (
     <div className="mb-5 grid h-full w-full grid-cols-2 gap-4">
       {isLoading ? (

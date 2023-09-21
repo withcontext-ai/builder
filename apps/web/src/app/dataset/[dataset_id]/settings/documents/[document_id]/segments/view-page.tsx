@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { throttle } from 'lodash'
+import { debounce, throttle } from 'lodash'
 import { Trash } from 'lucide-react'
 import useSWR from 'swr'
 
@@ -67,12 +67,17 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
     pageCount: Math.ceil((data?.totalItems || 0) / pagination.pageSize),
   })
 
-  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e?.target?.value)
-  }, [])
-  const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
+  const onChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (value !== e?.target?.value) {
+        setValue(e?.target?.value)
+      }
+    },
+    [value]
+  )
+  const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
-    <div className="h-full overflow-auto py-[68px]">
+    <div className="h-full w-full overflow-auto py-[68px]">
       <SegmentHeader
         name={name}
         uid={document_id}

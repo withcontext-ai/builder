@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { addDataset, editDataset, removeDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
 import { NewDataset } from '@/db/datasets/schema'
-import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
+import { DataProps } from '@/app/dataset/type'
 
 // create a dataset
 export async function POST(req: NextRequest) {
@@ -39,7 +39,7 @@ export async function GET(
     if (!item?.updated_at) {
       item.updated_at = updated_at
     }
-    if (!item?.status) {
+    if (![0, 1, 2]?.includes(item?.status)) {
       item.status = status
     }
     m.push(item)
