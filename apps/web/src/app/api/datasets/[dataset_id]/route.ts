@@ -58,7 +58,8 @@ export async function PATCH(
 
   const body = (await req.json()) as Partial<NewDataset>
   // const { documents } = await getDocuments({ dataset_id })
-  
+  // body.config.files = doucments
+
   const response = (await editDataset(dataset_id, body)) as any
   
   if (response?.error) {
