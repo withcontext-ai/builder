@@ -61,7 +61,7 @@ export async function PATCH(
   // body.config.files = doucments
 
   const response = (await editDataset(dataset_id, body)) as any
-  
+
   if (response?.error) {
     return NextResponse.json({ success: false, error: response?.error })
   } else {
