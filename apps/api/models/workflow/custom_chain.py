@@ -12,6 +12,7 @@ from typing import (
 )
 from enum import Enum
 import time
+from uuid import UUID
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
@@ -49,6 +50,11 @@ class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
 
     async def on_chain_end(self, response: Any, **kwargs: Any) -> None:
         self.done.set()
+
+    async def on_llm_error(
+        self, error: Exception | KeyboardInterrupt, **kwargs: Any
+    ) -> None:
+        return await super().on_llm_error(error, **kwargs)
 
 
 class TargetedChainStatus(str, Enum):
