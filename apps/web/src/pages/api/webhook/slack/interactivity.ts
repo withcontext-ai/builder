@@ -48,9 +48,12 @@ export default async function handler(
           context_session_id: session.short_id,
         })
         const text = `Chat with ${app.name}.`
-        await slack.postMessage(channel_id, text)
+        await slack.postMessage({ channel: channel_id, text })
         if (app.opening_remarks) {
-          await slack.postMessage(channel_id, app.opening_remarks)
+          await slack.postMessage({
+            channel: channel_id,
+            text: app.opening_remarks,
+          })
         }
       }
     }

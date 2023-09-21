@@ -1,5 +1,9 @@
 import { clerkClient } from '@clerk/nextjs'
-import { WebClient } from '@slack/web-api'
+import {
+  ChatPostMessageArguments,
+  ChatUpdateArguments,
+  WebClient,
+} from '@slack/web-api'
 import { and, asc, desc, eq, sql } from 'drizzle-orm'
 import { throttle } from 'lodash'
 
@@ -390,7 +394,7 @@ export class SlackUtils {
     }
   }
 
-  async postMessage(channel: string, text: string) {
+  async postMessage({ channel, text }: ChatPostMessageArguments) {
     return this.client.chat.postMessage({
       channel,
       text,
@@ -398,11 +402,12 @@ export class SlackUtils {
   }
 
   updateMessage = throttle(
-    async (channel: string, ts: string, text: string) => {
+    async ({ channel, ts, text, blocks }: ChatUpdateArguments) => {
       return this.client.chat.update({
         channel,
         ts,
         text,
+        blocks,
       })
     },
     200

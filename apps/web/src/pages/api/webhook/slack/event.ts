@@ -44,8 +44,12 @@ export default async function handler(
       const token = await getAccessToken(app_id, team_id)
       const slack = new SlackUtils(token)
 
-      const result = await slack.postMessage(channel_id, '_Thinking..._')
+      const result = await slack.postMessage({
+        channel: channel_id,
+        text: '_Thinking..._',
+      })
 
+      // TODO: findOrAddUser
       const slackUser = await slack.addOrUpdateUser({
         app_id,
         team_id,
@@ -89,11 +93,15 @@ export default async function handler(
         callback: {
           async onToken(text) {
             completion = completion + text
-            await slack.updateMessage(channel_id, ts, completion)
+            await slack.updateMessage({
+              channel: channel_id,
+              ts,
+              text: completion,
+            })
           },
           async onCompletion(completion, metadata) {
             setTimeout(() => {
-              slack.updateMessage(channel_id, ts, completion)
+              slack.updateMessage({ channel: channel_id, ts, text: completion })
             }, 800)
 
             const responseTimestamp = Date.now()
