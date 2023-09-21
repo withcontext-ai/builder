@@ -116,7 +116,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       },
       {
         accessorKey: 'Characters',
-        header: 'characters',
+        header: <div className="w-full text-right">Characters</div>,
         cell: ({ row }) => (
           <div className="w-full text-right">
             {formateNumber(row.original?.characters || 0)}
@@ -145,7 +145,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
-                <TooltipButton text="edit">
+                <TooltipButton text="Edit">
                   <Button
                     size="icon"
                     variant="outline"
@@ -164,7 +164,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
                   </Button>
                 </TooltipButton>
               )}
-              <TooltipButton text="delete">
+              <TooltipButton text="Delete">
                 <Button
                   size="icon"
                   variant="outline"

@@ -11,6 +11,7 @@ import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
 import { FileProps } from '@/components/upload/utils'
+import { DataProps, NotedDataProps } from '@/app/dataset/type'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { getApps } from '../apps/actions'
@@ -139,9 +140,15 @@ export async function getEditParams(
 
 export async function editDataset(
   datasetId: string,
-  newValue: Partial<NewDataset>
+  newValue: Partial<NewDataset>,
+  documents?: DataProps[]
 ) {
-  const { name, config } = newValue
+  const { name, config = {} } = newValue
+  let newConfig = config
+  if (documents) {
+    // @ts-ignore
+    newConfig = { ...config, files: documents }
+  }
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
   const { api_dataset_id, editParams } = await getEditParams(
@@ -160,7 +167,7 @@ export async function editDataset(
 
   const response = await db
     .update(DatasetsTable)
-    .set({ name, config, updated_at: new Date() })
+    .set({ name, config: newConfig, updated_at: new Date() })
     .where(
       and(
         eq(DatasetsTable.short_id, datasetId),

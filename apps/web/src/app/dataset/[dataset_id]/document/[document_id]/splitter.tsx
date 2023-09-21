@@ -19,7 +19,7 @@ export interface SessionProps {
   files?: FileProps[]
 }
 const types = [
-  { label: 'Character TextSplitter', value: 'character' },
+  { label: 'Character Text Splitter', value: 'character' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 

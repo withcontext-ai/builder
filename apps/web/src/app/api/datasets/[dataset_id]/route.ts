@@ -57,10 +57,10 @@ export async function PATCH(
   const { dataset_id } = params
 
   const body = (await req.json()) as Partial<NewDataset>
-  // const { documents } = await getDocuments({ dataset_id })
-  // body.config.files = doucments
-
-  const response = (await editDataset(dataset_id, body)) as any
+  const { documents } = await getDocuments({ dataset_id })
+  console.log(documents, '--documents')
+  // edit basics
+  const response = (await editDataset(dataset_id, body, documents)) as any
 
   if (response?.error) {
     return NextResponse.json({ success: false, error: response?.error })
