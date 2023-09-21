@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid'
 
 import { db } from '@/lib/drizzle-edge'
 import { FileProps } from '@/components/upload/utils'
+import { DataProps } from '@/app/dataset/type'
 
 import { AppsTable } from '../apps/schema'
 import { Documents, DocumentsTable, NewDocument } from './schema'
@@ -88,10 +89,10 @@ export async function addDocuments(data: newDocumentParams) {
     const isPdf = type === 'pdf'
     let documents = []
     if (isPdf) {
-      documents = _documents?.reduce((m: any[], cur: FileProps) => {
+      documents = _documents?.reduce((m: any[], cur: DataProps) => {
         // @ts-ignore
-        const config = cur?.splitConfig
-        const attributes = omit(cur, ['splitConfig', 'loaderType'])
+        const config = pick(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
+        const attributes = omit(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
         const item = createEmptyDocument(dataset_id, userId, config, attributes)
         m.push(item)
         return m
@@ -131,7 +132,6 @@ export async function getDocumentDetail(id: string) {
       .from(DocumentsTable)
       .where(eq(DocumentsTable.short_id, id))
       .limit(1)
-    console.log(item, '-----item')
     if (!item) {
       throw new Error('Document not found')
     }
