@@ -200,16 +200,27 @@ const DataForm = () => {
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleClick}
-              disabled={isPending || isMutating || editMutating}
-            >
-              {step !== 3
-                ? 'Next'
-                : isPending || isMutating || editMutating
-                ? 'Saving'
-                : 'Save'}
-            </Button>
+            {isAdd && (
+              <Button onClick={handleClick} disabled={isPending || isMutating}>
+                {step !== 3
+                  ? 'Next'
+                  : isPending || isMutating
+                  ? 'Creating'
+                  : 'Create'}
+              </Button>
+            )}
+            {!isAdd && (
+              <Button
+                onClick={handleClick}
+                disabled={isPending || editMutating}
+              >
+                {step !== 3
+                  ? 'Next'
+                  : isPending || editMutating
+                  ? 'Saving'
+                  : 'Save'}
+              </Button>
+            )}
           </div>
         </div>
       </div>

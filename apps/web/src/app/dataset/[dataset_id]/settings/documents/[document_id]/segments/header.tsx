@@ -38,7 +38,11 @@ const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
             <ArrowLeft size={18} />
           )}
         </Button>
-        <FileIcon className="h-6 w-6" data={{ name, uid, type, url: '' }} />
+        <FileIcon
+          className="h-6 w-6"
+          data={{ name, uid, type, url: '' }}
+          isSegment
+        />
       </div>
       <Button onClick={addNew} type="button" className="gap-1">
         <Plus size={16} />

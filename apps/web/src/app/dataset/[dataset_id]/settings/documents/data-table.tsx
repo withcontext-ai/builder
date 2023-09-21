@@ -1,6 +1,13 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
+import {
+  ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ColumnDef,
@@ -8,7 +15,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { debounce } from 'lodash'
-import { FileType2, Loader2Icon, Trash } from 'lucide-react'
+import { FileType2, Loader2Icon, Settings2, Trash } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -16,6 +23,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useToast } from '@/components/ui/use-toast'
 import { DataProps } from '@/app/dataset/type'
 
@@ -25,6 +38,23 @@ import { formateDate, formateNumber, formateStatus } from './utils'
 
 interface IProps {
   preload?: DataProps[]
+}
+
+const TooltipButton = ({
+  children,
+  text,
+}: {
+  children: ReactNode
+  text: string
+}) => {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent>
+        <p>{text}</p>
+      </TooltipContent>
+    </Tooltip>
+  )
 }
 
 const DatasetTable = ({ preload = [] }: IProps) => {
@@ -87,7 +117,11 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       {
         accessorKey: 'Characters',
         header: 'characters',
-        cell: ({ row }) => formateNumber(row.original?.characters || 0),
+        cell: ({ row }) => (
+          <div className="w-full text-right">
+            {formateNumber(row.original?.characters || 0)}
+          </div>
+        ),
       },
       {
         accessorKey: 'updated_at',
@@ -111,35 +145,39 @@ const DatasetTable = ({ preload = [] }: IProps) => {
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
+                <TooltipButton text="edit">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="h-8 w-8"
+                    onClick={(e) => {
+                      currentUid.current.uid = uid
+                      e.stopPropagation()
+                      editData(uid)
+                    }}
+                  >
+                    {isPending && currentUid?.current?.uid === uid ? (
+                      <Loader2Icon className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Settings2 size={18} />
+                    )}
+                  </Button>
+                </TooltipButton>
+              )}
+              <TooltipButton text="delete">
                 <Button
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8"
+                  className="h-8 w-8 text-red-600"
                   onClick={(e) => {
-                    currentUid.current.uid = uid
                     e.stopPropagation()
-                    editData(uid)
+                    setOpen(true)
+                    currentUid.current.uid = uid
                   }}
                 >
-                  {isPending && currentUid?.current?.uid === uid ? (
-                    <Loader2Icon className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileType2 size={18} />
-                  )}
+                  <Trash size={18} />
                 </Button>
-              )}
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-8 w-8 text-red-600"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setOpen(true)
-                  currentUid.current.uid = uid
-                }}
-              >
-                <Trash size={18} />
-              </Button>
+              </TooltipButton>
             </div>
           )
         },

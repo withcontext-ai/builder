@@ -63,17 +63,15 @@ const SlideBar = ({ datasetId, name }: IProps) => {
         <div className="h-px bg-slate-200" />
       </div>
 
-      <div className="py-3">
-        <Button
-          variant="ghost"
-          size="lg"
-          className="flex h-9 w-full items-center justify-between px-2 hover:bg-slate-200"
-          onClick={() => setOpen(true)}
-        >
-          <span>Delete this Dataset</span>
-          <Trash2 size={18} />
-        </Button>
-      </div>
+      <Button
+        variant="ghost"
+        size="lg"
+        className="flex w-full items-center justify-between px-2 hover:bg-slate-200"
+        onClick={() => setOpen(true)}
+      >
+        <span>Delete this Dataset</span>
+        <Trash2 size={18} />
+      </Button>
 
       <ConfirmDialog
         open={open}

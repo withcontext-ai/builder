@@ -34,8 +34,8 @@ const Step = () => {
             <div className="flex items-center gap-4">
               <div
                 className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-full border text-center',
-                  step === item?.step && 'bg-black  text-white'
+                  'flex h-10 w-10 items-center justify-center rounded-full border border-slate-900 text-center font-semibold',
+                  step >= item?.step && 'bg-black  text-white'
                 )}
               >
                 {item?.step}

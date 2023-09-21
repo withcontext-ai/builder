@@ -26,9 +26,6 @@ const types = [
 const TextSplits = ({ form }: SessionProps) => {
   return (
     <section id="splitters" className="w-full py-6">
-      <div className="mb-6 text-2xl font-semibold leading-8">
-        Text Splitters
-      </div>
       <div className="mb-6	text-sm font-normal leading-6 text-slate-600">
         When you want to deal with long pieces of text, it is necessary to split
         up that text into chunks. As simple as this sounds, there is a lot of

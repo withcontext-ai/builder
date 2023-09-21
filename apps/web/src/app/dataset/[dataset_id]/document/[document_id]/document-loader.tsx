@@ -61,15 +61,12 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const showButton = (files?.length === 0 && !isAdd) || isAdd
   return (
     <section id="loaders" className="w-full py-6">
-      <div className="mb-6 text-2xl font-semibold leading-8">
-        Document Loaders
-      </div>
       <div className="mb-6 text-sm font-normal leading-6 text-slate-600">
-        Use document loaders to load data from a source as Document&apos;s. A
-        Document is a piece of text and associated metadata. For example, there
-        are document loaders for loading a simple .txt file, for loading the
-        text contents of any web page, or even for loading a transcript of a
-        YouTube video.
+        Use document loaders to load data from a source as documents. A Document
+        is a piece of text and associated metadata. For example, there are
+        document loaders for loading a simple .txt file, for loading the text
+        contents of any web page, or even for loading a transcript of a YouTube
+        video.
       </div>
       <SearchSelect
         form={form}

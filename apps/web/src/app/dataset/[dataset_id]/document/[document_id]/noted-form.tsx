@@ -54,12 +54,15 @@ const AnnotatedForm = ({
   }
 
   return (
-    <div className="overflow-auto px-6 pb-6">
+    <div className="relative flex flex-col overflow-hidden">
+      <div className="px-6 pb-4 pt-6 text-lg font-semibold">
+        Add Annotated Data
+      </div>
       <FormField
         control={form.control}
         name="notedData"
         render={() => (
-          <FormItem>
+          <FormItem className="flex flex-1 flex-col overflow-auto px-6 pb-4">
             {notedData?.map((item) => {
               const isDisabled =
                 disabledData?.findIndex((cur) => cur?.uid === item?.uid) !== -1
@@ -135,7 +138,7 @@ const AnnotatedForm = ({
         )}
       />
 
-      <div className="mt-4 flex justify-end gap-2">
+      <div className="flex justify-end gap-2 px-6 pb-6 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>

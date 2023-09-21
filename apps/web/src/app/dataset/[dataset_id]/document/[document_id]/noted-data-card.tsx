@@ -1,5 +1,5 @@
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import { NotedDataProps } from '../../../type'
 
@@ -15,7 +15,6 @@ const NotedDataCard = ({
   isDisabled = false,
 }: IProps) => {
   const color = getAvatarBgColor(item?.short_id || '')
-
   return (
     <div
       className={cn(
@@ -29,6 +28,7 @@ const NotedDataCard = ({
           item?.icon ? 'bg-white' : `bg-${color}-600`
         )}
       >
+        <AvatarImage src={item?.icon} alt="@shadcn" />
         <AvatarFallback className="bg-transparent text-white">
           {getFirstLetter(item?.name || '')}
         </AvatarFallback>

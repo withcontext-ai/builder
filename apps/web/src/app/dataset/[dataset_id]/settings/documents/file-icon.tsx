@@ -6,9 +6,10 @@ import { DataProps } from '@/app/dataset/type'
 interface IProps {
   data: DataProps
   className?: string
+  isSegment?: boolean
 }
 
-const FileIcon = ({ data, className }: IProps) => {
+const FileIcon = ({ data, className, isSegment }: IProps) => {
   const isPdf = data?.type === 'pdf'
   const color = getAvatarBgColor(data?.short_id || '')
 
@@ -29,7 +30,9 @@ const FileIcon = ({ data, className }: IProps) => {
           </AvatarFallback>
         </Avatar>
       )}
-      {data?.name}
+      <div className={cn(isSegment && 'text-lg font-semibold')}>
+        {data?.name}
+      </div>
     </div>
   )
 }
