@@ -1,12 +1,15 @@
 import { PassThrough } from 'stream'
+import { useEffect } from 'react'
 import {
   cleanup,
   queryByText,
   render,
   renderHook,
   waitFor,
+  waitForElementToBeRemoved,
 } from '@testing-library/react'
 import user from '@testing-library/user-event'
+import { nanoid } from 'nanoid'
 import {
   afterEach,
   beforeAll,
@@ -51,7 +54,6 @@ describe('Chat', () => {
     )
   }
 
-  let component: ReturnType<typeof render>
   beforeAll(() => {
     vi.mock('@clerk/nextjs', () => ({
       useUser: () => ({
@@ -60,10 +62,33 @@ describe('Chat', () => {
         fullName: 'test user',
       }),
     }))
+    vi.mock('@/hooks/use-subscribe', () => ({
+      __esModule: true,
+      default: ({ onAdd, enabled }: any) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useEffect(() => {
+          if (enabled) {
+            onAdd({
+              eventType: 'call.created',
+              id: nanoid(),
+            })
+            onAdd({
+              eventType: 'call.ended',
+              id: nanoid(),
+            })
+          }
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [])
+      },
+    }))
   })
 
-  beforeEach(() => {
-    component = render(
+  afterEach(() => {
+    cleanup()
+  })
+
+  test('send message and regenerate', async () => {
+    const component = render(
       commonTestWrapper(
         <Chat
           workflow={[]}
@@ -72,7 +97,7 @@ describe('Chat', () => {
             short_id: 'YhTq4Xx29aDZ',
             icon: '',
             enable_video_interaction: false,
-            opening_remarks: null,
+            opening_remarks: 'yo',
           }}
           mode="live"
           session={{
@@ -80,22 +105,41 @@ describe('Chat', () => {
             short_id: 'srQuAKvgZR7W',
             name: 'test-chat-session',
           }}
+          initialMessages={[
+            {
+              id: '1',
+              content: 'hello1',
+              role: 'user',
+              type: 'chat',
+              createdAt: new Date('2023-01-01 00:00:00'),
+            },
+            {
+              id: '2',
+              content: 'hello2',
+              role: 'assistant',
+              type: 'chat',
+              createdAt: new Date('2023-01-01 00:00:01'),
+            },
+            {
+              id: '3',
+              content: 'hello3',
+              role: 'user',
+              type: 'chat',
+              createdAt: new Date('2023-01-01 00:00:02'),
+            },
+            {
+              id: '4',
+              content: 'hello4',
+              role: 'assistant',
+              type: 'chat',
+              createdAt: new Date('2023-01-01 00:00:03'),
+            },
+          ]}
         />
       )
     )
-  })
-
-  afterEach(() => {
-    cleanup()
-  })
-
-  test('matches snapshot', () => {
-    const { asFragment } = component
+    const { asFragment, queryByTestId } = component
     expect(asFragment()).toMatchSnapshot()
-  })
-
-  test('send message and regenerate', async () => {
-    const { queryByTestId } = component
     const sendButton = queryByTestId('send')!
     const input = queryByTestId('input')!
 
@@ -138,9 +182,108 @@ describe('Chat', () => {
       const regen = component.queryByText('Regenerate response')!
       expect(regen).toBeInTheDocument()
     })
+  })
 
-    // await waitFor(() => {
-    //   expect(component.queryByText('helloworldmessage2')).toBeInTheDocument()
-    // })
+  test('accept event', async () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+
+    const component = render(
+      commonTestWrapper(
+        <Chat
+          workflow={[]}
+          app={{
+            name: 'chat-app',
+            short_id: 'YhTq4Xx29aDZ',
+            icon: '',
+            enable_video_interaction: true,
+            opening_remarks: 'yo',
+          }}
+          mode="live"
+          session={{
+            api_session_id: '21486acbbd393f8a6131a9009d6aae4d',
+            short_id: 'srQuAKvgZR7W',
+            name: 'test-chat-session',
+          }}
+        />
+      )
+    )
+    await waitFor(async () => {
+      const dialog = component.getByTestId('video-call-confirm-dialog')
+      expect(dialog).toBeInTheDocument()
+      await user.click(component.getByTestId('accept-video-call'))
+      expect(open).toBeCalled()
+      expect(dialog).not.toBeInTheDocument()
+    })
+  })
+
+  test('decline event', async () => {
+    const component = render(
+      commonTestWrapper(
+        <Chat
+          workflow={[]}
+          app={{
+            name: 'chat-app',
+            short_id: 'YhTq4Xx29aDZ',
+            icon: '',
+            enable_video_interaction: true,
+            opening_remarks: 'yo',
+          }}
+          mode="live"
+          session={{
+            api_session_id: '21486acbbd393f8a6131a9009d6aae4d',
+            short_id: 'srQuAKvgZR7W',
+            name: 'test-chat-session',
+          }}
+        />
+      )
+    )
+    await waitFor(async () => {
+      const dialog = component.getByTestId('video-call-confirm-dialog')
+      expect(dialog).toBeInTheDocument()
+      await user.click(component.getByTestId('decline-video-call'))
+      expect(dialog).not.toBeInTheDocument()
+      expect(component.getByText('Call Declined')).toBeInTheDocument()
+    })
+  })
+
+  test('cancel event', async () => {
+    vi.mock('usehooks-ts', () => ({
+      ...vi.importActual('usehooks-ts'),
+      useCountdown: () => [
+        0,
+        {
+          startCountdown: () => {},
+        },
+      ],
+    }))
+    const component = render(
+      commonTestWrapper(
+        <Chat
+          workflow={[]}
+          app={{
+            name: 'chat-app',
+            short_id: 'YhTq4Xx29aDZ',
+            icon: '',
+            enable_video_interaction: true,
+            opening_remarks: 'yo',
+          }}
+          mode="live"
+          session={{
+            api_session_id: '21486acbbd393f8a6131a9009d6aae4d',
+            short_id: 'srQuAKvgZR7W',
+            name: 'test-chat-session',
+          }}
+        />
+      )
+    )
+    await waitFor(async () => {
+      const dialog = component.getByTestId('video-call-confirm-dialog')
+      expect(dialog).toBeInTheDocument()
+    })
+    await waitFor(async () => {
+      const dialog = component.queryByTestId('video-call-confirm-dialog')
+      expect(dialog).not.toBeInTheDocument()
+      expect(component.getAllByText('Call Canceled')).toBeTruthy()
+    })
   })
 })
