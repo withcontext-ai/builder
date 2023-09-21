@@ -4,8 +4,7 @@ import { omit, pick } from 'lodash'
 
 import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
-import { DataProps } from '@/app/dataset/[dataset_id]/settings/documents/utils'
-import { NotedDataProps } from '@/app/dataset/type'
+import { DataProps, NotedDataProps } from '@/app/dataset/type'
 
 import { getDataset, getDatasets, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
