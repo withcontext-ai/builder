@@ -116,7 +116,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       },
       {
         accessorKey: 'Characters',
-        header: <div className="w-full text-right">Characters</div>,
+        header: 'Characters',
         cell: ({ row }) => (
           <div className="w-full text-right">
             {formateNumber(row.original?.characters || 0)}
