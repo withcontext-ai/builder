@@ -19,6 +19,7 @@ export default async function Page({ params }: IProps) {
   const documents = await getDocuments({ dataset_id })
 
   const { data } = await getDataInfo(dataset_id, document_id)
+<<<<<<< Updated upstream
   const files = data?.files?.filter((item: DataProps) => item?.type === 'pdf')
   const notedData = data?.files?.filter(
     (item: NotedDataProps) => item?.type === 'annotated_data'
@@ -30,6 +31,27 @@ export default async function Page({ params }: IProps) {
   }
   const detail = await getDocumentDetail(document_id)
   console.log(detail, '----document_id', document_id)
+=======
+  const files = data?.files?.filter((item: any) => item?.type === 'pdf')
+  const notedData = data?.files?.filter(
+    (item: any) => item?.type === 'annotated data'
+  )
+
+  const detail = (await getDocumentDetail(document_id)) || []
+  // @ts-ignore
+  const type = detail?.type || 'pdf'
+  const isPdf = type === 'pdf'
+  const current = pick(detail, ['type', 'url', 'name', 'icon', 'uid'])
+  const defaultValues = {
+    // @ts-ignore
+    splitConfig: detail?.config?.splitConfig,
+    loaderType: type,
+    files: isPdf ? [current] : [],
+    notedData: !isPdf ? [current] : [],
+  }
+
+  console.log(detail, '----document_id', document_id, defaultValues)
+>>>>>>> Stashed changes
   return (
     <div className="h-full overflow-auto">
       <div className="w-full">
