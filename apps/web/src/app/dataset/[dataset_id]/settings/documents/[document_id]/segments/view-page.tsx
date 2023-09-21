@@ -21,11 +21,14 @@ import { DataTablePagination } from './pagination'
 interface IProps {
   document_id: string
   dataset_id: string
-  name: string
-  type: string
 }
 
-const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
+const SegmentPage = ({ dataset_id, document_id }: IProps) => {
+  const urlSearchParams = new URLSearchParams(
+    decodeURIComponent(window.location.search)
+  )
+  const params = Object.fromEntries(urlSearchParams.entries())
+  const { name, type } = params
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')

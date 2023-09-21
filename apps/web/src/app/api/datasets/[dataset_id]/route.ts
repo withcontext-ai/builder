@@ -26,15 +26,15 @@ export async function GET(
     return new Response('Bad Request', { status: 400 })
   }
 
-  const { documents, updated_at, status } = await getDocuments({ dataset_id })
+  const { documents } = await getDocuments({ dataset_id })
   let res = documents
-
   if (search) {
     res = documents?.filter((item: DataProps) => item?.name?.includes(search))
   }
   res = res?.slice(page * pageSize, pageSize * (page + 1))
+  const total = documents?.length
 
-  return NextResponse.json({ success: true, data: res })
+  return NextResponse.json({ success: true, data: { data: res, total } })
 }
 
 // // Update a dataset

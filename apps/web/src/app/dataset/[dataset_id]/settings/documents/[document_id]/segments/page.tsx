@@ -1,5 +1,3 @@
-import { getDataInfo } from '@/db/datasets/documents/action'
-
 import SegmentPage from './view-page'
 
 interface IProps {
@@ -8,16 +6,7 @@ interface IProps {
 
 const Page = async ({ params }: IProps) => {
   const { dataset_id, document_id } = params
-  const { data } = await getDataInfo(dataset_id, document_id)
-  const name = data?.name
-  return (
-    <SegmentPage
-      dataset_id={dataset_id}
-      document_id={document_id}
-      name={name}
-      type={data?.type}
-    />
-  )
+  return <SegmentPage dataset_id={dataset_id} document_id={document_id} />
 }
 
 export default Page

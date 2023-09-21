@@ -26,7 +26,6 @@ import { DataTablePagination } from '@/components/ui/table/pagination'
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useToast } from '@/components/ui/use-toast'
@@ -96,7 +95,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     [dataset_id, router]
   )
 
-  const { data = [], isValidating } = useSWR<any>(
+  const { data, isValidating } = useSWR<any>(
     [{ search: value }, pagination, deleted, dataset_id],
     getDatasetDocument,
     {
@@ -104,7 +103,6 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       keepPreviousData: true,
     }
   )
-
   const columns: ColumnDef<DataProps>[] = useMemo(
     () => [
       {
@@ -138,7 +136,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         },
       },
       {
-        accessorKey: 'id',
+        accessorKey: 'uid',
         header: '',
         cell: ({ row }) => {
           const { status, type, uid } = row.original
@@ -201,8 +199,9 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         })
         return
       } else {
+        const params = encodeURIComponent(`name=${row?.name}&type=${row?.type}`)
         router.push(
-          `/dataset/${dataset_id}/settings/documents/${row?.uid}/segments`
+          `/dataset/${dataset_id}/settings/documents/${row?.uid}/segments?${params}`
         )
         return
       }
@@ -210,13 +209,13 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     [dataset_id, router, toast]
   )
   const table = useReactTable({
-    data,
+    data: data?.data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
     onPaginationChange: setPagination,
     manualPagination: true,
-    pageCount: Math.ceil((data?.length || 0) / pagination.pageSize),
+    pageCount: Math.ceil((data?.total || 0) / pagination.pageSize),
   })
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e?.target?.value)
