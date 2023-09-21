@@ -113,6 +113,7 @@ export async function getEditParams(
     const oldFiles = (dataset?.config as any)?.files
     const newFiles = (config as any)?.files
     const update = !isEqual(oldFiles, newFiles)
+    const splitConfig = pick(config, ['splitType', 'chunkSize', 'chunkOverlap'])
     if (update) {
       const documents = newFiles?.reduce(
         (m: Record<string, any>[], item: any) => {
@@ -120,14 +121,8 @@ export async function getEditParams(
             item.url = ''
           }
           const cur = pick(item, ['url', 'type', 'uid'])
-          const split_option = {
-            split_type: item?.splitType,
-            chunk_size: item?.chunkSize,
-            chunk_overlap: item?.chunkOverlap,
-          }
           // @ts-ignore
-          cur.split_option = split_option
-          console.log(cur, '---cur', split_option)
+          cur.split_option = splitConfig
           m.push(cur)
           return m
         },

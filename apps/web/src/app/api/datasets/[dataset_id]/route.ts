@@ -34,19 +34,7 @@ export async function GET(
   }
   res = res?.slice(page * pageSize, pageSize * (page + 1))
 
-  // Compat the historical data
-  const result = res?.reduce((m: DataProps[], item: any) => {
-    if (!item?.updated_at) {
-      item.updated_at = updated_at
-    }
-    if (![0, 1, 2]?.includes(item?.status)) {
-      item.status = status
-    }
-    m.push(item)
-    return m
-  }, [])
-
-  return NextResponse.json({ success: true, data: result })
+  return NextResponse.json({ success: true, data: res })
 }
 
 // // Update a dataset

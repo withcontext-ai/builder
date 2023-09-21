@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { omit } from 'lodash'
+import { omit, pick } from 'lodash'
 
 import {
   getDataSplitPreview,
@@ -25,7 +25,12 @@ export async function POST(req: NextRequest) {
     files[0] = Object.assign(files[0], currentConfig)
   }
 
-  const newConfig = { ...config, files }
+  const splitConfig = pick(dataConfig, [
+    'splitType',
+    'chunkSize',
+    'chunkOverlap',
+  ])
+  const newConfig = { ...splitConfig, files }
   const uid = !isAdd ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)
   const { segments } = await getSegments(dataset_id, uid)
