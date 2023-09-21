@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
@@ -38,7 +39,7 @@ const Step = () => {
                   step >= item?.step && 'bg-black  text-white'
                 )}
               >
-                {item?.step}
+                {step > item?.step ? <Check /> : item?.step}
               </div>
               <div>{item?.text}</div>
             </div>

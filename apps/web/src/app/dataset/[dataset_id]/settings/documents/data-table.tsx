@@ -190,7 +190,6 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     (row: any) => () => {
       if (row?.status === 1) {
         toast({
-          variant: 'destructive',
           description: 'Indexing in progress, please wait..',
         })
         return
