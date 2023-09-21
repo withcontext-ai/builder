@@ -15,7 +15,6 @@ import ChatHeader from './chat-header'
 import ChatInput from './chat-input'
 import ChatList from './chat-list'
 import ChatProcess from './chat-process'
-import ChatDebugger from './debugger'
 import RestartConfirmPage from './restart-confirm'
 import {
   ChatApp,
@@ -313,7 +312,6 @@ const Chat = (props: ChatProps) => {
       initialEvents={initialEvents}
       initialMessages={initialMessages}
     >
-      <ChatDebugger />
       <WrappedChat {...props} />
     </ChatContextProvider>
   )
