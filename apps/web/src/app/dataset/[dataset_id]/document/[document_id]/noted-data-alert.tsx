@@ -25,22 +25,23 @@ interface IProps {
 const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
   const { defaultValues, documentId } = useDataContext()
-  const notedData = defaultValues?.dataConfig?.notedData || []
+  const notedData = defaultValues?.notedData || []
   const [data, setData] = useState(notedData)
   const [open, setOpen] = useState(false)
 
   const [current, setCurrent] = useState<NotedDataProps[]>(data)
   const isAdd = documentId === 'add'
-  const type = watch()?.dataConfig?.loaderType
+  const type = watch()?.loaderType
 
   const deleteNotedData = (id: string) => {
-    const newData = data?.filter((item: any) => item?.uid !== id) || []
+    const newData =
+      data?.filter((item: NotedDataProps) => item?.uid !== id) || []
     form.setValue('notedData', newData)
     setData(newData)
     setCurrent(newData)
   }
   useEffect(() => {
-    const noted = watch()?.dataConfig?.notedData
+    const noted = watch()?.notedData
     setData(noted)
     setCurrent(noted)
   }, [type, watch])
@@ -56,8 +57,8 @@ const AddAnnotatedData = ({ form }: IProps) => {
             </Button>
           )}
         </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
+        <AlertDialogContent className="flex max-h-[60%] flex-col overflow-hidden p-0">
+          <AlertDialogHeader className="px-6 pt-6">
             <AlertDialogTitle>Add Annotated Data</AlertDialogTitle>
           </AlertDialogHeader>
           <AnnotatedForm
@@ -71,10 +72,10 @@ const AddAnnotatedData = ({ form }: IProps) => {
         </AlertDialogContent>
       </AlertDialog>
       <div className="mt-4 space-y-2">
-        {data?.map((item: any) => {
+        {data?.map((item: NotedDataProps) => {
           return (
             <div
-              key={item?.app_id}
+              key={item?.uid}
               className="flex flex-row items-center justify-between gap-2 space-x-3 space-y-0 truncate rounded-lg border border-slate-200 p-4"
             >
               <NotedDataCard data={item} />
@@ -82,7 +83,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
                 variant="outline"
                 type="button"
                 className="h-8 w-8 p-0 text-black"
-                onClick={() => deleteNotedData(item?.uid)}
+                onClick={() => deleteNotedData(item?.uid || '')}
               >
                 <X size={16} />
               </Button>

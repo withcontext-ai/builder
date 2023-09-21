@@ -4,6 +4,7 @@ import { omit, pick } from 'lodash'
 
 import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
+import { DataProps, NotedDataProps } from '@/app/dataset/type'
 
 import { getDataset, getDatasets, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
@@ -14,29 +15,32 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const config = datasetDetail?.config || {}
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
-  documents?.map((item: any) => {
-    item.updated_at = item.update || updated_at
-    item.status = item.status || status
-  })
   return { documents, updated_at, status, config }
 }
 
 // get data info
 export async function getDataInfo(dataset_id: string, uid: string) {
-  const { documents, config } = await getDocuments({ dataset_id })
-  const detail = documents?.find((item: any) => item?.uid === uid)
+  const { documents } = await getDocuments({ dataset_id })
+  const detail = documents?.find((item: DataProps) => item?.uid === uid)
   const fileConfig = pick(detail, [
     'loaderType',
     'splitType',
     'chunkSize',
     'chunkOverlap',
   ])
+  const defaultConfig = {
+    loaderType: 'pdf',
+    splitType: 'character',
+    chunkSize: 1000,
+    chunkOverlap: 0,
+  }
   return {
     success: true,
     data: {
       dataset_id,
       files: [detail],
-      config: Object.entries(fileConfig)?.length !== 0 ? fileConfig : config,
+      config:
+        Object.entries(fileConfig)?.length !== 0 ? fileConfig : defaultConfig,
       name: detail?.name,
       type: detail?.type,
     },
@@ -45,8 +49,8 @@ export async function getDataInfo(dataset_id: string, uid: string) {
 
 export async function getNotedData() {
   const apps = await getApps()
-  const data = apps?.reduce((m: any[], item: NewApp) => {
-    const cur = pick(item, ['name', 'icon'])
+  const data = apps?.reduce((m: NotedDataProps[], item: NewApp) => {
+    const cur = pick(item, ['name', 'icon', 'short_id'])
     // @ts-ignore
     cur.uid = item.api_model_id
     m.push(cur)
@@ -81,12 +85,4 @@ export async function getDataSplitPreview(
     return Promise.resolve(res?.data)
   }
   return Promise.resolve([])
-}
-
-export async function getDatasetByApiId(api_dataset_id: string) {
-  const datasets = await getDatasets()
-  const dataset = datasets?.find(
-    (item: any) => item?.api_dataset_id === api_dataset_id
-  )
-  return dataset
 }

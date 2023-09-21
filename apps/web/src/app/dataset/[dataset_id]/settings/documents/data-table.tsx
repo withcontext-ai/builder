@@ -7,8 +7,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { throttle } from 'lodash'
-import { FileType2, Loader2Icon, RefreshCcw } from 'lucide-react'
+import { debounce } from 'lodash'
+import { FileType2, Loader2Icon, Trash } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -17,19 +17,21 @@ import { Input } from '@/components/ui/input'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
 import { useToast } from '@/components/ui/use-toast'
+import { DataProps } from '@/app/dataset/type'
 
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
-import { DataProps, formateDate, formateNumber, formateStatus } from './utils'
+import { formateDate, formateNumber, formateStatus } from './utils'
 
 interface IProps {
-  preload: any
+  preload?: DataProps[]
 }
 
-const DatasetTable = ({ preload }: IProps) => {
+const DatasetTable = ({ preload = [] }: IProps) => {
   const [isPending, startTransition] = useTransition()
   // to refresh table when deleted data
   const [deleted, setDeleted] = useState(0)
+  const [open, setOpen] = useState(false)
   const currentUid = useRef({ uid: '' })
   const router = useRouter()
   const { dataset_id } = useParams() as {
@@ -48,6 +50,7 @@ const DatasetTable = ({ preload }: IProps) => {
     const search = new URLSearchParams({
       ...queries,
       ...pagination,
+      dataset_id,
     }).toString()
 
     return fetcher(`/api/datasets/document/?${search}`, {
@@ -67,7 +70,7 @@ const DatasetTable = ({ preload }: IProps) => {
   )
 
   const { data = [], isValidating } = useSWR<any>(
-    [{ search: value }, { dataset_id }, pagination, deleted],
+    [{ search: value }, pagination, deleted, dataset_id],
     getDatasetDocument,
     {
       fallbackData: preload,
@@ -87,13 +90,12 @@ const DatasetTable = ({ preload }: IProps) => {
       {
         accessorKey: 'Characters',
         header: 'characters',
-        cell: ({ row }) => formateNumber(row.getValue('characters') || 0),
+        cell: ({ row }) => formateNumber(row.original?.characters || 0),
       },
       {
         accessorKey: 'updated_at',
         header: 'Update Time',
-        cell: ({ row }) =>
-          formateDate(new Date(row.getValue('updated_at')) || 0),
+        cell: ({ row }) => formateDate(row?.original?.updated_at || new Date()),
       },
       {
         accessorKey: 'status',
@@ -108,7 +110,7 @@ const DatasetTable = ({ preload }: IProps) => {
         accessorKey: 'id',
         header: '',
         cell: ({ row }) => {
-          const { status, type, uid, short_id } = row.original
+          const { status, type, uid, short_id = '' } = row.original
           return (
             <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
@@ -129,23 +131,24 @@ const DatasetTable = ({ preload }: IProps) => {
                   )}
                 </Button>
               )}
-              {status === 0 && type !== 'pdf' && (
-                <Button size="icon" variant="outline" className="h-8 w-8">
-                  <RefreshCcw size={18} />
-                </Button>
-              )}
-
-              <DeleteData
-                datasetId={dataset_id}
-                uid={row.original?.short_id || ''}
-                confirmDelete={() => setDeleted((v) => v + 1)}
-              />
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-8 w-8 text-red-600"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setOpen(true)
+                  currentUid.current.uid = short_id
+                }}
+              >
+                <Trash size={18} />
+              </Button>
             </div>
           )
         },
       },
     ],
-    [dataset_id, editData, isPending]
+    [editData, isPending]
   )
 
   const handleRowClick = useCallback(
@@ -184,7 +187,7 @@ const DatasetTable = ({ preload }: IProps) => {
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e?.target?.value)
   }, [])
-  const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
+  const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
     <div className="space-y-8">
       <div className="mb-8 flex">
@@ -207,6 +210,13 @@ const DatasetTable = ({ preload }: IProps) => {
         onRowClick={handleRowClick}
       />
       <DataTablePagination table={table} />
+      <DeleteData
+        datasetId={dataset_id}
+        uid={currentUid?.current?.uid}
+        open={open}
+        setOpen={setOpen}
+        confirmDelete={() => setDeleted((v) => v + 1)}
+      />
     </div>
   )
 }

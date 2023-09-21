@@ -6,15 +6,20 @@ import { NotedDataProps } from '../../../type'
 interface IProps {
   data?: NotedDataProps
   isAdd?: boolean
+  isDisabled?: boolean
 }
 
-const NotedDataCard = ({ data: item, isAdd = false }: IProps) => {
+const NotedDataCard = ({
+  data: item,
+  isAdd = false,
+  isDisabled = false,
+}: IProps) => {
   const color = getAvatarBgColor(item?.short_id || '')
 
   return (
     <div
       className={cn(
-        'flex items-center gap-2 truncate text-sm font-normal text-black',
+        'flex items-center gap-2 overflow-auto truncate text-sm font-normal text-black',
         !isAdd && 'cursor-pointer'
       )}
     >
@@ -28,7 +33,12 @@ const NotedDataCard = ({ data: item, isAdd = false }: IProps) => {
           {getFirstLetter(item?.name || '')}
         </AvatarFallback>
       </Avatar>
-      {item?.name || ''}
+      <div className={cn('flex flex-col font-medium')}>
+        {item?.name || ''}
+        {isDisabled && (
+          <div className="text-xs font-normal">already added to dataset</div>
+        )}
+      </div>
     </div>
   )
 }

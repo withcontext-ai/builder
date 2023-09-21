@@ -16,37 +16,11 @@ export const FormSchema = z.object({
   apiVersion: z.string().optional(),
 })
 
-export type SchemaProps = z.infer<typeof FormSchema>
-
-export interface DataConfigProps {
-  type?: string
-  splitType?: string
-  chunkSize?: number
-  chunkOverlap?: number
-  uid: string
-  name: string
-}
-
-export interface DataProps {
-  uid: string
-  short_id?: string
-  name: string
-  status?: number
-  type: string
-  url: string
-  icon?: string
-  characters?: number
-  config?: DataConfigProps
-}
-
 export const DataSchema = z.object({
-  splitConfig: z.object({
-    splitType: z.string().optional(),
-    chunkSize: z.number().optional(),
-    chunkOverlap: z.number().optional(),
-  }),
   loaderType: z.string().optional(),
-
+  splitType: z.string().optional(),
+  chunkSize: z.number().optional(),
+  chunkOverlap: z.number().optional(),
   files: z.array(
     z.object({
       name: z.string(),
@@ -67,7 +41,6 @@ export const DataSchema = z.object({
     z.object({
       name: z.string(),
       icon: z.string(),
-      uid: z.string(),
       id: z.string(),
       config: z
         .object({
@@ -81,8 +54,6 @@ export const DataSchema = z.object({
   ),
 })
 
-export type DataSchemeProps = z.infer<typeof DataSchema>
-
 export function formateNumber(characters: number) {
   const formatter = new Intl.NumberFormat('en', {
     notation: 'compact',
@@ -91,7 +62,7 @@ export function formateNumber(characters: number) {
 }
 
 export function formateDate(time: Date) {
-  return format(time, 'MM/dd/yyyy hh:mm aa')
+  return format(new Date(`${time || 0}`), 'MM/dd/yyyy hh:mm aa')
 }
 
 export function formateIndex(index: number) {

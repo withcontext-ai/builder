@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { omit } from 'lodash'
 import { UseFormReturn } from 'react-hook-form'
 
@@ -12,7 +11,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form'
 import { NotedDataProps } from '@/app/dataset/type'
 
@@ -56,7 +54,7 @@ const AnnotatedForm = ({
   }
 
   return (
-    <div>
+    <div className="overflow-auto px-6 pb-6">
       <FormField
         control={form.control}
         name="notedData"
@@ -87,7 +85,8 @@ const AnnotatedForm = ({
                           !isAdd && 'space-x-0',
                           isSelect && !isDisabled
                             ? 'border-blue-500'
-                            : 'border-slate-200'
+                            : 'border-slate-200',
+                          isDisabled && 'opacity-70'
                         )}
                       >
                         <FormControl>
@@ -100,7 +99,11 @@ const AnnotatedForm = ({
                             }
                             className={!isAdd ? 'hidden' : 'block'}
                             onCheckedChange={(checked) => {
+<<<<<<< HEAD
                               item.type = 'annotated data'
+=======
+                              item.type = 'annotated_data'
+>>>>>>> dataset-index-status
                               const config = omit(getValues(), [
                                 'files',
                                 'notedData',
@@ -116,18 +119,15 @@ const AnnotatedForm = ({
                                   ) || []
                                 setCurrent?.(newData)
                               }
-                              return checked
-                                ? field.onChange([...field?.value, cur])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value: any) => value?.uid !== item.uid
-                                    )
-                                  )
                             }}
                           />
                         </FormControl>
                         <FormLabel>
-                          <NotedDataCard data={item} isAdd={isAdd} />
+                          <NotedDataCard
+                            data={item}
+                            isAdd={isAdd}
+                            isDisabled={isDisabled}
+                          />
                         </FormLabel>
                       </FormItem>
                     )
@@ -138,6 +138,7 @@ const AnnotatedForm = ({
           </FormItem>
         )}
       />
+
       <div className="mt-4 flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel

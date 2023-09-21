@@ -1,20 +1,20 @@
-import { AnyARecord } from 'dns'
 import { useCallback, useMemo, useState } from 'react'
 import { throttle } from 'lodash'
 
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
+import { DataProps } from '@/app/dataset/type'
 
 import FileIcon from '../documents/file-icon'
 import { formateDate, formateNumber, formateStatus } from '../documents/utils'
 
-const Documents = ({ documents }: { documents: any[] }) => {
-  const [data, setData] = useState<any[]>(documents)
+const Documents = ({ documents }: { documents: DataProps[] }) => {
+  const [data, setData] = useState<DataProps[]>(documents)
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newData =
         documents?.filter(
-          (item: any) => item?.name?.includes(e?.target?.value || '')
+          (item: DataProps) => item?.name?.includes(e?.target?.value || '')
         ) || []
       setData(newData)
     },
@@ -25,7 +25,7 @@ const Documents = ({ documents }: { documents: any[] }) => {
     <div className="space-y-4">
       <Input placeholder="Search" onChange={throttledOnChange} />
       {documents?.length === 0 ? (
-        <div className="mt-[88px]">
+        <div className="pt-[88px]">
           <div>There is no data yet. </div>
           <div>
             You can upload data from different channels, such as PDF files,
@@ -44,7 +44,8 @@ const Documents = ({ documents }: { documents: any[] }) => {
               >
                 <FileIcon data={item} />
                 <div className="text-sm text-slate-500">
-                  Uploaded Time: {formateDate(new Date(item.updated_at))}
+                  Uploaded Time:
+                  {formateDate(item.updated_at)}
                 </div>
                 <div className="flex items-center justify-between text-sm text-slate-500">
                   {formateNumber(item?.characters || 0)} characters

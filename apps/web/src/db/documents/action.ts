@@ -12,7 +12,6 @@ import { AppsTable } from '../apps/schema'
 import { Documents, DocumentsTable, NewDocument } from './schema'
 
 export type newDocumentParams = {
-  config: Record<string, any>
   documents: any[]
   dataset_id: string
   type?: string
@@ -32,7 +31,7 @@ export async function getDocumentByTable({
   params,
 }: geDocumentParams) {
   const { search = '', pageSize = 10, pageIndex = 0 } = params
-  const item = await db
+  const item: NewDocument[] = await db
     .select()
     .from(DocumentsTable)
     .orderBy(desc(DocumentsTable.created_at))
@@ -47,6 +46,7 @@ export async function getDocumentByTable({
     res = item?.filter((item: NewDocument) => item?.name?.includes(search))
   }
   res?.slice(pageIndex * pageSize, pageSize * (pageIndex + 1))
+  console.log(res, '---res', item)
   return res
 }
 
@@ -89,11 +89,16 @@ export async function addDocuments(data: newDocumentParams) {
     const isPdf = type === 'pdf'
     let documents = []
     if (isPdf) {
-      documents = _documents?.reduce((m: any[], cur: DataProps) => {
-        // @ts-ignore
+      documents = _documents?.reduce((m: DataProps[], cur: DataProps) => {
         const config = pick(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
-        const attributes = omit(cur, ['splitType', 'chunkSize', 'chunkOverlap'])
+        const attributes = omit(cur, [
+          'splitType',
+          'chunkSize',
+          'chunkOverlap',
+          'loaderType',
+        ])
         const item = createEmptyDocument(dataset_id, userId, config, attributes)
+        // @ts-ignore
         m.push(item)
         return m
       }, [])
@@ -111,6 +116,7 @@ export async function addDocuments(data: newDocumentParams) {
     const queue: any[] = []
 
     documents?.forEach((item: NewDocument) => {
+      console.log(item, '---item')
       const task = db.insert(DocumentsTable).values(item)
       queue.push(task)
     })
@@ -169,7 +175,6 @@ export async function deleteDocument(id: string, dataset_id: string) {
   try {
     const { userId } = auth()
     if (!userId) return Promise.resolve([])
-    console.log(id, dataset_id, '----id')
     const response = await db
       .update(DocumentsTable)
       .set({ archived: true, updated_at: new Date() })

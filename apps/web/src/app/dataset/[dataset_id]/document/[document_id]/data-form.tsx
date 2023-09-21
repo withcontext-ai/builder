@@ -13,8 +13,8 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 
-import { NotedDataProps } from '../../../type'
-import { DataSchema, DataSchemeProps } from '../../settings/documents/utils'
+import { DataSchemeProps, NotedDataProps } from '../../../type'
+import { DataSchema } from '../../settings/documents/utils'
 import { useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
 import Preview from './preview'
@@ -32,7 +32,7 @@ export interface FormProps {
 
 function addData(
   url: string,
-  { arg }: { arg: { dataset_id: string; dataConfig: any } }
+  { arg }: { arg: { dataset_id: string; dataConfig: DataSchemeProps } }
 ) {
   return fetcher(url, {
     method: 'POST',
@@ -42,7 +42,15 @@ function addData(
 
 function editData(
   url: string,
-  { arg }: { arg: { dataset_id: string; dataConfig: any; document_id: string } }
+  {
+    arg,
+  }: {
+    arg: {
+      dataset_id: string
+      dataConfig: DataSchemeProps
+      document_id: string
+    }
+  }
 ) {
   return fetcher(url, {
     method: 'PATCH',
@@ -57,7 +65,7 @@ function getPreview(
   }: {
     arg: {
       dataset_id: string
-      dataConfig: any
+      dataConfig: DataSchemeProps
       document_id: string
       preview: number
     }
@@ -83,8 +91,7 @@ const DataForm = () => {
 
   const { watch } = form
 
-  const files = defaultValues?.dataConfig?.files
-  const [data, setData] = useState<any[]>(files)
+  const [data, setData] = useState<any[]>(defaultValues?.files || [])
 
   const { trigger: addTrigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
@@ -102,7 +109,6 @@ const DataForm = () => {
   const onSubmit = async () => {
     try {
       const dataConfig = { ...watch() }
-      console.log(dataConfig, '----dataconfig')
       let json
       if (isAdd) {
         json = await addTrigger({
@@ -126,6 +132,7 @@ const DataForm = () => {
     const notedData = watch()?.notedData
     const type = watch()?.loaderType
     const isPdf = type === 'pdf'
+    const dataConfig = { ...watch() }
     const text = type === 'pdf' ? 'document' : 'Annotated Data'
     if ((!files?.length && isPdf) || (!notedData?.length && !isPdf)) {
       toast({

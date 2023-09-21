@@ -1,11 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import { omit } from 'lodash'
-import { Plus } from 'lucide-react'
 import { nanoid } from 'nanoid'
 
-import { Button } from '@/components/ui/button'
 import {
   FormControl,
   FormField,
@@ -24,7 +21,7 @@ import { SessionProps } from './splitter'
 
 const types = [
   { label: 'PDF loader', value: 'pdf' },
-  { label: 'Annotated data', value: 'annotated data' },
+  { label: 'Annotated data', value: 'annotated_data' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 
@@ -60,9 +57,8 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   }
   const type = watch()?.loaderType
 
-  const files = watch()?.files?.filter((item: any) => item?.type === 'pdf')
+  const files = watch().files?.filter((item: any) => item?.type === 'pdf')
   const showButton = (files?.length === 0 && !isAdd) || isAdd
-
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-2xl font-semibold leading-8">
