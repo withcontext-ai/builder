@@ -110,26 +110,22 @@ export async function getEditParams(
     const dataset = await getDataset(datasetId)
     api_dataset_id = dataset?.api_dataset_id
     if (!api_dataset_id) return Promise.resolve({ api_dataset_id, editParams })
-    const oldFiles = (dataset?.config as any)?.files
     const newFiles = (config as any)?.files
-    const update = !isEqual(oldFiles, newFiles)
     const splitConfig = pick(config, ['splitType', 'chunkSize', 'chunkOverlap'])
-    if (update) {
-      const documents = newFiles?.reduce(
-        (m: Record<string, any>[], item: any) => {
-          if (item?.type === 'annotated_data') {
-            item.url = ''
-          }
-          const cur = pick(item, ['url', 'type', 'uid'])
-          // @ts-ignore
-          cur.split_option = splitConfig
-          m.push(cur)
-          return m
-        },
-        []
-      )
-      editParams = { documents }
-    }
+    const documents = newFiles?.reduce(
+      (m: Record<string, any>[], item: any) => {
+        if (item?.type === 'annotated_data') {
+          item.url = ''
+        }
+        const cur = pick(item, ['url', 'type', 'uid'])
+        // @ts-ignore
+        cur.split_option = splitConfig
+        m.push(cur)
+        return m
+      },
+      []
+    )
+    editParams = { documents }
   }
   return Promise.resolve({ editParams, api_dataset_id })
 }
