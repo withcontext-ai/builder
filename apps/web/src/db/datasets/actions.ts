@@ -127,6 +127,7 @@ export async function getEditParams(
           }
           // @ts-ignore
           cur.split_option = split_option
+          console.log(cur, '---cur', split_option)
           m.push(cur)
           return m
         },
