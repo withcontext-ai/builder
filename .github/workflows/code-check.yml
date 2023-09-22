@@ -162,3 +162,9 @@ jobs:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
           E2E_USERNAME: ${{ env.E2E_USERNAME }}
           E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: apps/web/test-results
+          retention-days: 3
