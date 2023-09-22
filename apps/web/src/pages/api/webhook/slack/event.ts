@@ -56,9 +56,8 @@ export default async function handler(
         { shouldUpdate: false }
       )
 
-      const { session_id, api_session_id } = await slack.getCurrentSession(
-        user_id
-      )
+      const { session_id, api_session_id } =
+        await slack.getCurrentSession(user_id)
       if (!api_session_id) throw new Error('api_session_id is undefined')
 
       const messages = await slack.getMessages(session_id)
