@@ -30,7 +30,7 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
         className="mx-6 mb-4 flex w-[calc(100%-48px)]"
       />
       {documents?.length === 0 ? (
-        <div className="pt-[88px]">
+        <div className="px-6 pt-[88px]">
           <div>There is no data yet. </div>
           <div>
             You can upload data from different channels, such as PDF files,
