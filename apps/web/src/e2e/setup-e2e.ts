@@ -3,9 +3,11 @@ import { expect, test } from '@playwright/test'
 import dotenv from 'dotenv'
 
 // local
-dotenv.config({
-  path: path.resolve(__dirname, '..', '..', '.env.local'),
-})
+if (!process.env.CI) {
+  dotenv.config({
+    path: path.resolve(__dirname, '..', '..', '.env.local'),
+  })
+}
 
 const E2E_USERNAME = process.env.E2E_USERNAME!
 const E2E_PASSWORD = process.env.E2E_PASSWORD!
