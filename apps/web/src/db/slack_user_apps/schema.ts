@@ -1,4 +1,4 @@
-import { InferModel } from 'drizzle-orm'
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import {
   pgTable,
   serial,
@@ -27,12 +27,12 @@ export const SlackUserAppsTable = pgTable(
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
-  (apps) => {
+  (slack_user_apps) => {
     return {
-      unique_idx: uniqueIndex('unique_idx').on(apps.short_id),
+      unique_idx: uniqueIndex('unique_idx').on(slack_user_apps.short_id),
     }
   }
 )
 
-export type SlackUserApp = InferModel<typeof SlackUserAppsTable>
-export type NewSlackUserApp = InferModel<typeof SlackUserAppsTable, 'insert'>
+export type SlackUserApp = InferSelectModel<typeof SlackUserAppsTable>
+export type NewSlackUserApp = InferInsertModel<typeof SlackUserAppsTable>

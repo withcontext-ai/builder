@@ -1,3 +1,5 @@
+import 'server-only'
+
 import { UserJSON } from '@clerk/nextjs/dist/types/server'
 import { eq } from 'drizzle-orm'
 

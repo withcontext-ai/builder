@@ -1,4 +1,4 @@
-import { InferModel } from 'drizzle-orm'
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { pgTable, serial, text, uniqueIndex } from 'drizzle-orm/pg-core'
 
 import { AppsTable } from '../apps/schema'
@@ -14,12 +14,16 @@ export const SlackTeamAppsTable = pgTable(
       .references(() => AppsTable.short_id)
       .notNull(),
   },
-  (apps) => {
+  (slack_team_apps) => {
     return {
-      unique_idx: uniqueIndex('unique_idx').on(apps.short_id),
+      unique_idx: uniqueIndex('unique_idx').on(
+        slack_team_apps.app_id,
+        slack_team_apps.team_id,
+        slack_team_apps.context_app_id
+      ),
     }
   }
 )
 
-export type SlackTeamApp = InferModel<typeof SlackTeamAppsTable>
-export type NewSlackTeamApp = InferModel<typeof SlackTeamAppsTable, 'insert'>
+export type SlackTeamApp = InferSelectModel<typeof SlackTeamAppsTable>
+export type NewSlackTeamApp = InferInsertModel<typeof SlackTeamAppsTable>

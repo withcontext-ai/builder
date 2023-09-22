@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { SlackUtils } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
-import { addMessage } from '@/db/messages/actions'
+import { addMessage, getFormattedMessages } from '@/db/messages/actions'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
@@ -21,7 +21,8 @@ export default async function handler(
 
     const { body } = req
     if (body.challenge) return res.status(200).json(body)
-    res.status(200).json(body)
+
+    res.status(200).json(body) // response immediately to avoid retry from slack
 
     const isUserMessage =
       body.event?.type === 'message' &&
@@ -29,7 +30,6 @@ export default async function handler(
       !body.event?.message?.bot_id
 
     if (isUserMessage) {
-      console.log('!!! message, from user')
       const message = body as any
       const app_id = message.api_app_id
       if (!app_id) throw new Error('app_id is undefined')
@@ -42,7 +42,7 @@ export default async function handler(
       if (!channel_id) throw new Error('channel_id is undefined')
 
       const slack = new SlackUtils()
-      slack.initialize({ app_id, team_id })
+      await slack.initialize({ app_id, team_id })
 
       const result = await slack.postMessage({
         channel: channel_id,
@@ -60,21 +60,12 @@ export default async function handler(
         await slack.getCurrentSession(user_id)
       if (!api_session_id) throw new Error('api_session_id is undefined')
 
-      const messages = await slack.getMessages(session_id)
-      const formattedMessages = []
-      for (const message of messages) {
-        if (message.query)
-          formattedMessages.push({ role: 'user', content: message.query })
-        if (message.answer)
-          formattedMessages.push({ role: 'assistant', content: message.answer })
-      }
-
+      const messages = await getFormattedMessages(session_id)
       const content = message.event.text
       const payload = {
         session_id: api_session_id,
-        messages: [...formattedMessages, { role: 'user', content }],
+        messages: [...messages, { role: 'user', content }],
       }
-      console.log('payload:', payload)
 
       const ts = result.ts
 
@@ -177,7 +168,7 @@ export default async function handler(
       if (!team_id) throw new Error('team_id is undefined')
       if (!channel_id) throw new Error('channel_id is undefined')
       const slack = new SlackUtils()
-      slack.initialize({ app_id, team_id })
+      await slack.initialize({ app_id, team_id })
       await slack.publishHomeViews({ user_id, channel_id })
       return
     }

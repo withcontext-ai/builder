@@ -1,3 +1,5 @@
+import 'server-only'
+
 import { and, desc, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
@@ -6,7 +8,7 @@ import { db } from '@/lib/drizzle-edge'
 import { SlackUsersTable } from '../slack_users/schema'
 import { SlackTeamsTable } from './schema'
 
-export async function getTeamList() {
+export async function getMyTeamList() {
   try {
     const { userId } = auth()
     if (!userId) {

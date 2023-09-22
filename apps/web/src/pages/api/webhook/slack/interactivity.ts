@@ -1,8 +1,8 @@
 // via https://github.com/vercel-labs/slacker/blob/main/pages/api/response.ts
 import { NextApiRequest, NextApiResponse } from 'next'
 
+import { SlackUtils } from '@/lib/slack'
 import { addFeedback } from '@/db/messages/actions'
-import { getAccessToken, SlackUtils } from '@/app/api/webhook/slack/utils'
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,21 +19,20 @@ export default async function handler(
     res.status(200).json({ success: true }) // response must be sent within 3 seconds
 
     const payload = JSON.parse(req.body.payload) || {}
-    console.log('payload:', payload)
     const type = payload.type
     if (type === 'block_actions') {
       const app_id = payload.api_app_id
       const team_id = payload.team?.id
-      const token = await getAccessToken(app_id, team_id)
-      if (!token) throw new Error('access_token is not found')
-      const slack = new SlackUtils(token)
+      if (!app_id) throw new Error('app_id is undefined')
+      if (!team_id) throw new Error('team_id is undefined')
+
+      const slack = new SlackUtils()
+      await slack.initialize({ app_id, team_id })
 
       const action_id = payload.actions?.[0]?.action_id
       if (action_id === 'create_session') {
         const user_id = payload.user?.id
         const { context_user_id } = await slack.addOrUpdateUser({
-          app_id,
-          team_id,
           user_id,
         })
         const action_value = payload.actions?.[0]?.value
@@ -43,8 +42,6 @@ export default async function handler(
           context_app_id
         )
         await slack.addOrUpdateUserApp({
-          app_id,
-          team_id,
           user_id,
           context_app_id,
           context_session_id: session.short_id,

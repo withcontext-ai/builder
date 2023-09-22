@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { SLACK_REDIRECT_URI } from '@/lib/const'
 import { createSlackClient, SlackUtils } from '@/lib/slack'
 
 export async function GET(req: NextRequest) {
@@ -10,7 +11,6 @@ export async function GET(req: NextRequest) {
 
     const client_id = process.env.NEXT_PUBLIC_SLACK_CLIENT_ID
     const client_secret = process.env.SLACK_CLIENT_SECRET
-    const redirect_uri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/slack/redirect_uri`
 
     if (!client_id || !client_secret)
       throw new Error('client_id or client_secret is undefined')
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       client_id,
       client_secret,
       code,
-      redirect_uri,
+      redirect_uri: SLACK_REDIRECT_URI,
       grant_type: 'authorization_code',
     })
 

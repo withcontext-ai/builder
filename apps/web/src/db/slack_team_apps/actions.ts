@@ -1,3 +1,5 @@
+import 'server-only'
+
 import { and, eq } from 'drizzle-orm'
 
 import { auth } from '@/lib/auth'
@@ -44,7 +46,7 @@ export async function linkTeamToApp(
   if (found) {
     return found
   } else {
-    const [item] = await db
+    const [newSlackTeamApp] = await db
       .insert(SlackTeamAppsTable)
       .values({
         short_id: nanoid(),
@@ -53,7 +55,7 @@ export async function linkTeamToApp(
         context_app_id,
       })
       .returning()
-    return item
+    return newSlackTeamApp
   }
 }
 
@@ -75,7 +77,7 @@ export async function unLinkTeamFromApp(
     .limit(1)
 
   if (found) {
-    const [item] = await db
+    const [deletedTeamApp] = await db
       .delete(SlackTeamAppsTable)
       .where(
         and(
@@ -85,6 +87,6 @@ export async function unLinkTeamFromApp(
         )
       )
       .returning()
-    return item
+    return deletedTeamApp
   }
 }

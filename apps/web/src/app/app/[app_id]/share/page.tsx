@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { useParams } from 'next/navigation'
 
+import { flags } from '@/lib/flags'
 import usePageTitle from '@/hooks/use-page-title'
 import useCopyToClipboard from '@/hooks/useCopyToClipboard'
 import { Button } from '@/components/ui/button'
@@ -48,12 +49,14 @@ const ShareApp = () => {
       </div>
       <div className="m-full h-px bg-slate-100" />
       <div className="p-4 lg:pl-[155px] lg:pt-[100px]">
-        <div className="mb-6 gap-2">
-          <Text>Use this App in</Text>
-          <div className="mt-2 flex gap-4">
-            <Slack appId={app_id} />
+        {flags.enabledSlack && (
+          <div className="mb-6 gap-2">
+            <Text>Use this App in</Text>
+            <div className="mt-2 flex gap-4">
+              <Slack appId={app_id} />
+            </div>
           </div>
-        </div>
+        )}
         <div className="gap-2">
           <Text>Copy link</Text>
           <div className="mt-2 flex gap-2">

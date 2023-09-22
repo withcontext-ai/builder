@@ -4,6 +4,7 @@ import { SlackIcon } from 'lucide-react'
 import useSWR, { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
+import { SLACK_AUTHORIZE_URL } from '@/lib/const'
 import { fetcher } from '@/lib/utils'
 import { SlackTeamApp } from '@/db/slack_team_apps/schema'
 import { SlackTeam } from '@/db/slack_teams/schema'
@@ -22,14 +23,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-
-const redirect_uri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/slack/redirect_uri`
-
-export const authorizeUrl = `https://slack.com/oauth/v2/authorize?client_id=${
-  process.env.NEXT_PUBLIC_SLACK_CLIENT_ID
-}&scope=app_mentions:read,chat:write,im:history,users:read,users:read.email,team:read&user_scope=&redirect_uri=${encodeURIComponent(
-  redirect_uri
-)}`
 
 function TeamCard({
   icon,
@@ -145,7 +138,7 @@ const SlackDialog = NiceModal.create(
           </DialogHeader>
 
           <div className="flex">
-            <a href={authorizeUrl} target="_blank">
+            <a href={SLACK_AUTHORIZE_URL} target="_blank">
               <img
                 alt="Add to Slack"
                 height="40"

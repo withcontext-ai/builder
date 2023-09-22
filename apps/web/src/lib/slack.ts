@@ -4,7 +4,7 @@ import {
   ChatUpdateArguments,
   WebClient,
 } from '@slack/web-api'
-import { and, asc, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { throttle } from 'lodash'
 
 import { db } from '@/lib/drizzle-edge'
@@ -12,7 +12,6 @@ import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
 import { addMessage } from '@/db/messages/actions'
-import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { SlackTeamAppsTable } from '@/db/slack_team_apps/schema'
@@ -382,7 +381,10 @@ export class SlackUtils {
     user_id,
     context_app_id,
     context_session_id,
-  }: Omit<NewSlackUserApp, 'short_id'>): Promise<SlackUserApp> {
+  }: Omit<
+    NewSlackUserApp,
+    'short_id' | 'app_id' | 'team_id'
+  >): Promise<SlackUserApp> {
     const [found] = await db
       .select()
       .from(SlackUserAppsTable)
@@ -460,28 +462,5 @@ export class SlackUtils {
       .orderBy(desc(SlackUserAppsTable.updated_at))
       .limit(1)
     return currentSession
-  }
-
-  // TODO: move this method out of this class
-  async getMessages(session_id: string) {
-    const sq = await db
-      .select({
-        query: MessagesTable.query,
-        answer: MessagesTable.answer,
-        created_at: MessagesTable.created_at,
-      })
-      .from(MessagesTable)
-      .where(
-        and(
-          eq(MessagesTable.session_id, session_id),
-          eq(MessagesTable.archived, false)
-        )
-      )
-      .orderBy(desc(MessagesTable.created_at))
-      .limit(10)
-      .as('sq')
-
-    const messages = await db.select().from(sq).orderBy(asc(sq.created_at))
-    return messages
   }
 }

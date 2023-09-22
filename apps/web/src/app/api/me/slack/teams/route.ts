@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-import { getTeamList } from '@/db/slack_teams/actions'
+import { getMyTeamList } from '@/db/slack_teams/actions'
 
 export async function GET() {
-  const data = await getTeamList()
+  const data = await getMyTeamList()
   return NextResponse.json({ success: true, data })
 }
