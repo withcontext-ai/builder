@@ -137,7 +137,6 @@ export async function editDataset(
 ) {
   const { name, config = {} } = newValue
   let newConfig = config
-  console.log(config, '----config--edit')
   if (documents) {
     // @ts-ignore
     newConfig = { ...config, files: documents }
