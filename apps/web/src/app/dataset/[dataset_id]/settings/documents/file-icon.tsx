@@ -16,13 +16,13 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
   const color = getAvatarBgColor(data?.short_id || '')
 
   return (
-    <div className="flex items-center gap-1 truncate">
+    <div className="flex max-w-2xl items-center gap-1 truncate">
       {isPdf ? (
         <PdfImage className={cn('h-4 w-4', className)} />
       ) : (
         <Avatar
           className={cn(
-            'relative h-4 w-4',
+            'relative flex h-4 w-4',
             data?.icon ? 'bg-white' : `bg-${color}-600`,
             className
           )}

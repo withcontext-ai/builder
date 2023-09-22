@@ -22,12 +22,12 @@ const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
     })
   }
   return (
-    <div className="flex justify-between pl-14 pr-8">
+    <div className="flex w-full justify-between pl-14 pr-8">
       <div className="flex items-center gap-2">
         <Button
           size="icon"
           variant="outline"
-          className="h-8 w-8 p-0"
+          className="flex h-8 w-8 p-0"
           onClick={goBack}
           type="button"
           disabled={isPending}
@@ -44,7 +44,7 @@ const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
           isSegment
         />
       </div>
-      <Button onClick={addNew} type="button" className="gap-1">
+      <Button onClick={addNew} type="button" className="flex gap-1">
         <Plus size={16} />
         Add Segment
       </Button>
