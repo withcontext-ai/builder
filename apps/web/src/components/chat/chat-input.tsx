@@ -69,7 +69,6 @@ const ChatInput = ({ onSubmit, stop, showResend, disabled }: InputProps) => {
         <form onSubmit={onSubmit} ref={formRef}>
           <div className="flex justify-between space-x-2">
             <Textarea
-              ref={inputRef}
               className="min-h-[40px]"
               placeholder="Type a message"
               value={input}
