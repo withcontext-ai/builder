@@ -174,7 +174,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => {
           const { status, type, uid } = row.original
           return (
-            <div className="invisible z-10 flex w-[60px] gap-2 group-hover/cell:visible">
+            <div className="invisible z-10 flex w-[80px] gap-2 group-hover/cell:visible">
               {status === 0 && (
                 <TooltipButton text="Edit">
                   <Button

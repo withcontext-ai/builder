@@ -27,7 +27,7 @@ const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
         <Button
           size="icon"
           variant="outline"
-          className="flex h-8 w-8 p-0"
+          className="h-8 w-8 p-0"
           onClick={goBack}
           type="button"
           disabled={isPending}
