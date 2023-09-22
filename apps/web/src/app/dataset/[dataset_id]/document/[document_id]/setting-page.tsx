@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 import { Check } from 'lucide-react'
-import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
-import { DataProps, DataSchemeProps, NotedDataProps } from '@/app/dataset/type'
+import { DataSchemeProps, NotedDataProps } from '@/app/dataset/type'
 
 import { DataContextProvider, useDataContext } from './data-context'
 import DataForm from './data-form'

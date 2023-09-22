@@ -106,12 +106,13 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     [dataset_id, router]
   )
 
-  const { data, isValidating } = useSWR<any>(
+  const { data, isValidating, isLoading } = useSWR<any>(
     [{ search: value }, pagination, deleted, dataset_id],
     getDatasetDocument,
     {
       fallbackData: preload,
       keepPreviousData: true,
+      refreshInterval: 1000,
     }
   )
   const columns: ColumnDef<DataProps>[] = useMemo(
@@ -133,6 +134,9 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => (
           <div className="w-[85px] text-right">
             {formateNumber(row.original?.characters || 0)}
+            {isValidating && row.original?.status === 1 && (
+              <Loader2Icon className="mr-2 h-4 w-4 animate-spin text-black" />
+            )}
           </div>
         ),
       },
@@ -151,7 +155,19 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => {
           const { status } = row.original
           const { text, color } = formateStatus(status || 0)
-          return <div className={cn('w-[60px] text-left', color)}>{text}</div>
+          return (
+            <div
+              className={cn(
+                'flex w-[100px] items-center gap-1 text-left',
+                color
+              )}
+            >
+              {text}
+              {isValidating && status === 1 && (
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin text-black" />
+              )}
+            </div>
+          )
         },
       },
       {
@@ -258,7 +274,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       </div>
       <DataTable
         table={table}
-        isLoading={isValidating}
+        isLoading={isLoading}
         colSpan={5}
         noDataChildren={noteDataNode}
         onRowClick={handleRowClick}

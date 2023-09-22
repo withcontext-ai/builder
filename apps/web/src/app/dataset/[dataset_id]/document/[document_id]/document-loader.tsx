@@ -47,10 +47,8 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const { watch, getValues } = form
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
-    const config = omit(getValues(), ['files', 'notedData'])
     const files = values?.reduce((m: any, item) => {
-      const fileConfig = { ...config, ...item }
-      m.push(fileConfig)
+      m.push(item)
       return m
     }, [])
     form.setValue('files', [...files])
