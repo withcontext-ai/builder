@@ -5,7 +5,6 @@ import { Ref } from 'react'
 import { cn } from '@/lib/utils'
 
 import ChatCard from './card/chat-card'
-import { useChatContext } from './chat-context'
 import { ChatFeedbackContextProvider } from './feedback/chat-feedback-context'
 import ChatFeedbackDialog from './feedback/chat-feedback-dialog'
 import { Message } from './types'
@@ -20,8 +19,7 @@ interface IProps {
 }
 
 const ChatList = ({ messages, scrollRef, setAutoScroll, error }: IProps) => {
-  const { mode } = useChatContext()
-  const { loading } = useChat()
+  const { loading, mode } = useChat()
   const isDebug = mode === 'debug'
 
   return (

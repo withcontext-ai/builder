@@ -1,9 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Loader2, PhoneCallIcon, PhoneIcon } from 'lucide-react'
-import { useIsClient } from 'usehooks-ts'
 
 import {
   cn,
@@ -12,16 +11,12 @@ import {
   getAvatarBgColor,
   getFirstLetter,
 } from '@/lib/utils'
-import { User } from '@/db/users/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 import Text from '../../ui/text'
-import ChatAction from '../chat-action'
-import { useChatContext } from '../chat-context'
-import ChatFeedbackButtons from '../feedback/chat-feedback-buttons'
 import { Markdown } from '../markdown/markdown'
 import { ChatUser, Message } from '../types'
-import ChatAnnotation from './chat-annotation'
+import { useChat } from '../useChat'
 import { IChatCardProps } from './chat-card'
 
 interface Props extends IChatCardProps {
@@ -127,7 +122,7 @@ function EventMessage({ data }: { data: any }) {
 
 const ChatCardLayout = (prop: Props) => {
   const { isEnd, error, message, actions, footer } = prop
-  const { app, mode, user: chatUser } = useChatContext()
+  const { app, mode, user: chatUser } = useChat()
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message.role === 'user'
   const showError = isEnd && error && !isUser

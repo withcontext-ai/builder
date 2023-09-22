@@ -9,7 +9,6 @@ import useSubmitHandler from '@/hooks/use-submit-handler'
 
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
-import { useChatContext } from './chat-context'
 import { useChat } from './useChat'
 
 interface InputProps {
@@ -28,8 +27,8 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
     reload,
     allMessages,
     submit,
+    mode,
   } = useChat()
-  const { mode } = useChatContext()
   const isDebug = mode === 'debug'
 
   const { formRef, onKeyDown } = useEnterSubmit()
