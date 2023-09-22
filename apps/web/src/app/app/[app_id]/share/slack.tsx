@@ -80,7 +80,7 @@ interface ISlackDialogProps {
 
 const SlackDialog = NiceModal.create(
   ({ context_app_id }: ISlackDialogProps) => {
-    const { modal, closeModal, onOpenChange } = useNiceModal()
+    const { modal, onOpenChange } = useNiceModal()
 
     const { mutate } = useSWRConfig()
 
@@ -149,29 +149,31 @@ const SlackDialog = NiceModal.create(
             </a>
           </div>
 
-          <div className="space-y-2">
-            {teamList.map(
-              ({ app_id, team_id, team_name, team_url, team_icon }: any) => {
-                const checked = checkIsLinked(app_id, team_id)
-                return (
-                  <TeamCard
-                    key={`${app_id}-${team_id}-${
-                      checked ? 'checked' : 'unchecked'
-                    }`}
-                    icon={team_icon}
-                    name={team_name}
-                    url={team_url}
-                    checked={checked}
-                    onCheckedChange={checkedChangeHandler(
-                      app_id,
-                      team_id,
-                      context_app_id
-                    )}
-                  />
-                )
-              }
-            )}
-          </div>
+          {teamList.length > 0 && (
+            <div className="space-y-2">
+              {teamList.map(
+                ({ app_id, team_id, team_name, team_url, team_icon }: any) => {
+                  const checked = checkIsLinked(app_id, team_id)
+                  return (
+                    <TeamCard
+                      key={`${app_id}-${team_id}-${
+                        checked ? 'checked' : 'unchecked'
+                      }`}
+                      icon={team_icon}
+                      name={team_name}
+                      url={team_url}
+                      checked={checked}
+                      onCheckedChange={checkedChangeHandler(
+                        app_id,
+                        team_id,
+                        context_app_id
+                      )}
+                    />
+                  )
+                }
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     )
