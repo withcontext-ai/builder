@@ -153,7 +153,7 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright Browsers
-        run: npx playwright install-deps && npx playwright install
+        run: pnpm playwright install-deps && pnpm playwright install
 
       - name: Run Playwright tests
         run: pnpm test:e2e
