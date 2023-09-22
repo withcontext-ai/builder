@@ -82,7 +82,7 @@ interface LiveChatProps extends BaseChatProps {
 
 export type ChatProps = LiveChatProps | DebugChatProps
 
-const createInputMessage = (input: string) => {
+const createInputMessage = (input: string = '') => {
   const inputMsg: ChatMessage = {
     id: nanoid(),
     content: input,
@@ -94,7 +94,7 @@ const createInputMessage = (input: string) => {
 }
 
 const WrappedChat = (props: ChatProps) => {
-  const { app, session, mode, initialMessages = [], initialEvents = [] } = props
+  const { app, session, mode, initialMessages = [] } = props
   const appName = app?.name || ''
   const {
     short_id: sessionId,
@@ -111,32 +111,22 @@ const WrappedChat = (props: ChatProps) => {
   const { scrollRef, setAutoScroll } = useScrollToBottom()
   const { mutate } = useSWRConfig()
 
-  const {
-    messages,
-    input,
-    loading,
-    reload,
-    stop,
-    error,
-    setMessages,
-    handleSubmit,
-    events,
-    setEvents,
-  } = useChat({
-    id: sessionId,
-    onFinish: (message) => {
-      // if (isDebug && currentInput?.current) {
-      //   props?.setInitialMessages?.([
-      //     ...messages,
-      //     currentInput.current,
-      //     message,
-      //   ])
-      // }
-      if (mode === 'live') {
-        mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
-      }
-    },
-  })
+  const { messages, input, stop, error, setMessages, events, setEvents } =
+    useChat({
+      id: sessionId,
+      onFinish: (message) => {
+        if (isDebug && currentInput?.current) {
+          props?.setInitialMessages?.([
+            ...messages,
+            currentInput.current,
+            message,
+          ])
+        }
+        if (mode === 'live') {
+          mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
+        }
+      },
+    })
 
   const callLinkRef = useRef('')
   const configStr = useConfigBase64({ appName })
@@ -149,16 +139,8 @@ const WrappedChat = (props: ChatProps) => {
     )
   }, [messages, events])
 
-  const set = new Set(input?.split(''))
-  const isEmpty = set?.size === 1 && set.has('\n')
-  const disabled = isEmpty || !input || !input?.trim() || loading
-  const handelReload = () => {
+  const onReload = () => {
     setAutoScroll(true)
-    reload()
-  }
-
-  const handelStop = () => {
-    stop()
   }
 
   const showResend = useMemo(() => messages?.length > 0, [messages])
@@ -170,11 +152,7 @@ const WrappedChat = (props: ChatProps) => {
     setConfirmReset(false)
   }
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (disabled) {
-      return
-    }
-    handleSubmit(e)
+  const onSubmit = () => {
     setAutoScroll(true)
     if (isDebug) {
       currentInput.current = createInputMessage(input)
@@ -229,7 +207,7 @@ const WrappedChat = (props: ChatProps) => {
   }, [modal, app, handleAccept, handleDecline, handleCancel])
 
   const handleRestart = () => {
-    handelStop()
+    stop()
     setMessages([])
     if (isDebug) {
       props?.onRestart?.()
@@ -284,9 +262,7 @@ const WrappedChat = (props: ChatProps) => {
               <ChatInput
                 onSubmit={onSubmit}
                 showResend={showResend}
-                reload={handelReload}
-                stop={handelStop}
-                disabled={disabled}
+                onReload={onReload}
               />
             </div>
             {mode === 'live' && showProcess && (

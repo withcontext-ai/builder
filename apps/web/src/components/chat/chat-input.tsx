@@ -14,25 +14,43 @@ import { useChat } from './useChat'
 
 interface InputProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
-  reload: () => void
-  stop: () => void
   showResend?: boolean
-  disabled?: boolean
+  onReload: () => void
 }
 
-const ChatInput = ({ onSubmit, stop, showResend, disabled }: InputProps) => {
+const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
   const {
     handleInputChange,
-    loading: isLoading,
+    loading,
     input,
+    stop,
     error,
     reload,
+    allMessages,
+    submit,
   } = useChat()
   const { mode } = useChatContext()
   const isDebug = mode === 'debug'
 
   const { formRef, onKeyDown } = useEnterSubmit()
   const { shouldSubmit } = useSubmitHandler()
+
+  const set = new Set(input?.split(''))
+  const isEmpty = set?.size === 1 && set.has('\n')
+  const disabled = isEmpty || !input || !input?.trim() || loading
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (disabled) {
+      return
+    }
+    submit(e)
+    onSubmit(e)
+  }
+
+  const handleReload = () => {
+    reload()
+    onReload()
+  }
 
   return (
     <div
@@ -47,13 +65,19 @@ const ChatInput = ({ onSubmit, stop, showResend, disabled }: InputProps) => {
             There was an error generating a response
           </div>
         )}
-        {showResend && !isLoading && (
-          <Button className="bg-white" onClick={reload} variant="outline">
-            <RefreshCw size={16} className="mr-2" />
-            Regenerate response
-          </Button>
-        )}
-        {isLoading && (
+        {showResend &&
+          !loading &&
+          allMessages[allMessages.length - 1].role === 'assistant' && (
+            <Button
+              className="bg-white"
+              onClick={handleReload}
+              variant="outline"
+            >
+              <RefreshCw size={16} className="mr-2" />
+              Regenerate response
+            </Button>
+          )}
+        {loading && (
           <Button
             className="bg-white"
             onClick={stop}
@@ -66,7 +90,7 @@ const ChatInput = ({ onSubmit, stop, showResend, disabled }: InputProps) => {
         )}
       </div>
       {!error && (
-        <form onSubmit={onSubmit} ref={formRef}>
+        <form onSubmit={handleSubmit} ref={formRef}>
           <div className="flex justify-between space-x-2">
             <Textarea
               className="min-h-[40px]"
@@ -83,7 +107,7 @@ const ChatInput = ({ onSubmit, stop, showResend, disabled }: InputProps) => {
               data-testid="input"
             />
             <Button type="submit" disabled={disabled} data-testid="send">
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send
             </Button>
           </div>

@@ -16,7 +16,7 @@ interface UseChatOptions {
   id?: string
   initialInput?: string
   onResponse?: (response: Response) => Promise<void> | void
-  onFinish?: (message: Message, data: StreamData) => Promise<void> | void
+  onFinish?: (message: ChatMessage, data: StreamData) => Promise<void> | void
   onError?: (error: Error) => Promise<void> | void
 }
 
@@ -42,7 +42,7 @@ type UseChatHelpers = {
   // input
   input?: string
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  submit: (e: React.FormEvent<HTMLFormElement>) => void
 } & ChatContextType
 
 interface StreamData {
@@ -77,7 +77,6 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     _setLoading,
     loading,
     messages,
-    mode,
     setMessages: _setMessages,
     error,
     events,
@@ -257,9 +256,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
       setMessages(nextMessages)
       try {
         triggerRequest({ query })
-      } catch (err) {
-        setMessages(prevMessages)
-      }
+      } catch (err) {}
     },
     [setMessages, triggerRequest]
   )
@@ -296,7 +293,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     fallbackData: initialInput,
   })
 
-  const handleSubmit = useCallback(
+  const submit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       if (!input) return
@@ -323,7 +320,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     updateMessage,
     input,
     handleInputChange,
-    handleSubmit,
+    submit,
     events,
     setEvents,
     loading,
