@@ -52,7 +52,7 @@ const ChatInput = ({
         )}
         {isLoading && (
           <Button
-            className=" bg-white"
+            className="bg-white"
             onClick={stop}
             variant="outline"
             data-testid="stop"
