@@ -33,7 +33,6 @@ export default async function Page({ params }: IProps) {
           datasetId={dataset_id}
           document_id={document_id}
           apps={apps}
-          documents={documents?.documents}
         />
       </div>
     </div>
