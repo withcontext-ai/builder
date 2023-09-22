@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import { OpenAIStream } from '@/lib/openai-stream'
+import { SlackUtils } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
 import { addMessage } from '@/db/messages/actions'
-import { getAccessToken, SlackUtils } from '@/app/api/webhook/slack/utils'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
@@ -41,24 +41,22 @@ export default async function handler(
       const channel_id = message.event.channel
       if (!channel_id) throw new Error('channel_id is undefined')
 
-      const token = await getAccessToken(app_id, team_id)
-      const slack = new SlackUtils(token)
+      const slack = new SlackUtils()
+      slack.initialize({ app_id, team_id })
 
       const result = await slack.postMessage({
         channel: channel_id,
         text: '_Thinking..._',
       })
 
-      // TODO: findOrAddUser
-      const slackUser = await slack.addOrUpdateUser({
-        app_id,
-        team_id,
-        user_id,
-      })
+      await slack.addOrUpdateUser(
+        {
+          user_id,
+        },
+        { shouldUpdate: false }
+      )
 
       const { session_id, api_session_id } = await slack.getCurrentSession(
-        app_id,
-        team_id,
         user_id
       )
       if (!api_session_id) throw new Error('api_session_id is undefined')
@@ -179,12 +177,9 @@ export default async function handler(
       if (!app_id) throw new Error('api_app_id is undefined')
       if (!team_id) throw new Error('team_id is undefined')
       if (!channel_id) throw new Error('channel_id is undefined')
-
-      const token = await getAccessToken(app_id, team_id)
-      if (!token) throw new Error('access_token is not found')
-      const slack = new SlackUtils(token)
-      await slack.publishHomeViews(app_id, team_id, user_id, channel_id)
-
+      const slack = new SlackUtils()
+      slack.initialize({ app_id, team_id })
+      await slack.publishHomeViews({ user_id, channel_id })
       return
     }
   } catch (error: any) {

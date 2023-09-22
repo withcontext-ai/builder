@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { SlackUtils } from '../utils'
+import { createSlackClient, SlackUtils } from '@/lib/slack'
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,36 +15,42 @@ export async function GET(req: NextRequest) {
     if (!client_id || !client_secret)
       throw new Error('client_id or client_secret is undefined')
 
-    let slack = new SlackUtils('')
-    const accessInfo = await slack.client.oauth.v2.access({
+    const client = createSlackClient()
+    const accessInfo = await client.oauth.v2.access({
       client_id,
       client_secret,
       code,
       redirect_uri,
       grant_type: 'authorization_code',
     })
-    if (!accessInfo.app_id) throw new Error('app_id is undefined')
-    if (!accessInfo.access_token) throw new Error('app_id is undefined')
-    if (!accessInfo.team?.id) throw new Error('team_id is undefined')
 
-    slack = new SlackUtils(accessInfo.access_token)
-    const teamInfo = await slack.client.team.info({ team: accessInfo.team?.id })
+    const app_id = accessInfo.app_id
+    const team_id = accessInfo.team?.id
+    const access_token = accessInfo.access_token
+    if (!app_id) throw new Error('app_id is undefined')
+    if (!team_id) throw new Error('team_id is undefined')
+    if (!access_token) throw new Error('app_id is undefined')
+
+    const slack = new SlackUtils()
+    await slack.initialize({
+      app_id,
+      team_id,
+      access_token,
+    })
+
+    const teamInfo = await slack.client.team.info({ team: team_id })
     if (!teamInfo.team) throw new Error('team is undefined')
 
     const team = {
-      app_id: accessInfo.app_id,
-      team_id: accessInfo.team.id,
       team_name: teamInfo.team.name ?? 'Default Team name',
       team_url: teamInfo.team.url,
       team_icon: teamInfo.team.icon?.image_132 || '',
-      access_token: accessInfo.access_token,
+      access_token,
       scope: accessInfo.scope,
     }
     const slack_team = await slack.addOrUpdateTeam(team)
 
     const user = {
-      app_id: accessInfo.app_id,
-      team_id: accessInfo.team.id,
       user_id: accessInfo.authed_user?.id ?? '',
     }
     const slack_user = await slack.addOrUpdateUser(user)
