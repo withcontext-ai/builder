@@ -17,7 +17,7 @@ test('logged in', async ({ page }) => {
   await page.getByLabel('Email address').fill(E2E_USERNAME)
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await page.getByLabel('Password', { exact: true }).fill(E2E_PASSWORD)
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
 
   await expect(page).toHaveURL(/.*explore/, { timeout: 10000 })
   await page.context().storageState({ path: authFile })
