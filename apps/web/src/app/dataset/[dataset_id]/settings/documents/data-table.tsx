@@ -18,7 +18,6 @@ import {
 import { debounce } from 'lodash'
 import { Loader2Icon, Settings2, Trash } from 'lucide-react'
 import useSWR from 'swr'
-import { useTimeout } from 'usehooks-ts'
 
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -70,10 +69,6 @@ const DatasetTable = ({ preload = [] }: IProps) => {
   const [noteDataNode, setNoDataNode] = useState<ReactNode | null>(
     NodeDataChildren
   )
-  const urlSearchParams = new URLSearchParams(
-    decodeURIComponent(window.location.search)
-  )
-
   // to refresh table when deleted data
   const [deleted, setDeleted] = useState(0)
   const [open, setOpen] = useState(false)
@@ -87,15 +82,6 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     pageSize: 10,
     pageIndex: 0,
   })
-
-  // add or edit when status update to refresh data table
-  const params = Object.fromEntries(urlSearchParams.entries())
-  const { operated } = params
-  useTimeout(() => {
-    if (operated) {
-      setDeleted((v) => v + 1)
-    }
-  }, 3000)
 
   async function getDatasetDocument(
     params: [queries: Record<string, any>, pagination: Record<string, any>]
@@ -174,7 +160,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => {
           const { status, type, uid } = row.original
           return (
-            <div className="invisible z-10 flex w-[80px] gap-2 group-hover/cell:visible">
+            <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
               {status === 0 && (
                 <TooltipButton text="Edit">
                   <Button

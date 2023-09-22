@@ -161,7 +161,7 @@ const DataForm = () => {
       await onSubmit()
 
       startTransition(() => {
-        router.push(`/dataset/${datasetId}/settings/documents?operated=${true}`)
+        router.push(`/dataset/${datasetId}/settings/documents`)
       })
     }
   }

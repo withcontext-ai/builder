@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Loader2Icon, Plus, X } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
+import useSWRMutation from 'swr/mutation'
 
+import { fetcher } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
@@ -22,13 +22,23 @@ interface IProps {
   form: UseFormReturn<any>
 }
 
+function getDisabledData(url: string) {
+  return fetcher(url, {
+    method: 'GET',
+  })
+}
+
 const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
-  const { defaultValues, documentId } = useDataContext()
+  const { defaultValues, documentId, datasetId } = useDataContext()
   const notedData = defaultValues?.notedData || []
+  const [disabledData, setDisabledData] = useState<NotedDataProps[]>([])
   const [data, setData] = useState(notedData)
   const [open, setOpen] = useState(false)
-
+  const { trigger, isMutating } = useSWRMutation(
+    `/api/datasets/document?dataset_id=${datasetId}`,
+    getDisabledData
+  )
   const [current, setCurrent] = useState<NotedDataProps[]>(data)
   const isAdd = documentId === 'add'
   const type = watch()?.loaderType
@@ -46,13 +56,26 @@ const AddAnnotatedData = ({ form }: IProps) => {
     setCurrent(noted)
   }, [type, watch])
   const showButton = isAdd || (!isAdd && data?.length == 0)
+
+  const choseNotedData = async () => {
+    const data = await trigger()
+    setDisabledData(data)
+  }
   return (
     <div>
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           {showButton && (
-            <Button type="button">
-              <Plus size={16} />
+            <Button
+              type="button"
+              onClick={choseNotedData}
+              disabled={isMutating}
+            >
+              {isMutating ? (
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus size={16} />
+              )}
               Add Annotated Data
             </Button>
           )}
@@ -63,6 +86,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
             current={current}
             data={data}
             setData={setData}
+            disabledData={disabledData}
             setCurrent={setCurrent}
             setOpen={setOpen}
           />

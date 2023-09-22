@@ -28,7 +28,6 @@ const DatasetEdit = async ({ params }: IProps) => {
   if (datasetDetail.created_by !== userId) {
     redirect('/')
   }
-
   return (
     <div className="h-full overflow-auto">
       <div className="w-full">
@@ -37,7 +36,6 @@ const DatasetEdit = async ({ params }: IProps) => {
           datasetId={dataset_id}
           document_id={'add'}
           apps={apps?.data || []}
-          documents={documents?.documents}
         />
       </div>
     </div>

@@ -58,20 +58,15 @@ interface DataParams {
   document_id: string
   defaultValues: DataSchemeProps
   apps: NotedDataProps[]
-  documents: DataProps[]
 }
 const SettingPage = ({
   datasetId,
   document_id,
   defaultValues,
   apps,
-  documents,
 }: DataParams) => {
   const [step, setStep] = useState(1)
   const isAdd = document_id === 'add'
-  const disabledData = documents?.filter(
-    (item: DataProps) => item?.type === 'annotated_data'
-  )
   return (
     <div className="w-max-[600px] left-0  h-full w-full space-y-10 overflow-y-auto bg-white px-[140px] py-18">
       <div className="text-2xl font-semibold">
@@ -84,7 +79,6 @@ const SettingPage = ({
         documentId={document_id}
         step={step}
         setStep={setStep}
-        disabledData={disabledData}
         isAdd={isAdd}
       >
         <Step />

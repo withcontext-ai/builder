@@ -5,7 +5,6 @@ import { createContext, PropsWithChildren, useContext } from 'react'
 interface BaseContextType {
   documentId: string
   notedData?: any[]
-  disabledData?: any[]
   datasetId: string
   defaultValues?: any
   isAdd: boolean

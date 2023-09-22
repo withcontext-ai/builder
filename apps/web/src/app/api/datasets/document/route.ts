@@ -72,3 +72,14 @@ export async function PATCH(req: NextRequest) {
     data: { dataset_id, response },
   })
 }
+
+export async function GET(req: NextRequest) {
+  const query = req.nextUrl.searchParams
+  const dataset_id = query.get('dataset_id') || ''
+  const { documents } = await getDocuments({ dataset_id })
+  const data = documents?.filter((item: DataProps) => item?.type !== 'pdf')
+  return NextResponse.json({
+    success: true,
+    data,
+  })
+}

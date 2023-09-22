@@ -21,6 +21,7 @@ interface IProps {
   form: UseFormReturn<any>
   current: NotedDataProps[]
   data?: NotedDataProps[]
+  disabledData: NotedDataProps[]
   setOpen: (s: boolean) => void
   setCurrent: (s: NotedDataProps[]) => void
   setData: (s: NotedDataProps[]) => void
@@ -29,12 +30,13 @@ interface IProps {
 const AnnotatedForm = ({
   form,
   data = [],
+  disabledData,
   setOpen,
   setData,
   current,
   setCurrent,
 }: IProps) => {
-  const { disabledData, notedData, isAdd } = useDataContext()
+  const { notedData, isAdd } = useDataContext()
 
   const { getValues } = form
   const onCancel = () => {
