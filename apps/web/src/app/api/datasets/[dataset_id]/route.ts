@@ -25,14 +25,14 @@ export async function GET(
   if (isNaN(pageSize) || isNaN(page)) {
     return new Response('Bad Request', { status: 400 })
   }
-
   const { documents } = await getDocuments({ dataset_id })
+  let count = Math.ceil(documents?.length / pageSize)
   let res = documents
   if (search) {
     res = documents?.filter((item: DataProps) => item?.name?.includes(search))
+    count = Math.ceil(res?.length / pageSize)
   }
   res = res?.slice(page * pageSize, pageSize * (page + 1))
-  const count = Math.ceil(documents?.length / pageSize)
 
   return NextResponse.json({ success: true, data: { data: res, count } })
 }

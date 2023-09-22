@@ -22,8 +22,8 @@ const ViewPage = (props: IProps) => {
     router.push('/datasets')
   }
   return (
-    <div className="block overflow-y-auto lg:hidden">
-      <div className="sticky top-0 flex h-12 items-center gap-x-6 border-b border-slate-200 bg-white px-4">
+    <div className="flex h-full w-full flex-col overflow-y-auto lg:hidden">
+      <div className="flex h-12 items-center gap-x-6 border-b border-slate-200 bg-white px-4">
         <Button
           variant="ghost"
           size="icon"
@@ -34,16 +34,16 @@ const ViewPage = (props: IProps) => {
         </Button>
         <h1 className="text-sm font-medium">Dataset</h1>
       </div>
-      <div className="p-6">
-        <Tabs defaultValue="data">
-          <TabsList>
+      <div className=" w-full flex-1 overflow-hidden">
+        <Tabs defaultValue="data" className="h-full w-full overflow-hidden">
+          <TabsList className="mx-6 mt-6">
             <TabsTrigger value="basics">Basics</TabsTrigger>
             <TabsTrigger value="data">Data</TabsTrigger>
           </TabsList>
           <TabsContent value="basics">
             <Basics {...props} />
           </TabsContent>
-          <TabsContent value="data">
+          <TabsContent value="data" className="h-full">
             <Documents documents={props?.config?.files || []} />
           </TabsContent>
         </Tabs>

@@ -23,8 +23,12 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
   )
   const throttledOnChange = useMemo(() => throttle(onChange, 500), [onChange])
   return (
-    <div className="space-y-4">
-      <Input placeholder="Search" onChange={throttledOnChange} />
+    <div className="flex h-[calc(100%-60px)] flex-col">
+      <Input
+        placeholder="Search"
+        onChange={throttledOnChange}
+        className="mx-6 mb-4 flex w-[calc(100%-48px)]"
+      />
       {documents?.length === 0 ? (
         <div className="pt-[88px]">
           <div>There is no data yet. </div>
@@ -34,7 +38,7 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
           </div>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="mb-6 flex flex-1 flex-col space-y-2 overflow-auto px-6">
           {data?.map((item: any, index) => {
             const { text, color } = formateStatus(item?.status)
 
