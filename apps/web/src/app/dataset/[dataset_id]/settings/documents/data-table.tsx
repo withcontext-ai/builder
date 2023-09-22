@@ -18,6 +18,7 @@ import {
 import { debounce } from 'lodash'
 import { Loader2Icon, Settings2, Trash } from 'lucide-react'
 import useSWR from 'swr'
+import { useTimeout } from 'usehooks-ts'
 
 import { cn, fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -69,6 +70,10 @@ const DatasetTable = ({ preload = [] }: IProps) => {
   const [noteDataNode, setNoDataNode] = useState<ReactNode | null>(
     NodeDataChildren
   )
+  const urlSearchParams = new URLSearchParams(
+    decodeURIComponent(window.location.search)
+  )
+
   // to refresh table when deleted data
   const [deleted, setDeleted] = useState(0)
   const [open, setOpen] = useState(false)
@@ -82,6 +87,15 @@ const DatasetTable = ({ preload = [] }: IProps) => {
     pageSize: 10,
     pageIndex: 0,
   })
+
+  // add or edit when status update to refresh data table
+  const params = Object.fromEntries(urlSearchParams.entries())
+  const { operated } = params
+  useTimeout(() => {
+    if (operated) {
+      setDeleted((v) => v + 1)
+    }
+  }, 3000)
 
   async function getDatasetDocument(
     params: [queries: Record<string, any>, pagination: Record<string, any>]
@@ -120,7 +134,11 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         accessorKey: 'name',
         header: 'Data Name',
         cell: ({ row }) => {
-          return <FileIcon data={row.original} />
+          return (
+            <div className="max-w-lg">
+              <FileIcon data={row.original} />
+            </div>
+          )
         },
       },
       {
