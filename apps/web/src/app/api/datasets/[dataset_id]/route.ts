@@ -29,7 +29,8 @@ export async function GET(
   let count = Math.ceil(documents?.length / pageSize)
   let res = documents
   if (search) {
-    res = documents?.filter((item: DataProps) => item?.name?.includes(search))
+    const exc = new RegExp(`${search}`, 'i')
+    res = documents?.filter((item: DataProps) => exc.test(item?.name))
     count = Math.ceil(res?.length / pageSize)
   }
   res = res?.slice(page * pageSize, pageSize * (page + 1))

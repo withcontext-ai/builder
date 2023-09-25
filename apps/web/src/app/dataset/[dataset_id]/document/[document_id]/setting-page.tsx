@@ -6,8 +6,8 @@ import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   AppInfoProps,
+  DataBaseProps,
   DataSchemeProps,
-  NotedDataProps,
 } from '@/app/dataset/type'
 
 import { DataContextProvider, useDataContext } from './data-context'
@@ -60,7 +60,7 @@ interface DataParams {
   datasetId: string
   document_id: string
   defaultValues: DataSchemeProps
-  apps: NotedDataProps[]
+  apps: DataBaseProps[]
 }
 const SettingPage = ({
   datasetId,

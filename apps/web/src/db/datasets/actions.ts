@@ -11,7 +11,7 @@ import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
 import { FileProps } from '@/components/upload/utils'
-import { DataProps, DataSchemeProps, NotedDataProps } from '@/app/dataset/type'
+import { DataBaseProps, DataProps, DataSchemeProps } from '@/app/dataset/type'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { getApps } from '../apps/actions'

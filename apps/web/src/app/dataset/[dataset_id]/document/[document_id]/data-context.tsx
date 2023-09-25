@@ -4,13 +4,13 @@ import { createContext, PropsWithChildren, useContext } from 'react'
 
 import {
   AppInfoProps,
+  DataBaseProps,
   DataSchemeProps,
-  NotedDataProps,
 } from '@/app/dataset/type'
 
 interface BaseContextType {
   documentId: string
-  notedData?: NotedDataProps[]
+  notedData?: DataBaseProps[]
   datasetId: string
   defaultValues?: DataSchemeProps
   isAdd: boolean

@@ -22,15 +22,13 @@ export interface DataConfigProps {
   }
 }
 
-export type NotedDataProps = DataBaseProps
-
 export type SchemaProps = z.infer<typeof FormSchema>
 
 export type DataSchemeProps = z.infer<typeof DataSchema>
 
 export type FileProps = DataBaseProps & DataConfigProps
 
-export type DataProps = FileProps | NotedDataProps
+export type DataProps = FileProps | DataBaseProps
 
 export interface AppInfoProps {
   uid: string

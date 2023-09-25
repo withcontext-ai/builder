@@ -8,7 +8,7 @@ import useSWRMutation from 'swr/mutation'
 import { fetcher } from '@/lib/utils'
 import { AlertDialog, AlertDialogContent } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { NotedDataProps } from '@/app/dataset/type'
+import { DataBaseProps } from '@/app/dataset/type'
 
 import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
@@ -28,21 +28,21 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const { watch } = form
   const { defaultValues, documentId, datasetId } = useDataContext()
   const notedData = defaultValues?.notedData || []
-  const [disabledData, setDisabledData] = useState<NotedDataProps[]>([])
+  const [disabledData, setDisabledData] = useState<DataBaseProps[]>([])
   // @ts-ignore
-  const [data, setData] = useState<NotedDataProps[]>(notedData)
+  const [data, setData] = useState<DataBaseProps[]>(notedData)
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document?dataset_id=${datasetId}`,
     getDisabledData
   )
-  const [current, setCurrent] = useState<NotedDataProps[]>(data)
+  const [current, setCurrent] = useState<DataBaseProps[]>(data)
   const isAdd = documentId === 'add'
   const type = watch()?.loaderType
 
   const deleteNotedData = (id: string) => {
     const newData =
-      data?.filter((item: NotedDataProps) => item?.uid !== id) || []
+      data?.filter((item: DataBaseProps) => item?.uid !== id) || []
     form.setValue('notedData', newData)
     setData(newData)
     setCurrent(newData)
@@ -91,7 +91,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
         </AlertDialogContent>
       </AlertDialog>
       <div className="mt-4 space-y-2">
-        {data?.map((item: NotedDataProps) => {
+        {data?.map((item: DataBaseProps) => {
           return (
             <div
               key={item?.uid}

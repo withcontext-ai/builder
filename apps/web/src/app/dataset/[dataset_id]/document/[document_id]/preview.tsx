@@ -10,7 +10,7 @@ export const PreviewCard = ({ content, index }: segmentProps) => {
       <div className="mb-1 flex justify-between text-sm text-slate-500">
         {index}
         <div className="flex gap-2">
-          <FileType2 size={18} /> {content?.length?.toLocaleString()} characters
+          <FileType2 size={18} /> {length?.toLocaleString()} characters
         </div>
       </div>
       <div className="line-clamp-6 text-sm">{content}</div>

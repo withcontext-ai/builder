@@ -13,7 +13,7 @@ import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { NotedDataProps } from '../../../type'
+import { DataBaseProps } from '../../../type'
 import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'
@@ -37,7 +37,7 @@ export const stringUrlToFile = (file: FileProps) => {
 
 interface IProps extends SessionProps {
   data: FileProps[]
-  apps?: NotedDataProps[]
+  apps?: DataBaseProps[]
   setData: (data: FileProps[]) => void
   setUploading?: (s: boolean) => void
 }

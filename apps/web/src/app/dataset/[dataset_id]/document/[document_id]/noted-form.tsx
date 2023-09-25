@@ -12,19 +12,19 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form'
-import { NotedDataProps } from '@/app/dataset/type'
+import { DataBaseProps } from '@/app/dataset/type'
 
 import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
 
 interface IProps {
   form: UseFormReturn<any>
-  current: NotedDataProps[]
-  data: NotedDataProps[]
-  disabledData: NotedDataProps[]
+  current: DataBaseProps[]
+  data: DataBaseProps[]
+  disabledData: DataBaseProps[]
   setOpen: (s: boolean) => void
-  setCurrent: (s: NotedDataProps[]) => void
-  setData: (s: NotedDataProps[]) => void
+  setCurrent: (s: DataBaseProps[]) => void
+  setData: (s: DataBaseProps[]) => void
 }
 
 const AnnotatedForm = ({

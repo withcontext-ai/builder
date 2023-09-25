@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 
-import { DataSchemeProps, NotedDataProps } from '../../../type'
+import { DataBaseProps, DataSchemeProps } from '../../../type'
 import { DataSchema } from '../../settings/documents/utils'
 import { useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
@@ -25,7 +25,7 @@ export interface FormProps {
   documentId: string
   defaultValues: DataSchemeProps
   active: number
-  apps: NotedDataProps[]
+  apps: DataBaseProps[]
   setActive: (s: number) => void
   setUploading?: (s: boolean) => void
 }
