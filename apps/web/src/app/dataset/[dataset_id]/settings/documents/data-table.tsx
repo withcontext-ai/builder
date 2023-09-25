@@ -216,7 +216,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         },
       },
     ],
-    [editData, isPending]
+    [editData, isPending, isValidating]
   )
 
   const handleRowClick = useCallback(

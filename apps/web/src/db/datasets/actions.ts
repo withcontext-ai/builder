@@ -11,7 +11,7 @@ import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
 import { FileProps } from '@/components/upload/utils'
-import { DataProps, NotedDataProps } from '@/app/dataset/type'
+import { DataProps, DataSchemeProps, NotedDataProps } from '@/app/dataset/type'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { getApps } from '../apps/actions'
@@ -103,15 +103,19 @@ export async function getEditParams(
   datasetId: string,
   newValue: Partial<NewDataset>
 ) {
-  const { config } = newValue
+  const config = newValue?.config as DataSchemeProps
   let editParams = {}
   let api_dataset_id = ''
   if (flags.enabledAIService) {
     const dataset = await getDataset(datasetId)
     api_dataset_id = dataset?.api_dataset_id
     if (!api_dataset_id) return Promise.resolve({ api_dataset_id, editParams })
-    const newFiles = (config as any)?.files
-    const splitConfig = pick(config, ['splitType', 'chunkSize', 'chunkOverlap'])
+    const newFiles = (config as DataSchemeProps)?.files
+    const splitConfig = {
+      split_type: config?.splitType,
+      chunk_size: config?.chunkSize,
+      chunk_overlap: config?.chunkOverlap,
+    }
     const documents = newFiles?.reduce(
       (m: Record<string, any>[], item: any) => {
         if (item?.type === 'annotated_data') {
