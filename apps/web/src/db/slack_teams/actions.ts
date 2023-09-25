@@ -45,3 +45,34 @@ export async function getMyTeamList() {
     console.log('error:', error.message)
   }
 }
+
+export async function removeTeam(app_id: string, team_id: string) {
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      throw new Error('Not authenticated')
+    }
+
+    await db
+      .update(SlackTeamsTable)
+      .set({ archived: true })
+      .where(
+        and(
+          eq(SlackTeamsTable.app_id, app_id),
+          eq(SlackTeamsTable.team_id, team_id)
+        )
+      )
+
+    // await db
+    //   .delete(SlackTeamsTable)
+    //   .where(
+    //     and(
+    //       eq(SlackTeamsTable.app_id, app_id),
+    //       eq(SlackTeamsTable.team_id, team_id)
+    //     )
+    //   )
+    //   .returning()
+  } catch (error: any) {
+    console.log('error:', error.message)
+  }
+}

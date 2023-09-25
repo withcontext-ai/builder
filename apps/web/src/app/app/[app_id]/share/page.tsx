@@ -2,15 +2,18 @@
 
 import * as React from 'react'
 import { useParams } from 'next/navigation'
+import { GithubIcon, SlackIcon } from 'lucide-react'
 
 import { flags } from '@/lib/flags'
 import usePageTitle from '@/hooks/use-page-title'
 import useCopyToClipboard from '@/hooks/useCopyToClipboard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import Text from '@/components/ui/text'
 
 import Slack from './slack'
+import { TabsList, TabsTrigger } from './tabs'
 
 export const runtime = 'edge'
 
@@ -52,13 +55,28 @@ const ShareApp = () => {
         {flags.enabledSlack && (
           <div className="mb-6 gap-2">
             <Text>Use this App in</Text>
-            <div className="mt-2 flex gap-4">
-              <Slack appId={app_id} />
-            </div>
+            <Tabs defaultValue="slack" className="mt-2">
+              <TabsList className="mb-8">
+                <TabsTrigger value="slack">
+                  <SlackIcon className="mr-4" />
+                  Slack
+                </TabsTrigger>
+                <TabsTrigger value="github">
+                  <GithubIcon className="mr-4" />
+                  GitHub
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="slack">
+                <Slack context_app_id={app_id} />
+              </TabsContent>
+              <TabsContent value="github">
+                Change your password here.
+              </TabsContent>
+            </Tabs>
           </div>
         )}
-        <div className="gap-2">
-          <Text>Copy link</Text>
+        <div className="mt-16 gap-2">
+          <Text>Or copy link</Text>
           <div className="mt-2 flex gap-2">
             <Input className="w-[324px]" value={link} disabled />
             <Button onClick={handleClick}>{copyBtnText}</Button>
