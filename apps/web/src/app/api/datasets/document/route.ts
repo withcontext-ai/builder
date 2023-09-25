@@ -28,25 +28,16 @@ export async function POST(req: NextRequest) {
     'chunkSize',
     'chunkOverlap',
     'loaderType',
-    'uid',
   ])
 
-  let files
-  if (isPdf) {
-    dataConfig?.files?.map((item: any) => {
-      item.status = 1
-      item.updated_at = new Date()
-      return { item, ...currentConfig }
-    })
-    files = [...dataConfig?.files, ...documents]
-  } else {
-    dataConfig?.notedData?.map((item: any) => {
-      item.status = 1
-      item.updated_at = new Date()
-      return { item, ...currentConfig }
-    })
-    files = [...dataConfig?.notedData, ...documents]
-  }
+  let files = isPdf ? dataConfig?.files : dataConfig?.notedData
+  files?.map((item: any) => {
+    item.status = 1
+    item.updated_at = new Date()
+    item = Object.assign(item, currentConfig)
+    return item
+  })
+  files = [...files, ...documents]
   const newConfig = { ...currentConfig, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
@@ -59,13 +50,11 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const { dataset_id, dataConfig, document_id } = await req.json()
   const { documents, config } = await getDocuments({ dataset_id })
+  const isPdf = dataConfig?.loaderType === 'pdf'
+
   // to replace the current
   const index = documents?.findIndex((item: any) => item?.uid === document_id)
-  let current = dataConfig?.files?.[0]
-  const isPdf = dataConfig?.loaderType === 'pdf'
-  if (!isPdf) {
-    current = dataConfig?.notedData?.[0]
-  }
+  let current = isPdf ? dataConfig?.files?.[0] : dataConfig?.notedData?.[0]
   current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap', 'uid'])
   const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
   current = Object.assign(current, currentConfig)

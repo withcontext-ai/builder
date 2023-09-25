@@ -21,15 +21,19 @@ export async function POST(req: NextRequest) {
   const isAdd = document_id === 'add'
   if (!isAdd) {
     files[0].uid = document_id
-    const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
-    files[0] = Object.assign(files[0], currentConfig)
   }
-
   const splitConfig = pick(dataConfig, [
     'splitType',
     'chunkSize',
     'chunkOverlap',
   ])
+  files?.map((item: any) => {
+    item.status = 1
+    item.updated_at = new Date()
+    item = Object.assign(item, splitConfig)
+    return item
+  })
+
   const newConfig = { ...splitConfig, files }
   const uid = !isAdd ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)

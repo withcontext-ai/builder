@@ -111,15 +111,16 @@ export async function getEditParams(
     api_dataset_id = dataset?.api_dataset_id
     if (!api_dataset_id) return Promise.resolve({ api_dataset_id, editParams })
     const newFiles = (config as DataSchemeProps)?.files
-    const splitConfig = {
-      split_type: config?.splitType,
-      chunk_size: config?.chunkSize,
-      chunk_overlap: config?.chunkOverlap,
-    }
+
     const documents = newFiles?.reduce(
       (m: Record<string, any>[], item: any) => {
         if (item?.type === 'annotated_data') {
           item.url = ''
+        }
+        const splitConfig = {
+          split_type: item?.splitType,
+          chunk_size: item?.chunkSize,
+          chunk_overlap: item?.chunkOverlap,
         }
         const cur = pick(item, ['url', 'type', 'uid'])
         // @ts-ignore
