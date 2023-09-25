@@ -9,6 +9,7 @@ import {
   useSearchParams,
   useSelectedLayoutSegments,
 } from 'next/navigation'
+import ro from 'date-fns/esm/locale/ro/index.js'
 import { ArrowLeftIcon, Loader2Icon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -56,6 +57,7 @@ function Sidebar({ children, url }: PropsWithChildren & { url?: string }) {
       }
       if (nextUrl) {
         router.push(nextUrl as Route)
+        router.refresh()
       } else {
         router.back()
       }
