@@ -161,7 +161,10 @@ const DataForm = () => {
       await onSubmit()
 
       startTransition(() => {
-        router.push(`/dataset/${datasetId}/settings/documents`)
+        const nextUrl = '/datasets'
+        router.push(
+          `/dataset/${datasetId}/settings/documents?nextUrl=${nextUrl}`
+        )
       })
     }
   }

@@ -43,7 +43,7 @@ const SidebarLink = (props: SidebarLinkProps) => {
     </Link>
   )
 }
-function Sidebar({ children, url }: PropsWithChildren & { url?: string }) {
+function Sidebar({ children }: PropsWithChildren) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextUrl = searchParams.get('nextUrl')
@@ -51,10 +51,6 @@ function Sidebar({ children, url }: PropsWithChildren & { url?: string }) {
 
   function handleGoBack() {
     startTransition(() => {
-      if (url) {
-        router.push(url)
-        return
-      }
       if (nextUrl) {
         router.push(nextUrl as Route)
         router.refresh()
