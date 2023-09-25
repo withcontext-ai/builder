@@ -122,7 +122,7 @@ jobs:
         id: waitFor200
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 800
+          max_timeout: 600
           check_interval: 20
 
       - uses: actions/checkout@v3
