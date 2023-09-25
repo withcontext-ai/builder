@@ -13,6 +13,9 @@ const E2E_USERNAME = process.env.E2E_USERNAME!
 const E2E_PASSWORD = process.env.E2E_PASSWORD!
 const authFile = 'playwright/.auth/user.json'
 
+console.log('E2E_USERNAME', E2E_USERNAME)
+console.log('E2E_PASSWORD', E2E_PASSWORD)
+
 test('logged in', async ({ page }) => {
   await page.goto('/sign-in')
   await expect(page).toHaveURL(/.*sign-in/)
