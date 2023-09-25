@@ -10,7 +10,7 @@ import {
 
 interface BaseContextType {
   documentId: string
-  notedData?: AppInfoProps[]
+  notedData?: NotedDataProps[]
   datasetId: string
   defaultValues?: DataSchemeProps
   isAdd: boolean

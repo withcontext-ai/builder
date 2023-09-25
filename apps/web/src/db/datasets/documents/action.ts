@@ -49,9 +49,10 @@ interface IProps {
 }
 export async function getNotedData() {
   const apps = await getApps()
-  const data = apps?.reduce((m: IProps[], item: NewApp) => {
+  const data = apps?.reduce((m: NotedDataProps[], item: NewApp) => {
     const cur = pick(item, ['name', 'icon', 'short_id', 'uid']) as IProps
     cur.uid = item.api_model_id || ''
+    // @ts-ignore
     m.push(cur)
     return m
   }, [])

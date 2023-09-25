@@ -4,7 +4,11 @@ import { useState } from 'react'
 import { Check } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { AppInfoProps, DataSchemeProps } from '@/app/dataset/type'
+import {
+  AppInfoProps,
+  DataSchemeProps,
+  NotedDataProps,
+} from '@/app/dataset/type'
 
 import { DataContextProvider, useDataContext } from './data-context'
 import DataForm from './data-form'
@@ -56,7 +60,7 @@ interface DataParams {
   datasetId: string
   document_id: string
   defaultValues: DataSchemeProps
-  apps: AppInfoProps[]
+  apps: NotedDataProps[]
 }
 const SettingPage = ({
   datasetId,
