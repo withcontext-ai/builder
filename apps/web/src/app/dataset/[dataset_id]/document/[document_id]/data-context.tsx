@@ -2,13 +2,9 @@
 
 import { createContext, PropsWithChildren, useContext } from 'react'
 
-import {
-  AppInfoProps,
-  DataBaseProps,
-  DataSchemeProps,
-} from '@/app/dataset/type'
+import { DataBaseProps, DataSchemeProps } from '@/app/dataset/type'
 
-interface BaseContextType {
+interface DocumentContextType {
   documentId: string
   notedData?: DataBaseProps[]
   datasetId: string
@@ -18,7 +14,7 @@ interface BaseContextType {
   setStep?: (s: number) => void
 }
 
-export const DataContext = createContext<BaseContextType>({
+export const DataContext = createContext<DocumentContextType>({
   documentId: '',
   datasetId: '',
   isAdd: false,
@@ -30,6 +26,6 @@ export const useDataContext = () => useContext(DataContext)
 export const DataContextProvider = ({
   children,
   ...props
-}: PropsWithChildren<BaseContextType>) => (
+}: PropsWithChildren<DocumentContextType>) => (
   <DataContext.Provider value={props}>{children}</DataContext.Provider>
 )

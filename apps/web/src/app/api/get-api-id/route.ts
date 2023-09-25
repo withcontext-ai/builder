@@ -8,11 +8,11 @@ import { SessionsTable } from '@/db/sessions/schema'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  let appId = searchParams.get('app')
-  const sessionId = searchParams.get('session')
-  const dataset_id = searchParams.get('dataset')
+  let appId = searchParams.get('app') || ''
+  const sessionId = searchParams.get('session') || ''
+  const dataset_id = searchParams.get('dataset') || ''
 
-  if (appId == null && sessionId == null && dataset_id == null) {
+  if (appId === '' && sessionId === '' && dataset_id === '') {
     return NextResponse.json({ success: true })
   }
 
