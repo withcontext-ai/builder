@@ -115,6 +115,7 @@ jobs:
   e2e_test:
     runs-on: ubuntu-latest
     name: E2E Testing
+    environment: Preview
     steps:
       - name: Waiting for 200 from the Vercel Preview
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
@@ -160,8 +161,8 @@ jobs:
         run: pnpm test:e2e
         env:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
-          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          E2E_USERNAME: ${{ env.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v3
