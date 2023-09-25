@@ -73,7 +73,6 @@ class PDFLoader:
                         )
                     )
                     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                        separator=" ",
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
                     )
