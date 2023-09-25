@@ -28,7 +28,8 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     decodeURIComponent(window.location.search)
   )
   const params = Object.fromEntries(urlSearchParams.entries())
-  const { name, type } = params
+  const { name } = params
+  const type = params?.type as 'pdf' | 'annotated_data'
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')

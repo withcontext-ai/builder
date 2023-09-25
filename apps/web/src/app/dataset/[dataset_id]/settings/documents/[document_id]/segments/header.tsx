@@ -9,7 +9,7 @@ import FileIcon from '../../file-icon'
 interface IProps {
   uid: string
   name: string
-  type: string
+  type: 'pdf' | 'annotated_data'
   addNew?: () => void
 }
 

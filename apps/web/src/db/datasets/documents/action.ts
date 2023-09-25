@@ -41,18 +41,17 @@ export async function getDataInfo(dataset_id: string, uid: string) {
   }
 }
 
-interface IProps {
-  uid: string
-  short_id: string
-  icon: string
-  name: string
-}
 export async function getNotedData() {
   const apps = await getApps()
   const data = apps?.reduce((m: NotedDataProps[], item: NewApp) => {
-    const cur = pick(item, ['name', 'icon', 'short_id', 'uid']) as IProps
+    const cur = pick(item, [
+      'name',
+      'icon',
+      'short_id',
+      'uid',
+    ]) as NotedDataProps
     cur.uid = item.api_model_id || ''
-    // @ts-ignore
+    cur.type = 'annotated_data'
     m.push(cur)
     return m
   }, [])

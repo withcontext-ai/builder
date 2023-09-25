@@ -5,26 +5,26 @@ import { DataSchema, FormSchema } from './[dataset_id]/settings/documents/utils'
 export interface DataBaseProps {
   uid: string
   name: string
-  type: 'pdf' | 'annotated_data'
-  status: 0 | 1 | 2
+  type?: 'pdf' | 'annotated_data'
+  status?: 0 | 1 | 2
   characters?: number
   updated_at?: Date
-}
-
-interface AnnotatedProps {
+  url?: string
   short_id?: string
   icon?: string
 }
 
-export type NotedDataProps = DataBaseProps & AnnotatedProps
+export interface DataConfigProps {
+  config?: {
+    splitType?: string
+    chunkSize?: number
+    chunkOverlap?: number
+  }
+}
+
+export type NotedDataProps = DataBaseProps
 
 export type SchemaProps = z.infer<typeof FormSchema>
-
-export interface DataConfigProps {
-  splitType?: string
-  chunkSize?: number
-  chunkOverlap?: number
-}
 
 export type DataSchemeProps = z.infer<typeof DataSchema>
 

@@ -20,7 +20,7 @@ import NotedDataCard from './noted-data-card'
 interface IProps {
   form: UseFormReturn<any>
   current: NotedDataProps[]
-  data?: NotedDataProps[]
+  data: NotedDataProps[]
   disabledData: NotedDataProps[]
   setOpen: (s: boolean) => void
   setCurrent: (s: NotedDataProps[]) => void
@@ -38,11 +38,10 @@ const AnnotatedForm = ({
 }: IProps) => {
   const { notedData, isAdd } = useDataContext()
 
-  const { getValues } = form
   const onCancel = () => {
     setOpen(false)
     if (isAdd) {
-      setCurrent?.(data)
+      setCurrent(data)
       return
     } else {
       setCurrent([])
@@ -81,7 +80,7 @@ const AnnotatedForm = ({
                         key={item.uid}
                         onClick={() => {
                           if (!isAdd && !isDisabled) {
-                            setCurrent?.([item])
+                            setCurrent([item])
                           }
                         }}
                         className={cn(
@@ -106,13 +105,13 @@ const AnnotatedForm = ({
                             onCheckedChange={(checked) => {
                               item.type = 'annotated_data'
                               if (checked) {
-                                setCurrent?.([...current, item])
+                                setCurrent([...current, item])
                               } else {
                                 const newData =
                                   current?.filter(
                                     (cur: any) => cur?.uid !== item?.uid
                                   ) || []
-                                setCurrent?.(newData)
+                                setCurrent(newData)
                               }
                             }}
                           />

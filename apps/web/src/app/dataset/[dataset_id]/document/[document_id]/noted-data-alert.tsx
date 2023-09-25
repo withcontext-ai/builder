@@ -29,7 +29,8 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const { defaultValues, documentId, datasetId } = useDataContext()
   const notedData = defaultValues?.notedData || []
   const [disabledData, setDisabledData] = useState<NotedDataProps[]>([])
-  const [data, setData] = useState(notedData)
+  // @ts-ignore
+  const [data, setData] = useState<NotedDataProps[]>(notedData)
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document?dataset_id=${datasetId}`,
