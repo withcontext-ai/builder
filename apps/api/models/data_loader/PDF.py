@@ -84,7 +84,7 @@ class PDFLoader:
                             },
                         )
                     )
-                    document.content_size = sys.getsizeof(annotated_data)
+                    document.content_size = len(annotated_data)
                 else:
                     logger.error(f"Document type {document.type} not supported")
                     raise Exception("Document type not supported")
