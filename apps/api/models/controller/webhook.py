@@ -19,11 +19,15 @@ class WebhookHandler:
         reraise=True,
         after=after_log(logger, 10),
     )
-    def update_status(self, dataset_id: str, status: int):
+    def update_dataset_status(self, dataset_id: str, status: int):
         logger.info(f"Updating status of {dataset_id} to {status}")
         payload = DatasetStatusWebhookRequest(
             status=status, data={"api_dataset_id": dataset_id, "status": status}
         )
         headers = {"Content-Type": "application/json"}
         response = requests.post(self.target_url, json=payload.dict(), headers=headers)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(e)
+            logger.error(response.text)
