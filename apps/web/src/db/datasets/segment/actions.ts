@@ -32,10 +32,10 @@ export async function getSegments(
     params,
   })
   if (res.message !== 'success') {
-    return { success: false, error: res?.message }
+    return
   }
   let data = res?.data
-  return { success: true, data }
+  return data
 }
 
 export async function addSegment(
@@ -45,14 +45,14 @@ export async function addSegment(
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
 
-  const { data: res } = await axios.post(
+  const { data } = await axios.post(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment`,
     { content }
   )
-  if (res?.message !== 'success') {
-    return { success: false, error: res?.message }
+  if (data.message !== 'success') {
+    return
   }
-  return { success: true, dataset_id, uid }
+  return { dataset_id, uid }
 }
 
 export async function editSegment(
@@ -67,8 +67,8 @@ export async function editSegment(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment/${url}`,
     { content }
   )
-  if (data.message !== 'success') {
-    return { success: false, error: data?.message }
+  if (data.success !== 'success') {
+    return
   }
-  return { success: true, dataset_id, uid, segment_id }
+  return { dataset_id, uid, segment_id }
 }

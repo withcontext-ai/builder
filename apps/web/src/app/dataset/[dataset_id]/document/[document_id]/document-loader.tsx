@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { omit } from 'lodash'
 import { nanoid } from 'nanoid'
 
@@ -14,7 +13,7 @@ import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { DataProps, NotedDataProps } from '../../../type'
+import { NotedDataProps } from '../../../type'
 import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'
@@ -37,15 +36,17 @@ export const stringUrlToFile = (file: FileProps) => {
 }
 
 interface IProps extends SessionProps {
+  data: FileProps[]
   apps?: NotedDataProps[]
+  setData: (data: FileProps[]) => void
   setUploading?: (s: boolean) => void
 }
 
-const DocumentLoader = ({ form, setUploading }: IProps) => {
+const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
   const { isAdd } = useDataContext()
-  // const [files, setFiles] = useState<DataProps[]>([])
   const { watch, getValues } = form
   const onChangeFileList = (values: FileProps[]) => {
+    setData([...values])
     const files = values?.reduce((m: any, item) => {
       m.push(item)
       return m
@@ -95,7 +96,7 @@ const DocumentLoader = ({ form, setUploading }: IProps) => {
                     type="drag"
                     fileType={type}
                     accept="application/pdf"
-                    fileList={files}
+                    fileList={data}
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (

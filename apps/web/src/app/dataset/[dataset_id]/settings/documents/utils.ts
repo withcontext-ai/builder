@@ -76,7 +76,7 @@ export function formateIndex(index: number) {
   }
 }
 
-export function formateStatus(status?: number) {
+export function formateStatus(status: number) {
   const text = status === 0 ? 'Available' : status === 1 ? 'Indexing' : 'Error'
   const color =
     status === 0

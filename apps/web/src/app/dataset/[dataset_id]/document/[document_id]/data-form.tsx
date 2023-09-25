@@ -91,6 +91,8 @@ const DataForm = () => {
 
   const { watch } = form
 
+  const [data, setData] = useState<any[]>(defaultValues?.files || [])
+
   const { trigger: addTrigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
     addData
@@ -159,9 +161,7 @@ const DataForm = () => {
       await onSubmit()
 
       startTransition(() => {
-        router.push(
-          `/dataset/${datasetId}/settings/documents?nextUrl=/datasets`
-        )
+        router.push(`/dataset/${datasetId}/settings/documents`)
       })
     }
   }
@@ -175,7 +175,9 @@ const DataForm = () => {
       >
         <Form {...form}>
           <form className="w-full">
-            {step === 1 && <DocumentLoader form={form} />}
+            {step === 1 && (
+              <DocumentLoader form={form} data={data} setData={setData} />
+            )}
             {step === 2 && <TextSplits form={form} />}
             {step === 3 && (
               <Preview data={previews} isLoading={previewMutating} />

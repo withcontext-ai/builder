@@ -60,26 +60,26 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const choseNotedData = async () => {
     const data = await trigger()
     setDisabledData(data)
-    setOpen(true)
   }
   return (
     <div>
       <AlertDialog open={open} onOpenChange={setOpen}>
-        {showButton && (
-          <Button
-            type="button"
-            onClick={choseNotedData}
-            disabled={isMutating}
-            className="gap-1"
-          >
-            {isMutating ? (
-              <Loader2Icon className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus size={16} />
-            )}
-            Add Annotated Data
-          </Button>
-        )}
+        <AlertDialogTrigger asChild>
+          {showButton && (
+            <Button
+              type="button"
+              onClick={choseNotedData}
+              disabled={isMutating}
+            >
+              {isMutating ? (
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus size={16} />
+              )}
+              Add Annotated Data
+            </Button>
+          )}
+        </AlertDialogTrigger>
         <AlertDialogContent className="flex max-h-[60%] flex-col overflow-hidden p-0">
           <AnnotatedForm
             form={form}

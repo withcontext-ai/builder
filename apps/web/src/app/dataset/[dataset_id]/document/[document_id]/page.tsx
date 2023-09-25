@@ -1,4 +1,8 @@
-import { getDataInfo, getNotedData } from '@/db/datasets/documents/action'
+import {
+  getDataInfo,
+  getDocuments,
+  getNotedData,
+} from '@/db/datasets/documents/action'
 import { DataProps, NotedDataProps } from '@/app/dataset/type'
 
 import SettingPage from './setting-page'
@@ -9,6 +13,7 @@ interface IProps {
 export default async function Page({ params }: IProps) {
   const { dataset_id, document_id } = params
   const { data: apps = [] } = await getNotedData()
+  const documents = await getDocuments({ dataset_id })
 
   const { data } = await getDataInfo(dataset_id, document_id)
   const files = data?.files?.filter((item: DataProps) => item?.type === 'pdf')
