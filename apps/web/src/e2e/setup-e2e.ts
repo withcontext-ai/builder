@@ -2,16 +2,14 @@ import path from 'path'
 import { expect, test } from '@playwright/test'
 import dotenv from 'dotenv'
 
-console.log('process.env', process.env)
+// local
+if (!process.env.CI) {
+  dotenv.config({
+    path: path.resolve(__dirname, '..', '..', '.env.local'),
+  })
+}
 
-dotenv.config({
-  path: path.resolve(
-    __dirname,
-    '..',
-    '..',
-    process.env.CI ? '.env' : '.env.local'
-  ),
-})
+console.log('process.env', process.env)
 
 const E2E_USERNAME = process.env.E2E_USERNAME!
 const E2E_PASSWORD = process.env.E2E_PASSWORD!
