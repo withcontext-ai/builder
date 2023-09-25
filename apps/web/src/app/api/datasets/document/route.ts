@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     'splitType',
     'chunkSize',
     'chunkOverlap',
+    'loaderType',
     'uid',
   ])
 

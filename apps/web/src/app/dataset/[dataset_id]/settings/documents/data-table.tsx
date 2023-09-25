@@ -132,7 +132,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         accessorKey: 'Characters',
         header: 'Characters',
         cell: ({ row }) => (
-          <div className="flex w-[85px] items-center text-right">
+          <div className="flex w-[70px] items-center justify-end">
             {formateNumber(row.original?.characters || 0)}
             {isValidating && row.original?.status === 1 && (
               <Loader2Icon className="mr-2 h-4 w-4 animate-spin text-black" />
