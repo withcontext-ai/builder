@@ -198,7 +198,10 @@ const DataForm = () => {
               variant="outline"
               onClick={() => {
                 form.reset()
-                router.push(`/dataset/${datasetId}/settings/documents`)
+                const nextUrl = '/datasets'
+                router.push(
+                  `/dataset/${datasetId}/settings/documents?nextUrl=${nextUrl}`
+                )
               }}
             >
               Cancel

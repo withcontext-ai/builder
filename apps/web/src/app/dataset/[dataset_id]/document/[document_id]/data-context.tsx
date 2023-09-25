@@ -2,11 +2,17 @@
 
 import { createContext, PropsWithChildren, useContext } from 'react'
 
+import {
+  AppInfoProps,
+  DataSchemeProps,
+  NotedDataProps,
+} from '@/app/dataset/type'
+
 interface BaseContextType {
   documentId: string
-  notedData?: any[]
+  notedData?: AppInfoProps[]
   datasetId: string
-  defaultValues?: any
+  defaultValues?: DataSchemeProps
   isAdd: boolean
   step: number
   setStep?: (s: number) => void

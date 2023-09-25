@@ -11,7 +11,7 @@ const defaultValues = {
   splitType: 'character',
   files: [],
   notedData: [],
-  chunkSize: 1000,
+  chunkSize: 500,
   chunkOverlap: 0,
 }
 

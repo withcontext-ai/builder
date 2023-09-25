@@ -197,8 +197,7 @@ async function updateDocument(data: any) {
     .select()
     .from(DatasetsTable)
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
-  const config = dataset[0]?.config
-  // @ts-ignore
+  const config = dataset[0]?.config as Record<string, any>
   const documents = config?.files || []
   const cur = documents?.find((item: DataProps) => item?.uid === document_id)
   if (cur) {
@@ -207,7 +206,6 @@ async function updateDocument(data: any) {
     cur.updated_at = new Date()
     const index = documents?.findIndex((item: any) => item?.uid === document_id)
     documents[index] = cur
-    // @ts-ignore
     const newConfig = { ...config, files: documents }
     const res = await db
       .update(DatasetsTable)
