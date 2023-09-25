@@ -57,7 +57,7 @@ def wrap_error(error: str):
     if error.startswith("This model's maximum context length"):
         return "The message you submitted was too long, please reload the conversation and submit something shorter."
     elif error.startswith("You exceed your current quota"):
-        return "2. API key exceeds the usage limit."
+        return "API key exceeds the usage limit."
     else:
         return error
 
