@@ -59,8 +59,6 @@ class AnnotatedDataStorageClient(BaseStorageClient):
         for _data in data:
             human_message = _data.get("Human", "")
             annotated_data += f"Human:{human_message}\n"
-            ai_message = _data.get("AI", "")
-            annotated_data += f"AI:{ai_message}\n"
             annotation = _data.get("Annotation", "")
             annotated_data += f"{annotation}"
         return annotated_data
