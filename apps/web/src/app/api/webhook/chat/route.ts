@@ -170,7 +170,9 @@ async function getAnnotations(data: { api_model_ids: string[] }) {
   const { api_model_ids = [] } = data
   const result = await db
     .select({
-      annotations: MessagesTable.annotation,
+      Human: MessagesTable.query,
+      AI: MessagesTable.answer,
+      Annotation: MessagesTable.annotation,
     })
     .from(MessagesTable)
     .leftJoin(
@@ -214,4 +216,15 @@ async function updateDocument(data: any) {
   }
 
   return { success: false, message: 'could not find the document' }
+}
+
+export async function GET() {
+  try {
+    const data = { api_model_ids: ['31f14df294ed41259285b97343377b82'] }
+    const res = await getAnnotations(data)
+    return NextResponse.json({ success: true, data: res })
+  } catch (error: any) {
+    console.log('error:', error)
+    return NextResponse.json({ success: false, error: error.message })
+  }
 }

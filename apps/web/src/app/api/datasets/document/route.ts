@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   ])
 
   let files = isPdf ? dataConfig?.files : dataConfig?.notedData
-  files?.map((item: any) => {
+  files?.map((item: DataProps) => {
     item.status = 1
     item.updated_at = new Date()
     item = Object.assign(item, currentConfig)
