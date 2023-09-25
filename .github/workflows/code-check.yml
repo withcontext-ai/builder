@@ -160,6 +160,7 @@ jobs:
         run: pnpm test:e2e
         env:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
+        with:
           E2E_USERNAME: ${{ env.E2E_USERNAME }}
           E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
 
