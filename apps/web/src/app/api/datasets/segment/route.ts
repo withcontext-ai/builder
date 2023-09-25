@@ -15,20 +15,20 @@ export async function GET(req: NextRequest) {
   const page = parseInt(query.get('pageIndex') || '')
   const search = query.get('search') || ''
   const offset = page * limit
-  const data = await getSegments(dataset_id, uid, search, offset, limit)
-  return NextResponse.json({ success: true, data })
+  const res = await getSegments(dataset_id, uid, search, offset, limit)
+  return NextResponse.json({ ...res })
 }
 
 // add segment
 export async function POST(req: NextRequest) {
   const { dataset_id, uid, content } = await req.json()
-  const data = await addSegment(dataset_id, uid, content)
-  return NextResponse.json({ success: true, data })
+  const res = await addSegment(dataset_id, uid, content)
+  return NextResponse.json({ ...res })
 }
 
 // edit segment
 export async function PATCH(req: NextRequest) {
   const { dataset_id, uid, content, segment_id } = await req.json()
   const data = await editSegment(dataset_id, uid, segment_id, content)
-  return NextResponse.json({ success: true, data })
+  return NextResponse.json({ ...data })
 }

@@ -6,6 +6,7 @@ interface IProps {
 
 const Page = async ({ params }: IProps) => {
   const { dataset_id, document_id } = params
+
   return <SegmentPage dataset_id={dataset_id} document_id={document_id} />
 }
 

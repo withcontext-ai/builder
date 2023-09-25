@@ -105,8 +105,14 @@ const AnnotatedForm = ({
                             className={!isAdd ? 'hidden' : 'block'}
                             onCheckedChange={(checked) => {
                               item.type = 'annotated_data'
+                              const config = omit(getValues(), [
+                                'files',
+                                'notedData',
+                                'icon',
+                              ])
+                              const cur = { ...config, ...item }
                               if (checked) {
-                                setCurrent?.([...current, item])
+                                setCurrent?.([...current, cur])
                               } else {
                                 const newData =
                                   current?.filter(

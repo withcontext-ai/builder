@@ -21,36 +21,28 @@ export async function DELETE(req: NextRequest) {
 // add data
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
-  const { documents } = await getDocuments({ dataset_id })
+  const { documents: _documents, config } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
   const currentConfig = pick(dataConfig, [
     'splitType',
     'chunkSize',
     'chunkOverlap',
-    'uid',
+    'loaderType',
   ])
 
-  let files
-  if (isPdf) {
-    dataConfig?.files?.map((item: any) => {
-      item.status = 1
-      item.updated_at = new Date()
-      return { item, ...currentConfig }
-    })
-    files = [...dataConfig?.files, ...documents]
-  } else {
-    dataConfig?.notedData?.map((item: any) => {
-      item.status = 1
-      item.updated_at = new Date()
-      return { item, ...currentConfig }
-    })
-    files = [...dataConfig?.notedData, ...documents]
-  }
-  const newConfig = { ...currentConfig, files }
-  const response = (await editDataset(dataset_id, { config: newConfig })) as any
+  let files = isPdf ? dataConfig?.files : dataConfig?.notedData
+  files = files = files?.reduce((m: DataProps[], item: DataProps) => {
+    const cur = Object.assign(item, currentConfig)
+    cur.status = 1 //indexing
+    m?.push(cur)
+    return m
+  }, [])
+  const documents = [...files, ..._documents]
+
+  const newConfig = { ...config, ...currentConfig, files: documents }
+  const response = await editDataset(dataset_id, { config: newConfig })
   return NextResponse.json({
-    success: true,
-    data: { dataset_id, response },
+    ...response,
   })
 }
 
@@ -66,19 +58,21 @@ export async function PATCH(req: NextRequest) {
     current = dataConfig?.notedData?.[0]
   }
   current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap', 'uid'])
-  const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
+  const currentConfig = pick(dataConfig, [
+    'splitType',
+    'chunkSize',
+    'chunkOverlap',
+    'loaderType',
+  ])
   current = Object.assign(current, currentConfig)
   current.updated_at = new Date()
   current.uid = document_id
   current.status = 1 //indexing
 
   documents[index] = current
-  const newConfig = { ...currentConfig, files: documents }
-  const response = (await editDataset(dataset_id, { config: newConfig })) as any
-  return NextResponse.json({
-    success: true,
-    data: { dataset_id, response },
-  })
+  const newConfig = { ...config, files: documents }
+  const response = await editDataset(dataset_id, { config: newConfig })
+  return NextResponse.json({ ...response })
 }
 
 export async function GET(req: NextRequest) {

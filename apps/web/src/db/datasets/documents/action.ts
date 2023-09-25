@@ -6,7 +6,7 @@ import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
 import { DataProps, NotedDataProps } from '@/app/dataset/type'
 
-import { getDataset, getDatasets, getEditParams } from '../actions'
+import { getDataset, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
 
 export async function getDocuments({ dataset_id }: { dataset_id: string }) {
@@ -28,19 +28,13 @@ export async function getDataInfo(dataset_id: string, uid: string) {
     'chunkSize',
     'chunkOverlap',
   ])
-  const defaultConfig = {
-    loaderType: 'pdf',
-    splitType: 'character',
-    chunkSize: 1000,
-    chunkOverlap: 0,
-  }
+
   return {
     success: true,
     data: {
       dataset_id,
       files: [detail],
-      config:
-        Object.entries(fileConfig)?.length !== 0 ? fileConfig : defaultConfig,
+      config: fileConfig,
       name: detail?.name,
       type: detail?.type,
     },

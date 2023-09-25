@@ -69,8 +69,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
   const [noteDataNode, setNoDataNode] = useState<ReactNode | null>(
     NodeDataChildren
   )
-  // to refresh table when deleted data
-  const [deleted, setDeleted] = useState(0)
+
   const [open, setOpen] = useState(false)
   const currentUid = useRef({ uid: '' })
   const router = useRouter()
@@ -107,7 +106,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
   )
 
   const { data, isValidating, isLoading } = useSWR<any>(
-    [{ search: value }, pagination, deleted, dataset_id],
+    [{ search: value }, pagination, dataset_id],
     getDatasetDocument,
     {
       fallbackData: preload,
@@ -132,7 +131,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         accessorKey: 'Characters',
         header: 'Characters',
         cell: ({ row }) => (
-          <div className="flex w-[85px] items-center text-right">
+          <div className="flex w-[90px] items-center gap-1 text-right">
             {formateNumber(row.original?.characters || 0)}
             {isValidating && row.original?.status === 1 && (
               <Loader2Icon className="mr-2 h-4 w-4 animate-spin text-black" />
@@ -153,8 +152,8 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          const { status } = row.original
-          const { text, color } = formateStatus(status || 0)
+          let { status } = row.original
+          const { text, color } = formateStatus(status)
           return (
             <div
               className={cn(
@@ -216,7 +215,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         },
       },
     ],
-    [editData, isPending]
+    [editData, isPending, isValidating]
   )
 
   const handleRowClick = useCallback(
@@ -236,7 +235,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       } else {
         const params = encodeURIComponent(`name=${row?.name}&type=${row?.type}`)
         router.push(
-          `/dataset/${dataset_id}/settings/documents/${row?.uid}/segments?${params}`
+          `/dataset/${dataset_id}/settings/documents/${row?.uid}/segments?${params}&nextUrl=/datasets`
         )
         return
       }
@@ -285,7 +284,6 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         uid={currentUid?.current?.uid}
         open={open}
         setOpen={setOpen}
-        confirmDelete={() => setDeleted((v) => v + 1)}
       />
     </div>
   )

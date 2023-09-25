@@ -10,12 +10,9 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
-import { FileProps } from '@/components/upload/utils'
-import { DataProps, NotedDataProps } from '@/app/dataset/type'
+import { DataProps } from '@/app/dataset/type'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
-import { getApps } from '../apps/actions'
-import { NewApp } from '../apps/schema'
 import { DatasetsTable, NewDataset } from './schema'
 
 export async function addDataset(
@@ -111,12 +108,17 @@ export async function getEditParams(
     api_dataset_id = dataset?.api_dataset_id
     if (!api_dataset_id) return Promise.resolve({ api_dataset_id, editParams })
     const newFiles = (config as any)?.files
-    const splitConfig = pick(config, ['splitType', 'chunkSize', 'chunkOverlap'])
     const documents = newFiles?.reduce(
       (m: Record<string, any>[], item: any) => {
         if (item?.type === 'annotated_data') {
           item.url = ''
         }
+        const splitConfig = pick(item, [
+          'splitType',
+          'chunkSize',
+          'chunkOverlap',
+        ])
+
         const cur = pick(item, ['url', 'type', 'uid'])
         // @ts-ignore
         cur.split_option = splitConfig
@@ -152,8 +154,8 @@ export async function editDataset(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
       editParams
     )
-    if (res.status !== 200) {
-      return
+    if (res.success !== 'success') {
+      return { success: false, error: res?.message }
     }
   }
 
@@ -167,7 +169,7 @@ export async function editDataset(
       )
     )
 
-  return response
+  return { success: true, data: response }
 }
 
 export async function removeDataset(datasetId: string) {

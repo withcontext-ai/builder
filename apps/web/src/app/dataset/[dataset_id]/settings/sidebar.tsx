@@ -37,7 +37,7 @@ const SlideBar = ({ datasetId, name }: IProps) => {
     } catch (error) {}
   }
   return (
-    <BaseSideBar url={`/datasets`}>
+    <BaseSideBar>
       <div className="pl-3 text-sm font-medium uppercase text-slate-500">
         Datasets
       </div>
