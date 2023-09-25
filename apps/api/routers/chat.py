@@ -53,6 +53,15 @@ def wrap_token(
     return f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=model_id, choices=[Choices(index=0, delta={'content': token})]).dict())}\n\n"
 
 
+def wrap_error(error: str):
+    if error.startswith("This model's maximum context length"):
+        return "The message you submitted was too long, please reload the conversation and submit something shorter."
+    elif error.startswith("You exceed your current quota"):
+        return "2. API key exceeds the usage limit."
+    else:
+        return error
+
+
 async def send_message(
     messages_contents: List[MessagesContent],
     session_id: str,
@@ -137,7 +146,7 @@ async def send_message(
         }
         yield f"data: {json.dumps(info)}\n\n"
         if workflow.error_flags:
-            info = {"metadata": {"error": workflow.error_flags[0].args[0]}}
+            info = {"metadata": {"error": wrap_error(workflow.error_flags[0].args[0])}}
             yield f"data: {json.dumps(info)}\n\n"
     yield "data: [DONE]\n\n"
     session_state_manager.save_workflow_status(session_id, workflow)
