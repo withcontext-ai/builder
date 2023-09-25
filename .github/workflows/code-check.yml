@@ -113,9 +113,9 @@ jobs:
       - run: pnpm test
 
   e2e_test:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     name: E2E Testing
-    environment: Production
     steps:
       - name: Waiting for 200 from the Vercel Preview
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
