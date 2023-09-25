@@ -156,13 +156,16 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
 
+      - name: Setup env
+        run: |
+          touch .env
+          echo E2E_USERNAME=${{ env.E2E_USERNAME }} >> .env
+          echo E2E_PASSWORD=${{ env.E2E_PASSWORD }} >> .env
+
       - name: Run Playwright tests
         run: pnpm test:e2e
         env:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
-        with:
-          E2E_USERNAME: ${{ env.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
 
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v3
