@@ -45,7 +45,7 @@ const SlideBar = ({ datasetId, name }: IProps) => {
       <BaseSideBar.Link
         href={{
           pathname: `/dataset/${datasetId}/settings/basics`,
-          search: searchParams.toString(),
+          search: searchParams?.toString(),
         }}
         name="Basics"
         desc=""
@@ -53,7 +53,7 @@ const SlideBar = ({ datasetId, name }: IProps) => {
       <BaseSideBar.Link
         href={{
           pathname: `/dataset/${datasetId}/settings/documents`,
-          search: searchParams.toString(),
+          search: searchParams?.toString(),
         }}
         name="Data"
         desc=""

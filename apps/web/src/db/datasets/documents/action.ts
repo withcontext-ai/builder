@@ -28,31 +28,30 @@ export async function getDataInfo(dataset_id: string, uid: string) {
     'chunkSize',
     'chunkOverlap',
   ])
-  const defaultConfig = {
-    loaderType: 'pdf',
-    splitType: 'character',
-    chunkSize: 1000,
-    chunkOverlap: 0,
-  }
+
   return {
     success: true,
     data: {
       dataset_id,
       files: [detail],
-      config:
-        Object.entries(fileConfig)?.length !== 0 ? fileConfig : defaultConfig,
+      config: fileConfig,
       name: detail?.name,
       type: detail?.type,
     },
   }
 }
 
+interface IProps {
+  uid: string
+  short_id: string
+  icon: string
+  name: string
+}
 export async function getNotedData() {
   const apps = await getApps()
-  const data = apps?.reduce((m: NotedDataProps[], item: NewApp) => {
-    const cur = pick(item, ['name', 'icon', 'short_id'])
-    // @ts-ignore
-    cur.uid = item.api_model_id
+  const data = apps?.reduce((m: IProps[], item: NewApp) => {
+    const cur = pick(item, ['name', 'icon', 'short_id', 'uid']) as IProps
+    cur.uid = item.api_model_id || ''
     m.push(cur)
     return m
   }, [])

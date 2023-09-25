@@ -197,9 +197,9 @@ async function updateDocument(data: any) {
     .select()
     .from(DatasetsTable)
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
-  const config = dataset[0]?.config || {}
+  const config = dataset[0]?.config
   // @ts-ignore
-  const documents = config?.files
+  const documents = config?.files || []
   const cur = documents?.find((item: DataProps) => item?.uid === document_id)
   if (cur) {
     cur.status = document_status
@@ -207,6 +207,7 @@ async function updateDocument(data: any) {
     cur.updated_at = new Date()
     const index = documents?.findIndex((item: any) => item?.uid === document_id)
     documents[index] = cur
+    // @ts-ignore
     const newConfig = { ...config, files: documents }
     const res = await db
       .update(DatasetsTable)
@@ -216,15 +217,4 @@ async function updateDocument(data: any) {
   }
 
   return { success: false, message: 'could not find the document' }
-}
-
-export async function GET() {
-  try {
-    const data = { api_model_ids: ['31f14df294ed41259285b97343377b82'] }
-    const res = await getAnnotations(data)
-    return NextResponse.json({ success: true, data: res })
-  } catch (error: any) {
-    console.log('error:', error)
-    return NextResponse.json({ success: false, error: error.message })
-  }
 }

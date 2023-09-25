@@ -1,23 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { omit, pick } from 'lodash'
+import { pick } from 'lodash'
 
-import {
-  getDataSplitPreview,
-  getDocuments,
-} from '@/db/datasets/documents/action'
+import { getDataSplitPreview } from '@/db/datasets/documents/action'
 import { getSegments } from '@/db/datasets/segment/actions'
 
 // get document split preview
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig, document_id, preview } = await req.json()
-  const { config } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
-  let files
-  if (isPdf) {
-    files = dataConfig?.files
-  } else {
-    files = dataConfig?.notedData
-  }
+  let files = isPdf ? dataConfig?.files : dataConfig?.notedData
   const isAdd = document_id === 'add'
   if (!isAdd) {
     files[0].uid = document_id

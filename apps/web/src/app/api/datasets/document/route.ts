@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   let files = isPdf ? dataConfig?.files : dataConfig?.notedData
   files?.map((item: DataProps) => {
-    item.status = 1
+    item.status = 1 //indexing
     item.updated_at = new Date()
     item = Object.assign(item, currentConfig)
     return item
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 // edit data
 export async function PATCH(req: NextRequest) {
   const { dataset_id, dataConfig, document_id } = await req.json()
-  const { documents, config } = await getDocuments({ dataset_id })
+  const { documents } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
 
   // to replace the current
