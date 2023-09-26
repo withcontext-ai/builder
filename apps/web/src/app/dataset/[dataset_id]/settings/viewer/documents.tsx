@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { DataProps, DocumentProps } from '@/app/dataset/type'
 
+import { formateDate, formateNumber, formateStatus } from '../../../utils'
 import FileIcon from '../documents/file-icon'
-import { formateDate, formateNumber, formateStatus } from '../documents/utils'
 
 const Documents = ({ documents }: { documents: DataProps[] }) => {
   const [data, setData] = useState<DataProps[]>(documents)

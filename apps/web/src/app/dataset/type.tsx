@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { FileProps } from '@/components/upload/utils'
 
-import { DataSchema, FormSchema } from './[dataset_id]/settings/documents/utils'
+import { DataSchema, FormSchema } from './utils'
 
 export type LoaderTypeProps = 'pdf' | 'annotated_data'
 

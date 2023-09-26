@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { PreviewCard } from '@/app/dataset/[dataset_id]/document/[document_id]/preview'
 import { SegmentProps } from '@/app/dataset/type'
 
-import { formateIndex } from '../../utils'
+import { formateIndex } from '../../../../../utils'
 
 interface IProps {
   segments: SegmentProps[]

@@ -13,7 +13,7 @@ import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 
 import { DataSchemeProps, SegmentProps } from '../../../type'
-import { DataSchema } from '../../settings/documents/utils'
+import { DataSchema } from '../../../utils'
 import { useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
 import Preview from './preview'
@@ -81,8 +81,6 @@ const DataForm = () => {
   const { getValues } = form
   const formValues = getValues()
   const dataConfig = { ...formValues }
-
-  const [data, setData] = useState<any[]>(defaultValues?.files || [])
 
   const { trigger: triggerAdd, isMutating } = useSWRMutation(
     `/api/datasets/document`,
@@ -162,9 +160,7 @@ const DataForm = () => {
       >
         <Form {...form}>
           <form className="w-full">
-            {step === 1 && (
-              <DocumentLoader form={form} data={data} setData={setData} />
-            )}
+            {step === 1 && <DocumentLoader form={form} />}
             {step === 2 && <TextSplits form={form} />}
             {step === 3 && (
               <Preview data={previews} isLoading={previewMutating} />

@@ -21,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { SchemaProps } from '@/app/dataset/type'
 
-import { FormSchema } from '../documents/utils'
+import { FormSchema } from '../../../utils'
 import TextEmbedding from './text-embedding'
 import VectorStores from './vector-stores'
 

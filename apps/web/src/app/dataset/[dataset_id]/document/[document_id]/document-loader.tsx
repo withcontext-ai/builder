@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { es } from 'date-fns/locale'
+import { pick } from 'lodash'
 
 import {
   FormControl,
@@ -9,10 +10,11 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
+import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { DocumentProps, SessionProps } from '../../../type'
+import { DataProps, DocumentProps, SessionProps } from '../../../type'
 import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'
@@ -23,16 +25,19 @@ const types = [
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
 interface IProps extends SessionProps {
-  data: FileProps[]
   apps?: DocumentProps[]
-  setData: (data: FileProps[]) => void
 }
 
-const DocumentLoader = ({ form, setData, data }: IProps) => {
-  const { isAdd } = useDataContext()
+const DocumentLoader = ({ form }: IProps) => {
+  const { isAdd, defaultValues } = useDataContext()
+  // @ts-ignore
+  const files = defaultValues?.files?.map((item: DataProps) => {
+    const status = 'success' as UploadFileStatus
+    const config = pick(item, ['uid', 'type', 'url', 'name'])
+    return { status, ...config }
+  })
   const { getValues, setValue } = form
   const onChangeFileList = (values: FileProps[]) => {
-    setData([...values])
     setValue('files', [...values])
   }
 
@@ -81,7 +86,7 @@ const DocumentLoader = ({ form, setData, data }: IProps) => {
                     type="drag"
                     fileType={loaderType}
                     accept="application/pdf"
-                    fileList={data}
+                    fileList={files}
                     onChangeFileList={onChangeFileList}
                   />
                 ) : (

@@ -3,6 +3,7 @@ import { pick } from 'lodash'
 
 import { getDataSplitPreview } from '@/db/datasets/documents/action'
 import { getSegments } from '@/db/datasets/segment/actions'
+import { DocumentProps } from '@/app/dataset/type'
 
 // get document split preview
 export async function POST(req: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
     'chunkSize',
     'chunkOverlap',
   ])
-  files?.map((item: any) => {
+  files?.map((item: DocumentProps) => {
     item.status = 1
     item.updated_at = new Date()
     item = Object.assign(item, splitConfig)

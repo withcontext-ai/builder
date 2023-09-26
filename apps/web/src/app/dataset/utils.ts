@@ -16,35 +16,29 @@ export const FormSchema = z.object({
   apiVersion: z.string().optional(),
 })
 
+const FileSchema = z.array(
+  z.object({
+    name: z.string(),
+    url: z.string().optional(), //pdf
+    type: z.string(),
+    uid: z.string(),
+    short_id: z.string().optional(), //noted data
+    loaderType: z.string().optional(),
+    splitType: z.string().optional(),
+    chunkSize: z.number().optional(),
+    chunkOverlap: z.number().optional(),
+    status: z.number().optional(), //0:indexed  1:indexing 2:error
+    characters: z.number().optional(),
+  })
+)
+
 export const DataSchema = z.object({
   loaderType: z.string().optional(),
   splitType: z.string().optional(),
   chunkSize: z.number().optional(),
   chunkOverlap: z.number().optional(),
-  files: z.array(
-    z.object({
-      name: z.string(),
-      url: z.string(),
-      type: z.string(),
-      uid: z.string(),
-      loaderType: z.string().optional(),
-      splitType: z.string().optional(),
-      chunkSize: z.number().optional(),
-      chunkOverlap: z.number().optional(),
-    })
-  ),
-  notedData: z.array(
-    z.object({
-      name: z.string(),
-      icon: z.string().optional(),
-      uid: z.string(),
-      short_id: z.string().optional(),
-      loaderType: z.string().optional(),
-      splitType: z.string().optional(),
-      chunkSize: z.number().optional(),
-      chunkOverlap: z.number().optional(),
-    })
-  ),
+  files: FileSchema,
+  notedData: FileSchema,
 })
 
 export function formateNumber(characters: number) {

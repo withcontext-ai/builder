@@ -3,7 +3,7 @@ import { FileType2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SegmentProps } from '@/app/dataset/type'
 
-import { formateIndex } from '../../settings/documents/utils'
+import { formateIndex } from '../../../utils'
 
 export const PreviewCard = ({ content, index }: SegmentProps) => {
   return (

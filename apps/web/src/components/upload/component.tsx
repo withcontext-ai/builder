@@ -111,25 +111,24 @@ export const PDFFile = (props: FileItemProps) => {
           </div>
           {showIcon?.show && (
             <div className="flex gap-2">
-              {(file?.status === 'success' || file?.status === 'done') &&
-                file?.url && (
-                  <>
-                    {showIcon?.showDownloadIcon !== false && (
-                      <IconBox onClick={() => props?.onDownload!(file)}>
-                        {showIcon?.downloadIcon || (
-                          <Download size={16} strokeWidth={3} color="#000" />
-                        )}
-                      </IconBox>
-                    )}
-                    {showIcon?.showPreviewIcon !== false && (
-                      <IconBox onClick={() => preview(file)}>
-                        {showIcon?.previewIcon || (
-                          <Eye size={16} strokeWidth={3} />
-                        )}
-                      </IconBox>
-                    )}
-                  </>
-                )}
+              {file?.url && (
+                <>
+                  {showIcon?.showDownloadIcon !== false && (
+                    <IconBox onClick={() => props?.onDownload!(file)}>
+                      {showIcon?.downloadIcon || (
+                        <Download size={16} strokeWidth={3} color="#000" />
+                      )}
+                    </IconBox>
+                  )}
+                  {showIcon?.showPreviewIcon !== false && (
+                    <IconBox onClick={() => preview(file)}>
+                      {showIcon?.previewIcon || (
+                        <Eye size={16} strokeWidth={3} />
+                      )}
+                    </IconBox>
+                  )}
+                </>
+              )}
               <IconBox
                 onClick={(e: React.SyntheticEvent) => {
                   e.stopPropagation()

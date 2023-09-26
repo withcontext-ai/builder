@@ -53,7 +53,9 @@ export async function PATCH(req: NextRequest) {
   const isPdf = dataConfig?.loaderType === 'pdf'
 
   // to replace the current
-  const index = documents?.findIndex((item: any) => item?.uid === document_id)
+  const index = documents?.findIndex(
+    (item: DataProps) => item?.uid === document_id
+  )
   const current = isPdf ? dataConfig?.files?.[0] : dataConfig?.notedData?.[0]
   const fileProps = Object.assign(pick(current, ['type', 'name', 'url']), {
     uid: document_id,

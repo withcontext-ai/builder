@@ -32,9 +32,9 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { DataProps } from '@/app/dataset/type'
 
+import { formateDate, formateNumber, formateStatus } from '../../../utils'
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
-import { formateDate, formateNumber, formateStatus } from './utils'
 
 interface IProps {
   preload?: DataProps[]
