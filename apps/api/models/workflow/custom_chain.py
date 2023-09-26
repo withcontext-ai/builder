@@ -93,12 +93,12 @@ class TargetedChain(Chain):
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Coroutine[Any, Any, Dict[str, Any]]:
-        if inputs.get("chat_history", None) is not None and isinstance(
-            inputs["chat_history"], str
+        if inputs.get(self.dialog_key, None) is not None and isinstance(
+            inputs[self.dialog_key], str
         ):
-            inputs["chat_history"] = [inputs["chat_history"]]
-        bacis_messages = inputs.get("chat_history", [])
-        inputs.pop("chat_history", None)
+            inputs[self.dialog_key] = [inputs[self.dialog_key]]
+        bacis_messages = inputs.get(self.dialog_key, [])
+        # inputs.pop("chat_history", None)
 
         question = ""
         if self.process == TargetedChainStatus.RUNNING:
@@ -136,7 +136,7 @@ class TargetedChain(Chain):
         )
         return {self.output_key: response.generations[0][0].text}
 
-    async def get_output(self, pre_dialog, human_input, llm_output):
+    async def get_output(self, pre_dialog: str, human_input: str, llm_output: str):
         dialog = (
             pre_dialog
             + "\n"
@@ -196,10 +196,10 @@ class EnhanceSequentialChain(SequentialChain):
                     outputs = await chain.acall(
                         self.known_values, return_only_outputs=True, callbacks=callbacks
                     )
-                    pre_dialog = inputs.get(chain.dialog_key, "")
+                    pre_dialog = inputs.get(chain.dialog_key, [])
                     current_output = outputs[chain.output_key]
                     outputs[chain.dialog_key] = (
-                        pre_dialog
+                        get_buffer_string(pre_dialog)
                         + "\n"
                         + get_buffer_string(
                             [
@@ -210,7 +210,9 @@ class EnhanceSequentialChain(SequentialChain):
                     )
 
                     outputs[chain.output_key] = await chain.get_output(
-                        pre_dialog, inputs["question"], current_output
+                        get_buffer_string(pre_dialog),
+                        inputs["question"],
+                        current_output,
                     )
                     self.known_values.update(outputs)
                     if chain.process not in [
@@ -230,9 +232,9 @@ class EnhanceSequentialChain(SequentialChain):
                 outputs = await chain.acall(
                     self.known_values, return_only_outputs=True, callbacks=callbacks
                 )
-                pre_dialog = inputs.get(chain.dialog_key, "")
+                pre_dialog = inputs.get(chain.dialog_key, [])
                 outputs[chain.dialog_key] = (
-                    pre_dialog
+                    get_buffer_string(pre_dialog)
                     + "\n"
                     + get_buffer_string(
                         [

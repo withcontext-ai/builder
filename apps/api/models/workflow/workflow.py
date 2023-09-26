@@ -294,5 +294,5 @@ class Workflow(BaseModel):
                 input = chain_memory.get("input", "")
                 output = chain_memory.get("output", "")
                 messages += [HumanMessage(content=input), AIMessage(content=output)]
-            res[dialog_key] = get_buffer_string(messages)
+            res[dialog_key] = messages
         return res
