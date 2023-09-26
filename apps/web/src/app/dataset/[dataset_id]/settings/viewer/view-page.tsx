@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeftIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import Basics from './basics'
 import Documents from './documents'

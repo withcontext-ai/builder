@@ -20,7 +20,7 @@ function deleteDataset(url: string) {
   return fetcher(url, { method: 'DELETE' })
 }
 
-const SlideBar = ({ datasetId, name }: IProps) => {
+const Sidebar = ({ datasetId, name }: IProps) => {
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
@@ -87,4 +87,4 @@ const SlideBar = ({ datasetId, name }: IProps) => {
     </BaseSideBar>
   )
 }
-export default SlideBar
+export default Sidebar

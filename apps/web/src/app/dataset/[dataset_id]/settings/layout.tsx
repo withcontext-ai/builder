@@ -1,6 +1,6 @@
 import { getDataset } from '@/db/datasets/actions'
 
-import SlideBar from './sidebar'
+import Sidebar from './sidebar'
 
 export const runtime = 'edge'
 
@@ -15,7 +15,7 @@ export default async function SettingsLayout({ children, params }: IProps) {
   return (
     <div className="h-full  w-full overflow-hidden bg-white lg:fixed lg:flex">
       <div className="hidden w-[276px] shrink-0 border-r border-slate-200 bg-slate-50 lg:block">
-        <SlideBar datasetId={dataset_id} name={datasetDetail?.name} />
+        <Sidebar datasetId={dataset_id} name={datasetDetail?.name} />
       </div>
       <div className="h-full w-full">{children}</div>
     </div>

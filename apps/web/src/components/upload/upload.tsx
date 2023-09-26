@@ -419,7 +419,7 @@ const Upload = (props: UploadProps) => {
     <div>
       <div
         className={cn(
-          'flex cursor-pointer  flex-col items-start justify-start',
+          'flex cursor-pointer flex-col items-start justify-start',
           listType === 'image' ? 'gap-0' : 'gap-2',
           listType === 'pdf' || listType === 'update-pdf'
             ? 'h-full w-full'
