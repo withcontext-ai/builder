@@ -10,17 +10,17 @@ import { DataProps } from '@/app/dataset/type'
 import DatasetTable from './data-table'
 
 interface IProps {
-  dataset_id: string
+  datasetId: string
   preload?: DataProps[]
 }
 
-const DataPage = ({ dataset_id, preload }: IProps) => {
+const DataPage = ({ datasetId, preload }: IProps) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   const handelClick = () => {
     startTransition(() => {
-      router.push(`/dataset/${dataset_id}/document/add`)
+      router.push(`/dataset/${datasetId}/document/add`)
     })
   }
 
@@ -43,7 +43,7 @@ const DataPage = ({ dataset_id, preload }: IProps) => {
             Add New Data
           </Button>
         </div>
-        <DatasetTable preload={preload} />
+        <DatasetTable preload={preload} datasetId={datasetId} />
       </div>
     </div>
   )

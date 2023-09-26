@@ -7,54 +7,32 @@ import {
   useMemo,
   useRef,
   useState,
-  useTransition,
 } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import {
   ColumnDef,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 import { debounce } from 'lodash'
-import { Loader2Icon, Settings2, Trash } from 'lucide-react'
+import { Loader2Icon } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useToast } from '@/components/ui/use-toast'
 import { DataProps } from '@/app/dataset/type'
 
 import { formateDate, formateNumber, formateStatus } from '../../../utils'
 import DeleteData from './delete-data'
 import FileIcon from './file-icon'
+import TableAction from './table-action'
 
 interface IProps {
   preload?: DataProps[]
-}
-
-const TooltipButton = ({
-  children,
-  text,
-}: {
-  children: ReactNode
-  text: string
-}) => {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent>
-        <p>{text}</p>
-      </TooltipContent>
-    </Tooltip>
-  )
+  datasetId: string
 }
 
 const NodeDataChildren = () => (
@@ -64,19 +42,15 @@ const NodeDataChildren = () => (
   </div>
 )
 
-const DatasetTable = ({ preload = [] }: IProps) => {
-  const [isPending, startTransition] = useTransition()
+const DatasetTable = ({ preload = [], datasetId }: IProps) => {
   const [noteDataNode, setNoDataNode] = useState<ReactNode | null>(
     NodeDataChildren
   )
-  // to refresh table when deleted data
-  const [deleted, setDeleted] = useState(0)
+
   const [open, setOpen] = useState(false)
   const currentUid = useRef({ uid: '' })
   const router = useRouter()
-  const { dataset_id } = useParams() as {
-    dataset_id: string
-  }
+
   const [value, setValue] = useState('')
   const [pagination, setPagination] = useState({
     pageSize: 10,
@@ -92,22 +66,13 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       ...pagination,
     }).toString()
 
-    return fetcher(`/api/datasets/${dataset_id}?${search}`, { method: 'GET' })
+    return fetcher(`/api/datasets/${datasetId}?${search}`, { method: 'GET' })
   }
 
   const { toast } = useToast()
 
-  const editData = useCallback(
-    async (uid: string) => {
-      startTransition(() => {
-        router.push(`/dataset/${dataset_id}/document/${uid}`)
-      })
-    },
-    [dataset_id, router]
-  )
-
   const { data, isValidating, isLoading } = useSWR<any>(
-    [{ search: value }, pagination, deleted, dataset_id],
+    [{ search: value }, pagination, datasetId],
     getDatasetDocument,
     {
       fallbackData: preload,
@@ -176,47 +141,19 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         cell: ({ row }) => {
           const { status, type, uid } = row.original
           return (
-            <div className="invisible z-10 flex gap-2 group-hover/cell:visible">
-              {status === 0 && (
-                <TooltipButton text="Edit">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className="h-8 w-8"
-                    onClick={(e) => {
-                      currentUid.current.uid = uid
-                      e.stopPropagation()
-                      editData(uid)
-                    }}
-                  >
-                    {isPending && currentUid?.current?.uid === uid ? (
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Settings2 size={18} />
-                    )}
-                  </Button>
-                </TooltipButton>
-              )}
-              <TooltipButton text="Delete">
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-8 w-8 text-red-600"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setOpen(true)
-                    currentUid.current.uid = uid
-                  }}
-                >
-                  <Trash size={18} />
-                </Button>
-              </TooltipButton>
-            </div>
+            <TableAction
+              setOpen={setOpen}
+              status={status}
+              type={type}
+              uid={uid}
+              datasetId={datasetId}
+              currentUid={currentUid}
+            />
           )
         },
       },
     ],
-    [editData, isPending, isValidating]
+    [datasetId, isValidating]
   )
 
   const handleRowClick = useCallback(
@@ -237,12 +174,12 @@ const DatasetTable = ({ preload = [] }: IProps) => {
         const params = encodeURIComponent(`name=${row?.name}&type=${row?.type}`)
         const nextUrl = '/datasets'
         router.push(
-          `/dataset/${dataset_id}/settings/documents/${row?.uid}/segments?${params}&nextUrl=${nextUrl}`
+          `/dataset/${datasetId}/settings/documents/${row?.uid}/segments?${params}&nextUrl=${nextUrl}`
         )
         return
       }
     },
-    [dataset_id, router, toast]
+    [datasetId, router, toast]
   )
 
   useEffect(() => {
@@ -250,6 +187,7 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       setNoDataNode(null)
     }
   }, [value, data?.data])
+
   const table = useReactTable({
     data: data?.data || [],
     columns,
@@ -282,11 +220,10 @@ const DatasetTable = ({ preload = [] }: IProps) => {
       />
       <DataTablePagination table={table} />
       <DeleteData
-        datasetId={dataset_id}
+        datasetId={datasetId}
         uid={currentUid?.current?.uid}
         open={open}
         setOpen={setOpen}
-        confirmDelete={() => setDeleted((v) => v + 1)}
       />
     </div>
   )
