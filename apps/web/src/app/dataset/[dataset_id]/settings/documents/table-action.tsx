@@ -83,7 +83,7 @@ const TableAction = ({
     toast({
       description: 'Synchronized',
     })
-  }, [toast, trigger])
+  }, [datasetId, uid])
 
   return (
     <div className="invisible z-10 flex gap-2 group-hover/cell:visible">

@@ -396,7 +396,14 @@ const Upload = (props: UploadProps) => {
         listProps={listProps}
       />
     ) : showOnePdf ? (
-      <></>
+      <PDFFile
+        {...props}
+        file={file}
+        onDownload={handleDownload}
+        onRemove={handleRemove}
+        listProps={listProps}
+        key={file?.uid}
+      />
     ) : (
       <RcUpload {...rcUploadProps} ref={upload}>
         {props?.children || defaultButton}
@@ -410,8 +417,9 @@ const Upload = (props: UploadProps) => {
     handleRemove,
     className,
     listProps,
+    props,
+    handleDownload,
     rcUploadProps,
-    props?.children,
     defaultButton,
   ])
 
@@ -436,9 +444,7 @@ const Upload = (props: UploadProps) => {
               listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
             )}
           >
-            {(listType === 'pdf' ||
-              listType === 'images-list' ||
-              listType === 'update-pdf') &&
+            {(listType === 'pdf' || listType === 'images-list') &&
               mergedFileList?.map((file: UploadFile) => {
                 const percent = process?.filter(
                   (item) => item?.uid === file?.uid
