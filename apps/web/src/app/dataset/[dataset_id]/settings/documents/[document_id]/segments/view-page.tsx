@@ -3,20 +3,18 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { debounce } from 'lodash'
-import { Trash } from 'lucide-react'
 import useSWR from 'swr'
 
 import { fetcher } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { LoaderTypeProps, SegmentProps } from '@/app/dataset/type'
 
-import { PreviewCard } from '../../../../document/[document_id]/preview'
-import { formateIndex } from '../../utils'
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
 import SegmentHeader from './header'
 import { DataTablePagination } from './pagination'
+import SegmentList from './segment-list'
 
 interface IProps {
   document_id: string
@@ -29,7 +27,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
   )
   const params = Object.fromEntries(urlSearchParams.entries())
   const { name } = params
-  const type = params?.type as 'pdf' | 'annotated_data'
+  const type = params?.type as LoaderTypeProps
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
@@ -39,7 +37,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     pageSize: 100,
     pageIndex: 0,
   })
-  const current = useRef({ content: '', segment_id: '' })
+  const current = useRef<SegmentProps>({ content: '', segment_id: '' })
 
   async function getDatasetDocument(
     params: [queries: Record<string, any>, pagination: Record<string, any>]
@@ -101,44 +99,21 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
         </div>
         <div className="flex-1 flex-col">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
-            {isValidating
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton
-                    key={i}
-                    className="h-[182px] rounded-lg border border-transparent"
-                  />
-                ))
-              : data?.segments?.map((item: any, index: number) => {
-                  return (
-                    <div
-                      key={index}
-                      className="group/card relative h-[182px] cursor-pointer"
-                      onClick={(e) => {
-                        setOpen(true)
-                        e.preventDefault()
-                        current.current = item
-                      }}
-                    >
-                      <PreviewCard
-                        index={formateIndex(index + 1)}
-                        content={item?.content}
-                      />
-                      <Button
-                        type="button"
-                        className="invisible absolute bottom-4 right-4 flex h-8 w-8 gap-2 text-red-600 group-hover/card:visible"
-                        size="icon"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setShowDeleteAlter(true)
-                          current.current = item
-                        }}
-                      >
-                        <Trash size={18} />
-                      </Button>
-                    </div>
-                  )
-                })}
+            {isValidating ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className="h-[182px] rounded-lg border border-transparent"
+                />
+              ))
+            ) : (
+              <SegmentList
+                segments={data?.segments}
+                setOpen={setOpen}
+                current={current}
+                setShowDeleteAlter={setShowDeleteAlter}
+              />
+            )}
           </div>
         </div>
 

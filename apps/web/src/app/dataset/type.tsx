@@ -47,6 +47,7 @@ export type DataProps = DocumentProps & FileSplitConfigProps
 export type SegmentProps = {
   content: string
   index?: string
+  segment_id?: string
 }
 
 export type SessionProps = {
