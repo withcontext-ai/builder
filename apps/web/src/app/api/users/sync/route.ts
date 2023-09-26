@@ -24,17 +24,14 @@ export async function GET() {
         user_id: user.short_id,
         properties: {
           ...(user.email ? { email: user.email } : {}),
-          ...(user.last_name ? { last_name: user.last_name } : {}),
-          ...(user.first_name ? { first_name: user.first_name } : {}),
-          ...(user.created_at
-            ? { created_at: user.created_at.toUTCString() }
-            : {}),
+          ...(user.last_name ? { 'last-name': user.last_name } : {}),
+          ...(user.first_name ? { 'first-name': user.first_name } : {}),
         },
       })
       queue.push(task)
     }
 
-    await Promise.allSettled(queue)
+    await Promise.allSettled(queue).then((values) => console.log(values))
 
     return NextResponse.json({
       success: true,
