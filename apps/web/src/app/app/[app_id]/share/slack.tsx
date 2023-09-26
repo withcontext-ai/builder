@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { PlusIcon } from 'lucide-react'
+import { InfoIcon, PlusIcon } from 'lucide-react'
 import useSWR, { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
@@ -9,6 +9,8 @@ import { SlackTeamApp } from '@/db/slack_team_apps/schema'
 import { SlackTeam } from '@/db/slack_teams/schema'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/components/ui/use-toast'
+import { HoverTooltip } from '@/components/hover-tooltip'
 
 function TeamCard({
   icon,
@@ -29,9 +31,9 @@ function TeamCard({
 }) {
   return (
     <div className="group flex w-[540px] items-center justify-between">
-      <div className="flex w-[408px] items-center space-x-4 rounded-md border p-4">
+      <div className="flex w-[408px] items-center gap-4 rounded-md border p-4">
         <img alt="slack team icon" src={icon} className="h-10 w-10 rounded" />
-        <div className="flex-1 space-y-1">
+        <div className="flex-1 gap-1">
           <p className="text-sm font-medium leading-none">{name}</p>
           <a
             href={url}
@@ -41,19 +43,28 @@ function TeamCard({
             {url}
           </a>
         </div>
-        <Switch
-          defaultChecked={checked}
-          onCheckedChange={onCheckedChange}
-          disabled={disabled}
-        />
+        {disabled ? (
+          <HoverTooltip content="Only the administrator of this workspace has the privilege to share.">
+            <InfoIcon className=" text-red-500" />
+          </HoverTooltip>
+        ) : (
+          <Switch
+            defaultChecked={checked}
+            onCheckedChange={onCheckedChange}
+            disabled={disabled}
+          />
+        )}
       </div>
-      <Button
-        variant="ghost"
-        className="hidden group-hover:block"
-        onClick={onRemove}
-      >
-        Disconnect
-      </Button>
+      {!disabled && (
+        <Button
+          variant="ghost"
+          className="hidden group-hover:block"
+          onClick={onRemove}
+          disabled={disabled}
+        >
+          Disconnect
+        </Button>
+      )}
     </div>
   )
 }
@@ -100,6 +111,7 @@ interface IProps {
 
 export default function Slack({ context_app_id }: IProps) {
   const { mutate } = useSWRConfig()
+  const { toast } = useToast()
 
   const { data: teamList = [], isLoading: isLoadingTeamList } = useSWR<
     Partial<SlackTeam>[]
@@ -158,8 +170,9 @@ export default function Slack({ context_app_id }: IProps) {
         team_id,
       })
       await mutate(`/api/me/slack/teams`)
+      toast({ description: 'The workspace has been disconnected' })
     },
-    [triggerRemoveTeam, mutate]
+    [triggerRemoveTeam, mutate, toast]
   )
 
   const isLoading = isLoadingTeamList || isLoadingLinkedTeamList
@@ -169,7 +182,14 @@ export default function Slack({ context_app_id }: IProps) {
       {teamList.length > 0 && !isLoading && (
         <div className="space-y-2">
           {teamList.map(
-            ({ app_id, team_id, team_name, team_url, team_icon }: any) => {
+            ({
+              app_id,
+              team_id,
+              team_name,
+              team_url,
+              team_icon,
+              is_admin,
+            }: any) => {
               const checked = checkIsLinked(app_id, team_id)
               return (
                 <TeamCard
@@ -186,6 +206,7 @@ export default function Slack({ context_app_id }: IProps) {
                     context_app_id
                   )}
                   onRemove={removeTeamHandler(app_id, team_id)}
+                  disabled={!is_admin}
                 />
               )
             }

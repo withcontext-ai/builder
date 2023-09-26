@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
       team_icon: teamInfo.team.icon?.image_132 || '',
       access_token,
       scope: accessInfo.scope,
+      archived: false,
     }
     const slack_team = await slack.addOrUpdateTeam(team)
 
