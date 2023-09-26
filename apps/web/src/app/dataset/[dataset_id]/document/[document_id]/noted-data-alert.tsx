@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Loader2Icon, Plus, X } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
@@ -25,40 +25,47 @@ function getDisabledData(url: string) {
 }
 
 const AddAnnotatedData = ({ form }: IProps) => {
-  const { watch } = form
-  const { defaultValues, documentId, datasetId } = useDataContext()
+  const { getValues } = form
+  const formValue = getValues()
+
+  const { defaultValues, datasetId, isAdd } = useDataContext()
   const notedData = defaultValues?.notedData || []
   const [disabledData, setDisabledData] = useState<DataBaseProps[]>([])
   // @ts-ignore
-  const [data, setData] = useState<DataBaseProps[]>(notedData)
+  const [cardList, setCardList] = useState<DataBaseProps[]>(notedData)
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document?dataset_id=${datasetId}`,
     getDisabledData
   )
-  const [current, setCurrent] = useState<DataBaseProps[]>(data)
-  const isAdd = documentId === 'add'
-  const type = watch()?.loaderType
+  const [selected, setSelected] = useState<DataBaseProps[]>(cardList)
+  const type = formValue.loaderType
 
   const deleteNotedData = (id: string) => {
     const newData =
-      data?.filter((item: DataBaseProps) => item?.uid !== id) || []
+      cardList?.filter((item: DataBaseProps) => item?.uid !== id) || []
     form.setValue('notedData', newData)
-    setData(newData)
-    setCurrent(newData)
+    setCardList(newData)
+    setSelected(newData)
   }
+
   useEffect(() => {
-    const noted = watch()?.notedData
-    setData(noted)
-    setCurrent(noted)
-  }, [type, watch])
-  const showButton = isAdd || (!isAdd && data?.length == 0)
+    const noted = formValue.notedData
+    setCardList(noted)
+    setSelected(noted)
+  }, [formValue.notedData, type])
+
+  const showButton = useMemo(
+    () => isAdd || (!isAdd && cardList?.length == 0),
+    [cardList?.length, isAdd]
+  )
 
   const choseNotedData = async () => {
     const data = await trigger()
     setDisabledData(data)
     setOpen(true)
   }
+
   return (
     <div>
       <AlertDialog open={open} onOpenChange={setOpen}>
@@ -81,17 +88,17 @@ const AddAnnotatedData = ({ form }: IProps) => {
         <AlertDialogContent className="flex max-h-[60%] flex-col overflow-hidden p-0">
           <AnnotatedForm
             form={form}
-            current={current}
-            data={data}
-            setData={setData}
+            selected={selected}
+            cardList={cardList}
+            setCardList={setCardList}
             disabledData={disabledData}
-            setCurrent={setCurrent}
+            setSelected={setSelected}
             setOpen={setOpen}
           />
         </AlertDialogContent>
       </AlertDialog>
       <div className="mt-4 space-y-2">
-        {data?.map((item: DataBaseProps) => {
+        {cardList?.map((item: DataBaseProps) => {
           return (
             <div
               key={item?.uid}

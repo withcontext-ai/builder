@@ -21,15 +21,13 @@ export default async function Page({ params }: IProps) {
     notedData,
   }
   return (
-    <div className="h-full overflow-auto">
-      <div className="w-full">
-        <SettingPage
-          defaultValues={defaultValues}
-          datasetId={dataset_id}
-          document_id={document_id}
-          apps={apps}
-        />
-      </div>
+    <div className="h-full w-full overflow-auto">
+      <SettingPage
+        defaultValues={defaultValues}
+        datasetId={dataset_id}
+        document_id={document_id}
+        apps={apps}
+      />
     </div>
   )
 }

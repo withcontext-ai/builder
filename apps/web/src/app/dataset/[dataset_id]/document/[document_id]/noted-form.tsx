@@ -18,22 +18,22 @@ import NotedDataCard from './noted-data-card'
 
 interface IProps {
   form: UseFormReturn<any>
-  current: DataBaseProps[]
-  data: DataBaseProps[]
+  selected: DataBaseProps[]
+  cardList: DataBaseProps[]
   disabledData: DataBaseProps[]
   setOpen: (s: boolean) => void
-  setCurrent: (s: DataBaseProps[]) => void
-  setData: (s: DataBaseProps[]) => void
+  setSelected: (s: DataBaseProps[]) => void
+  setCardList: (s: DataBaseProps[]) => void
 }
 
 const AnnotatedForm = ({
   form,
-  data = [],
+  cardList = [],
   disabledData,
   setOpen,
-  setData,
-  current,
-  setCurrent,
+  setCardList,
+  selected,
+  setSelected,
 }: IProps) => {
   const { notedData, isAdd } = useDataContext()
   const { setValue } = form
@@ -41,16 +41,16 @@ const AnnotatedForm = ({
   const onCancel = () => {
     setOpen(false)
     if (isAdd) {
-      setCurrent(data)
+      setSelected(cardList)
       return
     } else {
-      setCurrent([])
+      setSelected([])
     }
   }
 
   const onSave = () => {
-    setData(current)
-    setValue('notedData', current)
+    setCardList(selected)
+    setValue('notedData', selected)
     setOpen(false)
   }
 
@@ -67,7 +67,7 @@ const AnnotatedForm = ({
             {notedData?.map((item) => {
               const isDisabled =
                 disabledData?.findIndex((cur) => cur?.uid === item?.uid) !== -1
-              const isSelect = !isAdd && current?.[0]?.uid === item?.uid
+              const isSelect = !isAdd && selected?.[0]?.uid === item?.uid
               return (
                 <FormField
                   key={item.uid}
@@ -79,8 +79,9 @@ const AnnotatedForm = ({
                         data-disabled={isDisabled}
                         key={item.uid}
                         onClick={() => {
+                          // edit noted data
                           if (!isAdd && !isDisabled) {
-                            setCurrent([item])
+                            setSelected([item])
                           }
                         }}
                         className={cn(
@@ -97,21 +98,22 @@ const AnnotatedForm = ({
                           <Checkbox
                             disabled={isDisabled}
                             checked={
-                              current?.findIndex(
-                                (cur: any) => cur?.uid === item?.uid
+                              selected?.findIndex(
+                                (cur: DataBaseProps) => cur?.uid === item?.uid
                               ) !== -1 || isDisabled
                             }
                             className={!isAdd ? 'hidden' : 'block'}
                             onCheckedChange={(checked) => {
-                              item.type = 'annotated_data'
+                              // add noted data
                               if (checked) {
-                                setCurrent([...current, item])
+                                setSelected([...selected, item])
                               } else {
                                 const newData =
-                                  current?.filter(
-                                    (cur: any) => cur?.uid !== item?.uid
+                                  selected?.filter(
+                                    (cur: DataBaseProps) =>
+                                      cur?.uid !== item?.uid
                                   ) || []
-                                setCurrent(newData)
+                                setSelected(newData)
                               }
                             }}
                           />
