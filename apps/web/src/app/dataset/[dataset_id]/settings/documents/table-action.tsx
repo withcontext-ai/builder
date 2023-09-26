@@ -41,7 +41,7 @@ interface IProps {
   setOpen: (s: boolean) => void
 }
 
-function synchrony(url: string, { arg }: { arg: { isRefresh: boolean } }) {
+function synchrony(url: string, { arg }: { arg: { isSynchrony: boolean } }) {
   return fetcher(url, {
     method: 'PATCH',
     body: JSON.stringify(arg),
@@ -79,7 +79,7 @@ const TableAction = ({
     toast({
       description: 'Synchronizing',
     })
-    await trigger({ isRefresh: true })
+    await trigger({ isSynchrony: true })
     toast({
       description: 'Synchronized',
     })

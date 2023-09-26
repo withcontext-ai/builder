@@ -146,6 +146,7 @@ export async function editDataset(
     // @ts-ignore
     newConfig = { ...config, files: documents }
   }
+
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
   const { api_dataset_id, editParams } = await getEditParams(

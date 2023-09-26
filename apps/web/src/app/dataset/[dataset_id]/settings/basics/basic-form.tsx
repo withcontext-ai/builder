@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { isEqual } from 'lodash'
+import { isEqual, omit } from 'lodash'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { useDebounce } from 'usehooks-ts'
@@ -46,10 +46,17 @@ function editDataset(
 
 const BasicsForm = ({ datasetId, config, name }: FormProps) => {
   const defaultValues = useMemo(() => {
-    return { name, ...config }
+    const basicsConfig = omit(config, [
+      'files',
+      'splitType',
+      'chunkSize',
+      'chunkOverlap',
+      'loaderType',
+    ])
+    return { name, ...basicsConfig }
   }, [name, config])
+  // @ts-ignore
   const [values, setValues] = useState<SchemaProps>(defaultValues)
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     values,

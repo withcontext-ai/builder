@@ -10,7 +10,7 @@ import { getDataset, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
 
 export async function getDocuments({ dataset_id }: { dataset_id: string }) {
-  const datasetDetail = await getDataset(dataset_id)
+  const datasetDetail = (await getDataset(dataset_id)) as NewDataset
   const { updated_at, status } = datasetDetail
   const config = datasetDetail?.config || {}
   // @ts-ignore

@@ -38,6 +38,7 @@ export async function GET(
   return NextResponse.json({ success: true, data: { data: res, count } })
 }
 
+type EditParams = Partial<NewDataset> & { isSynchrony?: boolean }
 // // Update a dataset
 export async function PATCH(
   req: NextRequest,
@@ -45,10 +46,16 @@ export async function PATCH(
 ) {
   const { dataset_id } = params
 
-  const body = (await req.json()) as Partial<NewDataset>
-  const { documents } = await getDocuments({ dataset_id })
-  // edit basics or refresh noted data
-  const response = (await editDataset(dataset_id, body, documents)) as any
+  const body = (await req.json()) as EditParams
+  const isSynchrony = body?.isSynchrony
+  const { documents, config } = await getDocuments({ dataset_id })
+  const currentConfig = isSynchrony ? config : body
+  // edit basics or synchrony noted data
+  const response = (await editDataset(
+    dataset_id,
+    { config: currentConfig },
+    documents
+  )) as any
 
   if (response?.error) {
     return NextResponse.json({ success: false, error: response?.error })
