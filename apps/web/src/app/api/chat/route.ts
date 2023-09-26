@@ -1,5 +1,4 @@
-import { NextRequest } from 'next/server'
-import { Message } from 'ai'
+import { NextRequest, NextResponse } from 'next/server'
 import { and, eq } from 'drizzle-orm'
 
 import { auth, currentUserEmail } from '@/lib/auth'
@@ -8,12 +7,7 @@ import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
-import {
-  addMessage,
-  editMessage,
-  getMessages,
-  removeMessage,
-} from '@/db/messages/actions'
+import { addMessage, editMessage } from '@/db/messages/actions'
 import { MessagesTable } from '@/db/messages/schema'
 
 export const runtime = 'edge'
@@ -24,7 +18,38 @@ export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, res: NextResponse) {
+  if (process.env.NODE_ENV === 'development' && process.env.MOCK_CHAT) {
+    const s = new ReadableStream({
+      async start(controller) {
+        await Promise.all(
+          [
+            `[DATA]${JSON.stringify({ id: nanoid() })}[DATAEND]`,
+            'hello ',
+            'how ',
+            'are ',
+            'you?',
+          ].map(
+            (chunk, i) =>
+              new Promise<void>((resolve) => {
+                setTimeout(() => {
+                  controller.enqueue(chunk)
+                  resolve()
+                }, i * 500)
+              })
+          )
+        )
+        // ? mock error
+        // controller.enqueue(
+        //   `\n[DATA]${JSON.stringify({ error: 'custom erro' })}[DATAEND]`
+        // )
+        try {
+          controller.close()
+        } catch {}
+      },
+    })
+    return new Response(s)
+  }
   const { userId } = auth()
   if (!userId) {
     throw new Error('Not authenticated')

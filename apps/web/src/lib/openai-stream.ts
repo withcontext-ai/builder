@@ -4,6 +4,10 @@ import {
   ReconnectInterval,
 } from 'eventsource-parser'
 
+function encodeData(data: Record<string, unknown>) {
+  return `[DATA]${JSON.stringify(data)}[DATAEND]`
+}
+
 export async function OpenAIStream({
   baseUrl,
   payload,
@@ -50,7 +54,7 @@ export async function OpenAIStream({
 
       let metadata: any
 
-      controller.enqueue(encoder.encode(`[DATA]${JSON.stringify(data)}`))
+      controller.enqueue(encoder.encode(encodeData(data)))
 
       async function onParse(event: ParsedEvent | ReconnectInterval) {
         if (event.type === 'event') {
@@ -73,6 +77,16 @@ export async function OpenAIStream({
           try {
             const json = JSON.parse(data)
             metadata = json.metadata
+            if (metadata?.error) {
+              controller.enqueue(
+                encoder.encode(
+                  encodeData({
+                    error: metadata.error,
+                  })
+                )
+              )
+              return
+            }
             const text = json.choices?.[0].delta?.content || ''
             if (counter < 2 && (text.match(/\n/) || []).length) {
               return

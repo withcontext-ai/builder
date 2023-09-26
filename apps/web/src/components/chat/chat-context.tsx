@@ -32,7 +32,7 @@ interface InternalChatContextType {
   error?: Error
   _setLoading: (loading: boolean) => void
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>
-  _setError: (error: Error) => void
+  _setError: (error?: Error) => void
   events: EventMessage[]
   setEvents: Dispatch<SetStateAction<EventMessage[]>>
 }

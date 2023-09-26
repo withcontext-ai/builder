@@ -47,6 +47,7 @@ type UseChatHelpers = {
 
 interface StreamData {
   id: string
+  error: string
 }
 
 const buildUserMessage = (content: string): ChatMessage => ({
@@ -138,7 +139,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
         await onResponse?.(res)
 
         const responseMessage: ChatMessage = {
-          id: '',
+          id: nanoid(),
           content: '',
           role: 'assistant',
           type: 'chat',
@@ -166,15 +167,18 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
           if (done) {
             break
           }
-          const chunk = decode(value)
+          let chunk = decode(value) as string
 
-          if (chunk.startsWith('[DATA]')) {
+          const matches = chunk.match(/\[DATA\](.*)\[DATAEND\]/)
+
+          if (matches?.[1]) {
             streamedData = {
               ...streamedData,
-              ...JSON.parse(chunk.slice(6)),
+              ...JSON.parse(matches[1]),
             } as StreamData
-            continue
+            chunk = chunk.replace(matches[0], '')
           }
+
           // Update the chat state with the new message tokens.
           streamedResponse += chunk
 
@@ -192,6 +196,10 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
         if (streamedData.id) {
           responseMessage.id = streamedData.id
           setMessages([...currMessages, responseMessage])
+        }
+
+        if (streamedData.error) {
+          _setError(new Error(streamedData.error))
         }
 
         if (onFinish) {
@@ -239,6 +247,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     }
 
     messagesRef.current = messagesRef.current.slice(0, -1)
+    _setError()
     setMessages(messagesRef.current)
     const currMessages = messagesRef.current
     try {
@@ -246,7 +255,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     } catch (err) {
       setMessages(currMessages)
     }
-  }, [setMessages, triggerRequest])
+  }, [_setError, setMessages, triggerRequest])
 
   const complete = useCallback(
     (query: string) => {
