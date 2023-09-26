@@ -28,7 +28,7 @@ const NotedDataCard = ({
           item?.icon ? 'bg-white' : `bg-${color}-600`
         )}
       >
-        <AvatarImage src={item?.icon} alt="@shadcn" />
+        <AvatarImage src={item?.icon} alt="data icon" />
         <AvatarFallback className="bg-transparent text-white">
           {getFirstLetter(item?.name || '')}
         </AvatarFallback>

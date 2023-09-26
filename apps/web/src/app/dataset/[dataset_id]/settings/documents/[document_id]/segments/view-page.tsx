@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { debounce, throttle } from 'lodash'
+import { debounce } from 'lodash'
 import { Trash } from 'lucide-react'
 import useSWR from 'swr'
 

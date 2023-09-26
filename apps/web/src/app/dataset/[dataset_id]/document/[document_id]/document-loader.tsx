@@ -1,7 +1,6 @@
 'use client'
 
-import { omit } from 'lodash'
-import { nanoid } from 'nanoid'
+import { useMemo } from 'react'
 
 import {
   FormControl,
@@ -9,54 +8,45 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
-import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { DataBaseProps } from '../../../type'
+import { DataBaseProps, SessionProps } from '../../../type'
 import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'
-import { SessionProps } from './splitter'
 
 const types = [
   { label: 'PDF loader', value: 'pdf' },
   { label: 'Annotated data', value: 'annotated_data' },
   { label: 'More Coming Soon...', value: 'coming soon' },
 ]
-
-export const stringUrlToFile = (file: FileProps) => {
-  const status: UploadFileStatus = 'success'
-  return {
-    url: file?.url || '',
-    name: file?.name || '',
-    uid: nanoid(),
-    status,
-  }
-}
-
 interface IProps extends SessionProps {
   data: FileProps[]
   apps?: DataBaseProps[]
   setData: (data: FileProps[]) => void
-  setUploading?: (s: boolean) => void
 }
 
-const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
+const DocumentLoader = ({ form, setData, data }: IProps) => {
   const { isAdd } = useDataContext()
-  const { watch, getValues } = form
+  const { getValues, setValue } = form
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
     const files = values?.reduce((m: any, item) => {
       m.push(item)
       return m
     }, [])
-    form.setValue('files', [...files])
+    setValue('files', [...files])
   }
-  const type = watch()?.loaderType
 
-  const files = watch().files?.filter((item: any) => item?.type === 'pdf')
-  const showButton = (files?.length === 0 && !isAdd) || isAdd
+  const formValues = getValues()
+  const loaderType = formValues?.loaderType
+
+  const showButton = useMemo(() => {
+    const files = formValues.files?.filter((item: any) => item?.type === 'pdf')
+    return (files?.length === 0 && !isAdd) || isAdd
+  }, [formValues.files, isAdd])
+
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-sm font-normal leading-6 text-slate-600">
@@ -84,17 +74,16 @@ const DocumentLoader = ({ form, setData, data, setUploading }: IProps) => {
           return (
             <FormItem className="w-[332px]">
               <FormControl>
-                {type === 'pdf' ? (
+                {loaderType === 'pdf' ? (
                   <Upload
                     className="items-start justify-start"
                     listProps={{
                       showDownloadIcon: false,
                       showPreviewIcon: false,
                     }}
-                    setUploading={setUploading}
-                    listType={!showButton ? 'update-pdf' : 'pdf'}
+                    listType={showButton ? 'pdf' : 'update-pdf'}
                     type="drag"
-                    fileType={type}
+                    fileType={loaderType}
                     accept="application/pdf"
                     fileList={data}
                     onChangeFileList={onChangeFileList}

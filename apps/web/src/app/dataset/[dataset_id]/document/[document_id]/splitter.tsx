@@ -1,7 +1,5 @@
 'use client'
 
-import { UseFormReturn } from 'react-hook-form'
-
 import {
   FormControl,
   FormField,
@@ -10,14 +8,10 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { FileProps } from '@/components/upload/utils'
+import { SessionProps } from '@/app/dataset/type'
 
 import SearchSelect from '../../settings/documents/search-select'
 
-export interface SessionProps {
-  form: UseFormReturn<any>
-  files?: FileProps[]
-}
 const types = [
   { label: 'Character Text Splitter', value: 'character' },
   { label: 'More Coming Soon...', value: 'coming soon' },

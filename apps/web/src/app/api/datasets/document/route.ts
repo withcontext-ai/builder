@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { omit, pick } from 'lodash'
+import { pick } from 'lodash'
 
 import { editDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
@@ -49,21 +49,27 @@ export async function POST(req: NextRequest) {
 // edit data
 export async function PATCH(req: NextRequest) {
   const { dataset_id, dataConfig, document_id } = await req.json()
-  const { documents } = await getDocuments({ dataset_id })
+  const { documents, config } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
 
   // to replace the current
   const index = documents?.findIndex((item: any) => item?.uid === document_id)
-  let current = isPdf ? dataConfig?.files?.[0] : dataConfig?.notedData?.[0]
-  current = omit(current, ['splitType', 'chunkSize', 'chunkOverlap', 'uid'])
-  const currentConfig = omit(dataConfig, ['files', 'notedData', 'icon'])
-  current = Object.assign(current, currentConfig)
-  current.updated_at = new Date()
-  current.uid = document_id
-  current.status = 1 //indexing
+  const current = isPdf ? dataConfig?.files?.[0] : dataConfig?.notedData?.[0]
+  const fileProps = Object.assign(pick(current, ['type', 'name', 'url']), {
+    uid: document_id,
+    status: 1,
+    updated_at: new Date(),
+  })
+  const splitConfig = pick(dataConfig, [
+    'chunkSize',
+    'chunkOverlap',
+    'splitType',
+  ])
 
-  documents[index] = current
-  const newConfig = { ...currentConfig, files: documents }
+  const currentFile = Object.assign(fileProps, splitConfig)
+  documents[index] = currentFile
+
+  const newConfig = { ...config, ...splitConfig, files: documents }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,

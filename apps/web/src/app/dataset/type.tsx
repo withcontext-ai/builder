@@ -1,4 +1,7 @@
+import { UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
+
+import { FileProps } from '@/components/upload/utils'
 
 import { DataSchema, FormSchema } from './[dataset_id]/settings/documents/utils'
 
@@ -26,13 +29,15 @@ export type SchemaProps = z.infer<typeof FormSchema>
 
 export type DataSchemeProps = z.infer<typeof DataSchema>
 
-export type FileProps = DataBaseProps & DataConfigProps
+export type DataProps = DataBaseProps & DataConfigProps
 
-export type DataProps = FileProps | DataBaseProps
+export interface SegmentProps {
+  content: string
+  segment_id?: string
+  index?: string
+}
 
-export interface AppInfoProps {
-  uid: string
-  icon?: string
-  name: string
-  short_id: string
+export interface SessionProps {
+  form: UseFormReturn<any>
+  files?: FileProps[]
 }

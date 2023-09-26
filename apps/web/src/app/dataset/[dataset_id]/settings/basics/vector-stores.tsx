@@ -8,8 +8,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { SessionProps } from '@/app/dataset/type'
 
-import { SessionProps } from '../../document/[document_id]/splitter'
 import SearchSelect from '../documents/search-select'
 
 const types = [

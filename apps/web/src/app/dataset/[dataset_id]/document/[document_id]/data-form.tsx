@@ -12,22 +12,12 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 
-import { DataBaseProps, DataSchemeProps } from '../../../type'
+import { DataSchemeProps, SegmentProps } from '../../../type'
 import { DataSchema } from '../../settings/documents/utils'
 import { useDataContext } from './data-context'
 import DocumentLoader from './document-loader'
 import Preview from './preview'
 import TextSplits from './splitter'
-
-export interface FormProps {
-  datasetId: string
-  documentId: string
-  defaultValues: DataSchemeProps
-  active: number
-  apps: DataBaseProps[]
-  setActive: (s: number) => void
-  setUploading?: (s: boolean) => void
-}
 
 function addData(
   url: string,
@@ -80,7 +70,7 @@ const DataForm = () => {
   const { defaultValues, documentId, datasetId, step, setStep, isAdd } =
     useDataContext()
   const [isPending, startTransition] = useTransition()
-  const [previews, setPreviews] = useState([])
+  const [previews, setPreviews] = useState<SegmentProps[]>([])
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof DataSchema>>({
@@ -88,7 +78,9 @@ const DataForm = () => {
     defaultValues,
   })
 
-  const { watch } = form
+  const { getValues } = form
+  const formValues = getValues()
+  const dataConfig = { ...formValues }
 
   const [data, setData] = useState<any[]>(defaultValues?.files || [])
 
@@ -107,31 +99,26 @@ const DataForm = () => {
   const router = useRouter()
   const onSubmit = async () => {
     try {
-      const dataConfig = { ...watch() }
-      let json
       if (isAdd) {
-        json = await addTrigger({
+        await addTrigger({
           dataset_id: datasetId,
           dataConfig,
         })
       } else {
-        json = await editTrigger({
+        await editTrigger({
           dataset_id: datasetId,
           dataConfig,
           document_id: documentId,
         })
       }
-
-      console.log(json, documentId ? 'edit data success' : 'add data success')
     } catch (error) {}
   }
 
   const handleClick = async () => {
-    const files = watch()?.files
-    const notedData = watch()?.notedData
-    const type = watch()?.loaderType
+    const files = formValues?.files
+    const notedData = formValues?.notedData
+    const type = formValues?.loaderType
     const isPdf = type === 'pdf'
-    const dataConfig = { ...watch() }
     const text = type === 'pdf' ? 'document' : 'Annotated Data'
     if ((!files?.length && isPdf) || (!notedData?.length && !isPdf)) {
       toast({
@@ -140,21 +127,19 @@ const DataForm = () => {
       })
       return
     }
-    if (step == 1) {
+    if (step === 1) {
       setStep?.(step + 1)
       return
     }
     if (step === 2) {
       setStep?.(step + 1)
-      previewTrigger({
+      const data = await previewTrigger({
         dataset_id: datasetId,
         dataConfig,
         document_id: documentId,
         preview: 5,
-      }).then((res) => {
-        setPreviews(res)
       })
-
+      setPreviews(data)
       return
     } else {
       await onSubmit()
@@ -168,7 +153,7 @@ const DataForm = () => {
     }
   }
   return (
-    <div className={cn('h-full w-full')}>
+    <div className="h-full w-full">
       <div
         className={cn(
           'sm:w-full md:max-w-[600px]',
@@ -186,13 +171,15 @@ const DataForm = () => {
             )}
           </form>
         </Form>
-        <div className={cn('flex justify-between', step == 1 && 'justify-end')}>
+        <div
+          className={cn('flex justify-between', step === 1 && 'justify-end')}
+        >
           {step !== 1 && (
             <Button variant="outline" onClick={() => setStep?.(step - 1)}>
               Previous
             </Button>
           )}
-          <div className="flex  gap-2">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => {

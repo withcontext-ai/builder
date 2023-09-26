@@ -1,10 +1,11 @@
 import { FileType2 } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
+import { SegmentProps } from '@/app/dataset/type'
 
 import { formateIndex } from '../../settings/documents/utils'
 
-export const PreviewCard = ({ content, index }: segmentProps) => {
+export const PreviewCard = ({ content, index }: SegmentProps) => {
   return (
     <div className="h-[182px] rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="mb-1 flex justify-between text-sm text-slate-500">
@@ -25,13 +26,8 @@ export const LoadingCard = () =>
     />
   ))
 
-interface segmentProps {
-  content: string
-  segment_id?: string
-  index?: string
-}
 interface IProps {
-  data: segmentProps[]
+  data: SegmentProps[]
   isLoading: boolean
 }
 const Preview = ({ isLoading, data }: IProps) => {

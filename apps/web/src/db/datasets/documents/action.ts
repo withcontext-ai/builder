@@ -1,12 +1,12 @@
 import { auth } from '@clerk/nextjs'
 import axios from 'axios'
-import { omit, pick } from 'lodash'
+import { pick } from 'lodash'
 
 import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
 import { DataBaseProps, DataProps } from '@/app/dataset/type'
 
-import { getDataset, getDatasets, getEditParams } from '../actions'
+import { getDataset, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
 
 export async function getDocuments({ dataset_id }: { dataset_id: string }) {

@@ -125,6 +125,7 @@ export async function getEditParams(
         const cur = pick(item, ['url', 'type', 'uid'])
         // @ts-ignore
         cur.split_option = splitConfig
+        console.log(cur, '---cur')
         m.push(cur)
         return m
       },

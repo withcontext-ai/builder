@@ -1,6 +1,5 @@
 'use client'
 
-import { omit } from 'lodash'
 import { UseFormReturn } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
@@ -37,6 +36,7 @@ const AnnotatedForm = ({
   setCurrent,
 }: IProps) => {
   const { notedData, isAdd } = useDataContext()
+  const { setValue } = form
 
   const onCancel = () => {
     setOpen(false)
@@ -49,8 +49,8 @@ const AnnotatedForm = ({
   }
 
   const onSave = () => {
-    setData?.(current)
-    form.setValue('notedData', current)
+    setData(current)
+    setValue('notedData', current)
     setOpen(false)
   }
 
