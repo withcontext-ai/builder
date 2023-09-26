@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import Text from '@/components/ui/text'
+import LogosSlackIcon from '@/components/icons/LogosSlackIcon'
 
 import Slack from './slack'
 import { TabsList, TabsTrigger } from './tabs'
@@ -58,12 +59,8 @@ const ShareApp = () => {
             <Tabs defaultValue="slack" className="mt-2">
               <TabsList className="mb-8">
                 <TabsTrigger value="slack">
-                  <SlackIcon className="mr-4" />
+                  <LogosSlackIcon className="mr-4 h-6 w-6" />
                   Slack
-                </TabsTrigger>
-                <TabsTrigger value="github">
-                  <GithubIcon className="mr-4" />
-                  GitHub
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="slack">
@@ -76,7 +73,11 @@ const ShareApp = () => {
           </div>
         )}
         <div className="mt-16 gap-2">
-          <Text>Or copy link</Text>
+          {flags.enabledSlack ? (
+            <Text>Or copy link</Text>
+          ) : (
+            <Text>Copy link</Text>
+          )}
           <div className="mt-2 flex gap-2">
             <Input className="w-[324px]" value={link} disabled />
             <Button onClick={handleClick}>{copyBtnText}</Button>

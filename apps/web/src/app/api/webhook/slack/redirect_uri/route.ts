@@ -58,12 +58,13 @@ export async function GET(req: NextRequest) {
     }
     const slack_user = await slack.addOrUpdateUser(user)
 
-    const data = {
-      slack_team,
-      slack_user,
-    }
-    // TODO: redirect to success page
-    return NextResponse.json({ success: true, data })
+    return NextResponse.redirect(new URL('/success', req.url))
+
+    // const data = {
+    //   slack_team,
+    //   slack_user,
+    // }
+    // return NextResponse.json({ success: true, data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }

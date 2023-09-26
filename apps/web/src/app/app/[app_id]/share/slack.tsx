@@ -135,10 +135,8 @@ export default function Slack({ context_app_id }: IProps) {
     linkTeamToApp
   )
 
-  const { trigger: triggerRemoveTeam } = useSWRMutation(
-    `/api/slack/remove-team`,
-    removeTeam
-  )
+  const { trigger: triggerRemoveTeam, isMutating: isMutatingRemoveTeam } =
+    useSWRMutation(`/api/slack/remove-team`, removeTeam)
 
   const checkIsLinked = React.useCallback(
     (app_id: string, team_id: string) =>
@@ -191,6 +189,7 @@ export default function Slack({ context_app_id }: IProps) {
               is_admin,
             }: any) => {
               const checked = checkIsLinked(app_id, team_id)
+              const disabled = !is_admin
               return (
                 <TeamCard
                   key={`${app_id}-${team_id}-${
@@ -206,7 +205,7 @@ export default function Slack({ context_app_id }: IProps) {
                     context_app_id
                   )}
                   onRemove={removeTeamHandler(app_id, team_id)}
-                  disabled={!is_admin}
+                  disabled={disabled}
                 />
               )
             }
