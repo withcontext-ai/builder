@@ -27,29 +27,22 @@ export const DataSchema = z.object({
       url: z.string(),
       type: z.string(),
       uid: z.string(),
-      config: z
-        .object({
-          loaderType: z.string().optional(),
-          splitType: z.string().optional(),
-          chunkSize: z.number().optional(),
-          chunkOverlap: z.number().optional(),
-        })
-        .optional(),
+      loaderType: z.string().optional(),
+      splitType: z.string().optional(),
+      chunkSize: z.number().optional(),
+      chunkOverlap: z.number().optional(),
     })
   ),
   notedData: z.array(
     z.object({
       name: z.string(),
-      icon: z.string(),
-      id: z.string(),
-      config: z
-        .object({
-          loaderType: z.string().optional(),
-          splitType: z.string().optional(),
-          chunkSize: z.number().optional(),
-          chunkOverlap: z.number().optional(),
-        })
-        .optional(),
+      icon: z.string().optional(),
+      uid: z.string(),
+      short_id: z.string().optional(),
+      loaderType: z.string().optional(),
+      splitType: z.string().optional(),
+      chunkSize: z.number().optional(),
+      chunkOverlap: z.number().optional(),
     })
   ),
 })

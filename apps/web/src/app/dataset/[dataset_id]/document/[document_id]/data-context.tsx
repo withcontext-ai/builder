@@ -2,11 +2,11 @@
 
 import { createContext, PropsWithChildren, useContext } from 'react'
 
-import { DataBaseProps, DataSchemeProps } from '@/app/dataset/type'
+import { DataSchemeProps, DocumentProps } from '@/app/dataset/type'
 
 interface DocumentContextType {
   documentId: string
-  notedData?: DataBaseProps[]
+  notedData?: DocumentProps[]
   datasetId: string
   defaultValues?: DataSchemeProps
   isAdd: boolean

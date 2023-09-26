@@ -11,19 +11,19 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form'
-import { DataBaseProps } from '@/app/dataset/type'
+import { DocumentProps } from '@/app/dataset/type'
 
 import { useDataContext } from './data-context'
 import NotedDataCard from './noted-data-card'
 
 interface IProps {
   form: UseFormReturn<any>
-  selected: DataBaseProps[]
-  cardList: DataBaseProps[]
-  disabledData: DataBaseProps[]
+  selected: DocumentProps[]
+  cardList: DocumentProps[]
+  disabledData: DocumentProps[]
   setOpen: (s: boolean) => void
-  setSelected: (s: DataBaseProps[]) => void
-  setCardList: (s: DataBaseProps[]) => void
+  setSelected: (s: DocumentProps[]) => void
+  setCardList: (s: DocumentProps[]) => void
 }
 
 const AnnotatedForm = ({
@@ -99,7 +99,7 @@ const AnnotatedForm = ({
                             disabled={isDisabled}
                             checked={
                               selected?.findIndex(
-                                (cur: DataBaseProps) => cur?.uid === item?.uid
+                                (cur: DocumentProps) => cur?.uid === item?.uid
                               ) !== -1 || isDisabled
                             }
                             className={!isAdd ? 'hidden' : 'block'}
@@ -110,7 +110,7 @@ const AnnotatedForm = ({
                               } else {
                                 const newData =
                                   selected?.filter(
-                                    (cur: DataBaseProps) =>
+                                    (cur: DocumentProps) =>
                                       cur?.uid !== item?.uid
                                   ) || []
                                 setSelected(newData)

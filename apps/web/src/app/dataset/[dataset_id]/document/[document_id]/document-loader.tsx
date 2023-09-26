@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { es } from 'date-fns/locale'
 
 import {
   FormControl,
@@ -11,7 +12,7 @@ import {
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { DataBaseProps, SessionProps } from '../../../type'
+import { DocumentProps, SessionProps } from '../../../type'
 import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'
@@ -23,7 +24,7 @@ const types = [
 ]
 interface IProps extends SessionProps {
   data: FileProps[]
-  apps?: DataBaseProps[]
+  apps?: DocumentProps[]
   setData: (data: FileProps[]) => void
 }
 
@@ -32,11 +33,7 @@ const DocumentLoader = ({ form, setData, data }: IProps) => {
   const { getValues, setValue } = form
   const onChangeFileList = (values: FileProps[]) => {
     setData([...values])
-    const files = values?.reduce((m: any, item) => {
-      m.push(item)
-      return m
-    }, [])
-    setValue('files', [...files])
+    setValue('files', [...values])
   }
 
   const formValues = getValues()
@@ -46,7 +43,6 @@ const DocumentLoader = ({ form, setData, data }: IProps) => {
     const files = formValues.files?.filter((item: any) => item?.type === 'pdf')
     return (files?.length === 0 && !isAdd) || isAdd
   }, [formValues.files, isAdd])
-
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-sm font-normal leading-6 text-slate-600">

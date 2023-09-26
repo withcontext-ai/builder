@@ -1,10 +1,9 @@
-import { AnyARecord } from 'dns'
 import { useCallback, useMemo, useState } from 'react'
 import { throttle } from 'lodash'
 
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
-import { DataProps } from '@/app/dataset/type'
+import { DataProps, DocumentProps } from '@/app/dataset/type'
 
 import FileIcon from '../documents/file-icon'
 import { formateDate, formateNumber, formateStatus } from '../documents/utils'
@@ -39,7 +38,7 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
         </div>
       ) : (
         <div className="mb-6 flex flex-1 flex-col space-y-2 overflow-auto px-6">
-          {data?.map((item: any, index) => {
+          {data?.map((item: DocumentProps, index) => {
             const { text, color } = formateStatus(item?.status)
 
             return (

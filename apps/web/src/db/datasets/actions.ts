@@ -1,21 +1,21 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
-import { Item } from '@radix-ui/react-dropdown-menu'
 import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { isEqual, omit, pick } from 'lodash'
+import { omit, pick } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
-import { FileProps } from '@/components/upload/utils'
-import { DataBaseProps, DataProps, DataSchemeProps } from '@/app/dataset/type'
+import {
+  DataProps,
+  DataSchemeProps,
+  DocumentParamsType,
+} from '@/app/dataset/type'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
-import { getApps } from '../apps/actions'
-import { NewApp } from '../apps/schema'
 import { DatasetsTable, NewDataset } from './schema'
 
 export async function addDataset(
@@ -113,20 +113,19 @@ export async function getEditParams(
     const newFiles = (config as DataSchemeProps)?.files
 
     const documents = newFiles?.reduce(
-      (m: Record<string, any>[], item: any) => {
+      // @ts-ignore
+      (m: DocumentParamsType[], item: DataProps) => {
         if (item?.type === 'annotated_data') {
           item.url = ''
         }
         const splitConfig = {
-          split_type: item?.splitType,
-          chunk_size: item?.chunkSize,
-          chunk_overlap: item?.chunkOverlap,
+          split_type: item?.splitType || 'character',
+          chunk_size: item?.chunkSize || 500,
+          chunk_overlap: item?.chunkOverlap || 0,
         }
         const cur = pick(item, ['url', 'type', 'uid'])
-        // @ts-ignore
-        cur.split_option = splitConfig
-        console.log(cur, '---cur')
-        m.push(cur)
+
+        m.push({ ...cur, split_option: splitConfig })
         return m
       },
       []

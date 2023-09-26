@@ -84,7 +84,7 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
       <div className="sm:w-full md:max-w-[600px]">
         <Form {...form}>
           <form className="w-full">
-            <section id="dataset-name" className="border-b-[1px] py-6">
+            <section id="dataset-name" className="border-b py-6">
               <div className="mb-6 text-2xl font-semibold leading-8">
                 Dataset Name
               </div>

@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeftIcon } from 'lucide-react'
 
@@ -12,7 +11,7 @@ import Documents from './documents'
 
 interface IProps {
   name: string
-  config: any
+  config: Record<string, any>
 }
 
 const ViewPage = (props: IProps) => {

@@ -4,7 +4,7 @@ import { pick } from 'lodash'
 
 import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
-import { DataBaseProps, DataProps } from '@/app/dataset/type'
+import { DataProps, DocumentProps } from '@/app/dataset/type'
 
 import { getDataset, getEditParams } from '../actions'
 import { NewDataset } from '../schema'
@@ -43,8 +43,8 @@ export async function getDataInfo(dataset_id: string, uid: string) {
 
 export async function getNotedData() {
   const apps = await getApps()
-  const data = apps?.reduce((m: DataBaseProps[], item: NewApp) => {
-    const cur = pick(item, ['name', 'icon', 'short_id', 'uid']) as DataBaseProps
+  const data = apps?.reduce((m: DocumentProps[], item: NewApp) => {
+    const cur = pick(item, ['name', 'icon', 'short_id', 'uid']) as DocumentProps
     cur.uid = item.api_model_id || ''
     cur.type = 'annotated_data'
     m.push(cur)

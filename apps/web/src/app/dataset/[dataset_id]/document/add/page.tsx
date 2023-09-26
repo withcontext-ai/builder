@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { auth } from '@/lib/auth'
 import { getDataset } from '@/db/datasets/actions'
-import { getDocuments, getNotedData } from '@/db/datasets/documents/action'
+import { getNotedData } from '@/db/datasets/documents/action'
 
 import SettingPage from '../[document_id]/setting-page'
 
@@ -33,7 +33,7 @@ const DatasetEdit = async ({ params }: IProps) => {
         <SettingPage
           defaultValues={defaultValues}
           datasetId={dataset_id}
-          document_id={'add'}
+          documentId={'add'}
           apps={apps?.data || []}
         />
       </div>

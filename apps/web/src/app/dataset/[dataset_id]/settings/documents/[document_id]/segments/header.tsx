@@ -3,17 +3,20 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2Icon, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { LoaderTypeProps } from '@/app/dataset/type'
 
 import FileIcon from '../../file-icon'
 
 interface IProps {
   uid: string
   name: string
-  type: 'pdf' | 'annotated_data'
+  short_id?: string
+  type: LoaderTypeProps
+  icon?: string
   addNew?: () => void
 }
 
-const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
+const SegmentHeader = ({ name, uid, type, addNew, short_id, icon }: IProps) => {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const goBack = () => {
@@ -40,7 +43,7 @@ const SegmentHeader = ({ name, uid, type, addNew }: IProps) => {
         </Button>
         <FileIcon
           className="h-6 w-6"
-          data={{ name, uid, type, url: '' }}
+          data={{ name, uid, type, short_id, icon }}
           isSegment
         />
       </div>

@@ -21,7 +21,7 @@ export async function DELETE(req: NextRequest) {
 // add data
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
-  const { documents } = await getDocuments({ dataset_id })
+  const { documents, config: basicsConfig } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
   const currentConfig = pick(dataConfig, [
     'splitType',
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return item
   })
   files = [...files, ...documents]
-  const newConfig = { ...currentConfig, files }
+  const newConfig = { ...basicsConfig, ...currentConfig, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 // edit data
 export async function PATCH(req: NextRequest) {
   const { dataset_id, dataConfig, document_id } = await req.json()
-  const { documents, config } = await getDocuments({ dataset_id })
+  const { documents, config: basicsConfig } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
 
   // to replace the current
@@ -69,7 +69,7 @@ export async function PATCH(req: NextRequest) {
   const currentFile = Object.assign(fileProps, splitConfig)
   documents[index] = currentFile
 
-  const newConfig = { ...config, ...splitConfig, files: documents }
+  const newConfig = { ...basicsConfig, ...splitConfig, files: documents }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
     success: true,

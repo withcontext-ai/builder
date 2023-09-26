@@ -53,10 +53,10 @@ function Sidebar({ children }: PropsWithChildren) {
     startTransition(() => {
       if (nextUrl) {
         router.push(nextUrl as Route)
-        router.refresh()
       } else {
         router.back()
       }
+      router.refresh()
     })
   }
 

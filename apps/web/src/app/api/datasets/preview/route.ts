@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
     item = Object.assign(item, splitConfig)
     return item
   })
-
   const newConfig = { ...splitConfig, files }
   const uid = !isAdd ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)
