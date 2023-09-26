@@ -67,6 +67,7 @@ class TargetedChain(Chain):
     process: str = TargetedChainStatus.INIT
     suffix: str = "The content you want to output first is:"
     dialog_key: str = "dialog"
+    target: str = "target"
 
     class Config:
         extra = Extra.forbid
@@ -135,6 +136,24 @@ class TargetedChain(Chain):
         )
         return {self.output_key: response.generations[0][0].text}
 
+    async def get_output(self, pre_dialog, human_input, llm_output):
+        dialog = (
+            pre_dialog
+            + "\n"
+            + get_buffer_string(
+                [
+                    HumanMessage(content=human_input),
+                    AIMessage(content=llm_output),
+                ],
+            )
+        )
+        pre_prompt = "The gocal is" + self.target + "\n"
+        suffix_prompt = "Please output the target based on this conversation."
+        response = await self.llm.agenerate(
+            messages=[[HumanMessage(content=pre_prompt + dialog + suffix_prompt)]],
+        )
+        return response.generations[0][0].text
+
 
 class EnhanceSequentialChain(SequentialChain):
     queue: asyncio.Queue[str]
@@ -178,22 +197,27 @@ class EnhanceSequentialChain(SequentialChain):
                         self.known_values, return_only_outputs=True, callbacks=callbacks
                     )
                     pre_dialog = inputs.get(chain.dialog_key, "")
+                    current_output = outputs[chain.output_key]
                     outputs[chain.dialog_key] = (
                         pre_dialog
                         + "\n"
                         + get_buffer_string(
                             [
                                 HumanMessage(content=inputs["question"]),
-                                AIMessage(content=outputs[chain.output_key]),
+                                AIMessage(content=current_output),
                             ],
                         )
+                    )
+
+                    outputs[chain.output_key] = await chain.get_output(
+                        pre_dialog, inputs["question"], current_output
                     )
                     self.known_values.update(outputs)
                     if chain.process not in [
                         TargetedChainStatus.FINISHED,
                         TargetedChainStatus.ERROR,
                     ]:
-                        await self._put_tokens_into_queue(outputs[chain.output_key])
+                        await self._put_tokens_into_queue(current_output)
                         return self._construct_return_dict()
                     elif i == len(self.chains) - 1:
                         await self._handle_final_chain()

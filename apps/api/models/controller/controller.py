@@ -559,6 +559,16 @@ class SessionStateManager(BaseManager):
     def get_session_state_urn(session_id: str):
         return f"session:{session_id}"
 
+    @staticmethod
+    def get_chain_output_urn(session_id: str, output_key: str):
+        return f"output:{session_id}:{output_key}"
+
+    def save_chain_output(self, session_id: str, output_key: str, output: str):
+        self.redis.set(self.get_chain_output_urn(session_id, output_key), output)
+
+    def get_chain_output(self, session_id: str, output_key: str):
+        return self.redis.get(self.get_chain_output_urn(session_id, output_key))
+
     @BaseManager.db_session
     def save_session_state(self, session_id: str, model_id: str):
         logger.info(f"Saving session state {session_id}")
@@ -615,6 +625,11 @@ class SessionStateManager(BaseManager):
                 self.save_chain_status(
                     session_id, chain.output_keys[0], chain.process, chain.max_retries
                 )
+                self.save_chain_output(
+                    session_id,
+                    chain.output_keys[0],
+                    workflow.context.known_values[chain.output_keys[0]],
+                )
         self.save_chain_memory(session_id, workflow.io_traces)
 
     def get_workflow(self, session_id, model):
@@ -631,6 +646,10 @@ class SessionStateManager(BaseManager):
                 if tup is not None:
                     chain.process = tup[0]
                     chain.max_retries = tup[1]
+                output = self.get_chain_output(session_id, chain.output_keys[0])
+                if output is None:
+                    output = ""
+                workflow.outputs[chain.output_keys[0]] = output
         # get chain memory
         # memory example: {"tool_%d_dialog": [{"input": "human input", "output": "tool output"}]}
         workflow.current_memory = {}

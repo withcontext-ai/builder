@@ -58,6 +58,8 @@ class Workflow(BaseModel):
     known_keys: List[str] = []
     current_memory: dict = {}
     dialog_keys: List[str] = []
+    outout_keys: List[str] = []
+    outputs: dict = {}
 
     def __init__(self, model: Model, session_id: str) -> None:
         super().__init__()
@@ -76,6 +78,7 @@ class Workflow(BaseModel):
             chain.dialog_key = self.get_chain_dialog_key(_chain.key)
             chains.append(chain)
             self.known_keys.append(chain.output_key)
+            self.outout_keys.append(chain.output_key)
             chain_dialog_key = self.get_chain_dialog_key(_chain.key)
             self.known_keys.append(chain_dialog_key)
             self.dialog_keys.append(chain_dialog_key)
@@ -254,6 +257,7 @@ class Workflow(BaseModel):
                         system_prompt=prompt_template[0],
                         check_prompt=prompt_template[1],
                         max_retries=_chain.prompt.follow_up_questions_num + 1,
+                        target=_chain.prompt.target,
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(),
@@ -277,6 +281,7 @@ class Workflow(BaseModel):
                 QUESTION_KEY: prompt,
                 CONTEXT_KEY: "",
                 **dialog,
+                **self.outputs,
             }
         )
 
