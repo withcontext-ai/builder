@@ -84,28 +84,28 @@ const DataForm = () => {
 
   const [data, setData] = useState<any[]>(defaultValues?.files || [])
 
-  const { trigger: addTrigger, isMutating } = useSWRMutation(
+  const { trigger: triggerAdd, isMutating } = useSWRMutation(
     `/api/datasets/document`,
     addData
   )
 
-  const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
+  const { trigger: triggerEdit, isMutating: editMutating } = useSWRMutation(
     `/api/datasets/document`,
     editData
   )
 
-  const { trigger: previewTrigger, isMutating: previewMutating } =
+  const { trigger: triggerPreview, isMutating: previewMutating } =
     useSWRMutation(`/api/datasets/preview`, getPreview)
   const router = useRouter()
   const onSubmit = async () => {
     try {
       if (isAdd) {
-        await addTrigger({
+        await triggerAdd({
           dataset_id: datasetId,
           dataConfig,
         })
       } else {
-        await editTrigger({
+        await triggerEdit({
           dataset_id: datasetId,
           dataConfig,
           document_id: documentId,
@@ -133,7 +133,7 @@ const DataForm = () => {
     }
     if (step === 2) {
       setStep?.(step + 1)
-      const data = await previewTrigger({
+      const data = await triggerPreview({
         dataset_id: datasetId,
         dataConfig,
         document_id: documentId,

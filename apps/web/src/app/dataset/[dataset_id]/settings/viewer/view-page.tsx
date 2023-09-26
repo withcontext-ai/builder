@@ -11,7 +11,7 @@ import Documents from './documents'
 
 interface IProps {
   name: string
-  config: Record<string, any>
+  config: any
 }
 
 const ViewPage = (props: IProps) => {

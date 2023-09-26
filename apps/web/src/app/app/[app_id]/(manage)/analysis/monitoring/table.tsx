@@ -235,6 +235,7 @@ export const MonitoringTable = ({ preloaded }: Props) => {
     manualPagination: true,
     pageCount: Math.ceil((data?.count || 0) / pagination.pageSize),
   })
+
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null
   )
