@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { SLACK_REDIRECT_URI } from '@/lib/const'
+import { logsnag } from '@/lib/logsnag'
 import { createSlackClient, SlackUtils } from '@/lib/slack'
 
 export const dynamic = 'force-dynamic'
@@ -49,6 +50,7 @@ export async function GET(req: NextRequest) {
       team_icon: teamInfo.team.icon?.image_132 || '',
       access_token,
       scope: accessInfo.scope,
+      archived: false,
     }
     const slack_team = await slack.addOrUpdateTeam(team)
 
@@ -57,12 +59,19 @@ export async function GET(req: NextRequest) {
     }
     const slack_user = await slack.addOrUpdateUser(user)
 
-    const data = {
-      slack_team,
-      slack_user,
-    }
-    // TODO: redirect to success page
-    return NextResponse.json({ success: true, data })
+    await logsnag?.track({
+      user_id: slack_user.context_user_id,
+      channel: 'share',
+      event: 'Install to Slack workspace',
+      icon: '🔌',
+      description: `Successfully installed to ${slack_team.team_name} (${slack_team.team_url})`,
+      tags: {
+        'slack-app-id': slack_team.app_id,
+        'slack-team-id': slack_team.team_id,
+      },
+    })
+
+    return NextResponse.redirect(new URL('/success', req.url))
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }
