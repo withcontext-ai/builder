@@ -48,12 +48,14 @@ export async function PATCH(
 
   const body = (await req.json()) as EditParams
   const isSynchrony = body?.isSynchrony
-  const { documents, config } = await getDocuments({ dataset_id })
-  const currentConfig = isSynchrony ? config : body
+  const { documents, config, name } = await getDocuments({ dataset_id })
+  const currentConfig: Partial<NewDataset> = isSynchrony
+    ? { config, name }
+    : body
   // edit basics or synchrony noted data
   const response = (await editDataset(
     dataset_id,
-    { config: currentConfig },
+    currentConfig,
     documents
   )) as any
 

@@ -15,7 +15,7 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const config = datasetDetail?.config || {}
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
-  return { documents, updated_at, status, config }
+  return { documents, updated_at, status, config, name: datasetDetail?.name }
 }
 
 // get data info
