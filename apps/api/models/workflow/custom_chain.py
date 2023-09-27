@@ -98,7 +98,7 @@ class TargetedChain(Chain):
         ):
             inputs[self.dialog_key] = [inputs[self.dialog_key]]
         basic_messages = inputs.get(self.dialog_key, [])
-        human_input = input.get("question", "")
+        human_input = inputs.get("question", "")
         basic_messages += [HumanMessage(content=human_input)]
         # inputs.pop("chat_history", None)
 
