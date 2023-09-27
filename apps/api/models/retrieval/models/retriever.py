@@ -20,7 +20,7 @@ from pdfminer.pdfpage import PDFPage
 from pydantic import Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 from ..webhook import WebhookHandler
-from models.data_loader import DocumentProcessingMixin, load_and_split_documents  
+from models.data_loader import PDFHandler, load_and_split_documents  
 
 class PatchedSelfQueryRetriever(SelfQueryRetriever):
     async def _aget_relevant_documents(
@@ -146,7 +146,7 @@ class Retriever:
                 logger.warning(
                     f"Document {doc.url} has page_size 0 when adding relative chain"
                 )
-                doc.page_size = DocumentProcessingMixin.get_document_page_size(doc)
+                doc.page_size = PDFHandler.get_document_page_size(doc)
                 logger.info(f"Updated Document {doc.url} page_size to {doc.page_size}")
             for i in range(doc.page_size):
                 id = f"{dataset.id}-{doc.url}-{i}"
