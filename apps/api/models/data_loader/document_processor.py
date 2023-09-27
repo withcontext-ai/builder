@@ -110,17 +110,6 @@ class AnnotatedDataHandler(DocumentHandler):
         return {
             "source": document.uid
         }
-class WordHandler(DocumentHandler):
-
-    def fetch_content(self, document: Document) -> str:
-        storage_client = GoogleCloudStorageClient()
-        word_content = storage_client.load(document.url)
-        word_doc = WordDocument(word_content)
-        full_text = []
-        for para in word_doc.paragraphs:
-            full_text.append(para.text)
-
-        return '\n'.join(full_text)
 
 def load_and_split_documents(datasets: list[Dataset]):
     handlers = {
