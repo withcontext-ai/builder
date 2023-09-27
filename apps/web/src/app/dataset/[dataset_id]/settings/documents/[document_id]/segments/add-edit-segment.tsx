@@ -8,18 +8,9 @@ import {
 } from '@/components/ui/alert-dialog'
 
 import SegmentForm from './segment-form'
+import { ISegmentEditProps } from './type'
 
-interface IProps {
-  content: string
-  segment_id: string
-  dataset_id: string
-  document_id: string
-  open: boolean
-  setOpen: (s: boolean) => void
-  handelConfirm: (s: void) => void
-}
-
-const AddOrEdit = (props: IProps) => {
+const AddOrEdit = (props: ISegmentEditProps) => {
   return (
     <AlertDialog open={props.open} onOpenChange={props.setOpen}>
       <AlertDialogContent>

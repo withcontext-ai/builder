@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FileType2, Plus } from 'lucide-react'
+import { FileType2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
@@ -17,15 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 
-interface IProps {
-  content: string
-  segment_id: string
-  dataset_id: string
-  document_id: string
-  open: boolean
-  setOpen: (s: boolean) => void
-  handelConfirm: () => void
-}
+import { ISegmentEditProps } from './type'
 
 function addSegment(
   url: string,
@@ -67,7 +59,7 @@ const SegmentForm = ({
   document_id = '',
   segment_id = '',
   handelConfirm,
-}: IProps) => {
+}: ISegmentEditProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,29 +67,29 @@ const SegmentForm = ({
     },
   })
   const { watch, handleSubmit } = form
-  const { trigger: addTrigger, isMutating } = useSWRMutation(
+  const { trigger: triggerAdd, isMutating } = useSWRMutation(
     `/api/datasets/segment`,
     addSegment
   )
 
-  const { trigger: editTrigger, isMutating: editMutating } = useSWRMutation(
+  const { trigger: triggerEdit, isMutating: editMutating } = useSWRMutation(
     `/api/datasets/segment`,
     editSegment
   )
   const onSubmit = async () => {
     const segment = watch().segment
     if (!segment_id) {
-      await addTrigger({ dataset_id, uid: document_id, content: segment })
+      await triggerAdd({ dataset_id, uid: document_id, content: segment })
     } else {
-      await editTrigger({
+      await triggerEdit({
         dataset_id,
         segment_id,
         uid: document_id,
         content: segment,
       })
     }
-    setOpen?.(false)
-    handelConfirm?.()
+    setOpen(false)
+    handelConfirm()
   }
   const disabled = isMutating || editMutating
   return (

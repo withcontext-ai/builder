@@ -40,7 +40,6 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
         <div className="mb-6 flex flex-1 flex-col space-y-2 overflow-auto px-6">
           {data?.map((item: DocumentProps, index) => {
             const { text, color } = formateStatus(item?.status)
-
             return (
               <div
                 key={index}

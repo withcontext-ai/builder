@@ -50,11 +50,13 @@ const AddAnnotatedData = ({ form }: IProps) => {
   }
 
   useEffect(() => {
+    // restore operational record when change loaderType
     const noted = formValue.notedData
     setCardList(noted)
     setSelected(noted)
   }, [formValue.notedData, type])
 
+  console.log(formValue.notedData, '---formValue.notedData')
   const showButton = useMemo(
     () => isAdd || (!isAdd && cardList?.length == 0),
     [cardList?.length, isAdd]

@@ -23,7 +23,7 @@ const TextEmbedding = ({ form }: SessionProps) => {
       <div className="mb-6 text-2xl font-semibold leading-8">
         Text Embedding Models
       </div>
-      <div className="mb-6	text-sm font-normal leading-6 text-slate-600">
+      <div className="mb-6 text-sm font-normal leading-6 text-slate-600">
         The Embeddings class is a class designed for interfacing with text
         embedding models. There are lots of embedding model providers (OpenAI,
         Cohere, Hugging Face, etc) - this class is designed to provide a

@@ -33,7 +33,7 @@ const NotedDataCard = ({
           {getFirstLetter(item?.name || '')}
         </AvatarFallback>
       </Avatar>
-      <div className={cn('flex flex-col font-medium')}>
+      <div className="flex flex-col font-medium">
         {item?.name || ''}
         {isDisabled && (
           <div className="text-xs font-normal">already added to dataset</div>

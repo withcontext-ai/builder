@@ -11,15 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 
 import { editSegment } from './segment-form'
-
-interface IProps {
-  dataset_id: string
-  uid: string
-  segment_id: string
-  showDeleteAlter: boolean
-  setShowDeleteAlter: (s: boolean) => void
-  handelConfirm: () => void
-}
+import { ISegmentDeleteProps } from './type'
 
 const DeleteSegment = ({
   dataset_id = '',
@@ -28,7 +20,7 @@ const DeleteSegment = ({
   setShowDeleteAlter,
   showDeleteAlter,
   handelConfirm,
-}: IProps) => {
+}: ISegmentDeleteProps) => {
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/segment`,
     editSegment

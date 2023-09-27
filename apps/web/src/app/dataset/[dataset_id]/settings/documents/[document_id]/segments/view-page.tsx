@@ -22,6 +22,7 @@ interface IProps {
 }
 
 const SegmentPage = ({ dataset_id, document_id }: IProps) => {
+  console.log(dataset_id, '---dataset_id', document_id)
   const urlSearchParams = new URLSearchParams(
     decodeURIComponent(window.location.search)
   )
