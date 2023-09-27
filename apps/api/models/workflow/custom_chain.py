@@ -97,7 +97,9 @@ class TargetedChain(Chain):
             inputs[self.dialog_key], str
         ):
             inputs[self.dialog_key] = [inputs[self.dialog_key]]
-        bacis_messages = inputs.get(self.dialog_key, [])
+        basic_messages = inputs.get(self.dialog_key, [])
+        human_input = input.get("question", "")
+        basic_messages += [HumanMessage(content=human_input)]
         # inputs.pop("chat_history", None)
 
         question = ""
@@ -106,7 +108,7 @@ class TargetedChain(Chain):
             messages = [SystemMessage(content=prompt_value.to_string())] + [
                 HumanMessage(
                     content=get_buffer_string(
-                        bacis_messages, human_prefix="User", ai_prefix="AI"
+                        basic_messages, human_prefix="User", ai_prefix="AI"
                     )
                 )
             ]
@@ -129,7 +131,7 @@ class TargetedChain(Chain):
             system_message = prompt_value.to_string()
         else:
             system_message = f"{prompt_value.to_string()}\n{self.suffix}{question}\n"
-        messages = [SystemMessage(content=system_message)] + bacis_messages
+        messages = [SystemMessage(content=system_message)] + basic_messages
         response = await self.llm.agenerate(
             messages=[messages],
             callbacks=run_manager.get_child() if run_manager else None,
