@@ -6,7 +6,7 @@ import { db } from '@/lib/drizzle-edge'
 import { FileProps } from '@/components/upload/utils'
 
 import { UsersTable } from '../users/schema'
-import { Documents, DocumentsTable, NewDocument } from './schema'
+import { DocumentsTable } from './schema'
 
 export type newDocumentParams = {
   config: Record<string, any>
@@ -25,7 +25,6 @@ export async function getDocuments(datasetId: string) {
           eq(DocumentsTable.created_by, UsersTable.short_id)
         )
       )
-      .limit(1)
 
     if (!item) {
       throw new Error('Dataset not found')
@@ -40,7 +39,7 @@ export async function getDocuments(datasetId: string) {
 export async function addDocuments(data: newDocumentParams) {
   try {
     const { userId } = auth()
-    if (!userId) return Promise.resolve([])
+    if (!userId) throw new Error('Not authenticated')
     const documents = data?.documents?.reduce((m: any[], cur: FileProps) => {
       const item = {
         config: data?.config,
@@ -87,7 +86,7 @@ export async function editDocument(
 ) {
   try {
     const { userId } = auth()
-    if (!userId) return Promise.resolve([])
+    if (!userId) throw new Error('Not authenticated')
 
     const response = await db
       .update(DocumentsTable)
@@ -107,7 +106,7 @@ export async function editDocument(
 export async function deleteDocument(id: string) {
   try {
     const { userId } = auth()
-    if (!userId) return Promise.resolve([])
+    if (!userId) throw new Error('Not authenticated')
 
     const response = await db
       .update(DocumentsTable)

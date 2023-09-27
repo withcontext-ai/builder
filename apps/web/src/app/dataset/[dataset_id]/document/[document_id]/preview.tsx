@@ -18,14 +18,13 @@ export const PreviewCard = ({ content, index }: SegmentProps) => {
     </div>
   )
 }
-export const LoadingCard = () =>
-  Array.from({ length: 5 }).map((_, i) => (
-    <Skeleton
-      key={i}
-      className="h-[182px] rounded-lg border border-transparent"
-    />
-  ))
 
+const loadingCard = Array.from({ length: 5 }).map((_, i) => (
+  <Skeleton
+    key={i}
+    className="h-[182px] rounded-lg border border-transparent"
+  />
+))
 interface IProps {
   data: SegmentProps[]
   isLoading: boolean
@@ -33,20 +32,18 @@ interface IProps {
 const Preview = ({ isLoading, data }: IProps) => {
   return (
     <div className="mb-5 grid h-full w-full grid-cols-2 gap-4">
-      {isLoading ? (
-        <LoadingCard />
-      ) : (
-        data?.map((item, index) => {
-          return (
-            <div key={index}>
-              <PreviewCard
-                index={formateIndex(index + 1)}
-                content={item?.content}
-              />
-            </div>
-          )
-        })
-      )}
+      {isLoading
+        ? loadingCard
+        : data?.map((item, index) => {
+            return (
+              <div key={index}>
+                <PreviewCard
+                  index={formateIndex(index + 1)}
+                  content={item?.content}
+                />
+              </div>
+            )
+          })}
     </div>
   )
 }

@@ -18,13 +18,13 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 
 interface IProps {
-  content?: string
-  segment_id?: string
-  dataset_id?: string
-  document_id?: string
-  open?: boolean
-  setOpen?: (s: boolean) => void
-  handelConfirm?: () => void
+  content: string
+  segment_id: string
+  dataset_id: string
+  document_id: string
+  open: boolean
+  setOpen: (s: boolean) => void
+  handelConfirm: () => void
 }
 
 function addSegment(
