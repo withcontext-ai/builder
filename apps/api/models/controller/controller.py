@@ -5,7 +5,7 @@ from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
 from models.workflow import Workflow
 from models.retrieval import Retriever
-from models.data_loader import DocumentProcessingMixin
+from models.data_loader import PDFHandler
 from langchain.text_splitter import CharacterTextSplitter
 from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
 from langchain.schema import Document
@@ -372,7 +372,7 @@ class DatasetManager(BaseManager):
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
             pdf_content = storage_client.load(url)
-            text = DocumentProcessingMixin.extract_text_from_pdf(pdf_content)
+            text = PDFHandler.extract_text_from_pdf(pdf_content)
             pages = text.split("\f")
             _docs = []
             for page in pages:

@@ -17,23 +17,6 @@ from utils.StorageClient import GoogleCloudStorageClient, AnnotatedDataStorageCl
 # Mixins
 class DocumentProcessingMixin:
 
-    @staticmethod
-    def extract_text_from_pdf(contents: io.BytesIO) -> list:
-        resource_manager = PDFResourceManager()
-        fake_file_handle = io.StringIO()
-        converter = TextConverter(
-            resource_manager, fake_file_handle, laparams=LAParams()
-        )
-        page_interpreter = PDFPageInterpreter(resource_manager, converter)
-        for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
-            page_interpreter.process_page(page)
-        text = fake_file_handle.getvalue()
-
-        converter.close()
-        fake_file_handle.close()
-
-        return text
-
     def get_text_splitter(self, document: Document) -> CharacterTextSplitter:
         options = PDFRetrivalOption(
             splitter=PDFSplitterOption(
@@ -46,16 +29,6 @@ class DocumentProcessingMixin:
             chunk_overlap=options.splitter.chunk_overlap,
         )
     
-    @staticmethod
-    def get_document_page_size(document: Document) -> int:
-        if document.page_size != 0:
-            return document.page_size
-        else:
-            pdf_content = GoogleCloudStorageClient().load(document.url)
-            text = DocumentProcessingMixin.extract_text_from_pdf(pdf_content)
-            pages = text.split("\f")
-            return len(pages)
-
     def split_content(self, content: str) -> List[str]:
         return content.split("\f")
 
@@ -90,6 +63,32 @@ class DocumentHandler(ABC, DocumentProcessingMixin):
         return all_docs
     
 class PDFHandler(DocumentHandler):
+
+    @staticmethod
+    def get_document_page_size(document: Document) -> int:
+        if document.page_size != 0:
+            return document.page_size
+        else:
+            pdf_content = GoogleCloudStorageClient().load(document.url)
+            text = PDFHandler.extract_text_from_pdf(pdf_content)
+            pages = text.split("\f")
+            return len(pages)
+
+    @staticmethod
+    def extract_text_from_pdf(contents: io.BytesIO) -> str:
+        resource_manager = PDFResourceManager()
+        fake_file_handle = io.StringIO()
+        converter = TextConverter(
+            resource_manager, fake_file_handle, laparams=LAParams()
+        )
+        page_interpreter = PDFPageInterpreter(resource_manager, converter)
+        for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
+            page_interpreter.process_page(page)
+        text = fake_file_handle.getvalue()
+
+        converter.close()
+        fake_file_handle.close()
+        return text
 
     def fetch_content(self, document: Document) -> str:
         storage_client=GoogleCloudStorageClient()
