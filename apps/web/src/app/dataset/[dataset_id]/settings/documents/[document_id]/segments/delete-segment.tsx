@@ -13,12 +13,12 @@ import { Button } from '@/components/ui/button'
 import { editSegment } from './segment-form'
 
 interface IProps {
-  dataset_id?: string
-  uid?: string
-  segment_id?: string
-  showDeleteAlter?: boolean
-  setShowDeleteAlter?: (s: boolean) => void
-  handelConfirm?: () => void
+  dataset_id: string
+  uid: string
+  segment_id: string
+  showDeleteAlter: boolean
+  setShowDeleteAlter: (s: boolean) => void
+  handelConfirm: () => void
 }
 
 const DeleteSegment = ({

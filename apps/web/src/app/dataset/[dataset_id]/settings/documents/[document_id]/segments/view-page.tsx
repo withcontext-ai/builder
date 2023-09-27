@@ -124,7 +124,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
       <DeleteSegment
         dataset_id={dataset_id}
         uid={document_id}
-        segment_id={current?.current?.segment_id}
+        segment_id={current?.current?.segment_id || ''}
         showDeleteAlter={showDeleteAlter}
         setShowDeleteAlter={setShowDeleteAlter}
         handelConfirm={() => setFresh((v) => v + 1)}
