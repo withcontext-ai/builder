@@ -60,7 +60,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
   )
 
   const table = useReactTable({
-    data: data?.segments,
+    data: data,
     columns: [],
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
@@ -68,7 +68,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     manualPagination: true,
     pageCount: Math.ceil((data?.totalItems || 0) / pagination.pageSize),
   })
-
+  console.log(data, '---data')
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (value !== e?.target?.value) {
@@ -108,7 +108,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
               ))
             ) : (
               <SegmentList
-                segments={data?.segments}
+                segments={data}
                 setOpen={setOpen}
                 current={current}
                 setShowDeleteAlter={setShowDeleteAlter}

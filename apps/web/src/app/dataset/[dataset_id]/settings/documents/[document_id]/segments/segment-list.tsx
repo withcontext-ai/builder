@@ -19,7 +19,7 @@ const SegmentList = ({
   setShowDeleteAlter,
   current,
 }: IProps) => {
-  return segments.map((item: SegmentProps, index: number) => {
+  return segments?.map((item: SegmentProps, index: number) => {
     return (
       <div
         key={index}

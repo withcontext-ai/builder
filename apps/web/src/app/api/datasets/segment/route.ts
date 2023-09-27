@@ -15,8 +15,13 @@ export async function GET(req: NextRequest) {
   const page = parseInt(query.get('pageIndex') || '')
   const search = query.get('search') || ''
   const offset = page * limit
-  const data = await getSegments(dataset_id, uid, search, offset, limit)
-  return NextResponse.json({ success: true, data })
+  const { segments } = await getSegments(dataset_id, uid, search, offset, limit)
+
+  return NextResponse.json({
+    success: true,
+    data:
+      segments?.length !== 0 ? segments : [{ content: '', segment_id: '01' }],
+  })
 }
 
 // add segment
