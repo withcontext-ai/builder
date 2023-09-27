@@ -22,7 +22,6 @@ export async function getMyTeamList() {
         team_name: SlackTeamsTable.team_name,
         team_url: SlackTeamsTable.team_url,
         team_icon: SlackTeamsTable.team_icon,
-        is_admin: SlackUsersTable.is_admin,
       })
       .from(SlackUsersTable)
       .leftJoin(
@@ -35,6 +34,7 @@ export async function getMyTeamList() {
       .where(
         and(
           eq(SlackUsersTable.context_user_id, userId),
+          eq(SlackUsersTable.is_admin, true),
           eq(SlackUsersTable.archived, false),
           eq(SlackTeamsTable.archived, false)
         )
@@ -49,11 +49,6 @@ export async function getMyTeamList() {
 
 export async function removeTeam(app_id: string, team_id: string) {
   try {
-    const { userId } = auth()
-    if (!userId) {
-      throw new Error('Not authenticated')
-    }
-
     await db
       .update(SlackTeamsTable)
       .set({ archived: true })
