@@ -179,6 +179,14 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
             chunk = chunk.replace(matches[0], '')
           }
 
+          if (streamedData.id) {
+            responseMessage.id = streamedData.id
+          }
+
+          if (streamedData.error) {
+            _setError(new Error(streamedData.error))
+          }
+
           // Update the chat state with the new message tokens.
           streamedResponse += chunk
 
@@ -191,15 +199,6 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
             reader.cancel()
             break
           }
-        }
-
-        if (streamedData.id) {
-          responseMessage.id = streamedData.id
-          setMessages([...currMessages, responseMessage])
-        }
-
-        if (streamedData.error) {
-          _setError(new Error(streamedData.error))
         }
 
         if (onFinish) {
@@ -242,16 +241,25 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
       return
     }
     const lastMessage = messagesRef.current[messagesRef.current.length - 1]
-    if (lastMessage.role !== 'assistant' || lastMessage.type !== 'chat') {
+    if (lastMessage.type !== 'chat') {
       return
     }
-
-    messagesRef.current = messagesRef.current.slice(0, -1)
     _setError()
-    setMessages(messagesRef.current)
+
+    let query = ''
+    let reloadId
+    if (lastMessage.role === 'assistant') {
+      messagesRef.current = messagesRef.current.slice(0, -1)
+      setMessages(messagesRef.current)
+      query = messagesRef.current[messagesRef.current.length - 1].content
+      reloadId = lastMessage.id
+    } else {
+      query = lastMessage.content
+    }
+
     const currMessages = messagesRef.current
     try {
-      triggerRequest({ query: lastMessage.content, reloadId: lastMessage.id })
+      triggerRequest({ query: lastMessage.content, reloadId })
     } catch (err) {
       setMessages(currMessages)
     }

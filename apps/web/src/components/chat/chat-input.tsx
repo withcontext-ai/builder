@@ -64,10 +64,7 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
             {error.message || 'There was an error generating a response'}
           </div>
         )}
-        {(Boolean(error?.message) ||
-          (showResend &&
-            !loading &&
-            allMessages[allMessages.length - 1].role === 'assistant')) && (
+        {(Boolean(error?.message) || (showResend && !loading)) && (
           <Button className="bg-white" onClick={handleReload} variant="outline">
             <RefreshCw size={16} className="mr-2" />
             Regenerate response
