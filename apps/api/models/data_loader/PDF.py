@@ -95,12 +95,13 @@ class PDFLoader:
                         "urn"
                     ] = f"{dataset.id}-{document.url}-{_d.metadata['page_number']}"
 
-                document.page_size = 0
-                for segment in _doc:
-                    document.page_size += len(segment.page_content)
+                document.page_size = len(_doc)
                 logger.info(
                     f"got documents: {len(_doc)} while loading dataset {dataset.id}"
                 )
+                document.content_size = 0
+                for segment in _doc:
+                    document.content_size += len(segment.page_content)
                 doc += _doc
         return doc
 
