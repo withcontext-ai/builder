@@ -28,33 +28,23 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const { getValues } = form
   const formValue = getValues()
 
-  const { defaultValues, datasetId, isAdd } = useDataContext()
-  const notedData = defaultValues?.notedData || []
+  const { datasetId, isAdd } = useDataContext()
   const [disabledData, setDisabledData] = useState<DocumentProps[]>([])
-  // @ts-ignore
-  const [cardList, setCardList] = useState<DocumentProps[]>(notedData)
+
+  const cardList = formValue.notedData
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document?dataset_id=${datasetId}`,
     getDisabledData
   )
   const [selected, setSelected] = useState<DocumentProps[]>(cardList)
-  const type = formValue.loaderType
 
   const deleteNotedData = (id: string) => {
     const newData =
       cardList?.filter((item: DocumentProps) => item?.uid !== id) || []
     form.setValue('notedData', newData)
-    setCardList(newData)
     setSelected(newData)
   }
-
-  useEffect(() => {
-    // restore operational record when change loaderType
-    const noted = formValue.notedData
-    setCardList(noted)
-    setSelected(noted)
-  }, [formValue.notedData, type])
 
   const showButton = useMemo(
     () => isAdd || (!isAdd && cardList?.length == 0),
@@ -91,7 +81,6 @@ const AddAnnotatedData = ({ form }: IProps) => {
             form={form}
             selected={selected}
             cardList={cardList}
-            setCardList={setCardList}
             disabledData={disabledData}
             setSelected={setSelected}
             setOpen={setOpen}

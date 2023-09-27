@@ -23,7 +23,6 @@ interface IProps {
   disabledData: DocumentProps[]
   setOpen: (s: boolean) => void
   setSelected: (s: DocumentProps[]) => void
-  setCardList: (s: DocumentProps[]) => void
 }
 
 const AnnotatedForm = ({
@@ -31,7 +30,6 @@ const AnnotatedForm = ({
   cardList = [],
   disabledData,
   setOpen,
-  setCardList,
   selected,
   setSelected,
 }: IProps) => {
@@ -49,7 +47,6 @@ const AnnotatedForm = ({
   }
 
   const onSave = () => {
-    setCardList(selected)
     setValue('notedData', selected)
     setOpen(false)
   }
