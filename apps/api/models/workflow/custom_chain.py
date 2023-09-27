@@ -149,7 +149,7 @@ class TargetedChain(Chain):
                 ],
             )
         )
-        pre_prompt = "The gocal is" + self.target + "\n"
+        pre_prompt = "The goal is" + self.target + "\n"
         suffix_prompt = "Please output the target based on this conversation."
         response = await self.llm.agenerate(
             messages=[[HumanMessage(content=pre_prompt + dialog + suffix_prompt)]],
