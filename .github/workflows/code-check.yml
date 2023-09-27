@@ -115,7 +115,6 @@ jobs:
  e2e_test:
     runs-on: ubuntu-latest
     name: E2E Testing
-    environment: Preview
     steps:
       - name: Waiting for 200 from the Vercel Preview
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
@@ -124,7 +123,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           max_timeout: 600
           check_interval: 20
-          environment:
 
       - uses: actions/checkout@v3
         with:
@@ -164,10 +162,3 @@ jobs:
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
           E2E_USERNAME: ${{ env.E2E_USERNAME }}
           E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
-
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: apps/web/test-results/**/*.zip
-          retention-days: 3
