@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { pick } from 'lodash'
 
 import { addDataset, editDataset, removeDataset } from '@/db/datasets/actions'
 import { getDocuments } from '@/db/datasets/documents/action'
@@ -38,7 +39,10 @@ export async function GET(
   return NextResponse.json({ success: true, data: { data: res, count } })
 }
 
-type EditParams = Partial<NewDataset> & { isSynchrony?: boolean }
+type EditParams = Partial<NewDataset> & {
+  isSynchrony?: boolean
+  isEditBasics?: boolean
+}
 // // Update a dataset
 export async function PATCH(
   req: NextRequest,
@@ -48,16 +52,17 @@ export async function PATCH(
 
   const body = (await req.json()) as EditParams
   const isSynchrony = body?.isSynchrony
-  const { documents, config, name } = await getDocuments({ dataset_id })
+  const isEditBasics = body?.isEditBasics
+  const { config, name, documents } = await getDocuments({ dataset_id })
+  const basicsConfig = pick(config, 'isEditBasics')
   const currentConfig: Partial<NewDataset> = isSynchrony
     ? { config, name }
+    : isEditBasics
+    ? { config: { ...basicsConfig, files: documents } }
     : body
+
   // edit basics or synchrony noted data
-  const response = (await editDataset(
-    dataset_id,
-    currentConfig,
-    documents
-  )) as any
+  const response = (await editDataset(dataset_id, currentConfig)) as any
 
   if (response?.error) {
     return NextResponse.json({ success: false, error: response?.error })

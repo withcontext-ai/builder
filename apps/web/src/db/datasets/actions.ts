@@ -137,15 +137,9 @@ export async function getEditParams(
 
 export async function editDataset(
   datasetId: string,
-  newValue: Partial<NewDataset>,
-  documents?: DataProps[]
+  newValue: Partial<NewDataset>
 ) {
   const { name, config = {} } = newValue
-  let newConfig = config
-  if (documents) {
-    // @ts-ignore
-    newConfig = { ...config, files: documents }
-  }
 
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
@@ -165,7 +159,7 @@ export async function editDataset(
 
   const response = await db
     .update(DatasetsTable)
-    .set({ name, config: newConfig, updated_at: new Date() })
+    .set({ name, config, updated_at: new Date() })
     .where(
       and(
         eq(DatasetsTable.short_id, datasetId),

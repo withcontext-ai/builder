@@ -36,7 +36,11 @@ type Params = SchemaProps
 
 function editDataset(
   url: string,
-  { arg }: { arg: { name: string; config: Omit<Params, 'name'> } }
+  {
+    arg,
+  }: {
+    arg: { name: string; config: Omit<Params, 'name'>; isEditBasics?: boolean }
+  }
 ) {
   return fetcher(url, {
     method: 'PATCH',
@@ -72,7 +76,7 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
   const onSubmit = async (data: SchemaProps) => {
     try {
       const { name, ...rest } = data
-      const json = await trigger({ name, config: rest })
+      const json = await trigger({ name, config: rest, isEditBasics: true })
       setValues({ name: json.body?.name, ...json?.body?.config })
       latestFormValueRef.current = data
       router.refresh()
