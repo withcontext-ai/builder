@@ -51,7 +51,7 @@ class PDFLoader:
                     )
                     pdf_content = storage_client.load(document.url)
                     text = PDFLoader.extract_text_from_pdf(pdf_content)
-                    document.content_size = sys.getsizeof(text)
+                    document.content_size = len(text)
                     pages = text.split("\f")
                     for page in pages:
                         _doc.append(
