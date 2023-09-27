@@ -13,7 +13,6 @@ from langchain.schema import Document
 from langchain.vectorstores import Pinecone
 from loguru import logger
 from models.base import Dataset
-from models.data_loader import PDFLoader
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
@@ -21,21 +20,7 @@ from pdfminer.pdfpage import PDFPage
 from pydantic import Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 from ..webhook import WebhookHandler
-
-
-def extract_text_from_pdf(contents: io.BytesIO) -> list:
-    resource_manager = PDFResourceManager()
-    fake_file_handle = io.StringIO()
-    converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams())
-    page_interpreter = PDFPageInterpreter(resource_manager, converter)
-    for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
-        page_interpreter.process_page(page)
-    text = fake_file_handle.getvalue()
-    converter.close()
-    fake_file_handle.close()
-
-    return text
-
+from models.data_loader import DocumentProcessingMixin, load_and_split_documents  
 
 class PatchedSelfQueryRetriever(SelfQueryRetriever):
     async def _aget_relevant_documents(
@@ -61,20 +46,23 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
 
         return docs
 
-
-class PDFRetrieverMixin:
+class Retriever:
     @classmethod
     def create_index(cls, dataset: Dataset):
-        docs = PDFLoader.load_and_split_documents([dataset])
-
+        docs = load_and_split_documents([dataset])
+        #print(docs)
         embedding = OpenAIEmbeddings()
 
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]
         metadatas = [doc.metadata for doc in docs]
+        print(ids)
+        print(metadatas)
         # metadata same for all pages in a document
         metadata = docs[0].metadata
+
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+
         vector_store = Pinecone.from_texts(
             texts=texts,
             embedding=embedding,
@@ -83,6 +71,7 @@ class PDFRetrieverMixin:
             ids=ids,
             index_name="context-prod",
         )
+
         # TODO efficiency can be optimized
         meta_ids = []
         for id in ids:
@@ -99,7 +88,6 @@ class PDFRetrieverMixin:
             )
 
         return vector_store
-
     @classmethod
     def delete_index(cls, dataset: Dataset):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
@@ -158,7 +146,7 @@ class PDFRetrieverMixin:
                 logger.warning(
                     f"Document {doc.url} has page_size 0 when adding relative chain"
                 )
-                doc.page_size = PDFLoader.get_document_page_size(doc)
+                doc.page_size = DocumentProcessingMixin.get_document_page_size(doc)
                 logger.info(f"Updated Document {doc.url} page_size to {doc.page_size}")
             for i in range(doc.page_size):
                 id = f"{dataset.id}-{doc.url}-{i}"
