@@ -130,9 +130,9 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
         handelConfirm={() => setFresh((v) => v + 1)}
       />
       <AddOrEdit
-        content={current?.current?.content}
+        content={current?.current?.content || ''}
         open={open}
-        segment_id={current?.current?.segment_id}
+        segment_id={current?.current?.segment_id || ''}
         dataset_id={dataset_id}
         document_id={document_id}
         setOpen={setOpen}
