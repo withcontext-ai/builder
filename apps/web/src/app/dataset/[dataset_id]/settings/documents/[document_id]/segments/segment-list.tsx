@@ -3,7 +3,7 @@ import { Trash } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { PreviewCard } from '@/app/dataset/[dataset_id]/document/[document_id]/preview'
-import { LoaderTypeProps, SegmentProps } from '@/app/dataset/type'
+import { SegmentProps } from '@/app/dataset/type'
 
 import { formateIndex } from '../../../../../utils'
 

@@ -56,7 +56,6 @@ const AddAnnotatedData = ({ form }: IProps) => {
     setSelected(noted)
   }, [formValue.notedData, type])
 
-  console.log(formValue.notedData, '---formValue.notedData')
   const showButton = useMemo(
     () => isAdd || (!isAdd && cardList?.length == 0),
     [cardList?.length, isAdd]
