@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 import { getDataset } from '../actions'
 
 export async function getApiDatasetId(dataset_id: string) {
@@ -26,16 +24,17 @@ export async function getSegments(
       limit: limit || 100,
     }
   }
-  const { data: res } = await axios({
-    method: 'get',
-    url: `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}`,
-    params,
-  })
-  if (res.message !== 'success') {
-    return
-  }
-  let data = res?.data
-  return data
+
+  const data = await fetch(
+    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}?params=${params}`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'GET',
+    }
+  ).then((res) => res.json())
+  return data?.data
 }
 
 export async function addSegment(
@@ -44,15 +43,18 @@ export async function addSegment(
   content: string
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
-
-  const { data } = await axios.post(
+  const res = await fetch(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment`,
-    { content }
-  )
-  if (data.message !== 'success') {
-    return
-  }
-  return { dataset_id, uid }
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }
+  ).then((res) => res.json())
+
+  return res
 }
 
 export async function editSegment(
@@ -63,12 +65,16 @@ export async function editSegment(
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
   const url = encodeURIComponent(segment_id)
-  const { data } = await axios.patch(
+  const data = await fetch(
     `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}/segment/${url}`,
-    { content }
-  )
-  if (data.success !== 'success') {
-    return
-  }
-  return { dataset_id, uid, segment_id }
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    }
+  ).then((res) => res.json())
+
+  return data
 }

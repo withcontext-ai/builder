@@ -51,7 +51,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     return fetcher(`/api/datasets/segment?${search}`, { method: 'GET' })
   }
   const queries = { dataset_id, uid: document_id, search: value }
-  const { data = [], isValidating } = useSWR<any>(
+  const { data, isValidating } = useSWR<any>(
     [queries, pagination, fresh],
     getDatasetDocument,
     {
@@ -60,7 +60,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
   )
 
   const table = useReactTable({
-    data: data,
+    data: data?.segments,
     columns: [],
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
@@ -68,7 +68,6 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     manualPagination: true,
     pageCount: Math.ceil((data?.totalItems || 0) / pagination.pageSize),
   })
-  console.log(data, '---data')
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (value !== e?.target?.value) {
@@ -77,6 +76,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     },
     [value]
   )
+
   const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
     <div className="h-full w-full overflow-auto py-[68px]">
@@ -108,7 +108,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
               ))
             ) : (
               <SegmentList
-                segments={data}
+                segments={data?.segments}
                 setOpen={setOpen}
                 current={current}
                 setShowDeleteAlter={setShowDeleteAlter}

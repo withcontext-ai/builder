@@ -27,15 +27,16 @@ export async function addDataset(
 
   let api_dataset_id = null
   if (flags.enabledAIService) {
-    const { data: res } = await axios.post(
+    const res = await fetch(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets`,
       {
-        name,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify({ name }),
       }
-    )
-    if (res.status !== 200) {
-      return null
-    }
+    ).then((res) => res.json())
     api_dataset_id = res?.data?.id
   }
 
@@ -148,13 +149,16 @@ export async function editDataset(
     newValue
   )
   if (api_dataset_id && editParams) {
-    let { data: res } = await axios.patch(
+    await fetch(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
-      editParams
-    )
-    if (res.status !== 200) {
-      return
-    }
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'PATCH',
+        body: JSON.stringify(editParams),
+      }
+    ).then((res) => res.json())
   }
 
   const response = await db
@@ -180,12 +184,15 @@ export async function removeDataset(datasetId: string) {
     api_dataset_id = dataset?.api_dataset_id
     if (!api_dataset_id) return Promise.resolve([])
 
-    const { data: res } = await axios.delete(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`
-    )
-    if (res?.status !== 200) {
-      return Promise.resolve([])
-    }
+    await fetch(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'DELETE',
+      }
+    ).then((res) => res.json())
   }
 
   const response = await db

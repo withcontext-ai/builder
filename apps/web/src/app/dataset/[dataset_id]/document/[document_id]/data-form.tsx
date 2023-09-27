@@ -136,7 +136,7 @@ const DataForm = () => {
         document_id: documentId,
         preview: 5,
       })
-      setPreviews(data)
+      setPreviews(data?.segments)
       return
     } else {
       await onSubmit()

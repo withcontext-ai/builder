@@ -39,7 +39,7 @@ function editDataset(
   {
     arg,
   }: {
-    arg: { name: string; config: Omit<Params, 'name'>; isEditBasics?: boolean }
+    arg: { name: string; config: Omit<Params, 'name'> }
   }
 ) {
   return fetcher(url, {
@@ -76,7 +76,7 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
   const onSubmit = async (data: SchemaProps) => {
     try {
       const { name, ...rest } = data
-      const json = await trigger({ name, config: rest, isEditBasics: true })
+      const json = await trigger({ name, config: rest })
       setValues({ name: json.body?.name, ...json?.body?.config })
       latestFormValueRef.current = data
       router.refresh()

@@ -28,11 +28,13 @@ export async function POST(req: NextRequest) {
   const newConfig = { ...splitConfig, files }
   const uid = !isAdd ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)
-  const { segments } = await getSegments(dataset_id, uid)
-
+  const data = await getSegments(dataset_id, uid)
+  const segments =
+    data?.segments?.length === 0
+      ? [{ content: '', segment_id: '01' }]
+      : data?.segments
   return NextResponse.json({
+    data: { totalItems: data?.totalItems, segments },
     success: true,
-    data:
-      segments?.length !== 0 ? segments : [{ content: '', segment_id: '01' }],
   })
 }

@@ -1,6 +1,5 @@
 import { auth } from '@clerk/nextjs'
-import axios from 'axios'
-import { pick } from 'lodash'
+import { omit, pick } from 'lodash'
 
 import { getApps } from '@/db/apps/actions'
 import { NewApp } from '@/db/apps/schema'
@@ -13,9 +12,23 @@ export async function getDocuments({ dataset_id }: { dataset_id: string }) {
   const datasetDetail = (await getDataset(dataset_id)) as NewDataset
   const { updated_at, status } = datasetDetail
   const config = datasetDetail?.config || {}
+  const basicsConfig = omit(config, [
+    'splitType',
+    'chunkSize',
+    'chunkOverlap',
+    'loaderType',
+    'files',
+  ])
   // @ts-ignore
   const documents = datasetDetail?.config?.files || []
-  return { documents, updated_at, status, config, name: datasetDetail?.name }
+  return {
+    documents,
+    updated_at,
+    status,
+    config,
+    name: datasetDetail?.name,
+    basicsConfig,
+  }
 }
 
 // get data info
@@ -65,14 +78,17 @@ export async function getDataSplitPreview(
     newValue
   )
   if (api_dataset_id && editParams) {
-    let { data: res } = await axios.patch(
+    const data = await fetch(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}?preview=${preview}&uid=${uid}`,
-      editParams
-    )
-    if (res.status !== 200) {
-      return Promise.resolve([])
-    }
-    return Promise.resolve(res?.data)
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'PATCH',
+        body: JSON.stringify(editParams),
+      }
+    ).then((res) => res.json())
+    Promise.resolve(data)
   }
   return Promise.resolve([])
 }

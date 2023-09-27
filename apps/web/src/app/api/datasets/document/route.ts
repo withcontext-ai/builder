@@ -21,7 +21,7 @@ export async function DELETE(req: NextRequest) {
 // add data
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
-  const { documents, config: basicsConfig } = await getDocuments({ dataset_id })
+  const { documents, basicsConfig } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
   const currentConfig = pick(dataConfig, [
     'splitType',
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 // edit data
 export async function PATCH(req: NextRequest) {
   const { dataset_id, dataConfig, document_id } = await req.json()
-  const { documents, config: basicsConfig } = await getDocuments({ dataset_id })
+  const { documents, basicsConfig } = await getDocuments({ dataset_id })
   const isPdf = dataConfig?.loaderType === 'pdf'
 
   // to replace the current
