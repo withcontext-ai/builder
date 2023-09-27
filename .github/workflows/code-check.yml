@@ -112,7 +112,7 @@ jobs:
 
       - run: pnpm test
 
- e2e_test:
+  e2e_test:
     runs-on: ubuntu-latest
     name: E2E Testing
     steps:
