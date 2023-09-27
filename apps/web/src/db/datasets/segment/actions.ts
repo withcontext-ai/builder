@@ -15,18 +15,12 @@ export async function getSegments(
   limit?: number
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
-  let params = {}
+  let params = `offset=${offset}&limit=${limit}`
   if (search) {
-    params = { query: search }
-  } else {
-    params = {
-      offset: offset || 0,
-      limit: limit || 100,
-    }
+    params = `query=${search}`
   }
-
   const data = await fetch(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}?params=${params}`,
+    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}?${params}`,
     {
       headers: {
         'Content-Type': 'application/json',

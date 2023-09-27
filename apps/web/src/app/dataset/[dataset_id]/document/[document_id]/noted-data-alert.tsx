@@ -28,7 +28,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const { getValues } = form
   const formValue = getValues()
 
-  const { datasetId, isAdd } = useDataContext()
+  const { datasetId, isAdd, defaultValues } = useDataContext()
   const [disabledData, setDisabledData] = useState<DocumentProps[]>([])
 
   const cardList = formValue.notedData
@@ -53,7 +53,15 @@ const AddAnnotatedData = ({ form }: IProps) => {
 
   const choseNotedData = async () => {
     const data = await trigger()
-    setDisabledData(data)
+    if (isAdd) {
+      setDisabledData(data)
+    } else {
+      const current = defaultValues?.notedData?.[0]
+      const disabled = data?.filter(
+        (item: DocumentProps) => item?.uid !== current?.uid
+      )
+      setDisabledData(disabled)
+    }
     setOpen(true)
   }
 
