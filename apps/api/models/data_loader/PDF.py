@@ -46,13 +46,12 @@ class PDFLoader:
                         )
                     )
                     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                        separator=" ",
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
                     )
                     pdf_content = storage_client.load(document.url)
                     text = PDFLoader.extract_text_from_pdf(pdf_content)
-                    document.content_size = sys.getsizeof(text)
+                    document.content_size = len(text)
                     pages = text.split("\f")
                     for page in pages:
                         _doc.append(
@@ -64,6 +63,7 @@ class PDFLoader:
                             )
                         )
                 elif document.type == "annotated_data":
+                    document.url = document.uid
                     webhook_handler = AnnotatedDataStorageClient()
                     annotated_data = webhook_handler.load(document.uid)
                     options = PDFRetrivalOption(
@@ -73,7 +73,6 @@ class PDFLoader:
                         )
                     )
                     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                        separator=" ",
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
                     )
@@ -85,7 +84,7 @@ class PDFLoader:
                             },
                         )
                     )
-                    document.content_size = sys.getsizeof(annotated_data)
+                    document.content_size = len(annotated_data)
                 else:
                     logger.error(f"Document type {document.type} not supported")
                     raise Exception("Document type not supported")
@@ -100,6 +99,9 @@ class PDFLoader:
                 logger.info(
                     f"got documents: {len(_doc)} while loading dataset {dataset.id}"
                 )
+                document.content_size = 0
+                for segment in _doc:
+                    document.content_size += len(segment.page_content)
                 doc += _doc
         return doc
 
