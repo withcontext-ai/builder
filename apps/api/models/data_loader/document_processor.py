@@ -120,9 +120,9 @@ class WordHandler(DocumentHandler):
         storage_client = GoogleCloudStorageClient()
         word_content = storage_client.load(document.url)
         if document.url.endswith(".docx"):
-            return self._extract_from_docx(word_content)
+            return self.extract_text_from_docx(word_content)
         elif document.url.endswith(".doc"):
-            return self._extract_from_doc(word_content)
+            return self.extract_text_from_doc(word_content)
         else:
             raise Exception("Unsupported Word format")
 
@@ -147,7 +147,7 @@ class WordHandler(DocumentHandler):
         temp_docx = temp_doc.name + "x"
         subprocess.run([unoconv_path, "-f", "docx", "-o", temp_docx, temp_doc.name])
         with open(temp_docx, "rb") as docx_file:
-            full_text = self._extract_from_docx(docx_file)
+            full_text = self.extract_text_from_docx(docx_file)
         os.remove(temp_doc.name)
         os.remove(temp_docx)
         return full_text
