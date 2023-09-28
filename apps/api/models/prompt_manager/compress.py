@@ -2,7 +2,6 @@ import tiktoken
 from langchain.chains.summarize import load_summarize_chain
 from langchain.llms import OpenAI
 from langchain.schema import Document
-from langchain.memory import ConversationSummaryMemory
 
 
 def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
