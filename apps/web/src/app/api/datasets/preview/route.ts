@@ -3,28 +3,34 @@ import { pick } from 'lodash'
 
 import { getDataSplitPreview } from '@/db/datasets/documents/action'
 import { getSegments } from '@/db/datasets/segment/actions'
-import { DocumentProps } from '@/app/dataset/type'
+import { DataProps } from '@/app/dataset/type'
+
+export const maxDuration = 300
 
 // get document split preview
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig, document_id, preview } = await req.json()
   const isPdf = dataConfig?.loaderType === 'pdf'
-  let files = isPdf ? dataConfig?.files : dataConfig?.notedData
+  const currentFiles = isPdf ? dataConfig?.files : dataConfig?.notedData
+
   const isAdd = document_id === 'add'
   if (!isAdd) {
-    files[0].uid = document_id
+    currentFiles[0].uid = document_id
   }
   const splitConfig = pick(dataConfig, [
     'splitType',
     'chunkSize',
     'chunkOverlap',
   ])
-  files?.map((item: DocumentProps) => {
-    item.status = 1
+
+  const files = currentFiles?.reduce((m: DataProps[], item: DataProps) => {
+    item.status = 1 //indexing
     item.updated_at = new Date()
     item = Object.assign(item, splitConfig)
-    return item
-  })
+    m.push(item)
+    return m
+  }, [])
+
   const newConfig = { ...splitConfig, files }
   const uid = !isAdd ? document_id : files?.[0]?.uid
   await getDataSplitPreview(dataset_id, { config: newConfig }, uid, preview)

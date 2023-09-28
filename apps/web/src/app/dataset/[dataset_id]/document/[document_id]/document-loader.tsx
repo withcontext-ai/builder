@@ -29,14 +29,10 @@ interface IProps extends SessionProps {
 }
 
 const DocumentLoader = ({ form }: IProps) => {
-  const { isAdd, defaultValues } = useDataContext()
-  // @ts-ignore
-  const files = defaultValues?.files?.map((item: DataProps) => {
-    const status = 'success' as UploadFileStatus
-    const config = pick(item, ['uid', 'type', 'url', 'name'])
-    return { status, ...config }
-  })
+  const { isAdd } = useDataContext()
+
   const { getValues, setValue } = form
+  const files = getValues()?.files
   const onChangeFileList = (values: FileProps[]) => {
     setValue('files', [...values])
   }
