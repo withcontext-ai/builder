@@ -4,7 +4,6 @@ from langchain.text_splitter import CharacterTextSplitter
 from abc import ABC, abstractmethod
 import io
 import os
-import requests
 import subprocess
 import tempfile
 import sys
