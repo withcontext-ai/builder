@@ -126,17 +126,26 @@ class WordHandler(DocumentHandler):
         else:
             raise Exception("Unsupported Word format")
 
-    def _extract_from_docx(self, content: io.BytesIO) -> str:
+    def extract_text_from_docx(self, content: io.BytesIO) -> str:
         word_doc = WordDocument(content)
         full_text = [para.text for para in word_doc.paragraphs]
         return '\n'.join(full_text)
 
-    def _extract_from_doc(self, content: io.BytesIO) -> str:
+    def extract_text_from_doc(self, content: io.BytesIO) -> str:
+        def get_unoconv_path() -> str:
+            try:
+                result = subprocess.run(["which", "unoconv"], capture_output=True, text=True)
+                if result.returncode == 0:
+                    return result.stdout.strip()
+            except Exception as e:
+                pass
+            raise EnvironmentError("unoconv is not found in the system PATH.")
+        unoconv_path = get_unoconv_path()
         # Convert .doc to .docx using unoconv
         with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as temp_doc:
             temp_doc.write(content.read())
         temp_docx = temp_doc.name + "x"
-        subprocess.run(["/usr/bin/unoconv", "-f", "docx", "-o", temp_docx, temp_doc.name])
+        subprocess.run([unoconv_path, "-f", "docx", "-o", temp_docx, temp_doc.name])
         with open(temp_docx, "rb") as docx_file:
             full_text = self._extract_from_docx(docx_file)
         os.remove(temp_doc.name)
