@@ -35,7 +35,7 @@ const SegmentList = ({
         }}
       >
         <PreviewCard
-          index={formateIndex(segment_number)}
+          index={formateIndex(segment_number + 1)}
           content={item?.content}
         />
         <Button
