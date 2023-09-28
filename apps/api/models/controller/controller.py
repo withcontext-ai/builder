@@ -295,7 +295,7 @@ class DatasetManager(BaseManager):
             }
         )
         docs = asyncio.run(retriever.aget_relevant_documents(query))
-        segments_id = []
+        segments = []
         for _doc in docs:
             if _doc.metadata["urn"] in segments_id:
                 continue
