@@ -8,7 +8,7 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LoaderTypeProps, SegmentProps } from '@/app/dataset/type'
+import { SegmentProps } from '@/app/dataset/type'
 
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
@@ -22,12 +22,6 @@ interface IProps {
 }
 
 const SegmentPage = ({ dataset_id, document_id }: IProps) => {
-  const urlSearchParams = new URLSearchParams(
-    decodeURIComponent(window.location.search)
-  )
-  const params = Object.fromEntries(urlSearchParams.entries())
-  const { name } = params
-  const type = params?.type as LoaderTypeProps
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
@@ -51,7 +45,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
     return fetcher(`/api/datasets/segment?${search}`, { method: 'GET' })
   }
   const queries = { dataset_id, uid: document_id, search: value }
-  const { data, isValidating } = useSWR<any>(
+  const { data, isLoading } = useSWR<any>(
     [queries, pagination, fresh],
     getDatasetDocument,
     {
@@ -81,9 +75,8 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
   return (
     <div className="h-full w-full overflow-auto py-[68px]">
       <SegmentHeader
-        name={name}
+        datasetId={dataset_id}
         uid={document_id}
-        type={type}
         addNew={() => {
           setOpen(true)
           current.current = { content: '', segment_id: '' }
@@ -99,7 +92,7 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
         </div>
         <div className="flex-1 flex-col">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
-            {isValidating ? (
+            {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton
                   key={i}

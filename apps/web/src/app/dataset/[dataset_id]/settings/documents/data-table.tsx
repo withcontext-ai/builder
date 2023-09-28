@@ -171,10 +171,13 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
         })
         return
       } else {
-        const params = encodeURIComponent(`name=${row?.name}&type=${row?.type}`)
         const nextUrl = '/datasets'
+
+        const params = encodeURIComponent(
+          `name=${row?.name}&type=${row?.type}&nextUrl=${nextUrl}`
+        )
         router.push(
-          `/dataset/${datasetId}/settings/documents/${row?.uid}/segments?${params}&nextUrl=${nextUrl}`
+          `/dataset/${datasetId}/settings/documents/${row?.uid}/segments?${params}`
         )
         return
       }

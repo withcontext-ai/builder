@@ -9,19 +9,32 @@ import FileIcon from '../../file-icon'
 
 interface IProps {
   uid: string
-  name: string
+  datasetId: string
   short_id?: string
-  type: LoaderTypeProps
   icon?: string
   addNew?: () => void
 }
 
-const SegmentHeader = ({ name, uid, type, addNew, short_id, icon }: IProps) => {
+const SegmentHeader = ({
+  uid,
+
+  addNew,
+  short_id,
+  icon,
+  datasetId,
+}: IProps) => {
   const [isPending, startTransition] = useTransition()
+  const urlSearchParams = new URLSearchParams(
+    decodeURIComponent(window.location.search)
+  )
+  const params = Object.fromEntries(urlSearchParams.entries())
+  const { name } = params
+  const type = params?.type as LoaderTypeProps
   const router = useRouter()
   const goBack = () => {
+    const nextUrl = '/datasets'
     startTransition(() => {
-      router.back()
+      router.push(`/dataset/${datasetId}/settings/documents?nextUrl=${nextUrl}`)
     })
   }
   return (

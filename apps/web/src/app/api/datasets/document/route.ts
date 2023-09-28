@@ -30,14 +30,15 @@ export async function POST(req: NextRequest) {
     'loaderType',
   ])
 
-  let files = isPdf ? dataConfig?.files : dataConfig?.notedData
-  files?.map((item: DataProps) => {
+  const currentFiles = isPdf ? dataConfig?.files : dataConfig?.notedData
+  const newFiles = currentFiles?.reduce((m: DataProps[], item: DataProps) => {
     item.status = 1 //indexing
     item.updated_at = new Date()
     item = Object.assign(item, currentConfig)
-    return item
-  })
-  files = [...files, ...documents]
+    m.push(item)
+    return m
+  }, [])
+  const files = [...newFiles, ...documents]
   const newConfig = { ...basicsConfig, ...currentConfig, files }
   const response = (await editDataset(dataset_id, { config: newConfig })) as any
   return NextResponse.json({
