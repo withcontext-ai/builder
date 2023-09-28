@@ -56,8 +56,6 @@ class Retriever:
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]
         metadatas = [doc.metadata for doc in docs]
-        print(ids)
-        print(metadatas)
         # metadata same for all pages in a document
         metadata = docs[0].metadata
 

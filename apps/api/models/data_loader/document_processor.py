@@ -3,6 +3,10 @@ from models.base.dataset import Dataset, Document
 from langchain.text_splitter import CharacterTextSplitter
 from abc import ABC, abstractmethod
 import io
+import os
+import requests
+import subprocess
+import tempfile
 import sys
 from docx import Document as WordDocument
 from models.data_loader.options import PDFSplitterOption, PDFEmbeddingOption, PDFRetrivalOption
@@ -111,10 +115,40 @@ class AnnotatedDataHandler(DocumentHandler):
             "source": document.uid
         }
 
+class WordHandler(DocumentHandler):
+
+    def fetch_content(self, document: Document) -> str:
+        storage_client = GoogleCloudStorageClient()
+        word_content = storage_client.load(document.url)
+        if document.url.endswith(".docx"):
+            return self._extract_from_docx(word_content)
+        elif document.url.endswith(".doc"):
+            return self._extract_from_doc(word_content)
+        else:
+            raise Exception("Unsupported Word format")
+
+    def _extract_from_docx(self, content: io.BytesIO) -> str:
+        word_doc = WordDocument(content)
+        full_text = [para.text for para in word_doc.paragraphs]
+        return '\n'.join(full_text)
+
+    def _extract_from_doc(self, content: io.BytesIO) -> str:
+        # Convert .doc to .docx using unoconv
+        with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as temp_doc:
+            temp_doc.write(content.read())
+        temp_docx = temp_doc.name + "x"
+        subprocess.run(["/usr/bin/unoconv", "-f", "docx", "-o", temp_docx, temp_doc.name])
+        with open(temp_docx, "rb") as docx_file:
+            full_text = self._extract_from_docx(docx_file)
+        os.remove(temp_doc.name)
+        os.remove(temp_docx)
+        return full_text
+
 def load_and_split_documents(datasets: list[Dataset]):
     handlers = {
         "pdf": PDFHandler(),
         "annotated_data": AnnotatedDataHandler(),
+        "word": WordHandler(),
     }
 
     docs = []
@@ -129,5 +163,4 @@ def load_and_split_documents(datasets: list[Dataset]):
                 # Handle unsupported document types
                 logger.error(f"Document type {document.type} not supported")
                 raise Exception("Document type not supported")
-
     return docs
