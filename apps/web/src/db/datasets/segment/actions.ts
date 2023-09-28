@@ -15,7 +15,7 @@ export async function getSegments(
   limit?: number
 ) {
   const api_dataset_id = await getApiDatasetId(dataset_id)
-  let params = `offset=${offset || 100}&limit=${limit || 0}`
+  let params = `offset=${offset || 0}&limit=${limit || 100}`
   if (search) {
     params = `query=${search}`
   }
@@ -28,7 +28,6 @@ export async function getSegments(
       method: 'GET',
     }
   ).then((res) => res.json())
-  console.log(data, '---data')
   return data?.data
 }
 
