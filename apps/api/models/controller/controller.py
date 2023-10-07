@@ -11,7 +11,7 @@ from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
 from langchain.schema import Document
 
 from .webhook import WebhookHandler
-from ..retrieval.webhook import WebhookHandler as RetrievalWebhookHandler
+from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
 
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
@@ -346,7 +346,7 @@ class DatasetManager(BaseManager):
         urn = self.get_dataset_urn(dataset_id)
         self.redis.set(urn, json.dumps(dataset.dict()))
         logger.info(f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}")
-        webhook_handler = RetrievalWebhookHandler()
+        webhook_handler = DocumentWebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
                 dataset.id, doc.uid, doc.content_size, 0
