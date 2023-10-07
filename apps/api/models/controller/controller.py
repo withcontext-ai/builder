@@ -304,6 +304,8 @@ class DatasetManager(BaseManager):
                 }
             )
             segments_id.append(_doc.metadata["urn"])
+
+        sorted_segments = sorted(segments, key=lambda x: x["segment_id"])
         return len(segments), segments
 
     def add_segment(self, dataset_id, uid, content):

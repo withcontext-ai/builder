@@ -26,6 +26,7 @@
     "eslint-plugin-tailwindcss": "^3.13.0",
     "husky": "^8.0.3",
     "prettier": "^3.0.3",
+    "socket.io-client": "^4.7.2",
     "tailwind-scrollbar": "^3.0.5",
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
