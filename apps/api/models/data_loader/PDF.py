@@ -106,20 +106,21 @@ class PDFLoader:
         return doc
 
     @staticmethod
-    def extract_text_from_pdf(contents: io.BytesIO) -> list:
+    def extract_text_from_pdf(contents: io.BytesIO, preview_size: int = float('inf')) -> list:
         resource_manager = PDFResourceManager()
         fake_file_handle = io.StringIO()
         converter = TextConverter(
             resource_manager, fake_file_handle, laparams=LAParams()
         )
         page_interpreter = PDFPageInterpreter(resource_manager, converter)
-        for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
+        # Limit the number of processed pages to preview_size
+        for i, page in enumerate(PDFPage.get_pages(contents, caching=True, check_extractable=True)):
+            if i >= preview_size:
+                break
             page_interpreter.process_page(page)
         text = fake_file_handle.getvalue()
-
         converter.close()
         fake_file_handle.close()
-
         return text
 
     @staticmethod

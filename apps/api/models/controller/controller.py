@@ -372,17 +372,16 @@ class DatasetManager(BaseManager):
                 break
         if doc_type == None:
             raise ValueError("UID not found in dataset documents")
-        text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-            chunk_size=splitter.get("chunk_size", 100),
-            chunk_overlap=splitter.get("chunk_overlap", 0),
-        )
         if doc_type == "pdf":
+            print('go')
             storage_client = GoogleCloudStorageClient()
             pdf_content = storage_client.load(url)
-            text = PDFLoader.extract_text_from_pdf(pdf_content)
+            text = PDFLoader.extract_text_from_pdf(pdf_content, preview_size)
             pages = text.split("\f")
             _docs = []
-            for page in pages:
+            for i, page in enumerate(pages):
+                if i >= preview_size:
+                    break
                 _docs.append(
                     Document(
                         page_content=page,
@@ -397,10 +396,9 @@ class DatasetManager(BaseManager):
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
         else:
             raise ValueError("Document type not supported")
-        docs = text_splitter.split_documents(_docs)
         preview_list = []
-        for i in range(min(preview_size, len(docs))):
-            preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
+        for i in range(min(preview_size, len(_docs))):
+            preview_list.append({"segment_id": "fake", "content": _docs[i].page_content})
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
