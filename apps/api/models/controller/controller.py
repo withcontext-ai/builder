@@ -265,18 +265,18 @@ class DatasetManager(BaseManager):
             if i < segment_size
         ]
         segments = []
-        vectors = Retriever.fetch_vectors(ids=segment_ids)
-        for seg_id in segment_ids:
-            vector = vectors.get(seg_id)
-            if (
-                not vector
-                or "metadata" not in vector
-                or "text" not in vector["metadata"]
-            ):
-                logger.info(f"Segment {seg_id} not found in Pinecone")
-            if vector:
-                text = vector["metadata"]["text"]
+        count = 0
+        i = offset
+        while count < limit and i < segment_size:
+            seg_id = f"{dataset_id}-{matching_url}-{i}"
+            vectors = Retriever.fetch_vectors(ids=[seg_id])
+            if seg_id in vectors and "metadata" in vectors[seg_id] and "text" in vectors[seg_id]["metadata"]:
+                text = vectors[seg_id]["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
+                count += 1
+            else:
+                logger.info(f"Segment {seg_id} has incomplete data in Pinecone or not found")
+            i += 1
         return segments
 
     def search_document_segments(self, dataset_id, uid, query):
