@@ -270,7 +270,7 @@ class DatasetManager(BaseManager):
             else:
                 logger.info(f"Segment {seg_id} has incomplete data in Pinecone or not found")
             i += 1
-        return segments
+        return segment_size, segments
 
     def search_document_segments(self, dataset_id, uid, query):
         dataset = self.get_datasets(dataset_id)[0]
@@ -401,6 +401,7 @@ class DatasetManager(BaseManager):
         preview_list = []
         for i in range(min(preview_size, len(docs))):
             preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
+        print(preview_list)
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
