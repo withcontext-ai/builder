@@ -1,5 +1,4 @@
 import json
-from .compress import summrize_content, sumrize_message
 
 
 class PromptManagerMixin:
@@ -41,3 +40,10 @@ class PromptManagerMixin:
         if current_chain_memory:
             return json.loads(current_chain_memory)
         return []
+
+    def get_chain_summrize_memory_urn(self, session_id, output_key):
+        return f"summrize_memory:{session_id}-{output_key}"
+
+    def save_chain_summrize_memory(self, session_id: str, contents: list):
+        # TODO map-reduce all memory
+        raise NotImplementedError
