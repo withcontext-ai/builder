@@ -336,7 +336,11 @@ class DatasetManager(BaseManager):
                 if content == "":
                     # Handle deletion
                     if doc.page_size > 0:
-                        segment_length = len(Retriever.fetch_vectors(ids=[segment_id])[segment_id]["metadata"]["text"])
+                        segment_length = len(
+                            Retriever.fetch_vectors(ids=[segment_id])[segment_id][
+                                "metadata"
+                            ]["text"]
+                        )
                         doc.page_size -= 1
                         doc.content_size -= segment_length
                 elif doc.page_size == current_page_size:
@@ -345,13 +349,21 @@ class DatasetManager(BaseManager):
                     doc.content_size += len(content)
                 else:
                     # Handle edit
-                    segment_length = len(Retriever.fetch_vectors(ids=[segment_id])[segment_id]["metadata"]["text"])
+                    segment_length = len(
+                        Retriever.fetch_vectors(ids=[segment_id])[segment_id][
+                            "metadata"
+                        ]["text"]
+                    )
                     doc.content_size += len(content) - segment_length
                 break
         self._update_dataset(dataset_id, dataset.dict())
         urn = self.get_dataset_urn(dataset_id)
         self.redis.set(urn, json.dumps(dataset.dict()))
-        logger.info(f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}")
+
+        logger.info(
+            f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
+        )
+
         webhook_handler = DocumentWebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
