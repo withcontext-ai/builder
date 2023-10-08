@@ -10,7 +10,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
 from langchain.schema import Document
 
-from .webhook import WebhookHandler
+from .webhook import WebhookHandler as DatasetWebhookHandler
+from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
 import json
@@ -127,7 +128,7 @@ class DatasetManager(BaseManager):
         """
         logger.info(f"Saving dataset {dataset.id}")
         # check if dataset is pdf
-        handler = WebhookHandler()
+        handler = DatasetWebhookHandler()
         urn = self.get_dataset_urn(dataset.id)
         handler.update_dataset_status(dataset.id, 1)
         if len(dataset.documents) != 0:
@@ -151,7 +152,7 @@ class DatasetManager(BaseManager):
         if self.redis.get(urn):
             self.redis.delete(urn)
         if update_data.get("documents"):
-            handler = WebhookHandler()
+            handler = DatasetWebhookHandler()
             handler.update_dataset_status(dataset_id, 1)
             dataset = self.get_datasets(dataset_id)[0]
             if update_data.get("retrieval"):
@@ -277,7 +278,7 @@ class DatasetManager(BaseManager):
             if vector:
                 text = vector["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
-        return limit, segments
+        return segments
 
     def search_document_segments(self, dataset_id, uid, query):
         dataset = self.get_datasets(dataset_id)[0]
@@ -308,7 +309,8 @@ class DatasetManager(BaseManager):
                 }
             )
             segments_id.append(_doc.metadata["urn"])
-        return len(segments), segments
+        sorted_segments = sorted(segments, key=lambda x: int(x["segment_id"].rsplit('-', 1)[-1]))
+        return len(sorted_segments), sorted_segments
 
     def add_segment(self, dataset_id, uid, content):
         dataset = self.get_datasets(dataset_id)[0]
@@ -328,28 +330,53 @@ class DatasetManager(BaseManager):
         def get_page_size_via_segment_id(segment):
             return int(segment.split("-")[-1])
 
-        if content == "":
-            Retriever.delete_vector(segment_id)
-            return
-        dataset_change = False
         dataset = self.get_datasets(dataset_id)[0]
         for doc in dataset.documents:
             if doc.uid == uid:
-                if doc.page_size == get_page_size_via_segment_id(segment_id):
+                current_page_size = get_page_size_via_segment_id(segment_id)
+                if content == "":
+                    # Handle deletion
+                    if doc.page_size > 0:
+                        segment_length = len(
+                            Retriever.fetch_vectors(ids=[segment_id])[segment_id][
+                                "metadata"
+                            ]["text"]
+                        )
+                        doc.page_size -= 1
+                        doc.content_size -= segment_length
+                elif doc.page_size == current_page_size:
+                    # Handle addition
                     doc.page_size += 1
-                    dataset_change = True
+                    doc.content_size += len(content)
+                else:
+                    # Handle edit
+                    segment_length = len(
+                        Retriever.fetch_vectors(ids=[segment_id])[segment_id][
+                            "metadata"
+                        ]["text"]
+                    )
+                    doc.content_size += len(content) - segment_length
                 break
-        if dataset_change:
-            self._update_dataset(dataset_id, dataset.dict())
-            urn = self.get_dataset_urn(dataset_id)
-            self.redis.set(urn, json.dumps(dataset.dict()))
-            logger.info(
-                f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
+        self._update_dataset(dataset_id, dataset.dict())
+        urn = self.get_dataset_urn(dataset_id)
+        self.redis.set(urn, json.dumps(dataset.dict()))
+
+        logger.info(
+            f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
+        )
+
+        webhook_handler = DocumentWebhookHandler()
+        for doc in dataset.documents:
+            webhook_handler.update_document_status(
+                dataset.id, doc.uid, doc.content_size, 0
             )
-        first_segment = "-".join(segment_id.split("-")[0:2])
-        metadata = Retriever.get_metadata(first_segment)
-        metadata["text"] = content
-        Retriever.upsert_vector(segment_id, content, metadata)
+        if content:
+            first_segment = "-".join(segment_id.split("-")[0:2])
+            metadata = Retriever.get_metadata(first_segment)
+            metadata["text"] = content
+            Retriever.upsert_vector(segment_id, content, metadata)
+        else:
+            Retriever.delete_vector(segment_id)
 
     def upsert_preview(self, dataset, preview_size, document_uid):
         # todo change logic to retriever folder
@@ -434,7 +461,7 @@ class ModelManager(BaseManager):
             model: The model object to save.
         """
         logger.info(f"Saving model {model.id}")
-        handler = WebhookHandler()
+        handler = DatasetWebhookHandler()
         urn = self.get_model_urn(model.id)
         self.redis.set(urn, json.dumps(model.dict()))
         for chain in model.chains:
@@ -457,7 +484,7 @@ class ModelManager(BaseManager):
         if self.redis.get(urn):
             logger.info(f"Deleting model {model_id} from cache")
             self.redis.delete(urn)
-        handler = WebhookHandler()
+        handler = DatasetWebhookHandler()
         if update_data.get("chains"):
             model = self.get_models(model_id)[0]
             # Let's start all over again first
