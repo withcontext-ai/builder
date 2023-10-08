@@ -259,21 +259,18 @@ class DatasetManager(BaseManager):
                 break
         if not matching_url:
             raise ValueError("UID not found in dataset documents")
-        segment_ids = [
-            f"{dataset_id}-{matching_url}-{i}"
-            for i in range(offset, offset + limit)
-            if i < segment_size
-        ]
         segments = []
         count = 0
         i = offset
-        while count < limit and i < segment_size:
+        while count < segment_size:
             seg_id = f"{dataset_id}-{matching_url}-{i}"
             vectors = Retriever.fetch_vectors(ids=[seg_id])
             if seg_id in vectors and "metadata" in vectors[seg_id] and "text" in vectors[seg_id]["metadata"]:
                 text = vectors[seg_id]["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
                 count += 1
+                if count >= limit:
+                    break
             else:
                 logger.info(f"Segment {seg_id} has incomplete data in Pinecone or not found")
             i += 1
