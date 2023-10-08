@@ -270,7 +270,7 @@ class DatasetManager(BaseManager):
             else:
                 logger.info(f"Segment {seg_id} has incomplete data in Pinecone or not found")
             i += 1
-        return segments
+        return segment_size, segments
 
     def search_document_segments(self, dataset_id, uid, query):
         dataset = self.get_datasets(dataset_id)[0]
