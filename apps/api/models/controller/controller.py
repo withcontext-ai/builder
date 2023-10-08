@@ -276,8 +276,7 @@ class DatasetManager(BaseManager):
             if vector:
                 text = vector["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
-        print(segments)
-        return limit, segments
+        return segments
 
     def search_document_segments(self, dataset_id, uid, query):
         dataset = self.get_datasets(dataset_id)[0]
