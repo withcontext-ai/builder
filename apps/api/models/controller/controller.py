@@ -373,32 +373,18 @@ class DatasetManager(BaseManager):
         if doc_type == None:
             raise ValueError("UID not found in dataset documents")
         if doc_type == "pdf":
-            print('go')
             storage_client = GoogleCloudStorageClient()
             pdf_content = storage_client.load(url)
             text = PDFLoader.extract_text_from_pdf(pdf_content, preview_size)
             pages = text.split("\f")
-            _docs = []
-            for i, page in enumerate(pages):
-                if i >= preview_size:
-                    break
-                _docs.append(
-                    Document(
-                        page_content=page,
-                        metadata={
-                            "source": url,
-                        },
-                    )
-                )
+            _docs = [Document(page_content=page, metadata={"source": url}) for page in pages]
         elif doc_type == "annotated_data":
             storage_client = AnnotatedDataStorageClient()
             annotated_data = storage_client.load(uid)
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
         else:
             raise ValueError("Document type not supported")
-        preview_list = []
-        for i in range(min(preview_size, len(_docs))):
-            preview_list.append({"segment_id": "fake", "content": _docs[i].page_content})
+        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 

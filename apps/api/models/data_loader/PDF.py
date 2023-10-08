@@ -119,6 +119,7 @@ class PDFLoader:
                 break
             page_interpreter.process_page(page)
         text = fake_file_handle.getvalue()
+        text = text.rstrip("\f")
         converter.close()
         fake_file_handle.close()
         return text
