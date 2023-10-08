@@ -48,14 +48,16 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
         elif self.search_type == "similarity_score_threshold":
             docs_and_similarities = (
                 await self.vectorstore.asimilarity_search_with_relevance_scores(
-                    query, **self.search_kwargs
+                    query, k=10000, **self.search_kwargs
                 )
             )
             docs = [doc for doc, _ in docs_and_similarities]
+            docs = [doc for doc in docs if query.lower() in doc.page_content.lower()]
         elif self.search_type == "mmr":
             docs = await self.vectorstore.amax_marginal_relevance_search(
-                query, **self.search_kwargs
+                query, k=10000,fetch_k=10000,lambda_mult=0, **self.search_kwargs
             )
+            docs = [doc for doc in docs if query.lower() in doc.page_content.lower()]
         else:
             raise ValueError(f"search_type of {self.search_type} not allowed.")
 
@@ -226,7 +228,7 @@ class PDFRetrieverMixin:
             ],
         )
         retriever.search_kwargs = {"filter": filter}
-        retriever.search_type = "mmr"
+        retriever.search_type = 'similarity_score_threshold'
         return retriever
 
     @classmethod
