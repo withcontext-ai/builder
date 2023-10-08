@@ -277,7 +277,7 @@ class DatasetManager(BaseManager):
             if vector:
                 text = vector["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
-        return limit, segments
+        return segments
 
     def search_document_segments(self, dataset_id, uid, query):
         dataset = self.get_datasets(dataset_id)[0]
@@ -308,7 +308,8 @@ class DatasetManager(BaseManager):
                 }
             )
             segments_id.append(_doc.metadata["urn"])
-        return len(segments), segments
+        sorted_segments = sorted(segments, key=lambda x: int(x["segment_id"].rsplit('-', 1)[-1]))
+        return len(sorted_segments), sorted_segments
 
     def add_segment(self, dataset_id, uid, content):
         dataset = self.get_datasets(dataset_id)[0]
@@ -358,9 +359,11 @@ class DatasetManager(BaseManager):
         self._update_dataset(dataset_id, dataset.dict())
         urn = self.get_dataset_urn(dataset_id)
         self.redis.set(urn, json.dumps(dataset.dict()))
+
         logger.info(
             f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
         )
+
         webhook_handler = DocumentWebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
