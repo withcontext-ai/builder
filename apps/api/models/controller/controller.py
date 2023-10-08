@@ -360,13 +360,11 @@ class DatasetManager(BaseManager):
     def upsert_preview(self, dataset, preview_size, document_uid):
         # todo change logic to retriever folder
         url = None
-        splitter = {}
         doc_type = None
         uid = None
         for doc in dataset.documents:
             if doc.uid == document_uid:
                 url = doc.url
-                splitter = doc.split_option
                 doc_type = doc.type
                 uid = doc.uid
                 break
