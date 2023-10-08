@@ -401,7 +401,6 @@ class DatasetManager(BaseManager):
         preview_list = []
         for i in range(min(preview_size, len(docs))):
             preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
-        print(preview_list)
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
