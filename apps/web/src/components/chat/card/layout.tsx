@@ -144,10 +144,13 @@ const ChatCardLayout = (prop: Props) => {
       return <EventMessage data={message} />
     }
     const { content } = message
+    if (showError) {
+      return <Markdown isUser={isUser}>{error}</Markdown>
+    }
     if (!content) {
       return <Loader2 className="h-3 w-3 animate-spin" />
     }
-    return <Markdown isUser={isUser}>{showError ? error : content}</Markdown>
+    return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
 
   return (

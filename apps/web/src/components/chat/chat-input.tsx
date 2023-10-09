@@ -70,7 +70,7 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
             Regenerate response
           </Button>
         )}
-        {loading && (
+        {loading && !error && (
           <Button
             className="bg-white"
             onClick={stop}
