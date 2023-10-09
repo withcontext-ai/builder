@@ -126,6 +126,7 @@ const ChatCardLayout = (prop: Props) => {
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message.role === 'user'
   const showError = isEnd && error && !isUser
+  console.log('showError:', showError)
 
   const { user: currentUser } = useUser()
 
@@ -145,11 +146,13 @@ const ChatCardLayout = (prop: Props) => {
     }
     const { content } = message
     if (showError) {
+      console.log('error:', error)
       return <Markdown isUser={isUser}>{error}</Markdown>
     }
     if (!content) {
       return <Loader2 className="h-3 w-3 animate-spin" />
     }
+    console.log('content:', content)
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
 

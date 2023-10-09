@@ -85,6 +85,7 @@ export async function OpenAIStream({
                   })
                 )
               )
+              console.log('metadata.error:', metadata.error)
               return
             }
             const text = json.choices?.[0].delta?.content || ''
