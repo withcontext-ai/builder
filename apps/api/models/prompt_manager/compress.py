@@ -100,7 +100,7 @@ class PromptCompressor:
         while sumrize_step < 5 and current_tokens > max_tokens:
             summarize_chain = load_summarize_chain(OpenAI(), chain_type=chain_type)
 
-            documents = [Document(page_content=message.content) for message in messages]
+            documents = [Document(page_content=message) for message in messages]
             documents = await summarize_chain.acombine_docs(documents)
             sumrize_step += 1
             messages = documents[0]
