@@ -54,7 +54,10 @@ class PromptCompressor:
         num_tokens = 0
         for message in messages:
             num_tokens += tokens_per_message
-            num_tokens += len(encoding.encode(message.content))
+            if type(message) == str:
+                num_tokens += len(encoding.encode(message))
+            else:
+                num_tokens += len(encoding.encode(message.content))
         num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
         return num_tokens
 
