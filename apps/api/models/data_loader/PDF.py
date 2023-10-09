@@ -106,7 +106,9 @@ class PDFLoader:
         return doc
 
     @staticmethod
-    def extract_text_from_pdf(contents: io.BytesIO, preview_size: int = float('inf')) -> list:
+    def extract_text_from_pdf(
+        contents: io.BytesIO, preview_size: int = float("inf")
+    ) -> list:
         resource_manager = PDFResourceManager()
         fake_file_handle = io.StringIO()
         converter = TextConverter(
@@ -115,7 +117,7 @@ class PDFLoader:
         page_interpreter = PDFPageInterpreter(resource_manager, converter)
         # Limit the number of processed pages to preview_size
         total_text = ""
-        non_empty_pages_count = 0 
+        non_empty_pages_count = 0
         for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
             page_interpreter.process_page(page)
             text = fake_file_handle.getvalue()
@@ -126,6 +128,7 @@ class PDFLoader:
                 non_empty_pages_count += 1
                 if non_empty_pages_count >= preview_size:
                     break
+        total_text = total_text.strip()
         converter.close()
         fake_file_handle.close()
         return total_text
