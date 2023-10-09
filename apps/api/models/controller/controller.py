@@ -384,16 +384,22 @@ class DatasetManager(BaseManager):
     def upsert_preview(self, dataset, preview_size, document_uid):
         # todo change logic to retriever folder
         url = None
+        splitter = {}
         doc_type = None
         uid = None
         for doc in dataset.documents:
             if doc.uid == document_uid:
                 url = doc.url
+                splitter = doc.split_option
                 doc_type = doc.type
                 uid = doc.uid
                 break
         if doc_type == None:
             raise ValueError("UID not found in dataset documents")
+        text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=splitter.get("chunk_size", 100),
+        chunk_overlap=splitter.get("chunk_overlap", 0),
+        )
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
             pdf_content = storage_client.load(url)
@@ -408,9 +414,8 @@ class DatasetManager(BaseManager):
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
         else:
             raise ValueError("Document type not supported")
-        preview_list = [
-            {"segment_id": "fake", "content": doc.page_content} for doc in _docs
-        ]
+        _docs = text_splitter.split_documents(_docs)
+        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
