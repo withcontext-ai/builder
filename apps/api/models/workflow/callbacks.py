@@ -153,7 +153,10 @@ class IOTraceCallbackHandler(AsyncCallbackHandler):
         metadata: Dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
-        self.tem_input = messages[0][-1].content
+        # system message and user input
+        self.tem_input = (
+            f"System: {messages[0][0].content}\nHuman: {messages[0][1].content}"
+        )
 
 
 class CostCalcAsyncHandler(AsyncCallbackHandler):
