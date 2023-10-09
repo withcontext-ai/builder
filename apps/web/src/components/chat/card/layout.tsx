@@ -147,8 +147,8 @@ const ChatCardLayout = (prop: Props) => {
     if (!content) {
       return <Loader2 className="h-3 w-3 animate-spin" />
     }
-    return <Markdown isUser={isUser}>{content}</Markdown>
-  }, [isUser, message])
+    return <Markdown isUser={isUser}>{showError ? error : content}</Markdown>
+  }, [isUser, message, showError, error])
 
   return (
     <div className="flex flex-col ">
@@ -196,9 +196,11 @@ const ChatCardLayout = (prop: Props) => {
               )}
             >
               {renderContent}
-              <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
-                {actions}
-              </div>
+              {!showError && (
+                <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
+                  {actions}
+                </div>
+              )}
               {footer}
             </div>
           </div>

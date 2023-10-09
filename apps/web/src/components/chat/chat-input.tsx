@@ -61,7 +61,7 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
       <div className="flex w-full flex-col items-center justify-start">
         {error && (
           <div className="pb-4 text-[14px] font-medium">
-            {error.message || 'There was an error generating a response'}
+            There was an error generating a response
           </div>
         )}
         {(Boolean(error?.message) || (showResend && !loading)) && (
