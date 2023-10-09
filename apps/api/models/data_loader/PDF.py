@@ -114,15 +114,21 @@ class PDFLoader:
         )
         page_interpreter = PDFPageInterpreter(resource_manager, converter)
         # Limit the number of processed pages to preview_size
-        for i, page in enumerate(PDFPage.get_pages(contents, caching=True, check_extractable=True)):
-            if i >= preview_size:
-                break
+        total_text = ""
+        non_empty_pages_count = 0 
+        for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
             page_interpreter.process_page(page)
-        text = fake_file_handle.getvalue()
-        text = text.rstrip("\f")
+            text = fake_file_handle.getvalue()
+            fake_file_handle.truncate(0)
+            fake_file_handle.seek(0)
+            if text.strip():
+                total_text += text
+                non_empty_pages_count += 1
+                if non_empty_pages_count >= preview_size:
+                    break
         converter.close()
         fake_file_handle.close()
-        return text
+        return total_text
 
     @staticmethod
     def get_document_page_size(document: DocumentModel) -> int:
