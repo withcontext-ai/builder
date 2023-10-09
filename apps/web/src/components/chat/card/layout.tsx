@@ -126,6 +126,9 @@ const ChatCardLayout = (prop: Props) => {
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message.role === 'user'
   const showError = isEnd && error && !isUser
+  console.log('isEnd:', isEnd)
+  console.log('error:', error)
+  console.log('isUser:', isUser)
   console.log('showError:', showError)
 
   const { user: currentUser } = useUser()
