@@ -369,47 +369,29 @@ class DatasetManager(BaseManager):
     def upsert_preview(self, dataset, preview_size, document_uid):
         # todo change logic to retriever folder
         url = None
-        splitter = {}
         doc_type = None
         uid = None
         for doc in dataset.documents:
             if doc.uid == document_uid:
                 url = doc.url
-                splitter = doc.split_option
                 doc_type = doc.type
                 uid = doc.uid
                 break
         if doc_type == None:
             raise ValueError("UID not found in dataset documents")
-        text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-            chunk_size=splitter.get("chunk_size", 100),
-            chunk_overlap=splitter.get("chunk_overlap", 0),
-        )
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
             pdf_content = storage_client.load(url)
-            text = PDFLoader.extract_text_from_pdf(pdf_content)
+            text = PDFLoader.extract_text_from_pdf(pdf_content, preview_size)
             pages = text.split("\f")
-            _docs = []
-            for page in pages:
-                _docs.append(
-                    Document(
-                        page_content=page,
-                        metadata={
-                            "source": url,
-                        },
-                    )
-                )
+            _docs = [Document(page_content=page, metadata={"source": url}) for page in pages]
         elif doc_type == "annotated_data":
             storage_client = AnnotatedDataStorageClient()
             annotated_data = storage_client.load(uid)
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
         else:
             raise ValueError("Document type not supported")
-        docs = text_splitter.split_documents(_docs)
-        preview_list = []
-        for i in range(min(preview_size, len(docs))):
-            preview_list.append({"segment_id": "fake", "content": docs[i].page_content})
+        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
