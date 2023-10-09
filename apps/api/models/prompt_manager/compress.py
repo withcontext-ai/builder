@@ -106,6 +106,8 @@ class PromptCompressor:
             logger.warning(
                 f"messages are too long to summarize. Returning original messages. messages length: {current_tokens} max_tokens: {max_tokens}"
             )
+        if isinstance(messages, list):
+            return "\n".join([message for message in messages])
         return messages
 
     @staticmethod
@@ -152,7 +154,9 @@ class PromptCompressor:
         for key in inputs:
             if key == "chat_history" or key == "question":
                 continue
-            compressed_inputs[key] = PromptCompressor.sumrize_content(
+            if type(inputs[key]) == list:
+                continue
+            compressed_inputs[key] = await PromptCompressor.sumrize_content(
                 inputs[key], model, chain_type="stuff", max_tokens=500
             )
         compressed_prompt_value = prompt_template.format_prompt(**compressed_inputs)
@@ -170,8 +174,8 @@ class PromptCompressor:
         system_message = compressed_messages[0]
 
         # compress system message
-        compressed_system_message = PromptCompressor.sumrize_content(
-            content=system_message,
+        compressed_system_message = await PromptCompressor.sumrize_content(
+            content=system_message.content,
             model=model,
             chain_type="stuff",
             max_tokens=max_tokens / 2,
@@ -182,16 +186,19 @@ class PromptCompressor:
             HumanMessage(content=question),
         ]
 
-        if current_token + RESPONSE_BUFFER_SIZE < max_tokens:
-            return compressed_messages
+        if current_token + RESPONSE_BUFFER_SIZE > max_tokens:
+            logger.warning(
+                f"compressed messages are still too long. Returning original messages."
+            )
+        return compressed_messages
 
-        # compress question
-        system_message_token = PromptCompressor.num_tokens_from_messages(
-            [SystemMessage(content=compressed_system_message)], model
-        )
-        question_token = max_tokens - RESPONSE_BUFFER_SIZE - system_message_token
-        question = question[: -(question_token * 2)]
-        return [
-            SystemMessage(content=compressed_system_message),
-            HumanMessage(content=question),
-        ]
+        # # compress question
+        # system_message_token = PromptCompressor.num_tokens_from_messages(
+        #     [SystemMessage(content=compressed_system_message)], model
+        # )
+        # question_token = max_tokens - RESPONSE_BUFFER_SIZE - system_message_token
+        # question = question[: -(question_token * 2)]
+        # return [
+        #     SystemMessage(content=compressed_system_message),
+        #     HumanMessage(content=question),
+        # ]

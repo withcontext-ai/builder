@@ -197,6 +197,8 @@ class CostCalcAsyncHandler(AsyncCallbackHandler):
 
 
 class SequentialChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
+    error_flags: List[Exception | KeyboardInterrupt] = Field(default=[])
+
     def __init__(self) -> None:
         super().__init__()
 
@@ -240,9 +242,7 @@ class SequentialChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         tags: List[str] | None = None,
         **kwargs: Any,
     ) -> None:
-        return await super().on_chain_error(
-            error, run_id=run_id, parent_run_id=parent_run_id, tags=tags, **kwargs
-        )
+        pass
 
     async def on_chat_model_start(
         self,
@@ -335,3 +335,23 @@ class LLMAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
 
     async def on_chain_end(self, response: LLMResult, **kwargs: Any):
         await super().on_chain_end(response, **kwargs)
+
+    async def on_llm_error(
+        self, error: Exception | KeyboardInterrupt, **kwargs: Any
+    ) -> None:
+        self.error_flags.append(error)
+        return await super().on_llm_error(error, **kwargs)
+
+    async def on_chain_error(
+        self,
+        error: Exception | KeyboardInterrupt,
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        self.error_flags.append(error)
+        return await super().on_chain_error(
+            error, run_id=run_id, parent_run_id=parent_run_id, tags=tags, **kwargs
+        )

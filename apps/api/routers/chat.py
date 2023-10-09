@@ -68,45 +68,45 @@ async def send_message(
     filt=False,
     start_time=None,
 ) -> AsyncIterable[str]:
+    messages = []
+    for message_content in messages_contents:
+        if message_content.role == "user":
+            messages.append(HumanMessage(content=message_content.content))
+        elif message_content.role == "system":
+            messages.append(SystemMessage(content=message_content.content))
+        elif message_content.role == "assistant":
+            messages.append(AIMessage(content=message_content.content))
+        else:
+            raise HTTPException(
+                status_code=400, detail=f"Invalid role: {message_content.role}"
+            )
+
+    model_id = session_state_manager.get_model_id(session_id)
+    models = model_manager.get_models(model_id)
+    if not models:
+        raise HTTPException(
+            status_code=400, detail=f"Model {model_id} not found in model manager"
+        )
+    if len(models) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Model {model_id} has {len(models)} models in model manager",
+        )
+    model = models[0]
+    logger.info(f"model while chat: {model}")
+    workflow = session_state_manager.get_workflow(session_id, model)
+
+    async def wrap_done(fn: Awaitable, event: asyncio.Event):
+        try:
+            await fn
+
+        except Exception as e:
+            logger.exception(e)
+            raise e
+        finally:
+            event.set()
+
     try:
-        messages = []
-        for message_content in messages_contents:
-            if message_content.role == "user":
-                messages.append(HumanMessage(content=message_content.content))
-            elif message_content.role == "system":
-                messages.append(SystemMessage(content=message_content.content))
-            elif message_content.role == "assistant":
-                messages.append(AIMessage(content=message_content.content))
-            else:
-                raise HTTPException(
-                    status_code=400, detail=f"Invalid role: {message_content.role}"
-                )
-
-        model_id = session_state_manager.get_model_id(session_id)
-        models = model_manager.get_models(model_id)
-        if not models:
-            raise HTTPException(
-                status_code=400, detail=f"Model {model_id} not found in model manager"
-            )
-        if len(models) > 1:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Model {model_id} has {len(models)} models in model manager",
-            )
-        model = models[0]
-        logger.info(f"model while chat: {model}")
-        workflow = session_state_manager.get_workflow(session_id, model)
-
-        async def wrap_done(fn: Awaitable, event: asyncio.Event):
-            try:
-                await fn
-
-            except Exception as e:
-                logger.exception(e)
-                raise e
-            finally:
-                event.set()
-
         task = asyncio.create_task(
             wrap_done(workflow.agenerate(messages), workflow.context.done)
         )
