@@ -154,6 +154,8 @@ class TargetedChain(Chain):
         return {self.output_key: response.generations[0][0].text}
 
     async def get_output(self, pre_dialog: str, human_input: str, llm_output: str):
+        if self.process == TargetedChainStatus.RUNNING:
+            return ""
         dialog = (
             pre_dialog
             + "\n"
