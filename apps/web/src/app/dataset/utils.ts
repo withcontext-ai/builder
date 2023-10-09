@@ -15,7 +15,7 @@ export function formateIndex(index: number) {
   if (index < 10) {
     return `#00${index}`
   }
-  if (index > 10 && index < 100) {
+  if (index >= 10 && index < 100) {
     return `#0${index}`
   } else {
     return `#${index}`

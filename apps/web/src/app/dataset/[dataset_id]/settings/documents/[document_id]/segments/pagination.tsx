@@ -33,8 +33,10 @@ export function DataTablePagination<TData>({
                 key={item}
                 className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-full',
-                  item === current && 'bg-black text-white'
+                  item === current && 'bg-black text-white',
+                  item !== current && 'cursor-pointer'
                 )}
+                onClick={() => table.setPageIndex(item - 1)}
               >
                 {item}
               </div>

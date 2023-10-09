@@ -15,14 +15,7 @@ interface IProps {
   addNew?: () => void
 }
 
-const SegmentHeader = ({
-  uid,
-
-  addNew,
-  short_id,
-  icon,
-  datasetId,
-}: IProps) => {
+const SegmentHeader = ({ uid, addNew, short_id, icon, datasetId }: IProps) => {
   const [isPending, startTransition] = useTransition()
   const urlSearchParams = new URLSearchParams(
     decodeURIComponent(window.location.search)
