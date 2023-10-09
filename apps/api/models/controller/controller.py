@@ -262,15 +262,25 @@ class DatasetManager(BaseManager):
             raise ValueError("UID not found in dataset documents")
         segments = []
         i = offset
+        seg_ids = []
         while i < limit + offset:
             seg_id = f"{dataset_id}-{matching_url}-{i}"
-            vectors = Retriever.fetch_vectors(ids=[seg_id])
-            if seg_id in vectors and "metadata" in vectors[seg_id] and "text" in vectors[seg_id]["metadata"]:
+            seg_ids.append(seg_id)
+            i += 1
+        vectors = Retriever.fetch_vectors(ids=seg_ids)
+        for seg_id in seg_ids:
+            if (
+                seg_id in vectors
+                and "metadata" in vectors[seg_id]
+                and "text" in vectors[seg_id]["metadata"]
+            ):
                 text = vectors[seg_id]["metadata"]["text"]
                 segments.append({"segment_id": seg_id, "content": text})
             else:
-                logger.info(f"Segment {seg_id} has incomplete data in Pinecone or not found")
-            i += 1
+                logger.info(
+                    f"Segment {seg_id} has incomplete data in Pinecone or not found"
+                )
+
         return segment_size, segments
 
     def search_document_segments(self, dataset_id, uid, query):
@@ -302,7 +312,9 @@ class DatasetManager(BaseManager):
                 }
             )
             segments_id.append(_doc.metadata["urn"])
-        sorted_segments = sorted(segments, key=lambda x: int(x["segment_id"].rsplit('-', 1)[-1]))
+        sorted_segments = sorted(
+            segments, key=lambda x: int(x["segment_id"].rsplit("-", 1)[-1])
+        )
         return len(sorted_segments), sorted_segments
 
     def add_segment(self, dataset_id, uid, content):
@@ -330,7 +342,11 @@ class DatasetManager(BaseManager):
                 if content == "":
                     # Handle deletion
                     if doc.page_size > 0:
-                        segment_length = len(Retriever.fetch_vectors(ids=[segment_id])[segment_id]["metadata"]["text"])
+                        segment_length = len(
+                            Retriever.fetch_vectors(ids=[segment_id])[segment_id][
+                                "metadata"
+                            ]["text"]
+                        )
                         doc.content_size -= segment_length
                 elif doc.page_size == current_page_size:
                     # Handle addition
@@ -384,14 +400,18 @@ class DatasetManager(BaseManager):
             pdf_content = storage_client.load(url)
             text = PDFLoader.extract_text_from_pdf(pdf_content, preview_size)
             pages = text.split("\f")
-            _docs = [Document(page_content=page, metadata={"source": url}) for page in pages]
+            _docs = [
+                Document(page_content=page, metadata={"source": url}) for page in pages
+            ]
         elif doc_type == "annotated_data":
             storage_client = AnnotatedDataStorageClient()
             annotated_data = storage_client.load(uid)
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
         else:
             raise ValueError("Document type not supported")
-        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
+        preview_list = [
+            {"segment_id": "fake", "content": doc.page_content} for doc in _docs
+        ]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
