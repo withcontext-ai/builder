@@ -32,6 +32,7 @@ from pydantic import Extra, root_validator, Field
 import inspect
 from langchain.schema.messages import get_buffer_string
 
+from models.prompt_manager.compress import PromptCompressor
 from langchain.chat_models import ChatOpenAI
 from langchain.retrievers import SelfQueryRetriever
 
@@ -325,9 +326,9 @@ class EnhanceConversationChain(Chain):
             inputs["chat_history"], str
         ):
             inputs["chat_history"] = [inputs["chat_history"]]
-        messages = inputs.get("chat_history", [])
-        prompt_value = self.prompt.format_prompt(**inputs)
-        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+        messages = PromptCompressor.get_compressed_messages(
+            prompt_template=self.prompt, inputs=inputs, model=self.llm.model_name
+        )
         response = await self.llm.agenerate(
             messages=[messages],
             callbacks=run_manager.get_child() if run_manager else None,
@@ -367,19 +368,19 @@ class EnhanceConversationalRetrievalChain(Chain):
         ):
             inputs["chat_history"] = [inputs["chat_history"]]
         messages = inputs.get("chat_history", [])
-        inputs.pop("chat_history", None)
         question = inputs.get("question", None)
         if question is None:
             raise ValueError("Question is required")
-        inputs.pop("question", None)
 
         docs = await self.retriever.aget_relevant_documents(
             question, callbacks=run_manager.get_child()
         )
         context = "\n".join([doc.page_content for doc in docs])
         inputs["context"] = context
-        prompt_value = self.prompt.format_prompt(**inputs)
-        messages = [SystemMessage(content=prompt_value.to_string())] + messages
+
+        messages = PromptCompressor.get_compressed_messages(
+            self.prompt, inputs, self.llm.model_name
+        )
         response = await self.llm.agenerate(
             messages=[messages],
             callbacks=run_manager.get_child() if run_manager else None,

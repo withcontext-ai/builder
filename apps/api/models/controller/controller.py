@@ -15,6 +15,7 @@ from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
 import json
+from models.prompt_manager.manager import PromptManagerMixin
 
 
 class RelativeManager(BaseManager):
@@ -559,7 +560,7 @@ class ModelManager(BaseManager):
 model_manager = ModelManager()
 
 
-class SessionStateManager(BaseManager):
+class SessionStateManager(BaseManager, PromptManagerMixin):
     def __init__(self) -> None:
         super().__init__()
         self.table = self.get_table("session_state")
@@ -573,16 +574,6 @@ class SessionStateManager(BaseManager):
     @staticmethod
     def get_session_state_urn(session_id: str):
         return f"session:{session_id}"
-
-    @staticmethod
-    def get_chain_output_urn(session_id: str, output_key: str):
-        return f"output:{session_id}:{output_key}"
-
-    def save_chain_output(self, session_id: str, output_key: str, output: str):
-        self.redis.set(self.get_chain_output_urn(session_id, output_key), output)
-
-    def get_chain_output(self, session_id: str, output_key: str):
-        return self.redis.get(self.get_chain_output_urn(session_id, output_key))
 
     @BaseManager.db_session
     def save_session_state(self, session_id: str, model_id: str):
@@ -710,35 +701,6 @@ class SessionStateManager(BaseManager):
             current_status = json.loads(current_status)
             return current_status.get(output_key)
         return None
-
-    def get_chain_urn(self, session_id, output_key):
-        return f"{session_id}-{output_key}"
-
-    def save_chain_memory(self, session_id: str, contents: list):
-        def get_human_input(content):
-            if "Human:" in content["input"]:
-                return content["input"].split("Human:")[1].strip()
-            return ""
-
-        for content in contents:
-            current_chain_memory = self.get_chain_memory(
-                session_id, content["chain_key"]
-            )
-            current_chain_memory.append(
-                {"input": get_human_input(content), "output": content["output"]}
-            )
-            self.redis.set(
-                self.get_chain_urn(session_id, content["chain_key"]),
-                json.dumps(current_chain_memory),
-            )
-
-    def get_chain_memory(self, session_id: str, output_key: str):
-        current_chain_memory = self.redis.get(
-            self.get_chain_urn(session_id, output_key)
-        )
-        if current_chain_memory:
-            return json.loads(current_chain_memory)
-        return []
 
 
 session_state_manager = SessionStateManager()

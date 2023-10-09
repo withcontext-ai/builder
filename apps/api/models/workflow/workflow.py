@@ -39,7 +39,6 @@ from .custom_chain import (
     TargetedChainStatus,
 )
 from .utils import (
-    PatchedRetrievalQA,
     extract_tool_patterns_from_brackets,
     replace_dot_with_dash_for_tool_pattern,
 )
