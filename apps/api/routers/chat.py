@@ -53,6 +53,15 @@ def wrap_token(
     return f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=model_id, choices=[Choices(index=0, delta={'content': token})]).dict())}\n\n"
 
 
+def wrap_error(error: str):
+    if error.startswith("This model's maximum context length"):
+        return "The message you submitted was too long, please reload the conversation and submit something shorter."
+    elif error.startswith("You exceed your current quota"):
+        return "API key exceeds the usage limit."
+    else:
+        return error
+
+
 async def send_message(
     messages_contents: List[MessagesContent],
     session_id: str,
@@ -123,22 +132,24 @@ async def send_message(
                     )
                 )
             yield wrap_token(token, model_id, session_id, filt=filt)
-
-        if not filt:
-            yield f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=workflow.model.id, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict())}\n\n"
-            info = {
-                "metadata": {
-                    "token": {"total_tokens": workflow.cost_content.total_tokens},
-                    "raw": workflow.io_traces,
-                }
-            }
-            yield f"data: {json.dumps(info)}\n\n"
-        yield "data: [DONE]\n\n"
-        session_state_manager.save_workflow_status(session_id, workflow)
         await task
     except Exception as e:
-        logger.exception(e)
-        raise HTTPException(status_code=500, detail=str(e))
+        pass
+
+    if not filt:
+        yield f"data: {json.dumps(CompletionsResponse(id=session_id, object='chat.completion.chunk', model=workflow.model.id, choices=[Choices(index=0, finish_reason='stop', delta={})]).dict())}\n\n"
+        info = {
+            "metadata": {
+                "token": {"total_tokens": workflow.cost_content.total_tokens},
+                "raw": workflow.io_traces,
+            }
+        }
+        yield f"data: {json.dumps(info)}\n\n"
+        if workflow.error_flags:
+            info = {"metadata": {"error": wrap_error(workflow.error_flags[0].args[0])}}
+            yield f"data: {json.dumps(info)}\n\n"
+    yield "data: [DONE]\n\n"
+    session_state_manager.save_workflow_status(session_id, workflow)
 
 
 async def send_done_message():

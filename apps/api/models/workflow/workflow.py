@@ -59,6 +59,10 @@ class Workflow(BaseModel):
     dialog_keys: List[str] = []
     outout_keys: List[str] = []
     outputs: dict = {}
+    error_flags: List[Exception] = []
+
+    class Config:
+        arbitrary_types_allowed = True
 
     def __init__(self, model: Model, session_id: str) -> None:
         super().__init__()
@@ -68,6 +72,7 @@ class Workflow(BaseModel):
         self.known_keys = []
         self.cost_content = TokenCostProcess()
         self.dialog_keys = []
+        self.error_flags = []
         for index, _chain in enumerate(model.chains):
             llm, prompt_template = self._prepare_llm_and_template(_chain, index)
             chain = self._prepare_chain(_chain, llm, prompt_template)
@@ -228,7 +233,7 @@ class Workflow(BaseModel):
                     )
 
                     chain.callbacks = [
-                        LLMAsyncIteratorCallbackHandler(),
+                        LLMAsyncIteratorCallbackHandler(self.error_flags),
                     ]
                 except Exception as e:
                     logger.error(
@@ -243,7 +248,7 @@ class Workflow(BaseModel):
                         prompt=prompt_template[0],
                     )
                     chain.callbacks = [
-                        LLMAsyncIteratorCallbackHandler(),
+                        LLMAsyncIteratorCallbackHandler(self.error_flags),
                     ]
                 except Exception as e:
                     logger.error(f"Error while creating conversation_chain: {e}")
@@ -259,7 +264,7 @@ class Workflow(BaseModel):
                         target=_chain.prompt.target,
                     )
                     chain.callbacks = [
-                        LLMAsyncIteratorCallbackHandler(),
+                        LLMAsyncIteratorCallbackHandler(self.error_flags),
                     ]
                 except Exception as e:
                     logger.error(f"Error while creating self_checking_chain: {e}")

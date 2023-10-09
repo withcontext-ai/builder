@@ -65,6 +65,11 @@ class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
     ) -> Any:
         pass
 
+    async def on_llm_error(
+        self, error: Exception | KeyboardInterrupt, **kwargs: Any
+    ) -> None:
+        return await super().on_llm_error(error, **kwargs)
+
 
 class TargetedChainStatus(str, Enum):
     INIT = "initialized"
