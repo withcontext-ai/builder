@@ -126,11 +126,6 @@ const ChatCardLayout = (prop: Props) => {
   const { short_id: appId, icon: appIcon, name: appName } = app ?? {}
   const isUser = message.role === 'user'
   const showError = isEnd && error && !isUser
-  console.log('message:', message)
-  console.log('isEnd:', isEnd)
-  console.log('error:', error)
-  console.log('isUser:', isUser)
-  console.log('showError:', showError)
 
   const { user: currentUser } = useUser()
 
@@ -157,6 +152,14 @@ const ChatCardLayout = (prop: Props) => {
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
+
+  if (isEnd) {
+    console.log('=== message:', message)
+    console.log('=== isEnd:', isEnd)
+    console.log('=== error:', error)
+    console.log('=== isUser:', isUser)
+    console.log('=== showError:', showError)
+  }
 
   return (
     <div className="flex flex-col ">
