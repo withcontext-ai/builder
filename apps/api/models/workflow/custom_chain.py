@@ -12,6 +12,7 @@ from typing import (
 )
 from enum import Enum
 import time
+from uuid import UUID
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
@@ -26,7 +27,7 @@ from langchain.chains import (
 from langchain.chains.base import Chain
 from langchain.prompts.base import BasePromptTemplate
 from langchain.schema.language_model import BaseLanguageModel
-from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from langchain.schema import BaseMessage, SystemMessage, HumanMessage, AIMessage
 from loguru import logger
 from pydantic import Extra, root_validator, Field
 import inspect
@@ -50,6 +51,19 @@ class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
 
     async def on_chain_end(self, response: Any, **kwargs: Any) -> None:
         self.done.set()
+
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[BaseMessage]],
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        metadata: Dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
 
 
 class TargetedChainStatus(str, Enum):
@@ -326,7 +340,7 @@ class EnhanceConversationChain(Chain):
             inputs["chat_history"], str
         ):
             inputs["chat_history"] = [inputs["chat_history"]]
-        messages = PromptCompressor.get_compressed_messages(
+        messages = await PromptCompressor.get_compressed_messages(
             prompt_template=self.prompt, inputs=inputs, model=self.llm.model_name
         )
         response = await self.llm.agenerate(
@@ -378,7 +392,7 @@ class EnhanceConversationalRetrievalChain(Chain):
         context = "\n".join([doc.page_content for doc in docs])
         inputs["context"] = context
 
-        messages = PromptCompressor.get_compressed_messages(
+        messages = await PromptCompressor.get_compressed_messages(
             self.prompt, inputs, self.llm.model_name
         )
         response = await self.llm.agenerate(

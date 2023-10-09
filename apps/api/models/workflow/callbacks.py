@@ -2,6 +2,7 @@ import asyncio
 from asyncio import Task, sleep
 from typing import Any, Coroutine, Dict, List, Optional, cast
 from uuid import UUID
+from langchain.schema.messages import BaseMessage
 from langchain.schema.output import LLMResult
 
 
@@ -141,6 +142,19 @@ class IOTraceCallbackHandler(AsyncCallbackHandler):
             }
         )
 
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[BaseMessage]],
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        metadata: Dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
 
 class CostCalcAsyncHandler(AsyncCallbackHandler):
     model: str = ""
@@ -164,6 +178,19 @@ class CostCalcAsyncHandler(AsyncCallbackHandler):
 
     def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
         self.token_cost_process.sum_successful_requests(1)
+
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[BaseMessage]],
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        metadata: Dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
 
 
 class SequentialChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -201,6 +228,19 @@ class SequentialChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         """Run when chain ends running."""
         pass
 
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[BaseMessage]],
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        metadata: Dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
 
 class ChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
     index: int = Field(default=0)
@@ -221,6 +261,19 @@ class ChainAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
 
     async def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
         return await super().on_llm_new_token(token, **kwargs)
+
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[BaseMessage]],
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        metadata: Dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
 
 
 class LLMAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -264,3 +317,16 @@ class LLMAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
 
     async def on_chain_end(self, response: LLMResult, **kwargs: Any):
         await super().on_chain_end(response, **kwargs)
+
+    async def on_chat_model_start(
+        self,
+        serialized: Dict[str, Any],
+        messages: List[List[BaseMessage]],
+        *,
+        run_id: UUID,
+        parent_run_id: UUID | None = None,
+        tags: List[str] | None = None,
+        metadata: Dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
