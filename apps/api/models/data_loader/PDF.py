@@ -126,7 +126,6 @@ class PDFLoader:
                 non_empty_pages_count += 1
                 if non_empty_pages_count >= preview_size:
                     break
-        total_text = total_text.strip()
         converter.close()
         fake_file_handle.close()
         return total_text
