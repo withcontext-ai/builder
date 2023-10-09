@@ -146,7 +146,9 @@ async def send_message(
         }
         yield f"data: {json.dumps(info)}\n\n"
         if workflow.error_flags:
-            info = {"metadata": {"error": wrap_error(workflow.error_flags[0].args[0])}}
+            info = {
+                "metadata": {"error": wrap_error(str(workflow.error_flags[0].args[0]))}
+            }
             yield f"data: {json.dumps(info)}\n\n"
     yield "data: [DONE]\n\n"
     session_state_manager.save_workflow_status(session_id, workflow)
