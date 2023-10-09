@@ -17,6 +17,7 @@ from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
     CallbackManagerForChainRun,
+    AsyncCallbackManagerForLLMRun,
 )
 from langchain.chains import (
     ConversationChain,
@@ -158,7 +159,12 @@ class TargetedChain(Chain):
         )
         return {self.output_key: response.generations[0][0].text}
 
-    async def get_output(self, pre_dialog: str, human_input: str, llm_output: str):
+    async def get_output(
+        self,
+        pre_dialog: str,
+        human_input: str,
+        llm_output: str,
+    ):
         if self.process == TargetedChainStatus.RUNNING:
             return ""
         dialog = (
@@ -173,8 +179,10 @@ class TargetedChain(Chain):
         )
         pre_prompt = "The goal is" + self.target + "\n"
         suffix_prompt = "Please output the target based on this conversation."
+        run_manager = AsyncCallbackManagerForChainRun.get_noop_manager()
         response = await self.llm.agenerate(
             messages=[[HumanMessage(content=pre_prompt + dialog + suffix_prompt)]],
+            callbacks=run_manager.get_child(),
         )
         return response.generations[0][0].text
 
