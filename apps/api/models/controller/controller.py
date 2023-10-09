@@ -383,7 +383,6 @@ class DatasetManager(BaseManager):
         else:
             raise ValueError("Document type not supported")
         preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
-        print(preview_list)
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
