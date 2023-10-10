@@ -97,7 +97,7 @@ class PromptCompressor:
         """Return a summary of a list of messages."""
         sumrize_step = 0
         current_tokens = PromptCompressor.num_tokens_from_messages(messages, model)
-        while sumrize_step < 5 and current_tokens > max_tokens:
+        while (sumrize_step < 2) and (current_tokens > max_tokens):
             summarize_chain = load_summarize_chain(OpenAI(), chain_type=chain_type)
             if type(messages[0]) == str:
                 documents = [Document(page_content=message) for message in messages]
@@ -105,6 +105,10 @@ class PromptCompressor:
                 documents = [
                     Document(page_content=message.content) for message in messages
                 ]
+            splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                chunk_size=500, chunk_overlap=0, separator=""
+            )
+            documents = splitter.split_documents(documents)
             documents = await summarize_chain.acombine_docs(documents)
             sumrize_step += 1
             messages = documents[0]
