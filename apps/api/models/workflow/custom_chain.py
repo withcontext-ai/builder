@@ -277,6 +277,7 @@ class EnhanceSequentialChain(SequentialChain):
                 self.known_values.update(outputs)
                 if self.current_chain == len(self.chains) - 1:
                     self.current_chain = 0
+                    return self._construct_return_dict()
                 else:
                     self.current_chain += 1
         return self._construct_return_dict()
