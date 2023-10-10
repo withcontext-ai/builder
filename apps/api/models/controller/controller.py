@@ -263,8 +263,8 @@ class DatasetManager(BaseManager):
         i = offset
         while len(segments) < limit and i < segment_size:
             seg_ids = []
-            remained = i + (limit - len(segments))
-            while i < remained:
+            end_idx = i + (limit - len(segments))
+            while i < end_idx:
                 seg_id = f"{dataset_id}-{matching_url}-{i}"
                 seg_ids.append(seg_id)
                 i += 1
