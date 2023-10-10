@@ -170,15 +170,11 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
             break
           }
           let chunk = decode(value) as string
-          console.log('=== chunk:', chunk)
           chunkGroup += chunk
-          console.log('=== chunkGroup 0:', chunkGroup)
           if (chunk.startsWith('[DATA]') && !chunk.endsWith('[DATAEND]')) {
             continue
           }
-          console.log('=== chunkGroup 1:', chunkGroup)
           const matches = chunkGroup.match(/\[DATA\](.*)\[DATAEND\]/)
-          console.log('=== matches:', matches)
           if (matches?.[1]) {
             streamedData = {
               ...streamedData,
@@ -187,8 +183,6 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
             chunk = chunkGroup.replace(matches[0], '')
           }
           chunkGroup = ''
-          console.log('=== chunk:', chunk)
-          console.log('=== streamedData:', streamedData)
           if (streamedData.id) {
             responseMessage.id = streamedData.id
           }
@@ -201,7 +195,6 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
           streamedResponse += chunk
 
           responseMessage.content = streamedResponse
-          console.log('=== responseMessage:', responseMessage)
           setMessages([...currMessages, { ...responseMessage }])
 
           // The request has been aborted, stop reading the stream.

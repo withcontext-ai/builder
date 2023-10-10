@@ -153,14 +153,6 @@ const ChatCardLayout = (prop: Props) => {
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
 
-  if (isEnd) {
-    console.log('=== message:', message)
-    console.log('=== isEnd:', isEnd)
-    console.log('=== error:', error)
-    console.log('=== isUser:', isUser)
-    console.log('=== showError:', showError)
-  }
-
   return (
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
