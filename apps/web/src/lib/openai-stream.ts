@@ -32,6 +32,7 @@ export async function OpenAIStream({
   let counter = 0
   let completion = ''
   let initialed = false
+  let error = false
   // todo impl
   // let token = 0
 
@@ -66,7 +67,7 @@ export async function OpenAIStream({
                 await callback.onStart()
               }
             }
-            if (callback?.onCompletion) {
+            if (callback?.onCompletion && !error) {
               // todo actual impl
               await callback.onCompletion(completion, metadata ?? {})
             }
@@ -78,6 +79,7 @@ export async function OpenAIStream({
             const json = JSON.parse(data)
             metadata = json.metadata
             if (metadata?.error) {
+              error = true
               controller.enqueue(
                 encoder.encode(
                   encodeData({
