@@ -374,6 +374,7 @@ class DatasetManager(BaseManager):
             first_segment = "-".join(segment_id.split("-")[0:2])
             metadata = Retriever.get_metadata(first_segment)
             metadata["text"] = content
+            metadata["urn"] = segment_id
             Retriever.upsert_vector(segment_id, content, metadata)
         else:
             Retriever.delete_vector(segment_id)
@@ -412,7 +413,7 @@ class DatasetManager(BaseManager):
         else:
             raise ValueError("Document type not supported")
         _docs = text_splitter.split_documents(_docs)
-        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs[:5]]
+        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs[:preview_size]]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
