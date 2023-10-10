@@ -33,18 +33,200 @@ type MessageDTO =
     }
 
 export async function POST(req: NextRequest, res: NextResponse) {
-  const s = new ReadableStream({
-    async start(controller) {
-      controller.enqueue(
-        `\n[DATA]${JSON.stringify({
-          error:
-            'The sweet aroma of freshly baked bread filled the cozy bakery, tempting passersby to step inside and savor the warm goodness.',
-        })}[DATAEND]`
+  // if (process.env.NODE_ENV === 'development' && process.env.MOCK_CHAT) {
+  //   const s = new ReadableStream({
+  //     async start(controller) {
+  //       await Promise.all(
+  //         [
+  //           `[DATA]${JSON.stringify({ id: nanoid() })}[DATAEND]`,
+  //           'hello ',
+  //           'how ',
+  //           'are ',
+  //           'you?',
+  //         ].map(
+  //           (chunk, i) =>
+  //             new Promise<void>((resolve) => {
+  //               setTimeout(
+  //                 () => {
+  //                   try {
+  //                     controller.enqueue(chunk)
+  //                   } catch {}
+  //                   resolve()
+  //                 },
+  //                 (i + 1) * 1000
+  //               )
+  //             })
+  //         )
+  //       )
+  //       // ? mock error
+  //       // controller.enqueue(
+  //       //   `\n[DATA]${JSON.stringify({ error: 'custom erro' })}[DATAEND]`
+  //       // )
+  //       try {
+  //         controller.close()
+  //       } catch {}
+  //     },
+  //   })
+  //   return new Response(s)
+  // }
+  const { userId } = auth()
+  if (!userId) {
+    throw new Error('Not authenticated')
+  }
+
+  const email = await currentUserEmail()
+  const body = await req.json()
+  const appId = body.appId as string
+  const sessionId = body.sessionId as string
+  const apiSessionId = body.apiSessionId as string
+  // const messages = body.messages as Message[]
+  const query = body.query as string
+  const reloadMessageId = body.reloadId as string
+
+  const redisKey = `session:${userId}-${sessionId}`
+
+  let messageDTO = await redis.get<MessageDTO[]>(redisKey)
+
+  if (!messageDTO || messageDTO.length === 0) {
+    const rawMessages = await db
+      .select({
+        query: MessagesTable.query,
+        content: MessagesTable.answer,
+        id: MessagesTable.short_id,
+      })
+      .from(MessagesTable)
+      .where(
+        and(
+          eq(MessagesTable.session_id, sessionId),
+          eq(MessagesTable.type, 'chat')
+        )
       )
-      try {
-        controller.close()
-      } catch {}
+
+    messageDTO = rawMessages
+      .map((message) => {
+        return [
+          {
+            role: 'user',
+            content: message.query,
+          },
+          {
+            id: message.id,
+            role: 'assistant',
+            content: message.content,
+          },
+        ]
+      })
+      .flat() as MessageDTO[]
+  }
+
+  if (reloadMessageId) {
+    if (messageDTO.length > 0) {
+      const lastMessage = messageDTO[messageDTO.length - 1]
+      if (
+        lastMessage.role === 'assistant' &&
+        lastMessage.id === reloadMessageId
+      ) {
+        messageDTO = messageDTO.slice(0, -1)
+      }
+    }
+  } else {
+    messageDTO = messageDTO.concat({
+      role: 'user',
+      content: query,
+    })
+  }
+
+  const payload = {
+    session_id: apiSessionId,
+    messages: messageDTO,
+  }
+
+  const requestId = nanoid()
+  await logsnag?.track({
+    user_id: userId,
+    channel: 'chat',
+    event: 'Chat Request',
+    icon: '➡️',
+    description: `${email} send a request with ${messageDTO.length} messages`,
+    tags: {
+      'request-id': requestId,
+      'user-id': userId,
+      'app-id': appId || 'unknown',
+      'session-id': sessionId,
+      'message-count': messageDTO.length,
+      'is-prod': flags.isProd,
     },
   })
-  return new Response(s)
+
+  const messageId = reloadMessageId || nanoid()
+
+  const requestTimestamp = Date.now()
+
+  const stream = await OpenAIStream({
+    baseUrl,
+    payload,
+    callback: {
+      async onStart() {
+        const responseTimestamp = Date.now()
+        const latencyMs = responseTimestamp - requestTimestamp
+        await logsnag?.track({
+          user_id: userId,
+          channel: 'chat',
+          event: 'Chat Response',
+          icon: '⬅️',
+          description: `${email} get a response within ${latencyMs}ms`,
+          tags: {
+            'request-id': requestId,
+            'user-id': userId,
+            'app-id': appId || 'unknown',
+            'session-id': sessionId,
+            'latency-ms': latencyMs,
+            'is-prod': flags.isProd,
+          },
+        })
+      },
+      async onCompletion(completion, metadata) {
+        const responseTimestamp = Date.now()
+        const latency = responseTimestamp - requestTimestamp
+        if (!messageDTO) {
+          return
+        }
+        const [userMessage] = messageDTO
+          .filter((m) => m.role === 'user')
+          .slice(-1)
+        const newMessage = {
+          type: 'chat',
+          short_id: messageId,
+          session_id: sessionId,
+          query: userMessage.content,
+          answer: completion,
+          feedback: null,
+          feedback_content: null,
+          latency,
+          ...(metadata?.token?.total_tokens && {
+            total_tokens: metadata.token.total_tokens,
+          }),
+          ...(metadata?.raw && { raw: metadata.raw }),
+        }
+        messageDTO.push({
+          id: messageId,
+          role: 'assistant',
+          content: completion,
+        })
+        if (reloadMessageId) {
+          await editMessage(messageId, newMessage)
+        } else {
+          await addMessage(newMessage)
+        }
+        await redis.set(redisKey, messageDTO, {
+          ex: 60 * 60 * 24,
+        })
+      },
+    },
+    data: {
+      id: messageId,
+    },
+  })
+
+  return new Response(stream)
 }
