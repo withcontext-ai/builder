@@ -83,7 +83,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const query = body.query as string
   const reloadMessageId = body.reloadId as string
 
-  const redisKey = `session:${userId}-${sessionId}`
+  const redisKey = `web:session:${sessionId}`
 
   let messageDTO = await redis.get<MessageDTO[]>(redisKey)
 
