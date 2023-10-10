@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { debounce } from 'lodash'
 import useSWR from 'swr'
@@ -17,13 +18,12 @@ import { DataTablePagination } from './pagination'
 import SegmentList from './segment-list'
 
 interface IProps {
-  document_id: string
   dataset_id: string
   name?: string
   type?: LoaderTypeProps
 }
 
-const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
+const SegmentPage = ({ dataset_id, name, type }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
@@ -46,7 +46,9 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
 
     return fetcher(`/api/datasets/segment?${search}`, { method: 'GET' })
   }
-  const queries = { dataset_id, uid: document_id, search: value }
+  const searchParams = useSearchParams()
+  const uid = searchParams?.get('uid') || ''
+  const queries = { dataset_id, uid, search: value }
   const { data, isLoading } = useSWR<any>(
     [queries, pagination, fresh],
     getDatasetDocument,
@@ -78,7 +80,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
     <div className="h-full w-full overflow-auto py-[68px]">
       <SegmentHeader
         datasetId={dataset_id}
-        uid={document_id}
+        uid={uid}
         name={name}
         type={type}
         addNew={() => {
@@ -120,7 +122,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
       </div>
       <DeleteSegment
         dataset_id={dataset_id}
-        uid={document_id}
+        uid={uid}
         segment_id={current?.current?.segment_id || ''}
         showDeleteAlter={showDeleteAlter}
         setShowDeleteAlter={setShowDeleteAlter}
@@ -131,7 +133,7 @@ const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
         open={open}
         segment_id={current?.current?.segment_id || ''}
         dataset_id={dataset_id}
-        document_id={document_id}
+        document_id={uid}
         setOpen={setOpen}
         handelConfirm={() => setFresh((v) => v + 1)}
       />
