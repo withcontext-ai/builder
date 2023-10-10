@@ -1,6 +1,7 @@
+import { count } from 'console'
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs'
-import { and, desc, eq, ilike, inArray } from 'drizzle-orm'
+import { and, desc, eq, ilike, inArray, sql } from 'drizzle-orm'
 import { pick } from 'lodash'
 import { nanoid } from 'nanoid'
 
@@ -151,8 +152,7 @@ export async function getDocumentDetail(id: string) {
     const { userId } = auth()
     if (!userId) return Promise.resolve([])
 
-    // @ts-ignore
-    const [item]: NewDocument = await db
+    const [item] = await db
       .select()
       .from(DocumentsTable)
       .where(eq(DocumentsTable.short_id, id))
@@ -227,32 +227,20 @@ export async function getDocumentsCount() {
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
 
-  const documents = await db
-    .select()
-    .from(DatasetsTable)
-    .orderBy(desc(DocumentsTable.created_at))
-    .leftJoin(
-      DocumentsTable,
-      eq(DatasetsTable.short_id, DocumentsTable.dataset_id)
-    )
+  const res = await db
+    .select({
+      count: sql<number>`count(${DocumentsTable.dataset_id}) `,
+      dataset_id: DocumentsTable.dataset_id,
+    })
+    .from(DocumentsTable)
     .where(
       and(
         eq(DocumentsTable.created_by, userId),
         eq(DocumentsTable.archived, false)
       )
     )
-
-  const files = documents?.map((item) => item?.documents)
-  let map = new Map()
-  files?.forEach((item) => {
-    const count = map.get(item?.dataset_id)
-    if (count) {
-      map.set(item?.dataset_id, count + 1)
-    } else {
-      map.set(item?.dataset_id, 1)
-    }
-  })
-  return map
+    .groupBy(DocumentsTable.dataset_id)
+  return res
 }
 
 export async function getNotedData() {

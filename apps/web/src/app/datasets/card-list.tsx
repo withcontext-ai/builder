@@ -1,3 +1,5 @@
+import { count } from 'console'
+
 import { getDatasets } from '@/db/datasets/actions'
 import { getDocumentsCount } from '@/db/documents/action'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -9,12 +11,9 @@ export default async function CardList() {
   return (
     <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
       {datasets?.map(({ short_id, name, config, linked_app_count }) => {
-        let count
-        documentCounts?.forEach((value, key) => {
-          if (key === short_id) {
-            count = value
-          }
-        })
+        const cur = documentCounts?.find(
+          (item) => item?.dataset_id === short_id
+        )
         const { loaderType } = config as any
         return (
           <DatasetCard
@@ -22,7 +21,7 @@ export default async function CardList() {
             id={short_id}
             title={name}
             iconType={loaderType}
-            fileNum={count}
+            fileNum={cur?.count || 0}
             linkedAppCount={linked_app_count as number}
           />
         )
