@@ -106,7 +106,7 @@ class PromptCompressor:
                     Document(page_content=message.content) for message in messages
                 ]
             splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                chunk_size=500, chunk_overlap=0, separator=""
+                chunk_size=500, chunk_overlap=0, separator=" "
             )
             documents = splitter.split_documents(documents)
             documents = await summarize_chain.acombine_docs(documents)
@@ -149,7 +149,7 @@ class PromptCompressor:
 
         # compress history
         compressed_message = await PromptCompressor.sumrize_messages(
-            history_messages, model, chain_type="map_reduce", max_tokens=500
+            history_messages, model, chain_type="stuff", max_tokens=500
         )
         compressed_messages = [
             SystemMessage(content=prompt_value.to_string() + compressed_message)
