@@ -19,7 +19,7 @@ type Props = {
 const ChatFeedbackButtons = (props: Props) => {
   const { message } = props
   const { id, feedback } = message
-  const { session } = useChat()
+  const { session, setMessages } = useChat()
   const { short_id: session_id } = session || {}
 
   const { toggleFeedback, messages } = useChatFeedbackContext()
@@ -49,10 +49,22 @@ const ChatFeedbackButtons = (props: Props) => {
             })
         )
 
+        setMessages((msgs) =>
+          msgs.map((message: ChatMessage) => {
+            if (message.type === 'chat' && message.id === id) {
+              return {
+                ...message,
+                feedback: type,
+              }
+            }
+            return message
+          })
+        )
+
         toggleFeedback(id, type)
       }
     },
-    [id, trigger, session_id, messages, toggleFeedback]
+    [id, trigger, session_id, messages, toggleFeedback, setMessages]
   )
 
   const renderButton = useCallback(
