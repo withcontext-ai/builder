@@ -1,5 +1,4 @@
-import { getDataInfo, getNotedData } from '@/db/datasets/documents/action'
-import { DataProps, DocumentProps } from '@/app/dataset/type'
+import { getDocumentDetail, getNotedData } from '@/db/documents/action'
 
 import SettingPage from './setting-page'
 
@@ -10,16 +9,16 @@ export default async function Page({ params }: IProps) {
   const { dataset_id, document_id } = params
   const { data: apps = [] } = await getNotedData()
 
-  const { data } = await getDataInfo(dataset_id, document_id)
-  const files = data?.files?.filter((item: DataProps) => item?.type === 'pdf')
-  const notedData = data?.files?.filter(
-    (item: DocumentProps) => item?.type === 'annotated_data'
-  )
+  const detail = await getDocumentDetail(document_id)
+  const isPdf = detail?.type === 'pdf'
+  const config = detail?.config
   const defaultValues = {
-    ...data?.config,
-    files,
-    notedData,
+    ...config?.splitConfig,
+    loaderType: detail?.type,
+    files: isPdf ? [detail] : [],
+    notedData: !isPdf ? [detail] : [],
   }
+
   return (
     <div className="h-full w-full overflow-auto">
       <SettingPage
@@ -27,6 +26,7 @@ export default async function Page({ params }: IProps) {
         datasetId={dataset_id}
         documentId={document_id}
         apps={apps}
+        uid={detail?.uid}
       />
     </div>
   )

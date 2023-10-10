@@ -34,7 +34,7 @@ const AddAnnotatedData = ({ form }: IProps) => {
   const cardList = formValue.notedData
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
-    `/api/datasets/document?dataset_id=${datasetId}`,
+    `/api/datasets/preview?dataset_id=${datasetId}`,
     getDisabledData
   )
   const [selected, setSelected] = useState<DocumentProps[]>(cardList)

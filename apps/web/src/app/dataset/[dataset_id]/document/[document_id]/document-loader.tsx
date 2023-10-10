@@ -1,8 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import { es } from 'date-fns/locale'
-import { pick } from 'lodash'
 
 import {
   FormControl,
@@ -10,11 +8,10 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
-import { UploadFileStatus } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
-import { DataProps, DocumentProps, SessionProps } from '../../../type'
+import { DocumentProps, SessionProps } from '../../../type'
 import SearchSelect from '../../settings/documents/search-select'
 import { useDataContext } from './data-context'
 import AddAnnotatedData from './noted-data-alert'

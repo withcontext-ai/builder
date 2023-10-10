@@ -11,12 +11,14 @@ interface DocumentContextType {
   defaultValues?: DataSchemeProps
   isAdd: boolean
   step: number
+  uid?: string
   setStep?: (s: number) => void
 }
 
 export const DataContext = createContext<DocumentContextType>({
   documentId: '',
   datasetId: '',
+  uid: '',
   isAdd: false,
   step: 1,
 })

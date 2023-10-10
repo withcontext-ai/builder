@@ -36,6 +36,7 @@ function editData(
     arg: {
       dataset_id: string
       dataConfig: DataSchemeProps
+      uid: string
       document_id: string
     }
   }
@@ -54,7 +55,7 @@ function getPreview(
     arg: {
       dataset_id: string
       dataConfig: DataSchemeProps
-      document_id: string
+      uid: string
       preview: number
     }
   }
@@ -66,8 +67,15 @@ function getPreview(
 }
 
 const DataForm = () => {
-  const { defaultValues, documentId, datasetId, step, setStep, isAdd } =
-    useDataContext()
+  const {
+    defaultValues,
+    datasetId,
+    step,
+    setStep,
+    isAdd,
+    uid = '',
+    documentId,
+  } = useDataContext()
   const [isPending, startTransition] = useTransition()
   const [previews, setPreviews] = useState<SegmentProps[]>([])
   const { toast } = useToast()
@@ -105,6 +113,7 @@ const DataForm = () => {
         await triggerEdit({
           dataset_id: datasetId,
           dataConfig,
+          uid: uid,
           document_id: documentId,
         })
       }
@@ -133,7 +142,7 @@ const DataForm = () => {
       const data = await triggerPreview({
         dataset_id: datasetId,
         dataConfig,
-        document_id: documentId,
+        uid: uid,
         preview: 5,
       })
       setPreviews(data?.segments)

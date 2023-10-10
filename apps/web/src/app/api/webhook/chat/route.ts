@@ -8,6 +8,7 @@ import { initPusher } from '@/lib/pusher-server'
 import { formatSeconds } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
 import { DatasetsTable } from '@/db/datasets/schema'
+import { DocumentsTable } from '@/db/documents/schema'
 import { addMessage } from '@/db/messages/actions'
 import { MessagesTable } from '@/db/messages/schema'
 import { formatEventMessage } from '@/db/messages/utils'
@@ -193,26 +194,19 @@ async function getAnnotations(data: { api_model_ids: string[] }) {
 async function updateDocument(data: any) {
   const { api_dataset_id, document_status, document_id, document_characters } =
     data
-  const dataset = await db
-    .select()
+  const [dataset_id] = await db
+    .select({ dataset_id: DatasetsTable.short_id })
     .from(DatasetsTable)
     .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
-  const config = dataset[0]?.config as Record<string, any>
-  const documents = config?.files || []
-  const cur = documents?.find((item: DataProps) => item?.uid === document_id)
-  if (cur) {
-    cur.status = document_status
-    cur.characters = document_characters
-    cur.updated_at = new Date()
-    const index = documents?.findIndex((item: any) => item?.uid === document_id)
-    documents[index] = cur
-    const newConfig = { ...config, files: documents }
-    const res = await db
-      .update(DatasetsTable)
-      .set({ config: newConfig })
-      .where(eq(DatasetsTable.api_dataset_id, api_dataset_id))
-    return { success: true, res }
-  }
 
-  return { success: false, message: 'could not find the document' }
+  await db
+    .update(DocumentsTable)
+    .set({ status: document_status, characters: document_characters })
+    .where(
+      and(
+        eq(DocumentsTable.uid, document_id),
+        eq(DocumentsTable.dataset_id, dataset_id?.dataset_id)
+      )
+    )
+  return dataset_id
 }

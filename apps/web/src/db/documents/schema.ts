@@ -26,6 +26,7 @@ export const DocumentsTable = pgTable(
     type: text('type').notNull(), // pdf, annotated_data
     name: text('name'), // pdf
     url: text('url'), // pdf
+    icon: text('icon'), //annotated_data
     app_id: text('app_id').references(() => AppsTable.short_id), // get app info
     status: integer('status').default(0).notNull(),
     characters: integer('characters'),

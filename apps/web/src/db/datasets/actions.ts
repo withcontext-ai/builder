@@ -9,9 +9,11 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
+import { FileProps } from '@/components/upload/utils'
 import {
   DataProps,
   DataSchemeProps,
+  DocumentFormProps,
   DocumentParamsType,
 } from '@/app/dataset/type'
 
@@ -93,85 +95,54 @@ export async function getDataset(datasetId: string) {
     if (!item) {
       throw new Error('Dataset not found')
     }
-
     return item
   } catch (error) {
     redirect('/')
   }
 }
 
-export async function getEditParams(
+export async function editDatasetBasics(
   datasetId: string,
   newValue: Partial<NewDataset>
 ) {
-  const config = newValue?.config as DataSchemeProps
-  let editParams = {}
-  let api_dataset_id = ''
-  if (flags.enabledAIService) {
-    const dataset = await getDataset(datasetId)
-    api_dataset_id = dataset?.api_dataset_id
-    if (!api_dataset_id) return Promise.resolve({ api_dataset_id, editParams })
-    const newFiles = (config as DataSchemeProps)?.files
-
-    const documents = newFiles?.reduce(
-      // @ts-ignore
-      (m: DocumentParamsType[], item: DataProps) => {
-        if (item?.type === 'annotated_data') {
-          item.url = ''
-        }
-        const splitConfig = {
-          split_type: item?.splitType || 'character',
-          chunk_size: item?.chunkSize || 500,
-          chunk_overlap: item?.chunkOverlap || 0,
-        }
-        const cur = pick(item, ['url', 'type', 'uid'])
-
-        m.push({ ...cur, split_option: splitConfig })
-        return m
-      },
-      []
-    )
-    editParams = { documents }
-  }
-  return Promise.resolve({ editParams, api_dataset_id })
-}
-
-export async function editDataset(
-  datasetId: string,
-  newValue: Partial<NewDataset>
-) {
-  const { name, config = {} } = newValue
-
   const { userId } = auth()
   if (!userId) return Promise.resolve([])
-  const { api_dataset_id, editParams } = await getEditParams(
-    datasetId,
-    newValue
-  )
-  if (api_dataset_id && editParams) {
-    await fetch(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'PATCH',
-        body: JSON.stringify(editParams),
-      }
-    ).then((res) => res.json())
-  }
-
   const response = await db
     .update(DatasetsTable)
-    .set({ name, config, updated_at: new Date() })
+    .set({ ...newValue, updated_at: new Date() })
     .where(
       and(
         eq(DatasetsTable.short_id, datasetId),
         eq(DatasetsTable.created_by, userId)
       )
     )
-
   return response
+}
+
+export async function editDatasetDocument(
+  datasetId: string,
+  files: DocumentParamsType[]
+) {
+  const { userId } = auth()
+  if (!userId) return Promise.resolve([])
+  let api_dataset_id
+  if (flags.enabledAIService) {
+    const dataset = await getDataset(datasetId)
+    api_dataset_id = dataset?.api_dataset_id
+    if (!api_dataset_id) return Promise.resolve([])
+    const res = await fetch(
+      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'PATCH',
+        body: JSON.stringify({ documents: files }),
+      }
+    ).then((res) => res.json())
+    return Promise.resolve(res)
+  }
+  return Promise.resolve([])
 }
 
 export async function removeDataset(datasetId: string) {

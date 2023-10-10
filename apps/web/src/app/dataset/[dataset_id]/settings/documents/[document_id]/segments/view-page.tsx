@@ -8,7 +8,7 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SegmentProps } from '@/app/dataset/type'
+import { LoaderTypeProps, SegmentProps } from '@/app/dataset/type'
 
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
@@ -19,9 +19,11 @@ import SegmentList from './segment-list'
 interface IProps {
   document_id: string
   dataset_id: string
+  name?: string
+  type?: LoaderTypeProps
 }
 
-const SegmentPage = ({ dataset_id, document_id }: IProps) => {
+const SegmentPage = ({ dataset_id, document_id, name, type }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
@@ -77,6 +79,8 @@ const SegmentPage = ({ dataset_id, document_id }: IProps) => {
       <SegmentHeader
         datasetId={dataset_id}
         uid={document_id}
+        name={name}
+        type={type}
         addNew={() => {
           setOpen(true)
           current.current = { content: '', segment_id: '' }

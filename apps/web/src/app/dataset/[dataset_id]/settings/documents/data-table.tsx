@@ -19,6 +19,7 @@ import { Loader2Icon } from 'lucide-react'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
+import { NewDocument } from '@/db/documents/schema'
 import { Input } from '@/components/ui/input'
 import { DataTable } from '@/components/ui/table/data-table'
 import { DataTablePagination } from '@/components/ui/table/pagination'
@@ -31,7 +32,7 @@ import FileIcon from './file-icon'
 import TableAction from './table-action'
 
 interface IProps {
-  preload?: DataProps[]
+  preload?: NewDocument[]
   datasetId: string
 }
 
@@ -58,15 +59,20 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
   })
 
   async function getDatasetDocument(
-    params: [queries: Record<string, any>, pagination: Record<string, any>]
+    params: [
+      queries: Record<string, any>,
+      pagination: Record<string, any>,
+      datasetId: string,
+    ]
   ) {
-    const [queries, pagination] = params
+    const [queries, pagination, datasetId] = params
     const search = new URLSearchParams({
+      datasetId,
       ...queries,
       ...pagination,
     }).toString()
 
-    return fetcher(`/api/datasets/${datasetId}?${search}`, { method: 'GET' })
+    return fetcher(`/api/datasets/document?${search}`, { method: 'GET' })
   }
 
   const { toast } = useToast()
@@ -80,7 +86,7 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
       refreshInterval: 1000,
     }
   )
-  const columns: ColumnDef<DataProps>[] = useMemo(
+  const columns: ColumnDef<NewDocument>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
@@ -139,13 +145,14 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
         accessorKey: 'uid',
         header: '',
         cell: ({ row }) => {
-          const { status, type, uid } = row.original
+          const { type, short_id = '' } = row.original
+          const status = row?.original?.status as 0 | 2 | 2
           return (
             <TableAction
               setOpen={setOpen}
               status={status}
               type={type}
-              uid={uid}
+              shortId={short_id}
               datasetId={datasetId}
               currentUid={currentUid}
             />
@@ -172,12 +179,8 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
         return
       } else {
         const nextUrl = '/datasets'
-
-        const params = encodeURIComponent(
-          `name=${row?.name}&type=${row?.type}&nextUrl=${nextUrl}`
-        )
         router.push(
-          `/dataset/${datasetId}/settings/documents/${row?.uid}/segments?${params}`
+          `/dataset/${datasetId}/settings/documents/${row?.short_id}/segments?nextUrl=${nextUrl}`
         )
         return
       }
@@ -186,25 +189,24 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
   )
 
   useEffect(() => {
-    if (value && data?.data?.length === 0) {
+    if (value && data?.length === 0) {
       setNoDataNode(null)
     }
-  }, [value, data?.data])
+  }, [value, data])
 
   const table = useReactTable({
-    data: data?.data || [],
+    data: data || preload,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
     onPaginationChange: setPagination,
     manualPagination: true,
-    pageCount: Math.ceil(data?.count || 0),
+    pageCount: Math.ceil(data?.length || 0),
   })
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e?.target?.value)
   }, [])
   const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
-
   return (
     <div className="space-y-8">
       <div className="mb-8 flex">

@@ -25,12 +25,6 @@ const FileSchema = z.array(
     type: z.string(),
     uid: z.string(),
     short_id: z.string().optional(), //noted data
-    loaderType: z.string().optional(),
-    splitType: z.string().optional(),
-    chunkSize: z.number().optional(),
-    chunkOverlap: z.number().optional(),
-    status: z.number().optional(), //0:indexed  1:indexing 2:error
-    characters: z.number().optional(),
   })
 )
 
@@ -51,6 +45,7 @@ export type DataBaseProps = {
   uid: string
   icon?: string
   name: string
+  app_id?: string
 }
 
 export type DocumentProps = DataBaseProps & {
@@ -71,9 +66,9 @@ export type DocumentParamsType = {
   url: string
   type: string
   split_option: {
-    split_type: string
-    chunk_size: number
-    chunk_overlap: number
+    split_type?: string
+    chunk_size?: number
+    chunk_overlap?: number
   }
 }
 
@@ -91,4 +86,9 @@ export type SegmentProps = {
 export type SessionProps = {
   form: UseFormReturn<any>
   files?: FileProps[]
+}
+
+export type DocumentFormProps = {
+  files: FileProps[]
+  config: FileSplitConfigProps & { loaderType: LoaderTypeProps }
 }

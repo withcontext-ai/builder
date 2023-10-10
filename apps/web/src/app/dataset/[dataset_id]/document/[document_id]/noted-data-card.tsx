@@ -14,7 +14,7 @@ const NotedDataCard = ({
   isAdd = false,
   isDisabled = false,
 }: IProps) => {
-  const color = getAvatarBgColor(item?.short_id || '')
+  const color = getAvatarBgColor(item?.app_id || '')
   return (
     <div
       className={cn(

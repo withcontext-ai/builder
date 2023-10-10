@@ -4,14 +4,14 @@ import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2Icon, Plus } from 'lucide-react'
 
+import { NewDocument } from '@/db/documents/schema'
 import { Button } from '@/components/ui/button'
-import { DataProps } from '@/app/dataset/type'
 
 import DatasetTable from './data-table'
 
 interface IProps {
   datasetId: string
-  preload?: DataProps[]
+  preload?: NewDocument[]
 }
 
 const DataPage = ({ datasetId, preload }: IProps) => {
@@ -23,7 +23,6 @@ const DataPage = ({ datasetId, preload }: IProps) => {
       router.push(`/dataset/${datasetId}/document/add`)
     })
   }
-
   return (
     <div className="hidden h-full w-full overflow-auto lg:block">
       <div className="mb-10 mt-18 w-full pl-16 pr-8">

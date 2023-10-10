@@ -26,7 +26,7 @@ export function Item({ label, value, type }: ItemProps) {
   return (
     <div className="space-y-2">
       <div className="text-base font-medium">{label}</div>
-      <div className="text-sm">{showText || '-'}</div>
+      <div className="text-sm">{showText ? value : '-'}</div>
     </div>
   )
 }

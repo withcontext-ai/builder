@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { addDataset, editDataset, removeDataset } from '@/db/datasets/actions'
-import { getDocuments } from '@/db/datasets/documents/action'
+import {
+  addDataset,
+  editDatasetBasics,
+  removeDataset,
+} from '@/db/datasets/actions'
 import { NewDataset } from '@/db/datasets/schema'
-import { DataProps } from '@/app/dataset/type'
 
 // create a dataset
 export async function POST(req: NextRequest) {
@@ -12,51 +14,18 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, data: result })
 }
 
-// Get the dataset document
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { dataset_id: string } }
-) {
-  const { dataset_id } = params
-  const query = req.nextUrl.searchParams
-  const pageSize = parseInt(query.get('pageSize') || '')
-  const page = parseInt(query.get('pageIndex') || '')
-  const search = query.get('search') || ''
-  if (isNaN(pageSize) || isNaN(page)) {
-    return new Response('Bad Request', { status: 400 })
-  }
-  const { documents } = await getDocuments({ dataset_id })
-  let count = Math.ceil(documents?.length / pageSize)
-  let res = documents
-  if (search) {
-    const exc = new RegExp(`${search}`, 'i')
-    res = documents?.filter((item: DataProps) => exc.test(item?.name))
-    count = Math.ceil(res?.length / pageSize)
-  }
-  res = res?.slice(page * pageSize, pageSize * (page + 1))
-
-  return NextResponse.json({ success: true, data: { data: res, count } })
-}
-
-type EditParams = Partial<NewDataset> & {
-  isSynchrony?: boolean
-}
-// // Update a dataset
+//  Update a dataset basic info
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { dataset_id: string } }
 ) {
   const { dataset_id } = params
 
-  const body = (await req.json()) as EditParams
-  const isSynchrony = body?.isSynchrony
-  const { config, name, documents } = await getDocuments({ dataset_id })
-  const currentConfig: Partial<NewDataset> = isSynchrony
-    ? { config, name }
-    : { config: { ...body, files: documents } }
-
-  // edit basics or synchrony noted data
-  const response = (await editDataset(dataset_id, currentConfig)) as any
+  const body = (await req.json()) as any
+  const response = (await editDatasetBasics(dataset_id, {
+    name: body?.name,
+    config: body?.config,
+  })) as any
 
   if (response?.error) {
     return NextResponse.json({ success: false, error: response?.error })

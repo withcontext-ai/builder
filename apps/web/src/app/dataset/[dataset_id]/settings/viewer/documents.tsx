@@ -2,19 +2,19 @@ import { useCallback, useMemo, useState } from 'react'
 import { throttle } from 'lodash'
 
 import { cn } from '@/lib/utils'
+import { NewDocument } from '@/db/documents/schema'
 import { Input } from '@/components/ui/input'
-import { DataProps, DocumentProps } from '@/app/dataset/type'
 
 import { formateDate, formateNumber, formateStatus } from '../../../utils'
 import FileIcon from '../documents/file-icon'
 
-const Documents = ({ documents }: { documents: DataProps[] }) => {
-  const [data, setData] = useState<DataProps[]>(documents)
+const Documents = ({ documents }: { documents: NewDocument[] }) => {
+  const [data, setData] = useState<NewDocument[]>(documents)
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newData =
         documents?.filter(
-          (item: DataProps) => item?.name?.includes(e?.target?.value || '')
+          (item: NewDocument) => item?.name?.includes(e?.target?.value || '')
         ) || []
       setData(newData)
     },
@@ -38,8 +38,8 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
         </div>
       ) : (
         <div className="mb-6 flex flex-1 flex-col space-y-2 overflow-auto px-6">
-          {data?.map((item: DocumentProps, index) => {
-            const { text, color } = formateStatus(item?.status)
+          {data?.map((item: NewDocument, index) => {
+            const { text, color } = formateStatus(item?.status || 1)
             return (
               <div
                 key={index}
@@ -48,7 +48,7 @@ const Documents = ({ documents }: { documents: DataProps[] }) => {
                 <FileIcon data={item} />
                 <div className="text-sm text-slate-500">
                   Uploaded Time:
-                  {formateDate(item.updated_at)}
+                  {formateDate(item.updated_at || new Date())}
                 </div>
                 <div className="flex items-center justify-between text-sm text-slate-500">
                   {formateNumber(item?.characters || 0)} characters

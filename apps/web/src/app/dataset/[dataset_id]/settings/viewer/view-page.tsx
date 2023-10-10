@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { ArrowLeftIcon } from 'lucide-react'
 
+import { NewDocument } from '@/db/documents/schema'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -12,6 +13,7 @@ import Documents from './documents'
 interface IProps {
   name: string
   config: any
+  files?: NewDocument[]
 }
 
 const ViewPage = (props: IProps) => {
@@ -43,7 +45,7 @@ const ViewPage = (props: IProps) => {
             <Basics {...props} />
           </TabsContent>
           <TabsContent value="data" className="h-full">
-            <Documents documents={props?.config?.files || []} />
+            <Documents documents={props?.files || []} />
           </TabsContent>
         </Tabs>
       </div>

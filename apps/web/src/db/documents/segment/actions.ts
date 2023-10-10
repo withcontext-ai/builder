@@ -1,4 +1,4 @@
-import { getDataset } from '../actions'
+import { getDataset } from '../../datasets/actions'
 
 export async function getApiDatasetId(dataset_id: string) {
   const dataset = await getDataset(dataset_id)
@@ -28,7 +28,7 @@ export async function getSegments(
       method: 'GET',
     }
   ).then((res) => res.json())
-  return data?.data
+  return data
 }
 
 export async function addSegment(

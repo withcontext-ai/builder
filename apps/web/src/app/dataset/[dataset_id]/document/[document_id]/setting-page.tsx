@@ -57,11 +57,13 @@ interface DataParams {
   documentId: string
   defaultValues: DataSchemeProps
   apps: DocumentProps[]
+  uid?: string
 }
 const SettingPage = ({
   datasetId,
   documentId,
   defaultValues,
+  uid,
   apps,
 }: DataParams) => {
   const [step, setStep] = useState(1)
@@ -77,6 +79,7 @@ const SettingPage = ({
         defaultValues={defaultValues}
         documentId={documentId}
         step={step}
+        uid={uid}
         setStep={setStep}
         isAdd={isAdd}
       >

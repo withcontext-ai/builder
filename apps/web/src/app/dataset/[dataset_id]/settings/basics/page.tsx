@@ -13,7 +13,6 @@ const DatasetEdit = async ({ params }: IProps) => {
   const { userId } = auth()
 
   const datasetDetail = await getDataset(dataset_id)
-
   if (datasetDetail.created_by !== userId) {
     redirect('/')
   }

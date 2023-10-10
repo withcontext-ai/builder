@@ -12,17 +12,21 @@ interface IProps {
   datasetId: string
   short_id?: string
   icon?: string
+  name?: string
+  type?: LoaderTypeProps
   addNew?: () => void
 }
 
-const SegmentHeader = ({ uid, addNew, short_id, icon, datasetId }: IProps) => {
+const SegmentHeader = ({
+  uid,
+  addNew,
+  short_id = '',
+  icon,
+  datasetId,
+  name = '',
+  type = 'pdf',
+}: IProps) => {
   const [isPending, startTransition] = useTransition()
-  const urlSearchParams = new URLSearchParams(
-    decodeURIComponent(window.location.search)
-  )
-  const params = Object.fromEntries(urlSearchParams.entries())
-  const { name } = params
-  const type = params?.type as LoaderTypeProps
   const router = useRouter()
   const goBack = () => {
     const nextUrl = '/datasets'
