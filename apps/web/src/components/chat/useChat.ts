@@ -162,6 +162,8 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
         const reader = res.body.getReader()
         const decode = createChunkDecoder()
 
+        // h/t: vercel divide `[DATA]{"error":"error message"}[DATAEND]` into two chunks
+        let chunkGroup = ''
         while (true) {
           const { done, value } = await reader.read()
           if (done) {
@@ -169,15 +171,22 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
           }
           let chunk = decode(value) as string
           console.log('=== chunk:', chunk)
-          const matches = chunk.match(/\[DATA\](.*)\[DATAEND\]/)
+          chunkGroup += chunk
+          console.log('=== chunkGroup 0:', chunkGroup)
+          if (chunk.startsWith('[DATA]') && !chunk.endsWith('[DATAEND]')) {
+            continue
+          }
+          console.log('=== chunkGroup 1:', chunkGroup)
+          const matches = chunkGroup.match(/\[DATA\](.*)\[DATAEND\]/)
           console.log('=== matches:', matches)
           if (matches?.[1]) {
             streamedData = {
               ...streamedData,
               ...JSON.parse(matches[1]),
             } as StreamData
-            chunk = chunk.replace(matches[0], '')
+            chunk = chunkGroup.replace(matches[0], '')
           }
+          chunkGroup = ''
           console.log('=== chunk:', chunk)
           console.log('=== streamedData:', streamedData)
           if (streamedData.id) {
