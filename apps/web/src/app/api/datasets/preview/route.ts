@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const data = await getSegments(dataset_id, uid)
   const segments =
     data?.segments?.length === 0
-      ? [{ content: '', segment_id: '01' }]
+      ? [{ content: '', segment_id: '00' }]
       : data?.segments
   return NextResponse.json({
     data: { totalItems: data?.totalItems, segments },
