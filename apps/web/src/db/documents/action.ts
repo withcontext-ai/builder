@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs'
-import { and, desc, eq, ilike, inArray, sql } from 'drizzle-orm'
+import { and, desc, eq, ilike, inArray } from 'drizzle-orm'
 import { pick } from 'lodash'
 import { nanoid } from 'nanoid'
 
@@ -109,13 +109,17 @@ export async function addDocuments(data: newDocumentParams) {
 
     if (!userId) return Promise.resolve([])
     const { type, documents: _documents, dataset_id, config } = data
-    const isPdf = type === 'pdf'
+    const isNotedData = type === 'annotated_data'
 
     let documents = []
-    if (isPdf) {
-      documents = _documents?.reduce((m: DataProps[], cur: DataProps) => {
-        const item = createEmptyDocument(dataset_id, userId, config, cur)
-        // @ts-ignore
+    if (!isNotedData) {
+      documents = _documents?.reduce((m: NewDocument[], cur: DataProps) => {
+        const item = createEmptyDocument(
+          dataset_id,
+          userId,
+          config,
+          cur
+        ) as NewDocument
         m.push(item)
         return m
       }, [])

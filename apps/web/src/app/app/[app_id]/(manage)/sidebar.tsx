@@ -9,7 +9,6 @@ import {
   useSearchParams,
   useSelectedLayoutSegments,
 } from 'next/navigation'
-import ro from 'date-fns/esm/locale/ro/index.js'
 import { ArrowLeftIcon, Loader2Icon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'

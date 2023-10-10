@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Loader2Icon, Plus, X } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'

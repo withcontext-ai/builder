@@ -124,9 +124,12 @@ const DataForm = () => {
     const files = formValues?.files
     const notedData = formValues?.notedData
     const type = formValues?.loaderType
-    const isPdf = type === 'pdf'
-    const text = type === 'pdf' ? 'document' : 'Annotated Data'
-    if ((!files?.length && isPdf) || (!notedData?.length && !isPdf)) {
+    const isNotedData = type === 'annotated_data'
+    const text = type === 'annotated_data' ? 'Annotated Data' : 'document'
+    if (
+      (!files?.length && !isNotedData) ||
+      (!notedData?.length && isNotedData)
+    ) {
       toast({
         variant: 'destructive',
         description: `Please select a ${text}.`,

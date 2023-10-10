@@ -12,11 +12,11 @@ interface IProps {
 }
 
 const FileIcon = ({ data, className, isSegment }: IProps) => {
-  const isPdf = data?.type === 'pdf'
+  const isNotedData = data?.type === 'annotated_data'
   const color = getAvatarBgColor(data?.app_id || '')
   return (
     <div className="flex max-w-2xl items-center gap-1 truncate">
-      {isPdf ? (
+      {!isNotedData ? (
         <PdfImage className={cn('h-4 w-4', className)} />
       ) : (
         <Avatar

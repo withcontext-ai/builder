@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { differenceBy, omit, pick, unionWith } from 'lodash'
 
 import { editDatasetDocument } from '@/db/datasets/actions'
 import {
@@ -28,8 +27,9 @@ export async function DELETE(req: NextRequest) {
 // add data
 export async function POST(req: NextRequest) {
   const { dataset_id, dataConfig } = await req.json()
-  const isPdf = dataConfig?.loaderType === 'pdf'
-  const currents = isPdf ? dataConfig?.files : dataConfig?.notedData
+  const isNotedData = dataConfig?.loaderType === 'annotated_data'
+
+  const currents = isNotedData ? dataConfig?.notedData : dataConfig?.files
   const { files, config } = await createDocumentParams(dataConfig)
   const documents = await formateDocumentParams(dataset_id, '')
 

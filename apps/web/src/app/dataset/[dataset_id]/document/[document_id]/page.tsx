@@ -10,13 +10,13 @@ export default async function Page({ params }: IProps) {
   const { data: apps = [] } = await getNotedData()
 
   const detail = await getDocumentDetail(document_id)
-  const isPdf = detail?.type === 'pdf'
+  const isNotedData = detail?.type === 'annotated_data'
   const config = detail?.config
   const defaultValues = {
     ...config?.splitConfig,
     loaderType: detail?.type,
-    files: isPdf ? [detail] : [],
-    notedData: !isPdf ? [detail] : [],
+    files: !isNotedData ? [detail] : [],
+    notedData: isNotedData ? [detail] : [],
   }
 
   return (

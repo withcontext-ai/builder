@@ -1,6 +1,5 @@
 import { getDataset } from '@/db/datasets/actions'
 import { getDatasetDocument, getDocumentByTable } from '@/db/documents/action'
-import { NewDocument } from '@/db/documents/schema'
 
 import ViewPage from '../viewer/view-page'
 import DataPage from './data-page'
@@ -18,6 +17,7 @@ const Page = async ({ params }: IProps) => {
   })
   const { config = {}, name = '' } = datasetDetail
   const files = await getDatasetDocument(dataset_id)
+
   return (
     <div className="h-full overflow-hidden">
       <DataPage

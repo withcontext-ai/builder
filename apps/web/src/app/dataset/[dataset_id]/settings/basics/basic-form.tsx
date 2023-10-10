@@ -57,9 +57,8 @@ const BasicsForm = ({ datasetId, config, name }: FormProps) => {
       'chunkOverlap',
       'loaderType',
     ])
-    return { name, ...basicsConfig }
+    return { name, ...basicsConfig } as SchemaProps
   }, [name, config])
-  // @ts-ignore
   const [values, setValues] = useState<SchemaProps>(defaultValues)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

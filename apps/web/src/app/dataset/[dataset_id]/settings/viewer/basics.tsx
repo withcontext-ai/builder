@@ -6,7 +6,6 @@ interface IProps {
 }
 
 const Basics = ({ name, config }: IProps) => {
-  console.log(name, config)
   return (
     <div className="space-y-8 p-8">
       <Title>Dataset Name</Title>

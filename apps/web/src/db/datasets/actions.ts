@@ -1,21 +1,14 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
-import axios from 'axios'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { omit, pick } from 'lodash'
+import { omit } from 'lodash'
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { nanoid } from '@/lib/utils'
-import { FileProps } from '@/components/upload/utils'
-import {
-  DataProps,
-  DataSchemeProps,
-  DocumentFormProps,
-  DocumentParamsType,
-} from '@/app/dataset/type'
+import { DocumentParamsType } from '@/app/dataset/type'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable, NewDataset } from './schema'
