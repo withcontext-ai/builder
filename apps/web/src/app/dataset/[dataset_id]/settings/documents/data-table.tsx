@@ -34,6 +34,7 @@ import TableAction from './table-action'
 interface IProps {
   preload?: NewDocument[]
   datasetId: string
+  total?: number
 }
 
 const NodeDataChildren = () => (
@@ -43,7 +44,7 @@ const NodeDataChildren = () => (
   </div>
 )
 
-const DatasetTable = ({ preload = [], datasetId }: IProps) => {
+const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
   const [noteDataNode, setNoDataNode] = useState<ReactNode | null>(
     NodeDataChildren
   )
@@ -195,15 +196,15 @@ const DatasetTable = ({ preload = [], datasetId }: IProps) => {
       setNoDataNode(null)
     }
   }, [value, data])
-
+  const count = data?.total || total
   const table = useReactTable({
-    data: data || preload,
+    data: data?.documents || preload,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: { pagination },
     onPaginationChange: setPagination,
     manualPagination: true,
-    pageCount: Math.ceil(data?.length || 0),
+    pageCount: Math.ceil(count / pagination.pageSize || 0),
   })
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e?.target?.value)

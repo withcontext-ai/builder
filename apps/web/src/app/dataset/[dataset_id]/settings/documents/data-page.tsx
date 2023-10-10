@@ -12,9 +12,10 @@ import DatasetTable from './data-table'
 interface IProps {
   datasetId: string
   preload?: NewDocument[]
+  total?: number
 }
 
-const DataPage = ({ datasetId, preload }: IProps) => {
+const DataPage = ({ datasetId, preload, total }: IProps) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -42,7 +43,7 @@ const DataPage = ({ datasetId, preload }: IProps) => {
             Add New Data
           </Button>
         </div>
-        <DatasetTable preload={preload} datasetId={datasetId} />
+        <DatasetTable preload={preload} datasetId={datasetId} total={total} />
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs'
-import { and, desc, eq, ilike, inArray } from 'drizzle-orm'
+import { and, desc, eq, ilike, inArray, sql } from 'drizzle-orm'
 import { pick } from 'lodash'
 import { nanoid } from 'nanoid'
 
@@ -53,7 +53,7 @@ export async function getDocumentByTable({
   params,
 }: geDocumentParams) {
   const { search = '', pageSize = 10, pageIndex = 0 } = params
-  const item: NewDocument[] = await db
+  const total = await db
     .select()
     .from(DocumentsTable)
     .orderBy(desc(DocumentsTable.created_at))
@@ -64,10 +64,12 @@ export async function getDocumentByTable({
         ilike(DocumentsTable.name, `%${search}%`)
       )
     )
-    .limit(pageSize)
-    .offset(pageIndex * pageSize)
+  const item: NewDocument[] = await total.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize
+  )
 
-  return item
+  return { documents: item, total: total?.length }
 }
 
 export async function findApps(ids: string[]) {

@@ -12,7 +12,7 @@ interface IProps {
 const Page = async ({ params }: IProps) => {
   const { dataset_id } = params
   const datasetDetail = await getDataset(dataset_id)
-  const data: NewDocument[] = await getDocumentByTable({
+  const data = await getDocumentByTable({
     dataset_id,
     params: { search: '', pageIndex: 0, pageSize: 10 },
   })
@@ -20,7 +20,11 @@ const Page = async ({ params }: IProps) => {
   const files = await getDatasetDocument(dataset_id)
   return (
     <div className="h-full overflow-hidden">
-      <DataPage datasetId={dataset_id} preload={data} />
+      <DataPage
+        datasetId={dataset_id}
+        preload={data?.documents}
+        total={data?.total}
+      />
       <ViewPage config={config} name={name} files={files} />
     </div>
   )
