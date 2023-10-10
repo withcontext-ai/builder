@@ -398,8 +398,8 @@ class DatasetManager(BaseManager):
         if doc_type == None:
             raise ValueError("UID not found in dataset documents")
         text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=splitter.get("chunk_size", 100),
-        chunk_overlap=splitter.get("chunk_overlap", 0),
+            chunk_size=splitter.get("chunk_size", 100),
+            chunk_overlap=splitter.get("chunk_overlap", 0),
         )
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
@@ -416,7 +416,9 @@ class DatasetManager(BaseManager):
         else:
             raise ValueError("Document type not supported")
         _docs = text_splitter.split_documents(_docs)
-        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
+        preview_list = [
+            {"segment_id": "fake", "content": doc.page_content} for doc in _docs
+        ]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
@@ -644,6 +646,7 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
                     workflow.context.known_values[chain.output_keys[0]],
                 )
         self.save_chain_memory(session_id, workflow.io_traces)
+        self.save_workflow_step(session_id, workflow.context.current_chain)
 
     def get_workflow(self, session_id, model):
         if model is None:
@@ -670,6 +673,8 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             workflow.current_memory[chain.dialog_key] = self.get_chain_memory(
                 session_id, chain.output_keys[0]
             )
+        # get workflow step
+        workflow.context.current_chain = self.get_workflow_step(session_id)
         return workflow
 
     def delete_session_state_cache_via_model(self, model_id):
@@ -708,6 +713,15 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             current_status = json.loads(current_status)
             return current_status.get(output_key)
         return None
+
+    def get_workflow_step(self, session_id):
+        current_step = self.redis.get(f"workflow_step:{session_id}")
+        if current_step is None:
+            return 0
+        return int(current_step)
+
+    def save_workflow_step(self, session_id, current_step):
+        self.redis.set(f"workflow_step:{session_id}", current_step)
 
 
 session_state_manager = SessionStateManager()

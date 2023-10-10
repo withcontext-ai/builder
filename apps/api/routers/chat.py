@@ -93,7 +93,6 @@ async def send_message(
             detail=f"Model {model_id} has {len(models)} models in model manager",
         )
     model = models[0]
-    logger.info(f"model while chat: {model}")
     workflow = session_state_manager.get_workflow(session_id, model)
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):

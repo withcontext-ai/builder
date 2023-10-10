@@ -192,6 +192,7 @@ class EnhanceSequentialChain(SequentialChain):
     done: asyncio.Event
     known_values: Dict[str, Any] = Field(default_factory=dict)
     state_dependent_chains = [TargetedChain]
+    current_chain: int = 0
 
     class Config:
         extra = Extra.allow
@@ -212,18 +213,15 @@ class EnhanceSequentialChain(SequentialChain):
         self.known_values.update(inputs)
         _run_manager = run_manager or AsyncCallbackManagerForChainRun.get_noop_manager()
         callbacks = _run_manager.get_child()
-        for i, chain in enumerate(self.chains):
+        while self.current_chain < len(self.chains):
+            chain = self.chains[self.current_chain]
             if type(chain) in self.state_dependent_chains:
                 if (
                     chain.process == TargetedChainStatus.FINISHED
                     or chain.process == TargetedChainStatus.ERROR
                 ):
-                    if i == len(self.chains) - 1:
-                        await self._handle_final_chain()
-                        return self._construct_return_dict()
-                    logger.info(f"Skipping chain {i} as it is already {chain.process}")
+                    self.current_chain += 1
                     continue
-
                 else:
                     outputs = await chain.acall(
                         self.known_values, return_only_outputs=True, callbacks=callbacks
@@ -240,7 +238,6 @@ class EnhanceSequentialChain(SequentialChain):
                             ],
                         )
                     )
-
                     outputs[chain.output_key] = await chain.get_output(
                         get_buffer_string(pre_dialog),
                         inputs["question"],
@@ -253,11 +250,13 @@ class EnhanceSequentialChain(SequentialChain):
                     ]:
                         await self._put_tokens_into_queue(current_output)
                         return self._construct_return_dict()
-                    elif i == len(self.chains) - 1:
+                    elif self.current_chain == len(self.chains) - 1:
                         await self._handle_final_chain()
                         return self._construct_return_dict()
+                    else:
+                        self.current_chain += 1
             else:
-                if i == len(self.chains) - 1:
+                if self.current_chain == len(self.chains) - 1:
                     callbacks.add_handler(
                         CustomAsyncIteratorCallbackHandler(self.queue, self.done)
                     )
@@ -276,6 +275,7 @@ class EnhanceSequentialChain(SequentialChain):
                     )
                 )
                 self.known_values.update(outputs)
+                self.current_chain += 1
         return self._construct_return_dict()
 
     async def _handle_final_chain(self):
