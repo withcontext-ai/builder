@@ -261,25 +261,22 @@ class DatasetManager(BaseManager):
             raise ValueError("UID not found in dataset documents")
         segments = []
         i = offset
-        seg_ids = []
-        while i < limit + offset:
-            seg_id = f"{dataset_id}-{matching_url}-{i}"
-            seg_ids.append(seg_id)
-            i += 1
-        vectors = Retriever.fetch_vectors(ids=seg_ids)
-        for seg_id in seg_ids:
-            if (
-                seg_id in vectors
-                and "metadata" in vectors[seg_id]
-                and "text" in vectors[seg_id]["metadata"]
-            ):
-                text = vectors[seg_id]["metadata"]["text"]
-                segments.append({"segment_id": seg_id, "content": text})
-            else:
-                logger.info(
-                    f"Segment {seg_id} has incomplete data in Pinecone or not found"
-                )
-
+        while len(segments) < limit and i < segment_size:
+            seg_ids = []
+            end_idx = i + (limit - len(segments))
+            while i < end_idx:
+                seg_id = f"{dataset_id}-{matching_url}-{i}"
+                seg_ids.append(seg_id)
+                i += 1
+            vectors = Retriever.fetch_vectors(ids=seg_ids)
+            for seg_id in seg_ids:
+                if (seg_id in vectors and "metadata" in vectors[seg_id] and "text" in vectors[seg_id]["metadata"]):
+                    text = vectors[seg_id]["metadata"]["text"]
+                    segments.append({"segment_id": seg_id, "content": text})
+                else:
+                    logger.info(
+                        f"Segment {seg_id} has incomplete data in Pinecone or not found"
+                    )
         return segment_size, segments
 
     def search_document_segments(self, dataset_id, uid, query):
@@ -377,6 +374,7 @@ class DatasetManager(BaseManager):
             first_segment = "-".join(segment_id.split("-")[0:2])
             metadata = Retriever.get_metadata(first_segment)
             metadata["text"] = content
+            metadata["urn"] = segment_id
             Retriever.upsert_vector(segment_id, content, metadata)
         else:
             Retriever.delete_vector(segment_id)
@@ -415,7 +413,7 @@ class DatasetManager(BaseManager):
         else:
             raise ValueError("Document type not supported")
         _docs = text_splitter.split_documents(_docs)
-        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs]
+        preview_list = [{"segment_id": "fake", "content": doc.page_content} for doc in _docs[:preview_size]]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")
 
