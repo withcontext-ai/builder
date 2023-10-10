@@ -67,6 +67,7 @@ export async function OpenAIStream({
                 await callback.onStart()
               }
             }
+            // run onCompletion only if there is no error
             if (callback?.onCompletion && !error) {
               // todo actual impl
               await callback.onCompletion(completion, metadata ?? {})

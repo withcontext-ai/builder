@@ -204,6 +204,11 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
           }
         }
 
+        // if the response is empty and there is no error, reset the messages
+        if (!responseMessage.content && !streamedData.error) {
+          setMessages(currMessages)
+        }
+
         if (onFinish) {
           onFinish(responseMessage, streamedData)
         }
@@ -260,13 +265,18 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
       query = lastMessage.content
     }
 
+    // if reload error response, reset reloadId
+    if (error?.message) {
+      reloadId = ''
+    }
+
     const currMessages = messagesRef.current
     try {
-      triggerRequest({ query: lastMessage.content, reloadId })
+      triggerRequest({ query, reloadId })
     } catch (err) {
       setMessages(currMessages)
     }
-  }, [_setError, setMessages, triggerRequest])
+  }, [_setError, setMessages, triggerRequest, error])
 
   const complete = useCallback(
     (query: string) => {

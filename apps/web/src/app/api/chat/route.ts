@@ -208,11 +208,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
           }),
           ...(metadata?.raw && { raw: metadata.raw }),
         }
-        messageDTO.push({
-          id: messageId,
-          role: 'assistant',
-          content: completion,
-        })
+        // do not add empty response to redis
+        if (completion) {
+          messageDTO.push({
+            id: messageId,
+            role: 'assistant',
+            content: completion,
+          })
+        }
         if (reloadMessageId) {
           await editMessage(messageId, newMessage)
         } else {
