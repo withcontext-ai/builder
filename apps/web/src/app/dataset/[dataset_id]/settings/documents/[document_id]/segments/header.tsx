@@ -13,7 +13,7 @@ interface IProps {
   short_id?: string
   icon?: string
   name?: string
-  type?: LoaderTypeProps
+  type?: string
   addNew?: () => void
 }
 

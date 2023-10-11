@@ -9,7 +9,7 @@ import useSWR from 'swr'
 import { fetcher } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LoaderTypeProps, SegmentProps } from '@/app/dataset/type'
+import { SegmentProps } from '@/app/dataset/type'
 
 import AddOrEdit from './add-edit-segment'
 import DeleteSegment from './delete-segment'
@@ -20,7 +20,7 @@ import SegmentList from './segment-list'
 interface IProps {
   dataset_id: string
   name?: string
-  type?: LoaderTypeProps
+  type?: string
 }
 
 const SegmentPage = ({ dataset_id, name, type }: IProps) => {
@@ -66,14 +66,9 @@ const SegmentPage = ({ dataset_id, name, type }: IProps) => {
     manualPagination: true,
     pageCount: Math.ceil((data?.totalItems || 0) / pagination.pageSize),
   })
-  const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (value !== e?.target?.value) {
-        setValue(e?.target?.value)
-      }
-    },
-    [value]
-  )
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e?.target?.value)
+  }, [])
 
   const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
@@ -115,10 +110,11 @@ const SegmentPage = ({ dataset_id, name, type }: IProps) => {
             )}
           </div>
         </div>
-
-        <div className="mt-8">
-          <DataTablePagination table={table} />
-        </div>
+        {!value && (
+          <div className="mt-8">
+            <DataTablePagination table={table} />
+          </div>
+        )}
       </div>
       <DeleteSegment
         dataset_id={dataset_id}
