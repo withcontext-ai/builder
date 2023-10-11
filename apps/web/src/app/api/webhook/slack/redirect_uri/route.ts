@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { SLACK_REDIRECT_URI } from '@/lib/const'
+import { logsnag } from '@/lib/logsnag'
 import { createSlackClient, SlackUtils } from '@/lib/slack'
+import { encodeQueryData } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,6 +51,7 @@ export async function GET(req: NextRequest) {
       team_icon: teamInfo.team.icon?.image_132 || '',
       access_token,
       scope: accessInfo.scope,
+      archived: false,
     }
     const slack_team = await slack.addOrUpdateTeam(team)
 
@@ -57,12 +60,33 @@ export async function GET(req: NextRequest) {
     }
     const slack_user = await slack.addOrUpdateUser(user)
 
-    const data = {
-      slack_team,
-      slack_user,
+    if (slack_user.is_admin === false) {
+      const status = 'error'
+      const title = 'Failed'
+      const desc = `Only the administrator of this workspace has the privilege to share.`
+      return NextResponse.redirect(
+        new URL(`/result?${encodeQueryData({ status, title, desc })}`, req.url)
+      )
     }
-    // TODO: redirect to success page
-    return NextResponse.json({ success: true, data })
+
+    await logsnag?.track({
+      user_id: slack_user.context_user_id,
+      channel: 'share',
+      event: 'Install to Slack workspace',
+      icon: '🔌',
+      description: `Successfully installed to ${slack_team.team_name} (${slack_team.team_url})`,
+      tags: {
+        'slack-app-id': slack_team.app_id,
+        'slack-team-id': slack_team.team_id,
+      },
+    })
+
+    const status = 'success'
+    const title = 'Success'
+    const desc = `You can close this page`
+    return NextResponse.redirect(
+      new URL(`/result?${encodeQueryData({ status, title, desc })}`, req.url)
+    )
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }
