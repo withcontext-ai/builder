@@ -367,15 +367,15 @@ class DatasetManager(BaseManager):
                             seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(doc.hundreaith_id[-1], doc.page_size)]
                             vectors = Retriever.fetch_vectors(ids=seg_ids)
                             if len(vectors) >= 100:
-                                next_hundredth = doc.hundredth_ids[-1] + 100
-                                doc.hundredth_ids.append(next_hundredth)
+                                last_vector_id = get_page_size_via_segment_id(list(vectors.keys())[-1])
+                                doc.hundredth_ids.append(last_vector_id)
                     else:
                         if doc.page_size >= 99:
                             seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(0, doc.page_size)]
                             vectors = Retriever.fetch_vectors(ids=seg_ids)
                             if len(vectors) >= 100:
-                                next_hundredth = 99
-                                doc.hundredth_ids.append(next_hundredth)
+                                last_vector_id = get_page_size_via_segment_id(list(vectors.keys())[-1])
+                                doc.hundredth_ids.append(last_vector_id)
                 else:
                     # Handle edit
                     segment_length = len(
