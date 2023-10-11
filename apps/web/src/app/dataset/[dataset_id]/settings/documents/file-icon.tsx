@@ -21,16 +21,22 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
       ) : (
         <Avatar
           className={cn(
-            'relative flex h-4 w-4',
+            'relative flex h-4 w-4 items-center justify-center',
             data?.icon ? `bg-white` : `bg-${color}-600`,
             className
           )}
         >
-          {data?.icon && <img src={data?.icon} />}
-
-          <AvatarFallback className="break-words bg-transparent text-white">
-            {getFirstLetter(data?.name || '')}
-          </AvatarFallback>
+          {data?.icon ? (
+            <img
+              src={data?.icon}
+              className="h-4 w-4"
+              alt="annotatedData icon"
+            />
+          ) : (
+            <AvatarFallback className="break-words bg-transparent text-white">
+              {getFirstLetter(data?.name || '')}
+            </AvatarFallback>
+          )}
         </Avatar>
       )}
       <div className={cn(isSegment && 'text-lg font-semibold', 'truncate')}>

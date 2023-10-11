@@ -21,9 +21,10 @@ interface IProps {
   dataset_id: string
   name?: string
   type?: string
+  icon?: string
 }
 
-const SegmentPage = ({ dataset_id, name, type }: IProps) => {
+const SegmentPage = ({ dataset_id, name, type, icon }: IProps) => {
   const [open, setOpen] = useState(false)
   const [showDeleteAlter, setShowDeleteAlter] = useState(false)
   const [value, setValue] = useState('')
@@ -77,6 +78,7 @@ const SegmentPage = ({ dataset_id, name, type }: IProps) => {
         datasetId={dataset_id}
         uid={uid}
         name={name}
+        icon={icon}
         type={type}
         addNew={() => {
           setOpen(true)
