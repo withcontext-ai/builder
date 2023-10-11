@@ -4,7 +4,6 @@ from loguru import logger
 from utils.config import WEBHOOK_ENDPOINT
 import requests
 from pydantic import BaseModel, Field
-from langchain.chains import MapReduceDocumentsChain, RefineDocumentsChain
 
 
 class DatasetStatusWebhookRequest(BaseModel):
