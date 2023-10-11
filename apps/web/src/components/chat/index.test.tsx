@@ -79,14 +79,12 @@ describe('Chat', () => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (enabled) {
-            onAdd({
-              eventType: 'call.created',
-              id: nanoid(),
-            })
-            onAdd({
-              eventType: 'call.ended',
-              id: nanoid(),
-            })
+            setTimeout(() => {
+              onAdd({
+                eventType: 'call.created',
+                id: nanoid(),
+              })
+            }, 500)
           }
           // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [])
