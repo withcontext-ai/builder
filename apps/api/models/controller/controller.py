@@ -362,12 +362,13 @@ class DatasetManager(BaseManager):
                     # Handle addition
                     doc.page_size += 1
                     doc.content_size += len(content)
-                    if doc.page_size - doc.hundredth_ids[-1] >= 100:
-                        seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(doc.hundreaith_id[-1], doc.page_size)]
-                        vectors = Retriever.fetch_vectors(ids=seg_ids)
-                        if len(vectors) >= 100:
-                            next_hundreaith = doc.hundredth_ids[-1] + 100
-                            doc.hundredth_ids.append(next_hundreaith)
+                    if doc.hundredth_ids:
+                        if doc.page_size - doc.hundredth_ids[-1] >= 100:
+                            seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(doc.hundreaith_id[-1], doc.page_size)]
+                            vectors = Retriever.fetch_vectors(ids=seg_ids)
+                            if len(vectors) >= 100:
+                                next_hundreaith = doc.hundredth_ids[-1] + 100
+                                doc.hundredth_ids.append(next_hundreaith)
                 else:
                     # Handle edit
                     segment_length = len(
