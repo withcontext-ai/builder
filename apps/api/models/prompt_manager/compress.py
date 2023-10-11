@@ -69,11 +69,25 @@ class PromptCompressor:
         except KeyError:
             logger.warning("model not found. Using cl100k_base encoding.")
             encoding = tiktoken.get_encoding("cl100k_base")
-        return len(encoding.encode(content))
+        return len(encoding.encode(str(content)))
 
     @staticmethod
-    async def sumrize_content(content: str, model, chain_type, max_tokens=500):
+    async def sumrize_content(content, model, chain_type, max_tokens=500):
         """Return a summary of a string."""
+
+        def to_string(data):
+            if isinstance(data, str):
+                return data
+            elif isinstance(data, bytes):
+                return data.decode()
+            else:
+                raise ValueError(
+                    "Unsupported data type. Expecting str or bytes, got: {}".format(
+                        type(data)
+                    )
+                )
+
+        content = to_string(content)
         sumrize_step = 0
         current_tokens = PromptCompressor.num_tokens_from_contents(content, model)
         while sumrize_step < 5 and current_tokens > max_tokens:
