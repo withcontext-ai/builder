@@ -261,22 +261,24 @@ class DatasetManager(BaseManager):
             raise ValueError("UID not found in dataset documents")
         segments = []
         i = offset
-        while len(segments) < limit and i < segment_size:
-            seg_ids = []
-            end_idx = i + (limit - len(segments))
-            while i < end_idx:
-                seg_id = f"{dataset_id}-{matching_url}-{i}"
-                seg_ids.append(seg_id)
-                i += 1
-            vectors = Retriever.fetch_vectors(ids=seg_ids)
-            for seg_id in seg_ids:
-                if (seg_id in vectors and "metadata" in vectors[seg_id] and "text" in vectors[seg_id]["metadata"]):
-                    text = vectors[seg_id]["metadata"]["text"]
-                    segments.append({"segment_id": seg_id, "content": text})
-                else:
-                    logger.info(
-                        f"Segment {seg_id} has incomplete data in Pinecone or not found"
-                    )
+        seg_ids = []
+        while i < limit + offset:
+            seg_id = f"{dataset_id}-{matching_url}-{i}"
+            seg_ids.append(seg_id)
+            i += 1
+        vectors = Retriever.fetch_vectors(ids=seg_ids)
+        for seg_id in seg_ids:
+            if (
+                seg_id in vectors
+                and "metadata" in vectors[seg_id]
+                and "text" in vectors[seg_id]["metadata"]
+            ):
+                text = vectors[seg_id]["metadata"]["text"]
+                segments.append({"segment_id": seg_id, "content": text})
+            else:
+                logger.info(
+                    f"Segment {seg_id} has incomplete data in Pinecone or not found"
+                )
         return segment_size, segments
 
     def search_document_segments(self, dataset_id, uid, query):
