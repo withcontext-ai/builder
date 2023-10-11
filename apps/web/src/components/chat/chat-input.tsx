@@ -15,10 +15,11 @@ interface InputProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   showResend?: boolean
   onReload: () => void
+  onStop: () => void
 }
 
-const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
-  const { handleInputChange, loading, input, stop, error, mode } = useChat()
+const ChatInput = ({ onSubmit, showResend, onReload, onStop }: InputProps) => {
+  const { handleInputChange, loading, input, error, mode } = useChat()
   const isDebug = mode === 'debug'
 
   const { formRef, onKeyDown } = useEnterSubmit()
@@ -54,7 +55,7 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
         {loading && !error && (
           <Button
             className="bg-white"
-            onClick={stop}
+            onClick={onStop}
             variant="outline"
             data-testid="stop"
           >

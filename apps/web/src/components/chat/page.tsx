@@ -125,9 +125,11 @@ const WrappedChat = (props: ChatProps) => {
   } = useChat({
     id: sessionId,
     onFinish: (message) => {
-      if (isDebug && currentInput?.current) {
+      // save message to local storage at debug mode
+      if (isDebug && currentInput?.current && !!message.content) {
         props?.saveMessages?.([...messages, currentInput.current, message])
       }
+      // check chat process at live mode
       if (mode === 'live') {
         mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
       }
@@ -271,6 +273,7 @@ const WrappedChat = (props: ChatProps) => {
                 onSubmit={onSubmit}
                 showResend={showResend}
                 onReload={onReload}
+                onStop={stop}
               />
             </div>
             {mode === 'live' && showProcess && (
