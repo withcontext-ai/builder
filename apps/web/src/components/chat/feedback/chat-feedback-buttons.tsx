@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { startTransition, useCallback } from 'react'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
@@ -27,16 +27,17 @@ const ChatFeedbackButtons = (props: Props) => {
   const handleClick = useCallback(
     (type: ChatFeedbackType) => () => {
       if (id) {
-        trigger({
-          message_id: id,
-          type,
-        })
-
-        updateMessage(id, {
-          feedback: type,
-        })
-
         toggleFeedback(id, type)
+        startTransition(() => {
+          trigger({
+            message_id: id,
+            type,
+          })
+
+          updateMessage(id, {
+            feedback: type,
+          })
+        })
       }
     },
     [id, trigger, updateMessage, toggleFeedback]

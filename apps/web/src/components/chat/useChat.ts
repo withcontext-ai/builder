@@ -307,16 +307,21 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
 
   const updateMessage = useCallback(
     (id: string, message: Partial<ChatMessage>) => {
-      const currMessages = messagesRef.current
-      const index = currMessages.findIndex((m) => m.id === id)
-      if (index === -1) {
-        return
-      }
-      const currMessage = currMessages[index]
-      currMessages[index] = {
-        ...currMessage,
-        ...message,
-      }
+      let currMessages = messagesRef.current
+
+      let valid = false
+
+      currMessages = currMessages.map((m) => {
+        if (m.id === id) {
+          valid = true
+          return {
+            ...m,
+            ...message,
+          }
+        }
+        return m
+      })
+      if (!valid) return
       setMessages([...currMessages])
     },
     [setMessages]
