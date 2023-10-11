@@ -27,7 +27,7 @@ type UseChatHelpers = {
   // chat messages
   messages: ChatMessage[]
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>
-  updateMessage: (id: string, message: ChatMessage) => void
+  updateMessage: (id: string, message: Partial<ChatMessage>) => void
   loading: boolean
   error?: Error
   reload: () => void
@@ -306,13 +306,17 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
   )
 
   const updateMessage = useCallback(
-    (id: string, message: ChatMessage) => {
+    (id: string, message: Partial<ChatMessage>) => {
       const currMessages = messagesRef.current
       const index = currMessages.findIndex((m) => m.id === id)
       if (index === -1) {
         return
       }
-      currMessages[index] = message
+      const currMessage = currMessages[index]
+      currMessages[index] = {
+        ...currMessage,
+        ...message,
+      }
       setMessages([...currMessages])
     },
     [setMessages]

@@ -2,11 +2,10 @@
 
 import { useCallback } from 'react'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
-import { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import ChatAction, { actionCommonButtonProps } from '../chat-action'
-import { ChatMessage, Message } from '../types'
+import { ChatMessage } from '../types'
 import { useChat } from '../useChat'
 import { useChatFeedbackContext } from './chat-feedback-context'
 import submitFeedback from './service'
@@ -19,10 +18,9 @@ type Props = {
 const ChatFeedbackButtons = (props: Props) => {
   const { message } = props
   const { id, feedback } = message
-  const { session } = useChat()
-  const { short_id: session_id } = session || {}
+  const { updateMessage } = useChat()
 
-  const { toggleFeedback, messages } = useChatFeedbackContext()
+  const { toggleFeedback } = useChatFeedbackContext()
 
   const { trigger } = useSWRMutation('/api/chat/feedback', submitFeedback)
 
@@ -34,25 +32,14 @@ const ChatFeedbackButtons = (props: Props) => {
           type,
         })
 
-        mutate<Message[]>(
-          ['/api/chat', session_id],
-          messages
-            .filter((message: Message) => message.type === 'chat') // filter out event messages
-            .map((message: Message) => {
-              if (message.type === 'chat' && message.id === id) {
-                return {
-                  ...message,
-                  feedback: type,
-                }
-              }
-              return message
-            })
-        )
+        updateMessage(id, {
+          feedback: type,
+        })
 
         toggleFeedback(id, type)
       }
     },
-    [id, trigger, session_id, messages, toggleFeedback]
+    [id, trigger, updateMessage, toggleFeedback]
   )
 
   const renderButton = useCallback(
