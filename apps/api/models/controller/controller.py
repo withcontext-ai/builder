@@ -345,11 +345,15 @@ class DatasetManager(BaseManager):
                         )
                         doc.content_size -= segment_length
                         # Update hundreaith_id values
-                        adjusted = False
-                        for i in range(len(doc.hundredth_ids) - 1):
-                            if adjusted or doc.hundredth_ids[i] <= current_page_size < doc.hundredth_ids[i + 1]:
-                                doc.hundredth_ids[i + 1] += 1
-                                adjusted = True
+                        if len(doc.hundredth_ids) == 1:
+                            if 0 <= current_page_size < doc.hundredth_ids[0]:
+                                doc.hundredth_ids[0] += 1
+                        else:
+                            adjusted = False
+                            for i in range(len(doc.hundredth_ids) - 2):
+                                if adjusted or doc.hundredth_ids[i] <= current_page_size < doc.hundredth_ids[i + 1]:
+                                    doc.hundredth_ids[i + 1] += 1
+                                    adjusted = True
                 elif doc.page_size == current_page_size:
                     # Handle addition
                     doc.page_size += 1
