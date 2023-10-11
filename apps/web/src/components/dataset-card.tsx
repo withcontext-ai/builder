@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FileOutput, Files, FileType2 } from 'lucide-react'
+import { Database, FileOutput, Files, FileType2 } from 'lucide-react'
 
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -14,10 +14,16 @@ interface IProps {
   linkedAppCount?: number
 }
 
+function formateNumber(characters: number) {
+  const formatter = new Intl.NumberFormat('en', {
+    notation: 'compact',
+  })
+  return formatter.format(characters)
+}
+
 export default function DatasetCard({
   id,
   title,
-  iconType,
   fileNum,
   totalWords,
   linkedAppCount,
@@ -27,7 +33,8 @@ export default function DatasetCard({
       <Card className="flex h-[148px] flex-col px-4 py-6 shadow-none hover:shadow-md">
         <CardHeader className="h-full p-0">
           <CardTitle className="flex flex-1 gap-4 text-lg">
-            {/* {iconType?.includes('pdf') && <PdfImage />} */}
+            <Database size={32} color="#EA580C" />
+
             <div className="line-clamp-2 max-h-[52px] flex-1">{title}</div>
           </CardTitle>
           <CardFooter className="flex h-5 w-full gap-3 p-0">
@@ -40,7 +47,7 @@ export default function DatasetCard({
             {totalWords != null && (
               <div className="flex text-xs font-medium text-slate-500">
                 <FileType2 size={18} className="mr-1" />
-                {totalWords} words
+                {formateNumber(totalWords)} words
               </div>
             )}
             {linkedAppCount != null && (

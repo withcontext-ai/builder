@@ -3,6 +3,7 @@ import {
   AlertCircleIcon,
   Check,
   ChevronsUpDown,
+  Database,
   Loader2Icon,
   PlusIcon,
   TrashIcon,
@@ -334,10 +335,8 @@ export function ListSelectItem<T extends FieldValues>({
                         }
                         className="flex items-center justify-between space-x-2"
                       >
-                        <div className="flex items-center justify-between truncate">
-                          {item.icon === 'pdf' && (
-                            <PdfImage className="mr-3 shrink-0" />
-                          )}
+                        <div className="flex items-center justify-between gap-2 truncate">
+                          <Database size={24} color="#EA580C" />
                           <div className="truncate">{item.label}</div>
                         </div>
                         {item.status != null && item.status === 1 && (
@@ -364,8 +363,8 @@ export function ListSelectItem<T extends FieldValues>({
                   key={value}
                   className="flex h-12 items-center justify-between space-x-2 rounded-lg border border-slate-200 pl-3 pr-1"
                 >
-                  <div className="flex items-center truncate">
-                    {icon === 'pdf' && <PdfImage className="mr-3 shrink-0" />}
+                  <div className="flex items-center gap-2 truncate">
+                    <Database size={24} color="#EA580C" />
                     <div className="truncate text-sm font-normal">{label}</div>
                   </div>
                   <Button

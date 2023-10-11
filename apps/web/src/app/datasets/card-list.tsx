@@ -22,6 +22,7 @@ export default async function CardList() {
             title={name}
             iconType={loaderType}
             fileNum={cur?.count || 0}
+            totalWords={cur?.characters || 0}
             linkedAppCount={linked_app_count as number}
           />
         )

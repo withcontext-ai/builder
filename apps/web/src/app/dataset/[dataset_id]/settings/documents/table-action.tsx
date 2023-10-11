@@ -112,7 +112,7 @@ const TableAction = ({
         </TooltipButton>
       )}
       {status === 0 && type === 'annotated_data' && (
-        <TooltipButton text="Synchrony">
+        <TooltipButton text="Synchronize">
           <Button
             size="icon"
             variant="outline"

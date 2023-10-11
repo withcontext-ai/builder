@@ -71,7 +71,7 @@ export const PdfImage = ({
   <img
     src="/pdf.png"
     alt="pdf"
-    className={cn('flex h-[32px] w-[25px]', className)}
+    className={cn('flex h-[32px] w-[32px]', className)}
   />
 )
 
@@ -97,7 +97,7 @@ export const PDFFile = (props: FileItemProps) => {
     >
       <div
         className={cn(
-          'relative z-10 flex h-full w-full rounded-md border py-4 pl-6 pr-4',
+          'relative z-10 flex h-full w-full rounded-md border p-4',
           file?.status === 'error' ? 'border-[#ff4d4f]' : ''
         )}
       >

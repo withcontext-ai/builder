@@ -127,7 +127,7 @@ export async function addDocuments(data: newDocumentParams) {
     } else {
       const ids = _documents?.map((item) => item?.uid)
       const apps = await findApps(ids)
-      documents = _documents?.reduce((m: any[], cur: any, index) => {
+      documents = _documents?.reduce((m: any[], cur: DataProps, index) => {
         const attributes = { ...apps[index], type: 'annotated_data' }
         const item = createEmptyDocument(dataset_id, userId, config, attributes)
         m.push(item)
@@ -231,6 +231,7 @@ export async function getDocumentsCount() {
     .select({
       count: sql<number>`count(${DocumentsTable.dataset_id}) `,
       dataset_id: DocumentsTable.dataset_id,
+      characters: sql<number>`sum(${DocumentsTable.characters}) `,
     })
     .from(DocumentsTable)
     .where(
