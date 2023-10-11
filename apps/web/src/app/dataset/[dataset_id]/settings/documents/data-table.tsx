@@ -78,15 +78,26 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
 
   const { toast } = useToast()
 
+  const [fresh, setFresh] = useState(false)
   const { data, isValidating, isLoading } = useSWR<any>(
     [{ search: value }, pagination, datasetId],
     getDatasetDocument,
     {
       fallbackData: preload,
       keepPreviousData: true,
-      refreshInterval: 1000,
+      refreshInterval: fresh ? 2000 : undefined,
     }
   )
+
+  useEffect(() => {
+    const res = data?.documents?.filter(
+      (item: NewDocument) => item?.status === 1
+    )
+    if (res?.length > 0) {
+      setFresh(true)
+    }
+  }, [data?.documents])
+
   const columns: ColumnDef<NewDocument>[] = useMemo(
     () => [
       {
@@ -94,7 +105,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
         header: 'Data Name',
         cell: ({ row }) => {
           return (
-            <div className="max-w-lg">
+            <div className="truncate">
               <FileIcon data={row.original} />
             </div>
           )
@@ -116,9 +127,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
         accessorKey: 'updated_at',
         header: 'Update Time',
         cell: ({ row }) => (
-          <div className="w-[146px]">
-            {formateDate(row?.original?.updated_at || new Date())}
-          </div>
+          <div>{formateDate(row?.original?.updated_at || new Date())}</div>
         ),
       },
       {
@@ -128,12 +137,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
           const { status } = row.original
           const { text, color } = formateStatus(status || 0)
           return (
-            <div
-              className={cn(
-                'flex w-[100px] items-center gap-1 text-left',
-                color
-              )}
-            >
+            <div className={cn('flex items-center gap-1 text-left', color)}>
               {text}
               {isValidating && status === 1 && (
                 <Loader2Icon className="mr-2 h-4 w-4 animate-spin text-black" />

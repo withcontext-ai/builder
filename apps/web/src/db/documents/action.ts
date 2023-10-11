@@ -73,20 +73,6 @@ export async function getDocumentByTable({
   return { documents: item, total: total?.length }
 }
 
-export async function findApps(ids: string[]) {
-  return await db
-    .select({
-      name: AppsTable.name,
-      icon: AppsTable.icon,
-      uid: AppsTable.api_model_id,
-      app_id: AppsTable.short_id,
-    })
-    .from(AppsTable)
-    .where(
-      and(inArray(AppsTable.api_model_id, ids), eq(AppsTable.archived, false))
-    )
-}
-
 function createEmptyDocument(
   dataset_id: string,
   user_id: string,
@@ -109,31 +95,19 @@ export async function addDocuments(data: newDocumentParams) {
     const { userId } = auth()
 
     if (!userId) return Promise.resolve([])
-    const { type, documents: _documents, dataset_id, config } = data
-    const isNotedData = type === 'annotated_data'
-
+    const { documents: _documents, dataset_id, config } = data
     let documents = []
-    if (!isNotedData) {
-      documents = _documents?.reduce((m: NewDocument[], cur: DataProps) => {
-        const item = createEmptyDocument(
-          dataset_id,
-          userId,
-          config,
-          cur
-        ) as NewDocument
-        m.push(item)
-        return m
-      }, [])
-    } else {
-      const ids = _documents?.map((item) => item?.uid)
-      const apps = await findApps(ids)
-      documents = _documents?.reduce((m: any[], cur: DataProps, index) => {
-        const attributes = { ...apps[index], type: 'annotated_data' }
-        const item = createEmptyDocument(dataset_id, userId, config, attributes)
-        m.push(item)
-        return m
-      }, [])
-    }
+    documents = _documents?.reduce((m: NewDocument[], cur: DataProps) => {
+      const item = createEmptyDocument(
+        dataset_id,
+        userId,
+        config,
+        cur
+      ) as NewDocument
+      m.push(item)
+      return m
+    }, [])
+
     const queue: any[] = []
 
     documents?.forEach((item: NewDocument) => {

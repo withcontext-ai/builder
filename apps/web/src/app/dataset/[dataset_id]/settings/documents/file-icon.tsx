@@ -26,7 +26,7 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
             className
           )}
         >
-          <AvatarImage src={data?.icon || ''} alt="Annotated data icon" />
+          <img src={data?.icon || ''} alt="Annotated data icon" />
           <AvatarFallback className="break-words bg-transparent text-white">
             {getFirstLetter(data?.name || '')}
           </AvatarFallback>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Trash2 } from 'lucide-react'
+import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
@@ -70,7 +70,7 @@ const Sidebar = ({ datasetId, name }: IProps) => {
         onClick={() => setOpen(true)}
       >
         <span>Delete this Dataset</span>
-        <Trash2 size={18} />
+        <Trash size={18} />
       </Button>
 
       <ConfirmDialog

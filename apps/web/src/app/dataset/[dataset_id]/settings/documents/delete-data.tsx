@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
@@ -26,25 +27,19 @@ interface IProps {
   uid: string
   open: boolean
   setOpen: (s: boolean) => void
-  confirmDelete?: () => void
 }
 
-const DeleteData = ({
-  datasetId,
-  uid,
-  open,
-  setOpen,
-  confirmDelete,
-}: IProps) => {
+const DeleteData = ({ datasetId, uid, open, setOpen }: IProps) => {
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/document`,
     deleteData
   )
+  const router = useRouter()
 
   const handelDelete = () => {
     trigger({ dataset_id: datasetId, uid }).then((res) => {
       setOpen(false)
-      confirmDelete?.()
+      router.refresh()
     })
   }
 

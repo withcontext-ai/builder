@@ -152,7 +152,7 @@ const DataForm = () => {
       return
     } else {
       await onSubmit()
-
+      router.refresh()
       startTransition(() => {
         const nextUrl = '/datasets'
         router.push(
