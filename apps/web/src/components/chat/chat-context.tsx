@@ -6,8 +6,8 @@ import {
   PropsWithChildren,
   SetStateAction,
   useContext,
-  useState,
 } from 'react'
+import { create } from 'zustand'
 
 import {
   ChatApp,
@@ -62,6 +62,38 @@ export type ChatContextType =
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType)
 
+type Thunk<S> = S | ((s: S) => S)
+
+type ChatSlice = {
+  loading: boolean
+  messages: ChatMessage[]
+  error?: Error
+  events: EventMessage[]
+}
+
+type ChatStore = {
+  store: Record<string, ChatSlice>
+  getSlice: (id: string, defaultValues: Partial<ChatSlice>) => ChatSlice
+  mutate: (id: string, fn: (s: ChatSlice) => ChatSlice) => void
+}
+
+const useChatStore = create<ChatStore>((set, get) => ({
+  store: {},
+  mutate: (id, fn) =>
+    set((state) => ({
+      store: {
+        ...state.store,
+        [id]: fn(state.store[id]),
+      },
+    })),
+  getSlice: (id: string, defaultValues: Partial<ChatSlice>) => {
+    return {
+      ...defaultValues,
+      ...get().store[id],
+    }
+  },
+}))
+
 type ChatContextProps = {
   initialMessages?: ChatMessage[]
   initialEvents?: EventMessage[]
@@ -73,18 +105,42 @@ const ChatContextProvider = ({
   initialEvents = [],
   ...props
 }: ChatContextProps) => {
-  const [loading, _setLoading] = useState(false)
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
-  const [error, _setError] = useState<Error>()
-  const [events, setEvents] = useState<EventMessage[]>(initialEvents)
+  const { getSlice, mutate } = useChatStore()
+  const id = props.session.short_id
+  const slice = getSlice(id, {
+    loading: false,
+    messages: initialMessages,
+    events: initialEvents,
+  })
+
+  const _setLoading = (loading: boolean) => {
+    mutate(id, (s) => ({ ...s, loading }))
+  }
+
+  const _setError = (error?: Error) => {
+    mutate(id, (s) => ({ ...s, error }))
+  }
+
+  const setMessages = (messages: Thunk<ChatMessage[]>) => {
+    mutate(id, (s) => ({
+      ...s,
+      messages:
+        typeof messages === 'function' ? messages(s.messages) : messages,
+    }))
+  }
+
+  const setEvents = (events: Thunk<EventMessage[]>) => {
+    mutate(id, (s) => ({
+      ...s,
+      events: typeof events === 'function' ? events(s.events) : events,
+    }))
+  }
+
   return (
     <ChatContext.Provider
       value={{
         ...props,
-        loading,
-        messages,
-        error,
-        events,
+        ...slice,
         _setLoading,
         setMessages,
         _setError,
