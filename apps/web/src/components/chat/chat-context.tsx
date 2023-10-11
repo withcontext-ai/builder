@@ -84,13 +84,13 @@ const useChatStore = create<ChatStore>((set, get) => ({
     set((state) => ({
       store: {
         ...state.store,
-        [id]: fn(state.store[id]),
+        [id]: fn(state.store[id] ?? {}),
       },
     })),
   getSlice: (id: string, defaultValues: Partial<ChatSlice>) => {
     return {
       ...defaultValues,
-      ...get().store[id],
+      ...(get().store[id] ?? {}),
     }
   },
 }))
@@ -126,14 +126,14 @@ const ChatContextProvider = ({
     mutate(id, (s) => ({
       ...s,
       messages:
-        typeof messages === 'function' ? messages(s.messages) : messages,
+        typeof messages === 'function' ? messages(s.messages ?? []) : messages,
     }))
   }
 
   const setEvents = (events: Thunk<EventMessage[]>) => {
     mutate(id, (s) => ({
       ...s,
-      events: typeof events === 'function' ? events(s.events) : events,
+      events: typeof events === 'function' ? events(s.events ?? []) : events,
     }))
   }
 

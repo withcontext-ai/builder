@@ -362,7 +362,7 @@ describe('Chat', () => {
 
     await user.click(input)
 
-    await user.keyboard('hello, to test the textarea keypress')
+    await user.keyboard('hello, to test the textarea keypress2')
 
     await user.click(sendButton)
 
@@ -371,7 +371,7 @@ describe('Chat', () => {
       await user.click(component.queryByTestId('stop')!)
       expect(component.queryByText('hello')).toBeInTheDocument()
       expect(
-        component.queryByText('hello, to test the textarea keypress')
+        component.queryByText('hello, to test the textarea keypress2')
       ).toBeInTheDocument()
     })
   })
