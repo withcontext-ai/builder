@@ -18,17 +18,7 @@ interface InputProps {
 }
 
 const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
-  const {
-    handleInputChange,
-    loading,
-    input,
-    stop,
-    error,
-    reload,
-    allMessages,
-    submit,
-    mode,
-  } = useChat()
+  const { handleInputChange, loading, input, stop, error, mode } = useChat()
   const isDebug = mode === 'debug'
 
   const { formRef, onKeyDown } = useEnterSubmit()
@@ -39,16 +29,7 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
   const disabled = isEmpty || !input || !input?.trim() || loading
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (disabled) {
-      return
-    }
-    submit(e)
-    onSubmit(e)
-  }
-
-  const handleReload = () => {
-    reload()
-    onReload()
+    if (!disabled) onSubmit(e)
   }
 
   return (
@@ -65,7 +46,7 @@ const ChatInput = ({ onSubmit, showResend, onReload }: InputProps) => {
           </div>
         )}
         {(Boolean(error?.message) || (showResend && !loading)) && (
-          <Button className="bg-white" onClick={handleReload} variant="outline">
+          <Button className="bg-white" onClick={onReload} variant="outline">
             <RefreshCw size={16} className="mr-2" />
             Regenerate response
           </Button>

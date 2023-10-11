@@ -141,7 +141,7 @@ md:max-w-xl"
           session={session}
           initialMessages={current?.messages}
           initialEvents={current?.eventMessages}
-          setInitialMessages={handleMessage}
+          saveMessages={handleMessage}
           onRestart={onRestart}
         />
       </SheetContent>

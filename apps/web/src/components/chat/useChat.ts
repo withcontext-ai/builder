@@ -282,8 +282,9 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     }
 
     const currMessages = messagesRef.current
+    const nextMessages = [...currMessages, buildUserMessage(query)]
     try {
-      triggerRequest({ query, reloadId })
+      triggerRequest({ query, reloadId, messages: nextMessages })
     } catch (err) {
       setMessages(currMessages)
     }
