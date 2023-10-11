@@ -66,12 +66,13 @@ interface BaseChatProps {
   mode: ChatMode
   initialMessages?: ChatMessage[]
   initialEvents?: EventMessage[]
+  api?: string
 }
 
 interface DebugChatProps extends BaseChatProps {
   mode: 'debug'
   isConfigChanged?: boolean
-  setInitialMessages?: (messages: ChatMessage[]) => void
+  saveMessages?: (messages: ChatMessage[]) => void
   onRestart?: () => void
 }
 
@@ -111,22 +112,29 @@ const WrappedChat = (props: ChatProps) => {
   const { scrollRef, setAutoScroll } = useScrollToBottom()
   const { mutate } = useSWRConfig()
 
-  const { messages, input, stop, error, setMessages, events, setEvents } =
-    useChat({
-      id: sessionId,
-      onFinish: (message) => {
-        if (isDebug && currentInput?.current) {
-          props?.setInitialMessages?.([
-            ...messages,
-            currentInput.current,
-            message,
-          ])
-        }
-        if (mode === 'live') {
-          mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
-        }
-      },
-    })
+  const {
+    messages,
+    input,
+    stop,
+    error,
+    setMessages,
+    events,
+    setEvents,
+    submit,
+    reload,
+  } = useChat({
+    id: sessionId,
+    onFinish: (message) => {
+      // save message to local storage at debug mode
+      if (isDebug && currentInput?.current && !!message.content) {
+        props?.saveMessages?.([...messages, currentInput.current, message])
+      }
+      // check chat process at live mode
+      if (mode === 'live') {
+        mutate(`/api/chat/process?api_session_id=${apiSessionId}`)
+      }
+    },
+  })
 
   const callLinkRef = useRef('')
   const configStr = useConfigBase64({ appName })
@@ -140,6 +148,7 @@ const WrappedChat = (props: ChatProps) => {
   }, [messages, events])
 
   const onReload = () => {
+    reload()
     setAutoScroll(true)
   }
 
@@ -152,7 +161,8 @@ const WrappedChat = (props: ChatProps) => {
     setConfirmReset(false)
   }
 
-  const onSubmit = () => {
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    submit(e)
     setAutoScroll(true)
     if (isDebug) {
       currentInput.current = createInputMessage(input)
@@ -263,6 +273,7 @@ const WrappedChat = (props: ChatProps) => {
                 onSubmit={onSubmit}
                 showResend={showResend}
                 onReload={onReload}
+                onStop={stop}
               />
             </div>
             {mode === 'live' && showProcess && (
@@ -278,7 +289,8 @@ const WrappedChat = (props: ChatProps) => {
 }
 
 const Chat = (props: ChatProps) => {
-  const { app, session, user, mode, initialEvents, initialMessages } = props
+  const { app, session, user, mode, initialEvents, initialMessages, api } =
+    props
   return (
     <ChatContextProvider
       app={app}
@@ -287,6 +299,7 @@ const Chat = (props: ChatProps) => {
       mode={mode}
       initialEvents={initialEvents}
       initialMessages={initialMessages}
+      api={api}
     >
       <WrappedChat {...props} />
     </ChatContextProvider>

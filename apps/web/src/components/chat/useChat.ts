@@ -82,6 +82,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     error,
     events,
     setEvents,
+    api = '/api/chat',
   } = ctx
   const { onError, onFinish, onResponse, initialInput } = props ?? {}
   const { short_id: appId } = app || ({} as ChatApp)
@@ -115,7 +116,15 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
   )
 
   const triggerRequest = useCallback(
-    async ({ query, reloadId }: { query: string; reloadId?: string }) => {
+    async ({
+      query,
+      reloadId,
+      messages,
+    }: {
+      query: string
+      reloadId?: string
+      messages?: ChatMessage[]
+    }) => {
       try {
         _setLoading(true)
 
@@ -124,7 +133,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
 
         const currMessages = messagesRef.current
 
-        const res = await fetch(`/api/chat`, {
+        const res = await fetch(api, {
           method: 'POST',
           body: JSON.stringify({
             query,
@@ -132,6 +141,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
             appId,
             sessionId,
             apiSessionId,
+            ...(messages ? { messages } : {}),
           }),
           signal: abortController.signal,
         })
@@ -241,6 +251,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
       onResponse,
       sessionId,
       setMessages,
+      api,
     ]
   )
 
@@ -271,8 +282,9 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
     }
 
     const currMessages = messagesRef.current
+    const nextMessages = [...currMessages, buildUserMessage(query)]
     try {
-      triggerRequest({ query, reloadId })
+      triggerRequest({ query, reloadId, messages: nextMessages })
     } catch (err) {
       setMessages(currMessages)
     }
@@ -285,7 +297,7 @@ export function useChat(props?: UseChatOptions): UseChatHelpers {
       messagesRef.current = nextMessages
       setMessages(nextMessages)
       try {
-        triggerRequest({ query })
+        triggerRequest({ query, messages: nextMessages })
       } catch (err) {}
     },
     [setMessages, triggerRequest]

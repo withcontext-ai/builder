@@ -24,6 +24,7 @@ interface BaseChatContextType {
   session: ChatSession
   user?: ChatUser | null
   mode: ChatMode
+  api?: string
 }
 
 interface InternalChatContextType {
