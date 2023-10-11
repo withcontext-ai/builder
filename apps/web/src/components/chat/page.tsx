@@ -66,6 +66,7 @@ interface BaseChatProps {
   mode: ChatMode
   initialMessages?: ChatMessage[]
   initialEvents?: EventMessage[]
+  api?: string
 }
 
 interface DebugChatProps extends BaseChatProps {
@@ -278,7 +279,8 @@ const WrappedChat = (props: ChatProps) => {
 }
 
 const Chat = (props: ChatProps) => {
-  const { app, session, user, mode, initialEvents, initialMessages } = props
+  const { app, session, user, mode, initialEvents, initialMessages, api } =
+    props
   return (
     <ChatContextProvider
       app={app}
@@ -287,6 +289,7 @@ const Chat = (props: ChatProps) => {
       mode={mode}
       initialEvents={initialEvents}
       initialMessages={initialMessages}
+      api={api}
     >
       <WrappedChat {...props} />
     </ChatContextProvider>

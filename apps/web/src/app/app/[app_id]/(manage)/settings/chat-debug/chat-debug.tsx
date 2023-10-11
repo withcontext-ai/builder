@@ -136,6 +136,7 @@ md:max-w-xl"
         <Chat
           app={app}
           mode="debug"
+          api="/api/chat/debug"
           isConfigChanged={shouldResetApiSessionId}
           session={session}
           initialMessages={current?.messages}
