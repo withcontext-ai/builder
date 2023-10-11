@@ -33,7 +33,7 @@ export default function DatasetCard({
       <Card className="flex h-[148px] flex-col px-4 py-6 shadow-none hover:shadow-md">
         <CardHeader className="h-full p-0">
           <CardTitle className="flex flex-1 gap-4 text-lg">
-            <Database size={32} color="#EA580C" />
+            <Database size={32} className="text-orange-600" />
 
             <div className="line-clamp-2 max-h-[52px] flex-1">{title}</div>
           </CardTitle>

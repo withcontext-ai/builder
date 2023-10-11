@@ -122,7 +122,7 @@ function DatasetItem({ datasets }: { datasets?: DatasetProps[] }) {
             className="flex items-center rounded-md border p-3"
             key={item?.dataset_id}
           >
-            <Database size={24} color="#EA580C" className="shrink-0" />
+            <Database size={24} className="shrink-0 text-orange-600" />
             <div className="truncate text-sm">{item?.name}</div>
           </div>
         )

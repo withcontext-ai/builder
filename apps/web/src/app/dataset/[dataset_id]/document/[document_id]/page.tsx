@@ -18,7 +18,7 @@ export default async function Page({ params }: IProps) {
   const defaultValues = {
     ...splitConfig,
     loaderType: detail?.type,
-    files: !isNotedData ? [detail] : [],
+    files: isNotedData ? [] : [detail],
     notedData: isNotedData ? [detail] : [],
   } as DataSchemeProps
 

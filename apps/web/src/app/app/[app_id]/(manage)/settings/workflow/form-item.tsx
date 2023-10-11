@@ -337,8 +337,7 @@ export function ListSelectItem<T extends FieldValues>({
                         <div className="flex items-center justify-between gap-2 truncate">
                           <Database
                             size={24}
-                            color="#EA580C"
-                            className="shrink-0"
+                            className="shrink-0 text-orange-600"
                           />
                           <div className="truncate">{item.label}</div>
                         </div>
@@ -367,7 +366,7 @@ export function ListSelectItem<T extends FieldValues>({
                   className="flex h-12 items-center justify-between space-x-2 rounded-lg border border-slate-200 pl-3 pr-1"
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <Database size={24} color="#EA580C" className="shrink-0" />
+                    <Database size={24} className="shrink-0 text-orange-600" />
                     <div className="truncate text-sm font-normal">{label}</div>
                   </div>
                   <Button

@@ -22,11 +22,12 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
         <Avatar
           className={cn(
             'relative flex h-4 w-4',
-            data?.icon ? 'bg-white' : `bg-${color}-600`,
+            data?.icon ? `bg-white` : `bg-${color}-600`,
             className
           )}
         >
-          <img src={data?.icon || ''} alt="Annotated data icon" />
+          {data?.icon && <img src={data?.icon} />}
+
           <AvatarFallback className="break-words bg-transparent text-white">
             {getFirstLetter(data?.name || '')}
           </AvatarFallback>

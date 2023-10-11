@@ -16,6 +16,7 @@ import {
 } from '@tanstack/react-table'
 import { debounce } from 'lodash'
 import { Loader2Icon } from 'lucide-react'
+import { shadesOfPurple } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import useSWR from 'swr'
 
 import { cn, fetcher } from '@/lib/utils'
@@ -78,14 +79,14 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
 
   const { toast } = useToast()
 
-  const [fresh, setFresh] = useState(false)
+  const [shouldFresh, setShouldFresh] = useState(false)
   const { data, isValidating, isLoading } = useSWR<any>(
     [{ search: value }, pagination, datasetId],
     getDatasetDocument,
     {
       fallbackData: preload,
       keepPreviousData: true,
-      refreshInterval: fresh ? 2000 : undefined,
+      ...(shouldFresh ? { refreshInterval: 2000 } : {}),
     }
   )
 
@@ -94,7 +95,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
       (item: NewDocument) => item?.status === 1
     )
     if (res?.length > 0) {
-      setFresh(true)
+      setShouldFresh(true)
     }
   }, [data?.documents])
 
