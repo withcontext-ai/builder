@@ -180,7 +180,12 @@ class TargetedChain(Chain):
         suffix_prompt = "Please output the target based on this conversation."
         run_manager = AsyncCallbackManagerForChainRun.get_noop_manager()
         response = await self.llm.agenerate(
-            messages=[[HumanMessage(content=pre_prompt + dialog + suffix_prompt)]],
+            messages=[
+                [
+                    SystemMessage(content=""),
+                    HumanMessage(content=pre_prompt + dialog + suffix_prompt),
+                ]
+            ],
             callbacks=run_manager.get_child(),
         )
         return response.generations[0][0].text
@@ -364,7 +369,7 @@ class EnhanceConversationChain(Chain):
             prompt_template=self.prompt,
             inputs=inputs,
             model=self.llm.model_name,
-            chain_key=self.dialog_key,
+            chain_dialog_key=self.dialog_key,
         )
         response = await self.llm.agenerate(
             messages=[messages],
