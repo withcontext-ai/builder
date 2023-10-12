@@ -88,9 +88,12 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
   )
 
   useEffect(() => {
-    const shouldFresh = data?.documents?.some(
-      (item: NewDocument) => item?.status === 1
-    )
+    const shouldFresh =
+      data?.documents?.filter((item: NewDocument) => item?.status === 1)
+        ?.length === 0
+    // const shouldFresh = data?.documents?.some(
+    //   (item: NewDocument) => item?.status === 1
+    // )
     setShouldFresh(shouldFresh)
   }, [data?.documents])
 
