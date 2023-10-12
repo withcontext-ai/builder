@@ -55,7 +55,7 @@ export default function AddTaskButton() {
           const Icon = TYPE_MAP[item.type].icon
           const options = item.children?.reduce(
             (acc: { value: string; label: string }[], cur) => {
-              const labels: any[] = []
+              const labels: { value: string; label: string }[] = []
               cur.children?.forEach((d) => {
                 labels.push({ value: d.subType, label: `${d.title} ${d.desc}` })
               })
