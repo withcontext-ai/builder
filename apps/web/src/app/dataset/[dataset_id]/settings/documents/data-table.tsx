@@ -77,7 +77,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
   const { toast } = useToast()
 
   const [shouldFresh, setShouldFresh] = useState(false)
-  const { data, isValidating, isLoading } = useSWR<any>(
+  const { data, isLoading } = useSWR<any>(
     [{ search: value }, pagination, datasetId],
     getDatasetDocument,
     {
