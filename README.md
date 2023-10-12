@@ -11,9 +11,12 @@ TODO: one-line description
 
 Live demo: https://build.withcontext.ai
 
+
 or
 
 Run the app locally:
+
+
 
 1. Copy `.env.example` to `.env.local` and modify the value accordingly.
 1. [Install Docker](https://docs.docker.com/get-docker/) on your machine.
