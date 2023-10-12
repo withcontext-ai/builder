@@ -1,5 +1,3 @@
-import { AvatarImage } from '@radix-ui/react-avatar'
-
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { NewDocument } from '@/db/documents/schema'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
