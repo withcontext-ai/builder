@@ -93,6 +93,8 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
     )
     if (res?.length > 0) {
       setShouldFresh(true)
+    } else {
+      setShouldFresh(false)
     }
   }, [data?.documents])
 
@@ -153,7 +155,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
         },
       },
     ],
-    [datasetId, isValidating]
+    [datasetId]
   )
 
   const handleRowClick = useCallback(
