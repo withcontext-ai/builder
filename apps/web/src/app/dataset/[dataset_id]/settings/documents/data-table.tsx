@@ -102,11 +102,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
         accessorKey: 'name',
         header: 'Data Name',
         cell: ({ row }) => {
-          return (
-            <div className="truncate">
-              <FileIcon data={row.original} />
-            </div>
-          )
+          return <FileIcon data={row.original} />
         },
       },
       {
