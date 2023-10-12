@@ -254,6 +254,7 @@ class EnhanceSequentialChain(SequentialChain):
                         await self._handle_final_chain()
                         return self._construct_return_dict()
                     else:
+                        inputs["question"] = ""
                         self.current_chain += 1
             else:
                 if self.current_chain == len(self.chains) - 1:
