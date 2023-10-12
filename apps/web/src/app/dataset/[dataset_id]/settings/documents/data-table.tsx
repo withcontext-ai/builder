@@ -88,14 +88,10 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
   )
 
   useEffect(() => {
-    const res = data?.documents?.filter(
+    const shouldFresh = data?.documents?.some(
       (item: NewDocument) => item?.status === 1
     )
-    if (res?.length > 0) {
-      setShouldFresh(true)
-    } else {
-      setShouldFresh(false)
-    }
+    setShouldFresh(shouldFresh)
   }, [data?.documents])
 
   const columns: ColumnDef<NewDocument>[] = useMemo(
