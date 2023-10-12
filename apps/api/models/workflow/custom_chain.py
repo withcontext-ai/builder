@@ -121,7 +121,6 @@ class TargetedChain(Chain):
         basic_messages = inputs.get(self.dialog_key, [])
         human_input = inputs.get("question", "")
         basic_messages += [HumanMessage(content=human_input)]
-        # inputs.pop("chat_history", None)
 
         question = ""
         if self.process == TargetedChainStatus.RUNNING:
@@ -357,12 +356,15 @@ class EnhanceConversationChain(Chain):
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Dict[str, Any]:
-        if inputs.get("chat_history", None) is not None and isinstance(
-            inputs["chat_history"], str
+        if inputs.get(self.dialog_key, None) is not None and isinstance(
+            inputs[self.dialog_key], str
         ):
-            inputs["chat_history"] = [inputs["chat_history"]]
+            inputs[self.dialog_key] = [inputs[self.dialog_key]]
         messages = await PromptCompressor.get_compressed_messages(
-            prompt_template=self.prompt, inputs=inputs, model=self.llm.model_name
+            prompt_template=self.prompt,
+            inputs=inputs,
+            model=self.llm.model_name,
+            chain_key=self.dialog_key,
         )
         response = await self.llm.agenerate(
             messages=[messages],
@@ -398,11 +400,11 @@ class EnhanceConversationalRetrievalChain(Chain):
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Dict[str, Any]:
-        if inputs.get("chat_history", None) is not None and isinstance(
-            inputs["chat_history"], str
+        if inputs.get(self.dialog_key, None) is not None and isinstance(
+            inputs[self.dialog_key], str
         ):
-            inputs["chat_history"] = [inputs["chat_history"]]
-        messages = inputs.get("chat_history", [])
+            inputs[self.dialog_key] = [inputs[self.dialog_key]]
+        messages = inputs.get(self.dialog_key, [])
         question = inputs.get("question", None)
         if question is None:
             raise ValueError("Question is required")

@@ -123,7 +123,10 @@ class PromptCompressor:
 
     @staticmethod
     async def get_compressed_messages(
-        prompt_template: PromptTemplate, inputs: dict, model: str
+        prompt_template: PromptTemplate,
+        inputs: dict,
+        model: str,
+        chain_dialog_key="chat_history",
     ):
         """Return a compressed list of messages."""
         max_tokens = MODEL_TO_MAX_TOKEN.get(model)
@@ -135,7 +138,7 @@ class PromptCompressor:
         if question is None:
             logger.warning("question is not provided. Returning original messages.")
         prompt_value = prompt_template.format_prompt(**inputs)
-        history_messages = inputs.get("chat_history", [])
+        history_messages = inputs.get(chain_dialog_key, [])
         history_messages = history_messages[:-1]
         messages = (
             [SystemMessage(content=prompt_value.to_string())]
@@ -163,7 +166,7 @@ class PromptCompressor:
         # compress variables
         compressed_inputs = {}
         for key in inputs:
-            if key == "chat_history" or key == "question":
+            if key == "chat_history" or key == "question" or key == chain_dialog_key:
                 continue
             if type(inputs[key]) == list:
                 continue
