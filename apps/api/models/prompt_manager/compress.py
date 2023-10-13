@@ -72,8 +72,18 @@ class PromptCompressor:
         return len(encoding.encode(content))
 
     @staticmethod
-    async def sumrize_content(content: str, model, chain_type, max_tokens=500):
+    async def sumrize_content(content, model, chain_type, max_tokens=500):
         """Return a summary of a string."""
+
+        def to_string(content):
+            if isinstance(content, str):
+                return content
+            elif isinstance(content, bytes):
+                return content.decode()
+            else:
+                raise ValueError(f"type {type(content)} is not supported")
+
+        content = to_string(content)
         sumrize_step = 0
         current_tokens = PromptCompressor.num_tokens_from_contents(content, model)
         while sumrize_step < 5 and current_tokens > max_tokens:
