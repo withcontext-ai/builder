@@ -53,7 +53,7 @@ export async function OpenAIStream({
       const waitingId = setInterval(() => {
         const queue = encoder.encode(MESSAGE_FOR_KEEP_STREAM_CONNECTION)
         controller.enqueue(queue)
-      }, 5 * 1000)
+      }, 20 * 1000)
 
       let metadata: any
 
@@ -107,7 +107,7 @@ export async function OpenAIStream({
 
             if (!initialed) {
               initialed = true
-              console.log('initialed:', initialed, waitingId)
+
               if (waitingId) clearInterval(waitingId)
 
               if (callback?.onStart) {
