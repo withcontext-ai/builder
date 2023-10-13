@@ -71,7 +71,8 @@ class PromptCompressor:
         except KeyError:
             logger.warning("model not found. Using cl100k_base encoding.")
             encoding = tiktoken.get_encoding("cl100k_base")
-        return len(encoding.encode(content))
+
+        return len(encoding.encode(str(content)))
 
     @staticmethod
     async def sumrize_content(content, model, chain_type, max_tokens=500):
@@ -87,6 +88,8 @@ class PromptCompressor:
             )
             documents = token_splitter.split_text(content)
             documents = [Document(page_content=document) for document in documents]
+                chunk_size=500, chunk_overlap=0
+            )
             documents = await summarize_chain.acombine_docs(documents)
             sumrize_step += 1
             content = documents[0]
@@ -158,6 +161,7 @@ class PromptCompressor:
                 filt_inputs[k] = inputs[k]
         prompt_value = prompt_template.format_prompt(**filt_inputs)
         history_messages = inputs.get(chain_dialog_key, [])
+
         history_messages = history_messages[:-1]
         messages = (
             [SystemMessage(content=prompt_value.to_string())]

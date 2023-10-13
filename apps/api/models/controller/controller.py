@@ -15,6 +15,8 @@ from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
 import json
+import copy
+
 from models.prompt_manager.manager import PromptManagerMixin
 
 
@@ -174,12 +176,12 @@ class DatasetManager(BaseManager):
                     parts = chain.split("-", 1)
                     Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
                 handler.update_dataset_status(dataset_id, 0)
-                dataset_dict = dataset.dict()
-                self.redis.set(urn, json.dumps(dataset_dict))
-                logger.info(
-                    f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict}"
-                )
-                self._update_dataset(dataset_id, dataset_dict)
+                dataset_dict_for_redis = copy.deepcopy(dataset.dict())
+                for document in dataset_dict_for_redis['documents']:
+                    document['hundredth_ids'] = [i for i in range(99, document['page_size'], 100)]
+                self.redis.set(urn, json.dumps(dataset_dict_for_redis))
+                logger.info(f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict_for_redis}")
+                self._update_dataset(dataset_id, dataset.dict())
                 return
         self._update_dataset(dataset_id, update_data)
 
@@ -257,6 +259,13 @@ class DatasetManager(BaseManager):
             if document.uid == uid:
                 matching_url = document.url
                 segment_size = document.page_size
+                if hasattr(document, 'hundredth_ids'):
+                    hundredth_ids = document.hundredth_ids
+                else:
+                    hundredth_ids = [i for i in range(99, segment_size, 100)]
+                    document.hundredth_ids = hundredth_ids
+                    urn = self.get_dataset_urn(dataset_id)
+                    self.redis.set(urn, json.dumps(dataset.dict()))
                 break
         if not matching_url:
             raise ValueError("UID not found in dataset documents")
@@ -280,7 +289,6 @@ class DatasetManager(BaseManager):
                 logger.info(
                     f"Segment {seg_id} has incomplete data in Pinecone or not found"
                 )
-
         return segment_size, segments
 
     def search_document_segments(self, dataset_id, uid, query):
@@ -336,6 +344,7 @@ class DatasetManager(BaseManager):
             return int(segment.split("-")[-1])
 
         dataset = self.get_datasets(dataset_id)[0]
+        matching_url = None
         for doc in dataset.documents:
             if doc.uid == uid:
                 current_page_size = get_page_size_via_segment_id(segment_id)
@@ -378,6 +387,7 @@ class DatasetManager(BaseManager):
             first_segment = "-".join(segment_id.split("-")[0:2])
             metadata = Retriever.get_metadata(first_segment)
             metadata["text"] = content
+            metadata["urn"] = segment_id
             Retriever.upsert_vector(segment_id, content, metadata)
         else:
             Retriever.delete_vector(segment_id)
@@ -417,7 +427,8 @@ class DatasetManager(BaseManager):
             raise ValueError("Document type not supported")
         _docs = text_splitter.split_documents(_docs)
         preview_list = [
-            {"segment_id": "fake", "content": doc.page_content} for doc in _docs
+            {"segment_id": "fake", "content": doc.page_content}
+            for doc in _docs[:preview_size]
         ]
         self.redis.set(f"preview:{dataset.id}-{document_uid}", json.dumps(preview_list))
         logger.info(f"Upsert preview for dataset {dataset.id}, document {document_uid}")

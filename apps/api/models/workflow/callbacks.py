@@ -160,6 +160,7 @@ class IOTraceCallbackHandler(AsyncCallbackHandler):
         logger.info(f"input log in callback: {self.tem_input}")
 
 
+
 class CostCalcAsyncHandler(AsyncCallbackHandler):
     model: str = ""
     token_cost_process: TokenCostProcess

@@ -1,7 +1,6 @@
 import json
 from utils.base import to_string
 
-
 class PromptManagerMixin:
     @staticmethod
     def get_chain_output_urn(session_id: str, output_key: str):

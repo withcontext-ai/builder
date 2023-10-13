@@ -187,6 +187,7 @@ class TargetedChain(Chain):
                     HumanMessage(content=pre_prompt + dialog + suffix_prompt),
                 ]
             ],
+
             callbacks=run_manager.get_child(),
         )
         return response.generations[0][0].text
@@ -411,6 +412,7 @@ class EnhanceConversationalRetrievalChain(Chain):
         ):
             inputs[self.dialog_key] = [inputs[self.dialog_key]]
         messages = inputs.get(self.dialog_key, [])
+
         question = inputs.get("question", None)
         if question is None:
             raise ValueError("Question is required")
