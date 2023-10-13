@@ -137,7 +137,7 @@ class TargetedChain(Chain):
                 messages=[messages],
                 callbacks=run_manager.get_child() if run_manager else None,
             )
-            if response.generations[0][0].text == "Yes":
+            if response.generations[0][0].text.lower() == "yes".lower():
                 self.process = TargetedChainStatus.FINISHED
                 return {self.output_key: response.generations[0][0].text}
             else:

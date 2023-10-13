@@ -83,9 +83,10 @@ class PromptCompressor:
         while sumrize_step < 5 and current_tokens > max_tokens:
             summarize_chain = load_summarize_chain(OpenAI(), chain_type=chain_type)
             token_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                chunk_size=500, chunk_overlap=0
+                chunk_size=100, chunk_overlap=0, separator="\n"
             )
             documents = token_splitter.split_text(content)
+            documents = [Document(page_content=document) for document in documents]
             documents = await summarize_chain.acombine_docs(documents)
             sumrize_step += 1
             content = documents[0]
@@ -110,7 +111,7 @@ class PromptCompressor:
                     Document(page_content=message.content) for message in messages
                 ]
             splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                chunk_size=500, chunk_overlap=0, separator=" "
+                chunk_size=500, chunk_overlap=0, separator="\n"
             )
             documents = splitter.split_documents(documents)
             documents = await summarize_chain.acombine_docs(documents)
@@ -122,6 +123,8 @@ class PromptCompressor:
                 f"messages are too long to summarize. Returning original messages. messages length: {current_tokens} max_tokens: {max_tokens}"
             )
         if isinstance(messages, list):
+            if messages == []:
+                return ""
             if isinstance(messages[0], str):
                 return "\n".join([message for message in messages])
             else:
@@ -168,7 +171,7 @@ class PromptCompressor:
 
         # compress history
         compressed_message = await PromptCompressor.sumrize_messages(
-            history_messages, model, chain_type="stuff", max_tokens=500
+            history_messages, model, chain_type="map_reduce", max_tokens=500
         )
         compressed_messages = [
             SystemMessage(content=prompt_value.to_string() + compressed_message)
@@ -187,7 +190,7 @@ class PromptCompressor:
             if type(filt_inputs[key]) == list:
                 continue
             compressed_inputs[key] = await PromptCompressor.sumrize_content(
-                inputs[key], model, chain_type="stuff", max_tokens=500
+                filt_inputs[key], model, chain_type="map_reduce", max_tokens=500
             )
         compressed_prompt_value = prompt_template.format_prompt(**compressed_inputs)
         compressed_messages = [
