@@ -3,6 +3,7 @@ import {
   AlertCircleIcon,
   Check,
   ChevronsUpDown,
+  Database,
   Loader2Icon,
   PlusIcon,
   TrashIcon,
@@ -10,7 +11,7 @@ import {
 import { FieldValues, Path, PathValue, useFormContext } from 'react-hook-form'
 import { SuggestionDataItem } from 'react-mentions'
 
-import { clamp, cn } from '@/lib/utils'
+import { clamp, cn, labelFilterBuilder } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -36,15 +37,6 @@ import {
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import { MentionTextarea } from '@/components/mention-textarea'
-import { PdfImage } from '@/components/upload/component'
-
-const labelFilterBuilder =
-  (options: { label: string; value: string }[]) =>
-  (value: string, search: string): number => {
-    const label = options.find((d) => d.value === value)?.label
-    if (label?.toLowerCase().includes(search.toLowerCase())) return 1
-    return 0
-  }
 
 interface IInputItem<T> {
   name: Path<T>
@@ -286,14 +278,14 @@ export function ListSelectItem<T extends FieldValues>({
   options,
 }: IListSelectItem<T>) {
   const form = useFormContext<T>()
-
+  const [open, setOpen] = useState(false)
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
         <FormItem>
-          <Popover>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button>
@@ -328,16 +320,18 @@ export function ListSelectItem<T extends FieldValues>({
                           // const newValue = [...(field.value || []), value]
                           const newValue = [...(field.value || []), item.value]
                           form.setValue(name, newValue as any)
+                          setOpen(false)
                         }}
                         data-disabled={
                           field.value?.includes(item.value) || undefined
                         }
                         className="flex items-center justify-between space-x-2"
                       >
-                        <div className="flex items-center justify-between truncate">
-                          {item.icon === 'pdf' && (
-                            <PdfImage className="mr-3 shrink-0" />
-                          )}
+                        <div className="flex items-center justify-between gap-2 truncate">
+                          <Database
+                            size={24}
+                            className="shrink-0 text-orange-600"
+                          />
                           <div className="truncate">{item.label}</div>
                         </div>
                         {item.status != null && item.status === 1 && (
@@ -364,8 +358,8 @@ export function ListSelectItem<T extends FieldValues>({
                   key={value}
                   className="flex h-12 items-center justify-between space-x-2 rounded-lg border border-slate-200 pl-3 pr-1"
                 >
-                  <div className="flex items-center truncate">
-                    {icon === 'pdf' && <PdfImage className="mr-3 shrink-0" />}
+                  <div className="flex items-center gap-2 truncate">
+                    <Database size={24} className="shrink-0 text-orange-600" />
                     <div className="truncate text-sm font-normal">{label}</div>
                   </div>
                   <Button
