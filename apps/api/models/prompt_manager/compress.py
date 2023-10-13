@@ -157,7 +157,7 @@ class PromptCompressor:
                     filt_inputs[k] = inputs[k]
             else:
                 filt_inputs[k] = inputs[k]
-        prompt_value = prompt_template.format_prompt(**inputs)
+        prompt_value = prompt_template.format_prompt(**filt_inputs)
         history_messages = inputs.get(chain_dialog_key, [])
         history_messages = history_messages[:-1]
         messages = (
