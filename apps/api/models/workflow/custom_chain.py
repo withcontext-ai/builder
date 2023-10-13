@@ -37,6 +37,7 @@ from langchain.schema.messages import get_buffer_string
 from models.prompt_manager.compress import PromptCompressor
 from langchain.chat_models import ChatOpenAI
 from langchain.retrievers import SelfQueryRetriever
+from utils.base import to_string
 
 
 class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
@@ -417,7 +418,7 @@ class EnhanceConversationalRetrievalChain(Chain):
         docs = await self.retriever.aget_relevant_documents(
             question, callbacks=run_manager.get_child()
         )
-        context = "\n".join([doc.page_content for doc in docs])
+        context = "\n".join([to_string(doc.page_content) for doc in docs])
         inputs["context"] = context
 
         messages = await PromptCompressor.get_compressed_messages(

@@ -7,6 +7,7 @@ from langchain.prompts import PromptTemplate
 from .utils import MODEL_TO_MAX_TOKEN, RESPONSE_BUFFER_SIZE
 from langchain.schema import SystemMessage, Document, HumanMessage
 from langchain.schema.messages import get_buffer_string
+from utils.base import to_string
 
 
 class PromptCompressor:
@@ -75,14 +76,6 @@ class PromptCompressor:
     @staticmethod
     async def sumrize_content(content, model, chain_type, max_tokens=500):
         """Return a summary of a string."""
-
-        def to_string(content):
-            if isinstance(content, str):
-                return content
-            elif isinstance(content, bytes):
-                return content.decode()
-            else:
-                raise ValueError(f"type {type(content)} is not supported")
 
         content = to_string(content)
         sumrize_step = 0

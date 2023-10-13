@@ -1,4 +1,5 @@
 import json
+from utils.base import to_string
 
 
 class PromptManagerMixin:
@@ -10,7 +11,8 @@ class PromptManagerMixin:
         self.redis.set(self.get_chain_output_urn(session_id, output_key), output)
 
     def get_chain_output(self, session_id: str, output_key: str):
-        return self.redis.get(self.get_chain_output_urn(session_id, output_key))
+        content = self.redis.get(self.get_chain_output_urn(session_id, output_key))
+        return to_string(content)
 
     def get_chain_memory_urn(self, session_id, output_key):
         return f"memory:{session_id}-{output_key}"
