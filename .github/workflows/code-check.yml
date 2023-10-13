@@ -4,10 +4,6 @@ on:
   pull_request:
     branches: ['*']
 
-env:
-  E2E_USERNAME: ${{ env.E2E_USERNAME }}
-  E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -161,6 +157,8 @@ jobs:
         run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: pnpm test:e2e
         env:
+          E2E_USERNAME: ${{ env.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
+        run: pnpm test:e2e
