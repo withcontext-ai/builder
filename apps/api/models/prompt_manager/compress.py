@@ -122,7 +122,10 @@ class PromptCompressor:
                 f"messages are too long to summarize. Returning original messages. messages length: {current_tokens} max_tokens: {max_tokens}"
             )
         if isinstance(messages, list):
-            return "\n".join([message for message in messages])
+            if isinstance(messages[0], str):
+                return "\n".join([message for message in messages])
+            else:
+                return "\n".join([message.content for message in messages])
         return messages
 
     @staticmethod
