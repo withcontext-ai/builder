@@ -178,10 +178,10 @@ class PromptCompressor:
 
         # compress variables
         compressed_inputs = {}
-        for key in inputs:
+        for key in filt_inputs:
             if key == "chat_history" or key == "question" or key == chain_dialog_key:
                 continue
-            if type(inputs[key]) == list:
+            if type(filt_inputs[key]) == list:
                 continue
             compressed_inputs[key] = await PromptCompressor.sumrize_content(
                 inputs[key], model, chain_type="stuff", max_tokens=500
