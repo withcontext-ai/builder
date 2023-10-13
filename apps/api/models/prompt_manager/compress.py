@@ -6,6 +6,7 @@ from loguru import logger
 from langchain.prompts import PromptTemplate
 from .utils import MODEL_TO_MAX_TOKEN, RESPONSE_BUFFER_SIZE
 from langchain.schema import SystemMessage, Document, HumanMessage
+from langchain.schema.messages import get_buffer_string
 
 
 class PromptCompressor:
@@ -147,6 +148,15 @@ class PromptCompressor:
         question = inputs.get("question")
         if question is None:
             logger.warning("question is not provided. Returning original messages.")
+        filt_inputs = {}
+        for k in inputs:
+            if "dialog" in k and isinstance(inputs[k], list):
+                try:
+                    filt_inputs[k] = get_buffer_string(inputs[k])
+                except:
+                    filt_inputs[k] = inputs[k]
+            else:
+                filt_inputs[k] = inputs[k]
         prompt_value = prompt_template.format_prompt(**inputs)
         history_messages = inputs.get(chain_dialog_key, [])
         history_messages = history_messages[:-1]
