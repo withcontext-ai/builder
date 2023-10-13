@@ -33,15 +33,15 @@ class PromptManagerMixin:
                 current_input = current_chain_memory[-1].get("input", "")
                 # filt midium value in self checking chain
                 if current_input == get_human_input(content):
-                    current_chain_memory[-1]["input"] = get_human_input(content)
+                    current_chain_memory[-1]["output"] = content["output"]
                 else:
                     current_chain_memory.append(
                         {"input": get_human_input(content), "output": content["output"]}
                     )
-                self.redis.set(
-                    self.get_chain_memory_urn(session_id, content["chain_key"]),
-                    json.dumps(current_chain_memory),
-                )
+            self.redis.set(
+                self.get_chain_memory_urn(session_id, content["chain_key"]),
+                json.dumps(current_chain_memory),
+            )
 
     def get_chain_memory(self, session_id: str, output_key: str):
         current_chain_memory = self.redis.get(
