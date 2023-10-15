@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 
 test('test', async ({ page }) => {
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  console.log(process.env.BASE_URL)
   await page.goto('/explore')
   await page.getByRole('link', { name: 'E', exact: true }).click()
   const input = page.getByPlaceholder('Type a message')

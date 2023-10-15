@@ -6,7 +6,7 @@ on:
 
 jobs:
   e2e_test:
-    if: github.event.deployment.ref == 'main'
+    if: github.event.deployment.ref == 'test-e2e'
     runs-on: ubuntu-latest
     name: E2E Testing
     steps:
