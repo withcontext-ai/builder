@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 
 test('test', async ({ page }) => {
+  console.log(process.env);
+ 
   await page.goto('/explore')
   await page.getByRole('link', { name: 'E', exact: true }).click()
   const input = page.getByPlaceholder('Type a message')
