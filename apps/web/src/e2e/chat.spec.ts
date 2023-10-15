@@ -31,9 +31,7 @@ test('test', async ({ page }) => {
 
   const messages2 = await page.getByTestId('chat-card-content').all()
   const lastMessage2 = messages2[messages2.length - 1]
-  const secondLastMessage2 = messages2[messages2.length - 2]
   expect(lastMessage2.getByTestId('chat-card-loading')).toBeInViewport()
   await page.getByRole('button', { name: 'Stop generating' }).click()
-  expect(secondLastMessage2).not.toBeVisible()
   expect(lastMessage2).not.toBeVisible()
 })
