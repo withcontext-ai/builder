@@ -117,7 +117,7 @@ jobs:
     name: E2E Testing
     steps:
       - name: t
-        run: echo ${{ env.E2E_USERNAME }}
+        run: echo $env.E2E_USERNAME
       - name: Waiting for 200 from the Vercel Preview
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
         id: waitFor200
