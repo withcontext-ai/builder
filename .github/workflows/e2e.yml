@@ -5,10 +5,13 @@ on:
 
 jobs:
   log:
-    run: |
-      echo "Deployment Status: ${{ github.event.deployment_status.state }}"
-      echo "Deployment URL: ${{ github.event.deployment_status.target_url }}"
-      echo "Deployment Ref: ${{ github.event.deployment.ref }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Deployment Status
+        run: |
+          echo "Deployment Status: ${{ github.event.deployment_status.state }}"
+          echo "Deployment URL: ${{ github.event.deployment_status.target_url }}"
+          echo "Deployment Ref: ${{ github.event.deployment.ref }}"
   e2e_test:
     if: github.event.deployment.ref == 'test-e2e'
     runs-on: ubuntu-latest
