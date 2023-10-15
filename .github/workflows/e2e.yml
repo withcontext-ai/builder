@@ -12,8 +12,8 @@ jobs:
           echo "Deployment Status: ${{ github.event.deployment_status.state }}"
           echo "Deployment URL: ${{ github.event.deployment_status.target_url }}"
           echo "Deployment Ref: ${{ github.event.deployment.ref }}"
+          echo "Ref: ${{ github.ref_name }}"
   e2e_test:
-    if: github.event.deployment.ref == 'test-e2e'
     runs-on: ubuntu-latest
     name: E2E Testing
     steps:
