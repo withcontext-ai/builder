@@ -2,10 +2,11 @@ name: E2E
 
 on:
   deployment_status:
+    types: [success]
 
 jobs:
   e2e_test:
-    if: github.ref.type != 'tag' && github.ref.name != 'main' && github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    if: github.event.deployment.ref == 'main'
     runs-on: ubuntu-latest
     name: E2E Testing
     steps:
@@ -45,5 +46,5 @@ jobs:
         run: pnpm test:e2e
         env:
           BASE_URL: ${{ github.event.deployment_status.target_url }}
-          E2E_USERNAME: ${{ env.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
+          E2E_USERNAME: ${{ vars.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ vars.E2E_PASSWORD }}
