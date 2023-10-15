@@ -117,7 +117,7 @@ jobs:
     name: E2E Testing
     steps:
       - name: t
-        run: echo $env:E2E_USERNAME
+        run: echo $E2E_USERNAME
       - name: Waiting for 200 from the Vercel Preview
         uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
         id: waitFor200
@@ -160,7 +160,5 @@ jobs:
 
       - name: Run Playwright tests
         env:
-          E2E_USERNAME: ${{ env.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ env.E2E_PASSWORD }}
           BASE_URL: ${{ steps.waitFor200.outputs.url }}
-        run: pnpm test:e2e
+        run: E2E_USERNAME=$E2E_USERNAME E2E_PASSWORD=$E2E_PASSWORD pnpm test:e2e
