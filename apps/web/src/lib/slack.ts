@@ -77,6 +77,7 @@ export class SlackUtils {
     team_icon,
     access_token,
     scope,
+    archived,
   }: Omit<NewSlackTeam, 'short_id' | 'app_id' | 'team_id'>) {
     const [found] = await db
       .select()
@@ -96,6 +97,7 @@ export class SlackUtils {
           team_icon,
           access_token: access_token || this.#access_token,
           scope,
+          archived,
         })
         .where(eq(SlackTeamsTable.short_id, found.short_id))
         .returning()
@@ -112,6 +114,7 @@ export class SlackUtils {
           team_icon,
           access_token: access_token || this.#access_token,
           scope,
+          archived,
         })
         .returning()
       return newSlackTeam
@@ -133,16 +136,23 @@ export class SlackUtils {
     const [found] = await db
       .select()
       .from(SlackUsersTable)
+      .leftJoin(
+        UsersTable,
+        eq(UsersTable.short_id, SlackUsersTable.context_user_id)
+      )
       .where(
         and(
           eq(SlackUsersTable.app_id, this.app_id),
           eq(SlackUsersTable.team_id, this.team_id),
           eq(SlackUsersTable.user_id, user_id),
-          eq(SlackUsersTable.archived, false)
+          eq(SlackUsersTable.archived, false),
+          eq(UsersTable.archived, false)
         )
       )
+      .orderBy(desc(SlackUsersTable.created_at))
+      .limit(1)
     if (found) {
-      if (!options.shouldUpdate) return found
+      if (!options.shouldUpdate) return found.slack_users
 
       const user = await this.getUserInfo(user_id)
       const [updatedSlackUser] = await db
@@ -185,13 +195,16 @@ export class SlackUtils {
           emailAddress: [email],
           firstName: user?.profile?.first_name,
           lastName: user?.profile?.last_name,
-          skipPasswordChecks: false,
-          skipPasswordRequirement: false,
+          skipPasswordChecks: true,
+          skipPasswordRequirement: true,
         })
-        await db.insert(UsersTable).values({
-          short_id: clerkUser.id,
-          email,
-        })
+        await db
+          .insert(UsersTable)
+          .values({
+            short_id: clerkUser.id,
+            email,
+          })
+          .onConflictDoNothing({ target: UsersTable.short_id })
         const [newSlackUser] = await db
           .insert(SlackUsersTable)
           .values({

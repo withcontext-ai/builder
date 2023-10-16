@@ -1,9 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
+import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { SlackUtils } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
 import { addMessage, getFormattedMessages } from '@/db/messages/actions'
+import { removeTeam } from '@/db/slack_teams/actions'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
 
@@ -49,7 +51,7 @@ export default async function handler(
         text: '_Thinking..._',
       })
 
-      await slack.addOrUpdateUser(
+      const slack_user = await slack.addOrUpdateUser(
         {
           user_id,
         },
@@ -73,12 +75,46 @@ export default async function handler(
 
       let completion = ''
       const messageId = nanoid()
+
+      const requestId = nanoid()
+      await logsnag?.track({
+        user_id: slack_user.context_user_id,
+        channel: 'chat',
+        event: 'Chat Request (Slack)',
+        icon: '➡️',
+        description: `Send a chat request at Slack`,
+        tags: {
+          'request-id': requestId,
+          'slack-app-id': app_id,
+          'slack-team-id': team_id,
+          'session-id': session_id,
+        },
+      })
+
       const requestTimestamp = Date.now()
 
       await OpenAIStream({
         baseUrl,
         payload,
         callback: {
+          async onStart() {
+            const responseTimestamp = Date.now()
+            const latencyMs = responseTimestamp - requestTimestamp
+            await logsnag?.track({
+              user_id: slack_user.context_user_id,
+              channel: 'chat',
+              event: 'Chat Response (Slack)',
+              icon: '⬅️',
+              description: `Got a response within ${latencyMs}ms`,
+              tags: {
+                'request-id': requestId,
+                'slack-app-id': app_id,
+                'slack-team-id': team_id,
+                'session-id': session_id,
+                'latency-ms': latencyMs,
+              },
+            })
+          },
           async onToken(text) {
             completion = completion + text
             await slack.updateMessage({
@@ -170,6 +206,17 @@ export default async function handler(
       const slack = new SlackUtils()
       await slack.initialize({ app_id, team_id })
       await slack.publishHomeViews({ user_id, channel_id })
+      return res.status(200).json(body)
+    }
+
+    if (body.event?.type === 'app_uninstalled') {
+      const payload = body as any
+      if (!payload.event) throw new Error('payload.event is undefined')
+      const app_id = payload.api_app_id
+      const team_id = payload.team_id
+      if (!app_id) throw new Error('api_app_id is undefined')
+      if (!team_id) throw new Error('team_id is undefined')
+      await removeTeam(app_id, team_id)
       return res.status(200).json(body)
     }
   } catch (error: any) {
