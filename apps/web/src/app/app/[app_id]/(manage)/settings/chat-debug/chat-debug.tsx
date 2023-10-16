@@ -85,7 +85,6 @@ const ChatDebug = ({ app }: IProps) => {
   const initialMessages: EventMessage[] = React.useMemo(() => {
     const showRemark = current?.messages?.length === 0
     const update = current?.eventMessages[0]?.content !== opening_remarks
-    console.log(showRemark, update, '=====init')
     if (opening_remarks) {
       return update && showRemark
         ? [
@@ -110,7 +109,6 @@ const ChatDebug = ({ app }: IProps) => {
     if (!isExisted?.id) {
       chatStore.newSession(appId, [], initialMessages)
     } else {
-      console.log('--getMessageHistory', current?.messages)
       chatStore.onNewMessage(current?.messages)
       chatStore.onNewEventMessage(initialMessages)
     }
@@ -123,7 +121,6 @@ const ChatDebug = ({ app }: IProps) => {
   const onRestart = () => {
     chatStore.onNewMessage([])
   }
-  console.log(current, '---current')
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
