@@ -90,8 +90,8 @@ const ChatDebug = ({ app }: IProps) => {
 
   const current = currentSession()
   const initialMessages: EventMessage[] = React.useMemo(() => {
-    const showRemark = current?.messages?.length === 0
-    console.log(current?.messages, '----showRemark', showRemark)
+    const showRemark = currentSession()?.messages?.length === 0
+    console.log(currentSession()?.messages, '----showRemark', showRemark)
     const update = current?.eventMessages?.[0]?.content !== opening_remarks
     console.log(opening_remarks, update, '--update')
     if (opening_remarks) {
@@ -120,6 +120,7 @@ const ChatDebug = ({ app }: IProps) => {
       console.log('---click--history')
       onNewEventMessage(initialMessages)
       onNewMessage(current?.messages)
+      console.log(current, '-----init--message')
     }
   }, [appId, current?.messages, initialMessages])
 
@@ -129,9 +130,8 @@ const ChatDebug = ({ app }: IProps) => {
 
   const onRestart = () => {
     onNewMessage([])
-    // chatStore.onNewEventMessage(initialMessages)
-    console.log(current?.messages, '---onRestart')
   }
+  console.log(current?.messages, '----current')
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
