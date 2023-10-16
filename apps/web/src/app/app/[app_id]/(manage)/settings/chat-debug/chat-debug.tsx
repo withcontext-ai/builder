@@ -100,7 +100,7 @@ const ChatDebug = ({ app }: IProps) => {
     } else {
       return []
     }
-  }, [opening_remarks])
+  }, [opening_remarks, current])
   console.log(current, '----eventMessages', opening_remarks)
 
   const getMessageHistory = React.useCallback(() => {
@@ -113,7 +113,14 @@ const ChatDebug = ({ app }: IProps) => {
       chatStore.onNewEventMessage(initialMessages)
       console.log(initialMessages, '---initialMessages')
     }
-  }, [appId, chatStore, current?.messages, initialMessages, sessions])
+  }, [
+    appId,
+    chatStore,
+    current?.messages,
+    initialMessages,
+    sessions,
+    opening_remarks,
+  ])
 
   const handleMessage = (messages: ChatMessage[]) => {
     chatStore.onNewMessage(messages)
