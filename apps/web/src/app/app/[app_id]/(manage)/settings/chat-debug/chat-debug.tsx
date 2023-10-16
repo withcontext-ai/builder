@@ -92,7 +92,13 @@ const ChatDebug = ({ app }: IProps) => {
   const initialMessages: EventMessage[] = React.useMemo(() => {
     const showRemark = current?.messages?.length === 0
     const update = current?.eventMessages?.[0]?.content !== opening_remarks
-    console.log(opening_remarks, '---showRemark', update, '--update')
+    console.log(
+      opening_remarks,
+      '---showRemark',
+      update,
+      '--update',
+      showRemark
+    )
     if (opening_remarks) {
       return update && showRemark
         ? [
