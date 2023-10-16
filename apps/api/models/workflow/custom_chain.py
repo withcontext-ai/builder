@@ -137,7 +137,7 @@ class TargetedChain(Chain):
                 messages=[messages],
                 callbacks=run_manager.get_child() if run_manager else None,
             )
-            if response.generations[0][0].text.lower() == "yes".lower():
+            if response.generations[0][0].text.lower().startswith("yes"):
                 self.process = TargetedChainStatus.FINISHED
                 return {self.output_key: response.generations[0][0].text}
             else:
@@ -187,7 +187,6 @@ class TargetedChain(Chain):
                     HumanMessage(content=pre_prompt + dialog + suffix_prompt),
                 ]
             ],
-
             callbacks=run_manager.get_child(),
         )
         return response.generations[0][0].text
