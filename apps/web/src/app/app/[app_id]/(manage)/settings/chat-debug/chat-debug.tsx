@@ -84,7 +84,6 @@ const ChatDebug = ({ app }: IProps) => {
   const current = chatStore.currentSession()
   const initialMessages: EventMessage[] = React.useMemo(() => {
     const showRemark = current?.messages?.length === 0 && opening_remarks
-    console.log(showRemark, '---showRemark')
     if (opening_remarks) {
       return showRemark
         ? [
@@ -101,7 +100,7 @@ const ChatDebug = ({ app }: IProps) => {
     } else {
       return []
     }
-  }, [current, opening_remarks])
+  }, [opening_remarks])
   console.log(current, '----eventMessages', opening_remarks)
 
   const getMessageHistory = React.useCallback(() => {
