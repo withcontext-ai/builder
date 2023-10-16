@@ -92,7 +92,7 @@ const ChatDebug = ({ app }: IProps) => {
   const initialMessages: EventMessage[] = React.useMemo(() => {
     const showRemark = current?.messages?.length === 0
     const update = current?.eventMessages?.[0]?.content !== opening_remarks
-    console.log(showRemark, '---showRemark', update, '--update')
+    console.log(opening_remarks, '---showRemark', update, '--update')
     if (opening_remarks) {
       return update && showRemark
         ? [
@@ -130,7 +130,7 @@ const ChatDebug = ({ app }: IProps) => {
     onNewMessage([])
     chatStore.onNewEventMessage(initialMessages)
   }
-  console.log(current?.eventMessages, '----current?.eventMessages')
+  console.log(current, '----current?.eventMessages')
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
