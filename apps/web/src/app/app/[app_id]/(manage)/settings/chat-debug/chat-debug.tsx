@@ -118,7 +118,6 @@ const ChatDebug = ({ app }: IProps) => {
     } else {
       onNewMessage(current?.messages)
       onNewEventMessage(initialMessages)
-      console.log(initialMessages, '---initMessage')
     }
   }, [appId, current?.messages, initialMessages])
 
@@ -128,7 +127,7 @@ const ChatDebug = ({ app }: IProps) => {
 
   const onRestart = () => {
     onNewMessage([])
-    chatStore.onNewEventMessage(initialMessages)
+    // chatStore.onNewEventMessage(initialMessages)
   }
   console.log(current, '----current?.eventMessages')
   return (
