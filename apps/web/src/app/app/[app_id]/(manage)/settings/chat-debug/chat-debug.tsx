@@ -80,12 +80,21 @@ const ChatDebug = ({ app }: IProps) => {
     }),
     [apiSessionId]
   )
+  const {
+    onNewEventMessage,
+    onNewMessage,
+    selectSession,
+    newSession,
+    currentSession,
+  } = chatStore
 
-  const current = chatStore.currentSession()
+  const current = currentSession()
   const initialMessages: EventMessage[] = React.useMemo(() => {
     const showRemark = current?.messages?.length === 0 && opening_remarks
-    if (opening_remarks) {
-      return showRemark
+    const update = current?.eventMessages?.[0]?.content !== opening_remarks
+    console.log(showRemark, '---showRemark', update, '--update')
+    if (showRemark) {
+      return update
         ? [
             {
               id: nanoid(),
@@ -97,37 +106,27 @@ const ChatDebug = ({ app }: IProps) => {
             },
           ]
         : current?.eventMessages
-    } else {
-      return []
     }
+    return []
   }, [opening_remarks, current])
-  console.log(current, '----eventMessages', opening_remarks)
 
   const getMessageHistory = React.useCallback(() => {
-    chatStore.selectSession(appId)
+    selectSession(appId)
     const isExisted = sessions?.find((item) => item?.id === appId)
     if (!isExisted?.id) {
-      chatStore.newSession(appId, [], initialMessages)
+      newSession(appId, [], initialMessages)
     } else {
-      chatStore.onNewMessage(current?.messages)
-      chatStore.onNewEventMessage(initialMessages)
-      console.log(initialMessages, '---initialMessages')
+      onNewMessage(current?.messages)
+      onNewEventMessage(initialMessages)
     }
-  }, [
-    appId,
-    chatStore,
-    current?.messages,
-    initialMessages,
-    sessions,
-    opening_remarks,
-  ])
+  }, [appId, current?.messages, initialMessages])
 
   const handleMessage = (messages: ChatMessage[]) => {
     chatStore.onNewMessage(messages)
   }
 
   const onRestart = () => {
-    chatStore.onNewMessage([])
+    onNewMessage([])
     // chatStore.onNewEventMessage(initialMessages)
   }
   return (
