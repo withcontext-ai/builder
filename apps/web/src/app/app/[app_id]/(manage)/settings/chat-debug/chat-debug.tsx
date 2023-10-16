@@ -90,11 +90,11 @@ const ChatDebug = ({ app }: IProps) => {
 
   const current = currentSession()
   const initialMessages: EventMessage[] = React.useMemo(() => {
-    const showRemark = current?.messages?.length === 0 && opening_remarks
+    const showRemark = current?.messages?.length === 0
     const update = current?.eventMessages?.[0]?.content !== opening_remarks
     console.log(showRemark, '---showRemark', update, '--update')
-    if (showRemark) {
-      return update
+    if (opening_remarks) {
+      return update && showRemark
         ? [
             {
               id: nanoid(),
