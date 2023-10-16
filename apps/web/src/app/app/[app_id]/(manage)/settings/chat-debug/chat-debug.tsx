@@ -95,7 +95,7 @@ const ChatDebug = ({ app }: IProps) => {
     const update = current?.eventMessages?.[0]?.content !== opening_remarks
     console.log(opening_remarks, update, '--update')
     if (opening_remarks) {
-      return update
+      return update && showRemark
         ? [
             {
               id: nanoid(),
@@ -118,9 +118,8 @@ const ChatDebug = ({ app }: IProps) => {
       newSession(appId, [], initialMessages)
     } else {
       console.log('---click--history')
-      onNewMessage(current?.messages)
       onNewEventMessage(initialMessages)
-      console.log(initialMessages, '-----init--message')
+      onNewMessage(current?.messages)
     }
   }, [appId, current?.messages, initialMessages])
 
@@ -131,6 +130,7 @@ const ChatDebug = ({ app }: IProps) => {
   const onRestart = () => {
     onNewMessage([])
     // chatStore.onNewEventMessage(initialMessages)
+    console.log(current?.messages, '---onRestart')
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
