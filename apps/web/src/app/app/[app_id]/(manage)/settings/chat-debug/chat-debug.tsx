@@ -118,6 +118,7 @@ const ChatDebug = ({ app }: IProps) => {
     } else {
       onNewMessage(current?.messages)
       onNewEventMessage(initialMessages)
+      console.log(initialMessages, '---initMessage')
     }
   }, [appId, current?.messages, initialMessages])
 
@@ -129,6 +130,7 @@ const ChatDebug = ({ app }: IProps) => {
     onNewMessage([])
     // chatStore.onNewEventMessage(initialMessages)
   }
+  console.log(current?.eventMessages, '----current?.eventMessages')
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <Button onClick={handleClick} disabled={isMutating}>
