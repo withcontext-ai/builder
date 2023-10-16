@@ -241,3 +241,4 @@ class Retriever:
     def get_metadata(cls, id):
         vector = cls.fetch_vectors([id])
         return vector.get(id, {}).get("metadata", {})
+    
