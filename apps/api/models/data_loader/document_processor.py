@@ -78,20 +78,32 @@ class PDFHandler(DocumentHandler):
             return len(pages)
 
     @staticmethod
-    def extract_text_from_pdf(contents: io.BytesIO) -> str:
+    def extract_text_from_pdf(
+        contents: io.BytesIO, preview_size: int = float("inf")
+    ) -> list:
         resource_manager = PDFResourceManager()
         fake_file_handle = io.StringIO()
         converter = TextConverter(
             resource_manager, fake_file_handle, laparams=LAParams()
         )
         page_interpreter = PDFPageInterpreter(resource_manager, converter)
+        # Limit the number of processed pages to preview_size
+        total_text = ""
+        non_empty_pages_count = 0
         for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
             page_interpreter.process_page(page)
-        text = fake_file_handle.getvalue()
-
+            text = fake_file_handle.getvalue()
+            fake_file_handle.truncate(0)
+            fake_file_handle.seek(0)
+            if text.strip():
+                total_text += text
+                non_empty_pages_count += 1
+                if non_empty_pages_count >= preview_size:
+                    break
+        total_text = total_text.strip()
         converter.close()
         fake_file_handle.close()
-        return text
+        return total_text
 
     def fetch_content(self, document: Document) -> str:
         storage_client=GoogleCloudStorageClient()
