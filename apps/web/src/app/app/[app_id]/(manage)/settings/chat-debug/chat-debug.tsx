@@ -31,12 +31,20 @@ function getApiSessionId(
   })
 }
 
+function getOpenRemark(url: string, { arg }: { arg: { app_id: string } }) {
+  return fetcher(url, {
+    method: 'GET',
+    body: JSON.stringify(arg),
+  })
+}
+
 const ChatDebug = ({ app }: IProps) => {
   const { short_id: appId, opening_remarks } = app
   const [open, setOpen] = React.useState(false)
   const [apiSessionId, setApiSessionId] = React.useState(null)
   const chatStore = useChatStore()
   const { sessions } = chatStore
+  const [remark, setRemark] = React.useState(opening_remarks)
 
   const sessionIdRef = React.useRef(`debug-${appId}`)
 
@@ -83,7 +91,9 @@ const ChatDebug = ({ app }: IProps) => {
 
   const current = chatStore.currentSession()
   const initialMessages: EventMessage[] = React.useMemo(() => {
-    const showRemark = current?.messages?.length === 0
+    const showRemark =
+      current?.eventMessages?.length === 0 && current?.messages?.length === 0
+    console.log(current, '----current')
     console.log(showRemark, '----showRemark')
     if (opening_remarks) {
       return showRemark
@@ -101,8 +111,8 @@ const ChatDebug = ({ app }: IProps) => {
     } else {
       return []
     }
-  }, [current?.eventMessages, current?.messages?.length, opening_remarks])
-  console.log(current?.eventMessages, '----eventMessages', opening_remarks)
+  }, [current, opening_remarks])
+  console.log(current, '----eventMessages', opening_remarks)
 
   const getMessageHistory = React.useCallback(() => {
     chatStore.selectSession(appId)
@@ -121,6 +131,7 @@ const ChatDebug = ({ app }: IProps) => {
 
   const onRestart = () => {
     chatStore.onNewMessage([])
+    console.log(opening_remarks, '---remark', remark)
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
