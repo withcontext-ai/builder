@@ -95,7 +95,7 @@ const ChatDebug = ({ app }: IProps) => {
     const update = current?.eventMessages?.[0]?.content !== opening_remarks
     console.log(opening_remarks, update, '--update')
     if (opening_remarks) {
-      return update && showRemark
+      return update
         ? [
             {
               id: nanoid(),
