@@ -11,7 +11,6 @@ import {
   SettingsIcon,
 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,8 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-import globalSettingDialog from './global-setting-dialog'
+import settingsDialog from '@/components/settings/dialog'
 
 interface IProps {
   children: React.ReactNode
@@ -30,7 +28,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
 
-  const modal = useModal(globalSettingDialog)
+  const modal = useModal(settingsDialog)
 
   return (
     <>
@@ -51,10 +49,6 @@ export default function AuthDropdownMenu({ children }: IProps) {
               <SettingsIcon className="mr-2 h-4 w-4" />
               Settings
             </div>
-            {/* <Link href="/profile" className="flex items-center">
-              <SettingsIcon className="mr-2 h-4 w-4" />
-              Manage account
-            </Link> */}
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Link
