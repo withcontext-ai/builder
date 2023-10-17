@@ -5,7 +5,7 @@ from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
 from models.workflow import Workflow
 from models.retrieval import Retriever
-from models.data_loader import PDFLoader
+from models.data_loader import PDFHandler, WordHandler
 from langchain.text_splitter import CharacterTextSplitter
 from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
 from langchain.schema import Document
@@ -414,7 +414,7 @@ class DatasetManager(BaseManager):
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
             pdf_content = storage_client.load(url)
-            text = PDFLoader.extract_text_from_pdf(pdf_content, preview_size)
+            text = PDFHandler.extract_text_from_pdf(pdf_content, preview_size)
             pages = text.split("\f")
             _docs = [
                 Document(page_content=page, metadata={"source": url}) for page in pages
@@ -423,6 +423,14 @@ class DatasetManager(BaseManager):
             storage_client = AnnotatedDataStorageClient()
             annotated_data = storage_client.load(uid)
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
+        elif doc_type == "word":
+            storage_client = GoogleCloudStorageClient()
+            word_content = storage_client.load(url)
+            text = WordHandler.fetch_content(word_content, preview_size)
+            pages = text.split("\f")
+            _docs = [
+                Document(page_content=page, metadata={"source": url}) for page in pages
+            ]
         else:
             raise ValueError("Document type not supported")
         _docs = text_splitter.split_documents(_docs)

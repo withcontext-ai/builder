@@ -13,7 +13,6 @@ from langchain.schema import Document
 from langchain.vectorstores import Pinecone
 from loguru import logger
 from models.base import Dataset
-from models.data_loader import PDFLoader
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
@@ -21,21 +20,7 @@ from pdfminer.pdfpage import PDFPage
 from pydantic import Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 from ..webhook import WebhookHandler
-
-
-def extract_text_from_pdf(contents: io.BytesIO) -> list:
-    resource_manager = PDFResourceManager()
-    fake_file_handle = io.StringIO()
-    converter = TextConverter(resource_manager, fake_file_handle, laparams=LAParams())
-    page_interpreter = PDFPageInterpreter(resource_manager, converter)
-    for page in PDFPage.get_pages(contents, caching=True, check_extractable=True):
-        page_interpreter.process_page(page)
-    text = fake_file_handle.getvalue()
-    converter.close()
-    fake_file_handle.close()
-
-    return text
-
+from models.data_loader import PDFHandler, load_and_split_documents  
 
 class PatchedSelfQueryRetriever(SelfQueryRetriever):
     async def _aget_relevant_documents(
@@ -62,14 +47,11 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
 
         return docs
 
-
-class PDFRetrieverMixin:
+class Retriever:
     @classmethod
     def create_index(cls, dataset: Dataset):
-        docs = PDFLoader.load_and_split_documents([dataset])
-
+        docs = load_and_split_documents([dataset])
         embedding = OpenAIEmbeddings()
-
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]
         metadatas = [doc.metadata for doc in docs]
@@ -92,15 +74,12 @@ class PDFRetrieverMixin:
                 meta_ids.append(_id)
         for id in meta_ids:
             cls.upsert_vector(id=id, content="", metadata=metadata)
-
         webhook_handler = WebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
                 dataset.id, doc.uid, doc.content_size, 0
             )
-
         return vector_store
-
     @classmethod
     def delete_index(cls, dataset: Dataset):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
@@ -159,7 +138,7 @@ class PDFRetrieverMixin:
                 logger.warning(
                     f"Document {doc.url} has page_size 0 when adding relative chain"
                 )
-                doc.page_size = PDFLoader.get_document_page_size(doc)
+                doc.page_size = PDFHandler.get_document_page_size(doc)
                 logger.info(f"Updated Document {doc.url} page_size to {doc.page_size}")
             for i in range(doc.page_size):
                 id = f"{dataset.id}-{doc.url}-{i}"
@@ -256,3 +235,4 @@ class PDFRetrieverMixin:
     def get_metadata(cls, id):
         vector = cls.fetch_vectors([id])
         return vector.get(id, {}).get("metadata", {})
+    
