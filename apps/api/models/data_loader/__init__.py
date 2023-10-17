@@ -1,2 +1,3 @@
 from .document_processor import load_and_split_documents
 from .document_processor import PDFHandler
+from .document_processor import WordHandler

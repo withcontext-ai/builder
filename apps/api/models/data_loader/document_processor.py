@@ -16,8 +16,11 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from utils.StorageClient import GoogleCloudStorageClient, AnnotatedDataStorageClient
+import requests
 
 # Mixins
+
+
 class DocumentProcessingMixin:
 
     def get_text_splitter(self, document: Document) -> CharacterTextSplitter:
@@ -31,9 +34,10 @@ class DocumentProcessingMixin:
             chunk_size=options.splitter.chunk_size,
             chunk_overlap=options.splitter.chunk_overlap,
         )
-    
+
     def split_content(self, content: str) -> List[str]:
         return content.split("\f")
+
 
 class DocumentHandler(ABC, DocumentProcessingMixin):
 
@@ -46,25 +50,30 @@ class DocumentHandler(ABC, DocumentProcessingMixin):
         return {
             "source": document.url
         }
-    
+
     def process(self, document: Document, dataset: Dataset) -> List[Document]:
         content = self.fetch_content(document)
-        document.content_size = sys.getsizeof(content)
         metadata = self.generate_metadata(document)
         pages = self.split_content(content)
         all_docs = []
         text_splitter = self.get_text_splitter(document)
         for page_content in pages:
-            docs = [Document(page_content=page_content, metadata=metadata.copy())]
+            docs = [Document(page_content=page_content,
+                             metadata=metadata.copy())]
             all_docs.extend(docs)
         all_docs = text_splitter.split_documents(all_docs)
         document.page_size = len(all_docs)
+        document.content_size = 0
+        for segment in all_docs:
+            document.content_size += len(segment.page_content)
         for page_number, doc in enumerate(all_docs):
             doc.metadata["page_number"] = page_number
             doc.metadata["urn"] = f"{dataset.id}-{document.url}-{doc.metadata['page_number']}"
-        logger.info(f"got documents: {len(all_docs)} while loading dataset {dataset.id}")
+        logger.info(
+            f"got documents: {len(all_docs)} while loading dataset {dataset.id}")
         return all_docs
-    
+
+
 class PDFHandler(DocumentHandler):
 
     @staticmethod
@@ -106,9 +115,10 @@ class PDFHandler(DocumentHandler):
         return total_text
 
     def fetch_content(self, document: Document) -> str:
-        storage_client=GoogleCloudStorageClient()
+        storage_client = GoogleCloudStorageClient()
         pdf_content = storage_client.load(document.url)
         return self.extract_text_from_pdf(pdf_content)
+
 
 class AnnotatedDataHandler(DocumentHandler):
 
@@ -126,27 +136,33 @@ class AnnotatedDataHandler(DocumentHandler):
             "source": document.uid
         }
 
+
 class WordHandler(DocumentHandler):
 
-    def fetch_content(self, document: Document) -> str:
+    def fetch_content(self, document: Document, preview_size: int = float("inf")) -> str:
         storage_client = GoogleCloudStorageClient()
         word_content = storage_client.load(document.url)
         if document.url.endswith(".docx"):
-            return self.extract_text_from_docx(word_content)
+            return self.extract_text_from_docx(word_content, preview_size)
         elif document.url.endswith(".doc"):
-            return self.extract_text_from_doc(word_content)
+            return self.extract_text_from_doc(word_content, preview_size)
         else:
             raise Exception("Unsupported Word format")
 
-    def extract_text_from_docx(self, content: io.BytesIO) -> str:
+    def extract_text_from_docx(self, content: io.BytesIO, preview_size: int = float("inf")) -> str:
         word_doc = WordDocument(content)
-        full_text = [para.text for para in word_doc.paragraphs]
+        full_text = []
+        for index, para in enumerate(word_doc.paragraphs):
+            full_text.append(para.text)
+            if index + 1 >= preview_size:
+                break
         return '\n'.join(full_text)
 
-    def extract_text_from_doc(self, content: io.BytesIO) -> str:
+    def extract_text_from_doc(self, content: io.BytesIO, preview_size: int = float("inf")) -> str:
         def get_unoconv_path() -> str:
             try:
-                result = subprocess.run(["which", "unoconv"], capture_output=True, text=True)
+                result = subprocess.run(
+                    ["which", "unoconv"], capture_output=True, text=True)
                 if result.returncode == 0:
                     return result.stdout.strip()
             except Exception as e:
@@ -157,12 +173,14 @@ class WordHandler(DocumentHandler):
         with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as temp_doc:
             temp_doc.write(content.read())
         temp_docx = temp_doc.name + "x"
-        subprocess.run([unoconv_path, "-f", "docx", "-o", temp_docx, temp_doc.name])
+        subprocess.run([unoconv_path, "-f", "docx",
+                       "-o", temp_docx, temp_doc.name])
         with open(temp_docx, "rb") as docx_file:
-            full_text = self.extract_text_from_docx(docx_file)
+            full_text = self.extract_text_from_docx(docx_file, preview_size)
         os.remove(temp_doc.name)
         os.remove(temp_docx)
         return full_text
+
 
 def load_and_split_documents(datasets: list[Dataset]):
     handlers = {
@@ -177,7 +195,7 @@ def load_and_split_documents(datasets: list[Dataset]):
         for document in dataset.documents:
             handler = handlers.get(document.type)
             if handler:
-                processed_docs = handler.process(document, dataset) 
+                processed_docs = handler.process(document, dataset)
                 docs.extend(processed_docs)
             else:
                 # Handle unsupported document types
