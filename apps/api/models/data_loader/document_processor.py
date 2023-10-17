@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 import sys
 from docx import Document as WordDocument
-from models.data_loader.options import PDFSplitterOption, PDFEmbeddingOption, PDFRetrivalOption
+from models.data_loader.document_settings import PDFSplitterOption, PDFEmbeddingOption, PDFRetrivalOption
 from langchain.schema import Document
 from loguru import logger
 from pdfminer.converter import TextConverter
