@@ -248,7 +248,7 @@ class DatasetManager(BaseManager):
         if query is not None:
             logger.info(f"Searching for query {query}")
             return self.search_document_segments(dataset_id, uid, query=query)
-        # Retrieve the dataset object
+        # retrieve the dataset object
         dataset_response = self.get_datasets(dataset_id)
         if not dataset_response:
             raise ValueError("Dataset not found")
@@ -259,7 +259,7 @@ class DatasetManager(BaseManager):
             if document.uid == uid:
                 matching_url = document.url
                 segment_size = document.page_size
-                # Check if the document has 'hundredth_ids'
+                # check if the document has 'hundredth_ids'
                 if hasattr(document, 'hundredth_ids'):
                     hundredth_ids = document.hundredth_ids
                 else:
@@ -343,7 +343,7 @@ class DatasetManager(BaseManager):
                     hundredth_ids = [i for i in range(99, doc.page_size, 100)]
                     doc.hundredth_ids = hundredth_ids
                 if content == "":
-                    # Handle deletion
+                    # handle deletion
                     if doc.page_size > 0:
                         segment_length = len(
                             Retriever.fetch_vectors(ids=[segment_id])[segment_id][
@@ -351,7 +351,7 @@ class DatasetManager(BaseManager):
                             ]["text"]
                         )
                         doc.content_size -= segment_length
-                        # Update hundreaith_id values
+                        # update hundreaith_id values
                         if len(doc.hundredth_ids) == 1:
                             if 0 <= current_page_size <= doc.hundredth_ids[0]:
                                 doc.hundredth_ids[0] += 1
@@ -365,7 +365,7 @@ class DatasetManager(BaseManager):
                                     doc.hundredth_ids[i + 1] += 1
                                     adjusted = True
                 elif doc.page_size == current_page_size:
-                    # Handle addition
+                    # handle addition
                     doc.page_size += 1
                     doc.content_size += len(content)
                     if doc.hundredth_ids:
@@ -383,7 +383,7 @@ class DatasetManager(BaseManager):
                                 last_vector_id = get_page_size_via_segment_id(list(vectors.keys())[-1])
                                 doc.hundredth_ids.append(last_vector_id)
                 else:
-                    # Handle edit
+                    # handle edit
                     segment_length = len(
                         Retriever.fetch_vectors(ids=[segment_id])[segment_id][
                             "metadata"
