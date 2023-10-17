@@ -52,15 +52,12 @@ class Retriever:
     def create_index(cls, dataset: Dataset):
         docs = load_and_split_documents([dataset])
         embedding = OpenAIEmbeddings()
-
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]
         metadatas = [doc.metadata for doc in docs]
         # metadata same for all pages in a document
         metadata = docs[0].metadata
-
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-
         vector_store = Pinecone.from_texts(
             texts=texts,
             embedding=embedding,
@@ -69,7 +66,6 @@ class Retriever:
             ids=ids,
             index_name="context-prod",
         )
-
         # TODO efficiency can be optimized
         meta_ids = []
         for id in ids:
@@ -78,13 +74,11 @@ class Retriever:
                 meta_ids.append(_id)
         for id in meta_ids:
             cls.upsert_vector(id=id, content="", metadata=metadata)
-
         webhook_handler = WebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
                 dataset.id, doc.uid, doc.content_size, 0
             )
-
         return vector_store
     @classmethod
     def delete_index(cls, dataset: Dataset):
