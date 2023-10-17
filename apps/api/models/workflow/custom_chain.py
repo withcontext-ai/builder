@@ -177,7 +177,7 @@ class TargetedChain(Chain):
                 ],
             )
         )
-        pre_prompt = "The goal is" + self.target + "\n"
+        pre_prompt = "The goal is " + self.target + "\n"
         suffix_prompt = "Please output the target based on this conversation."
         run_manager = AsyncCallbackManagerForChainRun.get_noop_manager()
         response = await self.llm.agenerate(
@@ -198,6 +198,7 @@ class EnhanceSequentialChain(SequentialChain):
     known_values: Dict[str, Any] = Field(default_factory=dict)
     state_dependent_chains = [TargetedChain]
     current_chain: int = 0
+    current_chain_io: List = []
 
     class Config:
         extra = Extra.allow
@@ -249,6 +250,13 @@ class EnhanceSequentialChain(SequentialChain):
                         current_output,
                     )
                     self.known_values.update(outputs)
+                    self.current_chain_io.append(
+                        {
+                            "input": inputs["question"],
+                            "output": current_output,
+                            "chain_key": chain.output_key,
+                        }
+                    )
                     if chain.process not in [
                         TargetedChainStatus.FINISHED,
                         TargetedChainStatus.ERROR,
@@ -282,6 +290,13 @@ class EnhanceSequentialChain(SequentialChain):
                     )
                 )
                 self.known_values.update(outputs)
+                self.current_chain_io.append(
+                    {
+                        "input": inputs["question"],
+                        "output": outputs[chain.output_key],
+                        "chain_key": chain.output_key,
+                    }
+                )
                 if self.current_chain == len(self.chains) - 1:
                     self.current_chain = 0
                     return self._construct_return_dict()
