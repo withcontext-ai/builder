@@ -1,4 +1,6 @@
-import AppLayout from '@/components/layouts/app-layout'
+import ResponsiveLayout from '@/components/layouts/responsive-layout'
+
+import Sidebar from '../../sidebar'
 
 // TODO: remove axios
 // export const runtime = 'edge'
@@ -11,5 +13,9 @@ interface IProps {
 export default function Layout({ children, params }: IProps) {
   const { app_id } = params
 
-  return <AppLayout>{children}</AppLayout>
+  return (
+    <ResponsiveLayout sidebar={<Sidebar appId={app_id} />}>
+      {children}
+    </ResponsiveLayout>
+  )
 }
