@@ -15,6 +15,7 @@ class Document(BaseModel):
     content_size: int = Field(default=0)
     hundredth_ids: List[int] = Field(default_factory=list)
 
+
 class Dataset(BaseModel):
     id: str = Field(default_factory=str)
     documents: Optional[list[Document]] = Field(default_factory=list)

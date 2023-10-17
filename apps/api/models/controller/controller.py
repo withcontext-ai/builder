@@ -253,7 +253,6 @@ class DatasetManager(BaseManager):
         if not dataset_response:
             raise ValueError("Dataset not found")
         dataset = dataset_response[0]
-        dataset_dict_for_redis = dataset.dict()
         matching_url = None
         segment_size = None
         for document in dataset.documents:
