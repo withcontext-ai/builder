@@ -3,6 +3,7 @@
 FROM python:3.11-slim
 
 WORKDIR /base
-
+RUN apt update
+RUN apt install -y unoconv
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
