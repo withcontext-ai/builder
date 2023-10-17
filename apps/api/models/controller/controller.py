@@ -263,7 +263,6 @@ class DatasetManager(BaseManager):
             if document.uid == uid:
                 matching_url = document.url
                 segment_size = document.page_size
-                # check if the document has 'hundredth_ids'
                 if hasattr(document, "hundredth_ids"):
                     hundredth_ids = document.hundredth_ids
                 else:
