@@ -162,21 +162,10 @@ class TargetedChain(Chain):
     async def get_output(
         self,
         pre_dialog: str,
-        human_input: str,
-        llm_output: str,
     ):
         if self.process == TargetedChainStatus.RUNNING:
             return ""
-        dialog = (
-            pre_dialog
-            + "\n"
-            + get_buffer_string(
-                [
-                    HumanMessage(content=human_input),
-                    AIMessage(content=llm_output),
-                ],
-            )
-        )
+
         pre_prompt = "The goal is " + self.target + "\n"
         suffix_prompt = "Please output the target based on this conversation."
         run_manager = AsyncCallbackManagerForChainRun.get_noop_manager()
@@ -184,7 +173,7 @@ class TargetedChain(Chain):
             messages=[
                 [
                     SystemMessage(content=""),
-                    HumanMessage(content=pre_prompt + dialog + suffix_prompt),
+                    HumanMessage(content=pre_prompt + pre_dialog + suffix_prompt),
                 ]
             ],
             callbacks=run_manager.get_child(),
@@ -245,9 +234,7 @@ class EnhanceSequentialChain(SequentialChain):
                         )
                     )
                     outputs[chain.output_key] = await chain.get_output(
-                        get_buffer_string(pre_dialog),
-                        inputs["question"],
-                        current_output,
+                        get_buffer_string(pre_dialog)
                     )
                     self.known_values.update(outputs)
                     self.current_chain_io.append(
