@@ -399,7 +399,6 @@ class DatasetManager(BaseManager):
         logger.info(
             f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
         )
-
         webhook_handler = DocumentWebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
