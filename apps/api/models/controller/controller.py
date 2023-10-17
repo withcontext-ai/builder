@@ -253,12 +253,14 @@ class DatasetManager(BaseManager):
         if not dataset_response:
             raise ValueError("Dataset not found")
         dataset = dataset_response[0]
+        dataset_dict_for_redis = dataset.dict()
         matching_url = None
         segment_size = None
         for document in dataset.documents:
             if document.uid == uid:
                 matching_url = document.url
                 segment_size = document.page_size
+                # Check if the document has 'hundredth_ids'
                 if hasattr(document, 'hundredth_ids'):
                     hundredth_ids = document.hundredth_ids
                 else:
@@ -269,27 +271,16 @@ class DatasetManager(BaseManager):
                 break
         if not matching_url:
             raise ValueError("UID not found in dataset documents")
-        segments = []
-        i = offset
-        seg_ids = []
-        while i < limit + offset:
-            seg_id = f"{dataset_id}-{matching_url}-{i}"
-            seg_ids.append(seg_id)
-            i += 1
-        vectors = Retriever.fetch_vectors(ids=seg_ids)
-        for seg_id in seg_ids:
-            if (
-                seg_id in vectors
-                and "metadata" in vectors[seg_id]
-                and "text" in vectors[seg_id]["metadata"]
-            ):
-                text = vectors[seg_id]["metadata"]["text"]
-                segments.append({"segment_id": seg_id, "content": text})
-            else:
-                logger.info(
-                    f"Segment {seg_id} has incomplete data in Pinecone or not found"
-                )
-        return segment_size, segments
+        if not hundredth_ids:
+            start_idx = 0
+            end_idx = segment_size
+        else:
+            start_idx = 0 if offset == 0 else hundredth_ids[offset // 100 - 1] + 1
+            end_idx = segment_size if start_idx - 1 == hundredth_ids[-1] else hundredth_ids[(offset + limit) // 100 - 1]
+        seg_ids_to_fetch = [f"{dataset_id}-{matching_url}-{i}" for i in range(start_idx, end_idx+1)]
+        vectors = Retriever.fetch_vectors(ids=seg_ids_to_fetch)
+        segments = [{"segment_id": seg_id, "content": vectors[seg_id]["metadata"]["text"]} for seg_id in sorted(vectors, key=lambda x: int(x.split('-')[-1]))]
+        return segment_size, segments 
 
     def search_document_segments(self, dataset_id, uid, query):
         dataset = self.get_datasets(dataset_id)[0]
@@ -348,6 +339,10 @@ class DatasetManager(BaseManager):
         for doc in dataset.documents:
             if doc.uid == uid:
                 current_page_size = get_page_size_via_segment_id(segment_id)
+                matching_url = doc.url
+                if not hasattr(doc, 'hundredth_ids'):
+                    hundredth_ids = [i for i in range(99, doc.page_size, 100)]
+                    doc.hundredth_ids = hundredth_ids
                 if content == "":
                     # Handle deletion
                     if doc.page_size > 0:
@@ -357,10 +352,37 @@ class DatasetManager(BaseManager):
                             ]["text"]
                         )
                         doc.content_size -= segment_length
+                        # Update hundreaith_id values
+                        if len(doc.hundredth_ids) == 1:
+                            if 0 <= current_page_size <= doc.hundredth_ids[0]:
+                                doc.hundredth_ids[0] += 1
+                        else:
+                            adjusted = False
+                            if current_page_size <= doc.hundredth_ids[0]:
+                                adjusted = True
+                                doc.hundredth_ids[0] += 1
+                            for i in range(len(doc.hundredth_ids) - 1):
+                                if adjusted or doc.hundredth_ids[i] <= current_page_size <= doc.hundredth_ids[i + 1]:
+                                    doc.hundredth_ids[i + 1] += 1
+                                    adjusted = True
                 elif doc.page_size == current_page_size:
                     # Handle addition
                     doc.page_size += 1
                     doc.content_size += len(content)
+                    if doc.hundredth_ids:
+                        if doc.page_size - doc.hundredth_ids[-1] >= 100:
+                            seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(doc.hundreaith_id[-1], doc.page_size)]
+                            vectors = Retriever.fetch_vectors(ids=seg_ids)
+                            if len(vectors) >= 100:
+                                last_vector_id = get_page_size_via_segment_id(list(vectors.keys())[-1])
+                                doc.hundredth_ids.append(last_vector_id)
+                    else:
+                        if doc.page_size >= 99:
+                            seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(0, doc.page_size)]
+                            vectors = Retriever.fetch_vectors(ids=seg_ids)
+                            if len(vectors) >= 100:
+                                last_vector_id = get_page_size_via_segment_id(list(vectors.keys())[-1])
+                                doc.hundredth_ids.append(last_vector_id)
                 else:
                     # Handle edit
                     segment_length = len(
@@ -370,10 +392,11 @@ class DatasetManager(BaseManager):
                     )
                     doc.content_size += len(content) - segment_length
                 break
-        self._update_dataset(dataset_id, dataset.dict())
         urn = self.get_dataset_urn(dataset_id)
         self.redis.set(urn, json.dumps(dataset.dict()))
-
+        for document in dataset.documents:
+            document.hundredth_ids = []
+        self._update_dataset(dataset_id, dataset.dict())
         logger.info(
             f"Updating dataset {dataset_id} in cache, dataset: {dataset.dict()}"
         )
