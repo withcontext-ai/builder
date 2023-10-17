@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { SignOutButton } from '@clerk/nextjs'
+import { useModal } from '@ebay/nice-modal-react'
 import {
   HelpCircleIcon,
   Loader2Icon,
@@ -10,6 +11,7 @@ import {
   SettingsIcon,
 } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+import globalSettingDialog from './global-setting-dialog'
+
 interface IProps {
   children: React.ReactNode
 }
@@ -25,6 +29,8 @@ interface IProps {
 export default function AuthDropdownMenu({ children }: IProps) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
+
+  const modal = useModal(globalSettingDialog)
 
   return (
     <>
@@ -37,16 +43,23 @@ export default function AuthDropdownMenu({ children }: IProps) {
       >
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent className="w-52">
-          <DropdownMenuItem>
-            <Link href="/profile" className="flex items-center">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => modal.show()}
+          >
+            <div className="flex items-center">
+              <SettingsIcon className="mr-2 h-4 w-4" />
+              Settings
+            </div>
+            {/* <Link href="/profile" className="flex items-center">
               <SettingsIcon className="mr-2 h-4 w-4" />
               Manage account
-            </Link>
+            </Link> */}
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Link
               href="https://context-builder.gitbook.io/helpdocument/"
-              className="flex items-center"
+              className="flex flex-1 items-center"
               target="_blank"
             >
               <HelpCircleIcon className="mr-2 h-4 w-4" />
