@@ -50,13 +50,13 @@ export interface UploadFile<T = any> {
   size?: number
   name: string
   lastModified?: number
-  url?: string
+  url: string
   status?: UploadFileStatus
   percent?: number
   originFileObj?: File
   response?: T
   error?: any
-  type?: string
+  type: string
   preview?: string
 }
 

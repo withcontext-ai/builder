@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { pick } from 'lodash'
 import { Camera, UploadCloud, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
 
-import { cn } from '@/lib/utils'
+import { cn, nanoid } from '@/lib/utils'
 
 import { Button } from '../ui/button'
 import { ImageFile, PDFFile } from './component'
@@ -17,23 +18,13 @@ import {
   UploadFile,
   UploadProps,
 } from './type'
-import {
-  changeToUploadFile,
-  file2Obj,
-  FileProps,
-  removeFileItem,
-  updateFileList,
-  uploadFile,
-} from './utils'
-
-export const LIST_IGNORE = `__LIST_IGNORE_${Date.now()}__`
+import { changeToUploadFile, file2Obj, FileProps, uploadFile } from './utils'
 
 const Upload = (props: UploadProps) => {
   const {
     fileList,
     maxCount,
     onChange,
-    onRemove,
     onDrop,
     accept,
     bgText = '',
@@ -53,7 +44,7 @@ const Upload = (props: UploadProps) => {
     setUploading,
   } = props
   const upload = React.useRef<RcUpload>(null)
-  const files = changeToUploadFile(fileList || [])
+  const files = changeToUploadFile(fileList || []) as UploadFile<any>[]
   // check is uploading
   const [isUploading, setIsUploading] = useState(false)
   // record the beforeUpload status, only isValid to fetch the google cloud api
@@ -62,10 +53,9 @@ const Upload = (props: UploadProps) => {
   >(true)
   const [mergedFileList, setMergedFileList] = useState<UploadFile<any>[]>(files)
   const [_, setDragState] = React.useState<string>('drop')
+  // abort axios request
   const aborts = useRef<AbortRef>([])
   const [process, setProcess] = useState<FilePercent[]>([])
-  // cancel axios request when uploading
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const unloadCallback = (event: BeforeUnloadEvent) => {
     event.preventDefault()
@@ -95,11 +85,7 @@ const Upload = (props: UploadProps) => {
   }, [isUploading])
 
   const onInternalChange = useCallback(
-    (
-      file: UploadFile,
-      changedFileList: UploadFile[],
-      event?: { percent: number }
-    ) => {
+    (file: UploadFile, changedFileList: UploadFile[]) => {
       let cloneList = [...changedFileList]
       // Cut to match count
       if (maxCount === 1) {
@@ -117,12 +103,9 @@ const Upload = (props: UploadProps) => {
         fileList: cloneList,
       }
 
-      if (event) {
-        changeInfo.event = event
-      }
       flushSync(() => {
         // google api for upload
-        if (isValid !== false && changeInfo?.file?.status !== 'removed') {
+        if (isValid) {
           uploadFile({
             aborts: aborts,
             setMergedFileList,
@@ -155,113 +138,40 @@ const Upload = (props: UploadProps) => {
     const objectFileList = batchFileInfoList.map((info) =>
       file2Obj(info.file as RcFile, fileType)
     )
-    // Concat new files with prev files
-    let newFileList = [...mergedFileList]
+    const newFileList = mergedFileList.concat(objectFileList)
 
     objectFileList.forEach((fileObj) => {
-      // Replace file if exist
-      newFileList = updateFileList(fileObj, newFileList)
-    })
-
-    objectFileList.forEach((fileObj, index) => {
-      // Repeat trigger `onChange` event for compatible
-      let triggerFileObj: UploadFile = fileObj
-
-      if (!batchFileInfoList[index].parsedFile) {
-        // `beforeUpload` return false
-        const { originFileObj } = fileObj
-        let clone
-        try {
-          clone = new File([originFileObj], originFileObj.name, {
-            type: originFileObj.type,
-          }) as any as UploadFile
-        } catch (e) {
-          clone = new Blob([originFileObj], {
-            type: originFileObj.type,
-          }) as any as UploadFile
-          clone.name = originFileObj.name
-          clone.lastModified = new Date().getTime()
-        }
-        clone.uid = fileObj.uid
-        triggerFileObj = clone
-      } else {
-        // Inject `uploading` status
-        fileObj.status = 'uploading'
-      }
-      onInternalChange(triggerFileObj, newFileList)
+      const clone = Object.assign(fileObj, { uid: nanoid() })
+      onInternalChange(clone, newFileList)
     })
   }
 
-  const handleRemove = useCallback(
-    (file: UploadFile) => {
-      let currentFile: UploadFile
-      Promise.resolve(
-        typeof onRemove === 'function' ? onRemove(file) : onRemove
-      ).then((ret) => {
-        // Prevent removing file
-        if (ret === false) {
-          return
-        }
+  const handleRemove = useCallback((file: UploadFile) => {
+    setMergedFileList((files: UploadFile<any>[]) => {
+      const removedFileList = files?.filter(
+        (item: UploadFile) => item?.uid !== file?.uid
+      )
+      if (removedFileList?.length) {
+        // to abort the current axios request
+        const current = aborts?.current?.find((item) => item?.uid === file?.uid)
+        current?.control?.abort()
 
-        const removedFileList = removeFileItem(file, mergedFileList)
-        if (removedFileList?.length) {
-          currentFile = { ...file, status: 'removed' }
-          mergedFileList?.forEach((item: UploadFile) => {
-            const matchKey = currentFile.uid !== undefined ? 'uid' : 'name'
-            if (
-              item[matchKey] === currentFile[matchKey] &&
-              !Object.isFrozen(item)
-            ) {
-              item.status = 'removed'
-            }
-          })
-          // to abort the show fileList
-          upload.current?.abort(currentFile as RcFile)
+        // handle fileList
+        const removed = removedFileList?.reduce(
+          (m: FileProps[], item: UploadFile) => {
+            m.push(pick(item, ['url', 'uid', 'type', 'name']))
+            return m
+          },
+          []
+        )
+        onChangeFileList?.(removed)
+      } else {
+        onChangeFileList?.([])
+      }
 
-          // to abort the current axios request
-          const current = aborts?.current?.find(
-            (item) => item?.uid === file?.uid
-          )
-          current?.control?.abort()
-
-          // handle fileList
-          // to fix when removed the formFile url is empty
-          const formFile = removedFileList?.filter((item) => !!item?.url)
-          const removed = formFile?.reduce(
-            (m: FileProps[], item: UploadFile) => {
-              m.push({
-                url: item?.url || '',
-                name: item?.name,
-                uid: item?.uid,
-                type: fileType || item?.type,
-              })
-              return m
-            },
-            []
-          )
-          onChangeFileList?.(removed)
-          onInternalChange(currentFile, removedFileList)
-
-          const left = process?.filter((item) => item?.uid !== file?.uid)
-          setProcess(left)
-        } else {
-          // 解决上传单张图片移除后展示removed状态的图片问题
-          flushSync(() => {
-            setMergedFileList([])
-            onChangeFileList?.([])
-          })
-        }
-      })
-    },
-    [
-      onRemove,
-      mergedFileList,
-      onChangeFileList,
-      onInternalChange,
-      process,
-      fileType,
-    ]
-  )
+      return removedFileList
+    })
+  }, [])
 
   const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     setDragState(e.type)
@@ -283,9 +193,6 @@ const Upload = (props: UploadProps) => {
     customRequest,
     beforeUpload: mergedBeforeUpload,
   } as RcUploadProps
-
-  delete rcUploadProps.className
-  delete rcUploadProps.style
 
   // Remove id to avoid open by label when trigger is hidden
   if (!props?.children || mergedDisabled) {
