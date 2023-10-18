@@ -45,7 +45,6 @@ const DocumentLoader = ({ form }: IProps) => {
     return (files?.length === 0 && !isAdd) || isAdd
   }, [formValues.files, isAdd])
 
-  console.log(files, '---files')
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-sm font-normal leading-6 text-slate-600">

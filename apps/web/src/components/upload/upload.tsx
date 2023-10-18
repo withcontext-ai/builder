@@ -51,7 +51,6 @@ const Upload = (props: UploadProps) => {
     onChangeFileList,
     beforeUpload,
     setUploading,
-    showFileList = true,
   } = props
   const upload = React.useRef<RcUpload>(null)
   const files = changeToUploadFile(fileList || [])
@@ -303,7 +302,7 @@ const Upload = (props: UploadProps) => {
   }, [bgText, mergedFileList, props])
 
   const selectDefaultButton = React.useMemo(() => {
-    if (listType === 'pdf') {
+    if (listType === 'files') {
       return (
         <Button type="button">
           <UploadIcon size={16} strokeWidth={3} />
@@ -367,11 +366,12 @@ const Upload = (props: UploadProps) => {
       (item: UploadFile) => item?.type === fileType
     )
     const showImage = listType === 'image' && mergedFileList?.length !== 0
+    const image = mergedFileList[0]
     const showOnePdf = listType === 'update-file' && type === 'drag' && file
-    return showImage && showFileList ? (
+    return showImage ? (
       <ImageFile
-        key={file?.url || file?.uid}
-        file={mergedFileList[0]}
+        key={image?.url || image?.uid}
+        file={image}
         onRemove={handleRemove}
         className={cn('h-16 w-16', className)}
         listProps={listProps}
@@ -394,7 +394,6 @@ const Upload = (props: UploadProps) => {
     mergedFileList,
     listType,
     type,
-    showFileList,
     handleRemove,
     className,
     listProps,
@@ -417,41 +416,40 @@ const Upload = (props: UploadProps) => {
         onClick={onFileDrop}
       >
         {showUploadIcon}
-        {showFileList && (
-          <div
-            className={cn(
-              'flex w-full gap-2',
-              listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
-            )}
-          >
-            {(listType === 'pdf' || listType === 'images-list') &&
-              mergedFileList?.map((file: UploadFile) => {
-                const percent = process?.filter(
-                  (item) => item?.uid === file?.uid
-                )?.[0]?.percent
-                return listType !== 'images-list' ? (
-                  <PDFFile
-                    {...props}
-                    className={cn(file?.type !== fileType ? 'hidden' : 'block')}
-                    file={file}
-                    onRemove={handleRemove}
-                    listProps={listProps}
-                    key={file?.uid}
-                    progress={percent}
-                  />
-                ) : (
-                  <ImageFile
-                    {...props}
-                    file={file}
-                    onRemove={handleRemove}
-                    listProps={listProps}
-                    key={file?.uid}
-                    progress={percent}
-                  />
-                )
-              })}
-          </div>
-        )}
+
+        <div
+          className={cn(
+            'flex w-full gap-2',
+            listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
+          )}
+        >
+          {(listType === 'files' || listType === 'images-list') &&
+            mergedFileList?.map((file: UploadFile) => {
+              const percent = process?.filter(
+                (item) => item?.uid === file?.uid
+              )?.[0]?.percent
+              return listType !== 'images-list' ? (
+                <PDFFile
+                  {...props}
+                  className={cn(file?.type !== fileType ? 'hidden' : 'block')}
+                  file={file}
+                  onRemove={handleRemove}
+                  listProps={listProps}
+                  key={file?.uid}
+                  progress={percent}
+                />
+              ) : (
+                <ImageFile
+                  {...props}
+                  file={file}
+                  onRemove={handleRemove}
+                  listProps={listProps}
+                  key={file?.uid}
+                  progress={percent}
+                />
+              )
+            })}
+        </div>
       </div>
     </div>
   )

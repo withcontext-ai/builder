@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
     : dataConfig?.files?.filter(
         (item: FileProps) => item?.type === dataConfig?.loaderType
       )
-  console.log(currents, '---current')
   const { files, config } = await createDocumentParams(dataConfig)
   const documents = await formateDocumentParams(dataset_id, '')
 
