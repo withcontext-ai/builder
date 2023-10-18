@@ -35,8 +35,8 @@ export function File({ name, type, icon, uid, short_id }: DataBaseProps) {
   return (
     <div className="flex h-16 max-w-sm items-center space-x-2 rounded-lg border border-slate-200 px-6">
       <div className="shrink-0">
-        {type === 'pdf' ? (
-          <FileImage id="mobile" />
+        {type !== 'annotated_data' ? (
+          <FileImage type={type} />
         ) : (
           <NotedDataCard
             data={{ name, uid, icon, type, short_id }}
