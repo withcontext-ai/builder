@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { XIcon } from 'lucide-react'
+import { Loader2Icon, XIcon } from 'lucide-react'
 import useSWR, { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
@@ -12,13 +12,32 @@ function TeamCard({
   icon,
   name,
   url,
-  onRemove,
+  app_id,
+  team_id,
 }: {
   icon: string
   name: string
   url: string
-  onRemove: () => void
+  app_id: string
+  team_id: string
 }) {
+  const { mutate } = useSWRConfig()
+  const { toast } = useToast()
+
+  const { trigger: triggerRemoveTeam, isMutating } = useSWRMutation(
+    `/api/slack/remove-team`,
+    removeTeam
+  )
+
+  const handleRemove = React.useCallback(async () => {
+    await triggerRemoveTeam({
+      app_id,
+      team_id,
+    })
+    await mutate(`/api/me/slack/teams`)
+    toast({ description: 'The workspace has been disconnected' })
+  }, [triggerRemoveTeam, app_id, team_id, mutate, toast])
+
   return (
     <div className="group flex items-center justify-between rounded-md border bg-white p-4">
       <div className="flex items-center gap-4">
@@ -38,9 +57,14 @@ function TeamCard({
         variant="outline"
         size="icon"
         className="hidden h-8 w-8 rounded-md group-hover:flex"
-        onClick={onRemove}
+        onClick={handleRemove}
+        disabled={isMutating}
       >
-        <XIcon className="h-4 w-4" />
+        {isMutating ? (
+          <Loader2Icon className="h-4 w-4 animate-spin" />
+        ) : (
+          <XIcon className="h-4 w-4" />
+        )}
       </Button>
     </div>
   )
@@ -64,9 +88,6 @@ function removeTeam(
 }
 
 export default function SlackTeamList() {
-  const { mutate } = useSWRConfig()
-  const { toast } = useToast()
-
   const { data: teamList = [], isLoading } = useSWR<Partial<SlackTeam>[]>(
     '/api/me/slack/teams',
     fetcher,
@@ -74,23 +95,6 @@ export default function SlackTeamList() {
       revalidateOnFocus: true,
       keepPreviousData: true,
     }
-  )
-
-  const { trigger: triggerRemoveTeam } = useSWRMutation(
-    `/api/slack/remove-team`,
-    removeTeam
-  )
-
-  const removeTeamHandler = React.useCallback(
-    (app_id: string, team_id: string) => async () => {
-      await triggerRemoveTeam({
-        app_id,
-        team_id,
-      })
-      await mutate(`/api/me/slack/teams`)
-      toast({ description: 'The workspace has been disconnected' })
-    },
-    [triggerRemoveTeam, mutate, toast]
   )
 
   if (teamList.length === 0 || isLoading) {
@@ -107,7 +111,8 @@ export default function SlackTeamList() {
               icon={team_icon}
               name={team_name}
               url={team_url}
-              onRemove={removeTeamHandler(app_id, team_id)}
+              app_id={app_id}
+              team_id={team_id}
             />
           )
         }
