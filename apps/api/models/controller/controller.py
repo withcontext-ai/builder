@@ -442,12 +442,14 @@ class DatasetManager(BaseManager):
 
     def upsert_preview(self, dataset, preview_size, document_uid):
         # todo change logic to retriever folder
+        selected_doc = None
         url = None
         splitter = {}
         doc_type = None
         uid = None
         for doc in dataset.documents:
             if doc.uid == document_uid:
+                selected_doc = doc
                 url = doc.url
                 splitter = doc.split_option
                 doc_type = doc.type
@@ -472,9 +474,8 @@ class DatasetManager(BaseManager):
             annotated_data = storage_client.load(uid)
             _docs = [Document(page_content=annotated_data, metadata={"source": uid})]
         elif doc_type == "word":
-            storage_client = GoogleCloudStorageClient()
-            word_content = storage_client.load(url)
-            text = WordHandler.fetch_content(word_content, preview_size)
+            word_handler = WordHandler()
+            text = word_handler.fetch_content(selected_doc, preview_size)
             pages = text.split("\f")
             _docs = [
                 Document(page_content=page, metadata={"source": url}) for page in pages
