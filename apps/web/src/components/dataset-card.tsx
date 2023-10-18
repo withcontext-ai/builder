@@ -3,7 +3,6 @@ import { Database, FileOutput, Files, FileType2 } from 'lucide-react'
 
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-
 interface IProps {
   id: string
   title: string
