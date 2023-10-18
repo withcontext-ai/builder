@@ -66,7 +66,6 @@ export async function createDocumentParams(dataConfig: any) {
     },
     []
   )
-  console.log(files, '-----files', currentDocuments)
   const config = pick(dataConfig, ['splitType', 'chunkSize', 'chunkOverlap'])
   return { files, splitConfig, config, currentDocuments }
 }

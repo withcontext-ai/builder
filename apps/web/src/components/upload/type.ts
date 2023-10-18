@@ -81,7 +81,7 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   showFileList?: boolean
   fileList?: FileProps[]
   type?: 'drag' | 'select'
-  listType?: 'images-list' | 'pdf' | 'image' | 'update-image' | 'update-pdf'
+  listType?: 'images-list' | 'files' | 'image' | 'update-image' | 'update-file'
   action?:
     | string
     | ((file: RcFile) => string)

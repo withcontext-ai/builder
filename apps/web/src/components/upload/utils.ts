@@ -128,7 +128,6 @@ const handelProcess = (file: UploadFile, setProcess?: any) => {
 
 export const uploadFile = async ({
   file,
-  fileList,
   setMergedFileList,
   aborts,
   setProcess,

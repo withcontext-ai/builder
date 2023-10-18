@@ -39,10 +39,13 @@ const DocumentLoader = ({ form }: IProps) => {
   const isNotedData = loaderType === 'annotated_data'
 
   const showButton = useMemo(() => {
-    const files = formValues.files?.filter((item: any) => item?.type === 'pdf')
+    const files = formValues.files?.filter(
+      (item: any) => item?.type !== 'annotated_data'
+    )
     return (files?.length === 0 && !isAdd) || isAdd
   }, [formValues.files, isAdd])
 
+  console.log(files, '---files')
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-sm font-normal leading-6 text-slate-600">
@@ -77,7 +80,7 @@ const DocumentLoader = ({ form }: IProps) => {
                       showDownloadIcon: false,
                       showPreviewIcon: false,
                     }}
-                    listType={showButton ? 'pdf' : 'update-pdf'}
+                    listType={showButton ? 'files' : 'update-file'}
                     type="drag"
                     fileType={loaderType}
                     accept={

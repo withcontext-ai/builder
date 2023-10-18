@@ -363,13 +363,15 @@ const Upload = (props: UploadProps) => {
   }, [selectDefaultButton, type])
 
   const showUploadIcon = React.useMemo(() => {
-    const file = mergedFileList?.[0]
+    const file = mergedFileList?.find(
+      (item: UploadFile) => item?.type === fileType
+    )
     const showImage = listType === 'image' && mergedFileList?.length !== 0
-    const showOnePdf = listType === 'update-pdf' && type === 'drag'
+    const showOnePdf = listType === 'update-file' && type === 'drag' && file
     return showImage && showFileList ? (
       <ImageFile
         key={file?.url || file?.uid}
-        file={file}
+        file={mergedFileList[0]}
         onRemove={handleRemove}
         className={cn('h-16 w-16', className)}
         listProps={listProps}
@@ -401,14 +403,13 @@ const Upload = (props: UploadProps) => {
     rcUploadProps,
     defaultButton,
   ])
-  console.log(mergedFileList, '---mergedFileList')
   return (
     <div>
       <div
         className={cn(
           'flex cursor-pointer flex-col items-start justify-start',
           listType === 'image' ? 'gap-0' : 'gap-2',
-          listType === 'pdf' || listType === 'update-pdf'
+          listType === 'files' || listType === 'update-file'
             ? 'h-full w-full'
             : 'h-16 w-16',
           className
