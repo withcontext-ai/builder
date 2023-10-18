@@ -1,5 +1,7 @@
 import { Share2Icon } from 'lucide-react'
 
+import { SLACK_AUTHORIZE_URL } from '@/lib/const'
+import { flags } from '@/lib/flags'
 import { Button } from '@/components/ui/button'
 import LogosSlackIcon from '@/components/icons/LogosSlackIcon'
 
@@ -12,19 +14,23 @@ export default function ChatApps() {
       <div className="space-y-4">
         <h3 className="font-normal">Connect to chat apps</h3>
         <div className="space-y-2">
-          <div className="rounded-lg border border-slate-200 bg-gray-50 p-3">
-            <div className="flex items-center justify-between">
-              <div className="ml-1 flex items-center">
-                <LogosSlackIcon className="mr-4 h-6 w-6 shrink-0" />
-                <div className="font-medium">Slack</div>
+          {flags.enabledSlack && (
+            <div className="rounded-lg border border-slate-200 bg-gray-50 p-3">
+              <div className="flex items-center justify-between">
+                <div className="ml-1 flex items-center">
+                  <LogosSlackIcon className="mr-4 h-6 w-6 shrink-0" />
+                  <div className="font-medium">Slack</div>
+                </div>
+                <Button asChild>
+                  <a href={SLACK_AUTHORIZE_URL} target="_blank">
+                    <Share2Icon className="mr-2 h-4 w-4" />
+                    Connect
+                  </a>
+                </Button>
               </div>
-              <Button>
-                <Share2Icon className="mr-2 h-4 w-4" />
-                Connect
-              </Button>
+              <SlackTeamList />
             </div>
-            <SlackTeamList />
-          </div>
+          )}
         </div>
       </div>
     </div>

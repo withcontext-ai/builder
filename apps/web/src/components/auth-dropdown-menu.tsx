@@ -18,7 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import settingsDialog from '@/components/settings/dialog'
+import SettingsDialog from '@/components/settings/dialog'
 
 interface IProps {
   children: React.ReactNode
@@ -28,7 +28,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
 
-  const modal = useModal(settingsDialog)
+  const modal = useModal(SettingsDialog)
 
   return (
     <>

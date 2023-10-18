@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { useParams } from 'next/navigation'
-import { GithubIcon, SlackIcon } from 'lucide-react'
 
 import { flags } from '@/lib/flags'
 import usePageTitle from '@/hooks/use-page-title'
@@ -52,11 +51,13 @@ const ShareApp = () => {
         </Text>
       </div>
       <div className="m-full h-px bg-slate-100" />
-      <div className="p-4 lg:pl-[155px] lg:pt-[100px]">
+      <div className="max-w-2xl p-4 lg:pl-[155px] lg:pt-[100px]">
         {flags.enabledSlack && (
           <div className="mb-6 gap-2">
-            <Text>Use this App in</Text>
-            <Tabs defaultValue="slack" className="mt-2">
+            <Text variant="body1">
+              Use and share your customized AI apps in:
+            </Text>
+            <Tabs defaultValue="slack" className="mt-4">
               <TabsList className="mb-8">
                 <TabsTrigger value="slack">
                   <LogosSlackIcon className="mr-4 h-6 w-6" />
@@ -65,9 +66,6 @@ const ShareApp = () => {
               </TabsList>
               <TabsContent value="slack">
                 <Slack context_app_id={app_id} />
-              </TabsContent>
-              <TabsContent value="github">
-                Change your password here.
               </TabsContent>
             </Tabs>
           </div>
