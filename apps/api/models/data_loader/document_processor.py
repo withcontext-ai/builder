@@ -142,23 +142,24 @@ class WordHandler(DocumentHandler):
     def fetch_content(self, document: Document, preview_size: int = float("inf")) -> str:
         storage_client = GoogleCloudStorageClient()
         word_content = storage_client.load(document.url)
+        preview_content_size = document.split_option['chunk_size'] * preview_size
         if document.url.endswith(".docx"):
-            return self.extract_text_from_docx(word_content, preview_size)
+            return self.extract_text_from_docx(word_content, preview_content_size)
         elif document.url.endswith(".doc"):
-            return self.extract_text_from_doc(word_content, preview_size)
+            return self.extract_text_from_doc(word_content, preview_content_size)
         else:
             raise Exception("Unsupported Word format")
 
-    def extract_text_from_docx(self, content: io.BytesIO, preview_size: int = float("inf")) -> str:
+    def extract_text_from_docx(self, content: io.BytesIO, preview_content_size: int = float("inf")) -> str:
         word_doc = WordDocument(content)
         full_text = []
-        for index, para in enumerate(word_doc.paragraphs):
+        for para in word_doc.paragraphs:
             full_text.append(para.text)
-            if index + 1 >= preview_size:
+            if len(full_text) >= preview_content_size:
                 break
         return '\n'.join(full_text)
 
-    def extract_text_from_doc(self, content: io.BytesIO, preview_size: int = float("inf")) -> str:
+    def extract_text_from_doc(self, content: io.BytesIO, preview_content_size: int = float("inf")) -> str:
         def get_unoconv_path() -> str:
             try:
                 result = subprocess.run(
@@ -176,7 +177,7 @@ class WordHandler(DocumentHandler):
         subprocess.run([unoconv_path, "-f", "docx",
                        "-o", temp_docx, temp_doc.name])
         with open(temp_docx, "rb") as docx_file:
-            full_text = self.extract_text_from_docx(docx_file, preview_size)
+            full_text = self.extract_text_from_docx(docx_file, preview_content_size)
         os.remove(temp_doc.name)
         os.remove(temp_docx)
         return full_text
