@@ -3,7 +3,7 @@ import { Database, FileOutput, Files, FileType2 } from 'lucide-react'
 
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { PdfImage } from './upload/component'
+import { FileImage } from './upload/component'
 
 interface IProps {
   id: string

@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Text from '@/components/ui/text'
-import { PdfImage, PreviewPdf } from '@/components/upload/component'
+import { FileImage, PreviewPdf } from '@/components/upload/component'
 
 import { CodeBlock } from './code-block'
 import { MarkdownProps } from './type'
@@ -107,7 +107,7 @@ export const CustomerCard = () => {
                 <Badge variant="outline" key={index} className="gap-1">
                   <Avatar className="h-5 w-5">
                     <AvatarFallback>
-                      <PdfImage height="20" width="12" />
+                      <FileImage height="20" width="12" />
                     </AvatarFallback>
                   </Avatar>
                   <Text variant="body2" className="line-clamp-1	max-w-xs">

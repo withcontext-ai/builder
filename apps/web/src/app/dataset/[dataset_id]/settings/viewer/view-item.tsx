@@ -1,4 +1,4 @@
-import { PdfImage } from '@/components/upload/component'
+import { FileImage } from '@/components/upload/component'
 import { DataBaseProps } from '@/app/dataset/type'
 
 import NotedDataCard from '../../document/[document_id]/noted-data-card'
@@ -36,7 +36,7 @@ export function File({ name, type, icon, uid, short_id }: DataBaseProps) {
     <div className="flex h-16 max-w-sm items-center space-x-2 rounded-lg border border-slate-200 px-6">
       <div className="shrink-0">
         {type === 'pdf' ? (
-          <PdfImage id="mobile" />
+          <FileImage id="mobile" />
         ) : (
           <NotedDataCard
             data={{ name, uid, icon, type, short_id }}

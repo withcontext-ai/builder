@@ -1,7 +1,7 @@
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { NewDocument } from '@/db/documents/schema'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { PdfImage } from '@/components/upload/component'
+import { FileImage } from '@/components/upload/component'
 
 interface IProps {
   data: Partial<NewDocument>
@@ -15,7 +15,10 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
   return (
     <div className="flex items-center gap-1">
       {!isNotedData ? (
-        <PdfImage className={cn('h-4 w-4', className)} />
+        <FileImage
+          className={cn('h-4 w-4', className)}
+          type={data?.type || 'pdf'}
+        />
       ) : (
         <Avatar
           className={cn(

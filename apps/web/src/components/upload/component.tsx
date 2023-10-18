@@ -60,23 +60,22 @@ export const PreviewPdf = (props: PreviewProps) => {
   )
 }
 
-export const PdfImage = ({
+export const FileImage = ({
   className,
+  type,
 }: {
-  width?: string
-  height?: string
-  id?: string
+  type: string
   className?: string
 }) => (
   <img
-    src="/pdf.png"
+    src={type === 'pdf' ? '/pdf.png' : '/word.png'}
     alt="pdf"
     className={cn('flex h-[32px] w-[32px]', className)}
   />
 )
 
 export const PDFFile = (props: FileItemProps) => {
-  const { file, listProps, fileNameStyle, onRemove } = props
+  const { file, listProps, fileNameStyle, onRemove, className } = props
   const showIcon = checkShowIcon(listProps || false)
   const [open, setOpen] = useState<boolean>(false)
   const preview = (file: UploadFile) => {
@@ -98,12 +97,13 @@ export const PDFFile = (props: FileItemProps) => {
       <div
         className={cn(
           'relative z-10 flex h-full w-full rounded-md border p-4',
-          file?.status === 'error' ? 'border-[#ff4d4f]' : ''
+          file?.status === 'error' ? 'border-[#ff4d4f]' : '',
+          className
         )}
       >
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex-b flex w-[90%] items-center gap-2">
-            <PdfImage />
+            <FileImage type={file?.type || 'pdf'} />
             <div className="flex w-full flex-col gap-1">
               <div className={cn('line-clamp-1 break-all', fileNameStyle)}>
                 {file?.name}

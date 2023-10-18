@@ -13,13 +13,13 @@ import type {
 } from './type'
 import { listPropsInterface } from './type'
 
-export function file2Obj(file: RcFile): InternalUploadFile {
+export function file2Obj(file: RcFile, fileType?: string): InternalUploadFile {
   return {
     ...file,
     lastModified: file.lastModified,
     name: file.name,
     size: file.size,
-    type: file.type,
+    type: fileType || file.type,
     uid: file.uid,
     percent: 0,
     originFileObj: file,
@@ -99,7 +99,7 @@ export const handleSuccess = ({
       m.push({
         url: item?.url || '',
         uid: nanoid(),
-        type: fileType || item?.type,
+        type: item?.type || fileType,
         name: item?.name,
       })
       return m

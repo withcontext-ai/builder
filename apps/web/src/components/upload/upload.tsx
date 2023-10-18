@@ -154,7 +154,7 @@ const Upload = (props: UploadProps) => {
 
   const onBatchStart: RcUploadProps['onBatchStart'] = (batchFileInfoList) => {
     const objectFileList = batchFileInfoList.map((info) =>
-      file2Obj(info.file as RcFile)
+      file2Obj(info.file as RcFile, fileType)
     )
     // Concat new files with prev files
     let newFileList = [...mergedFileList]
@@ -271,27 +271,6 @@ const Upload = (props: UploadProps) => {
     }
   }
 
-  const handleDownload = (file: UploadFile) => {
-    if (props?.onDownload) {
-      props?.onDownload(file)
-    } else {
-      fetch(`${file?.url}`, {
-        method: 'GET',
-      })
-        .then((response) => response.blob())
-        .then((blob) => {
-          const url = window.URL.createObjectURL(blob)
-          const fileLink = document.createElement('a')
-          fileLink.href = url
-          fileLink.download = `${file?.name}`
-          document.body.appendChild(fileLink)
-          fileLink.click()
-          fileLink.remove()
-        })
-        .catch(console.error)
-    }
-  }
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const rcUploadProps = {
     onBatchStart,
@@ -398,8 +377,8 @@ const Upload = (props: UploadProps) => {
     ) : showOnePdf ? (
       <PDFFile
         {...props}
+        className={cn(file?.type !== fileType ? 'hidden' : 'block')}
         file={file}
-        onDownload={handleDownload}
         onRemove={handleRemove}
         listProps={listProps}
         key={file?.uid}
@@ -418,11 +397,11 @@ const Upload = (props: UploadProps) => {
     className,
     listProps,
     props,
-    handleDownload,
+    fileType,
     rcUploadProps,
     defaultButton,
   ])
-
+  console.log(mergedFileList, '---mergedFileList')
   return (
     <div>
       <div
@@ -452,8 +431,8 @@ const Upload = (props: UploadProps) => {
                 return listType !== 'images-list' ? (
                   <PDFFile
                     {...props}
+                    className={cn(file?.type !== fileType ? 'hidden' : 'block')}
                     file={file}
-                    onDownload={handleDownload}
                     onRemove={handleRemove}
                     listProps={listProps}
                     key={file?.uid}

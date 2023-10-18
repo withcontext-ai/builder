@@ -49,7 +49,9 @@ export async function createDocumentParams(dataConfig: any) {
   }
   const currentDocuments = isNotedData
     ? dataConfig?.notedData
-    : dataConfig?.files
+    : dataConfig?.files?.filter(
+        (item: FileProps) => item?.type === dataConfig?.loaderType
+      )
 
   const files = currentDocuments?.reduce(
     (m: DocumentParamsType[], item: FileProps) => {
@@ -64,6 +66,7 @@ export async function createDocumentParams(dataConfig: any) {
     },
     []
   )
+  console.log(files, '-----files', currentDocuments)
   const config = pick(dataConfig, ['splitType', 'chunkSize', 'chunkOverlap'])
   return { files, splitConfig, config, currentDocuments }
 }
