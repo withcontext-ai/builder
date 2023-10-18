@@ -3,6 +3,8 @@ import { Share2Icon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import LogosSlackIcon from '@/components/icons/LogosSlackIcon'
 
+import SlackTeamList from './slack-team-list'
+
 export default function ChatApps() {
   return (
     <div className="space-y-8 px-6 py-4">
@@ -21,6 +23,7 @@ export default function ChatApps() {
                 Connect
               </Button>
             </div>
+            <SlackTeamList />
           </div>
         </div>
       </div>
