@@ -309,7 +309,11 @@ class DatasetManager(BaseManager):
                 }
             }
         )
-        docs = asyncio.run(retriever.aget_relevant_documents(query))
+        retriever.search_kwargs["k"] = 10000
+        retriever.search_type = 'similarity_score_threshold'
+        docs_and_similarities = asyncio.run(retriever.aget_relevant_documents(query))
+        docs = [doc for doc, _ in docs_and_similarities]
+        docs = [doc for doc in docs if query.lower() in doc.page_content.lower()]
         segments = []
         segments_id = []
         for _doc in docs:
