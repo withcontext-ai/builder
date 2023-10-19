@@ -1,4 +1,4 @@
-import { ReactNode, RefObject } from 'react'
+import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react'
 import { CancelTokenSource } from 'axios'
 import type {
   RcFile as OriRcFile,
@@ -163,7 +163,7 @@ export interface FilePercent {
 export interface UploadFileProps {
   file: UploadFile
   fileList: UploadFile<any>[]
-  setMergedFileList?: (s: UploadFile<any>[]) => void
+  setMergedFileList?: Dispatch<SetStateAction<UploadFile<any>[]>>
   fileType?: string
   aborts: RefObject<AbortRef>
   source?: CancelTokenSource

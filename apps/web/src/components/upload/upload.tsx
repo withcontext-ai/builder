@@ -4,7 +4,7 @@ import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
 
-import { cn, nanoid } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 import { ImageCard } from './component'
 import {
@@ -140,8 +140,7 @@ const Upload = (props: UploadProps) => {
     const newFileList = mergedFileList.concat(objectFileList)
 
     objectFileList.forEach((fileObj) => {
-      const clone = Object.assign(fileObj, { uid: nanoid() })
-      onInternalChange(clone, newFileList)
+      onInternalChange(fileObj, newFileList)
     })
   }
 
@@ -191,8 +190,13 @@ const Upload = (props: UploadProps) => {
 
   const showUpdateImageList = useMemo(() => {
     const latest = mergedFileList[mergedFileList?.length - 1]
-    return mergedFileList?.length !== 0 ? (
-      <ImageCard {...props} file={latest} listProps={false} key={latest?.uid} />
+    return latest?.uid ? (
+      <ImageCard
+        {...props}
+        file={{ ...latest, status: latest?.status || 'uploading' }}
+        listProps={false}
+        key={latest?.uid}
+      />
     ) : (
       bgText
     )

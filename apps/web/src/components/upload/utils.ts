@@ -20,7 +20,7 @@ export function file2Obj(file: RcFile, fileType?: string): InternalUploadFile {
     name: file.name,
     size: file.size,
     type: fileType || file.type,
-    uid: file.uid,
+    uid: nanoid(),
     percent: 0,
     url: '',
     originFileObj: file,
