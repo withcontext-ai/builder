@@ -4,7 +4,7 @@ import { TreeItem } from '@/components/dnd/types'
 
 import { WorkflowItem } from './type'
 
-export const DEFAULT_MAX_TOKENS = 2048
+export const DEFAULT_MAX_TOKENS = 256
 export const MAX_MAX_TOKENS = 4096
 
 export const TYPE_MAP = {
@@ -86,6 +86,11 @@ export const TASK_DEFAULT_VALUE_MAP = {
     prompt: {
       template: '',
     },
+    memory: {
+      type: 'conversation_buffer_windowMemory',
+      k: 5,
+      max_token_limit: 2000,
+    },
   },
   conversational_retrieval_qa_chain: {
     llm: {
@@ -101,6 +106,11 @@ export const TASK_DEFAULT_VALUE_MAP = {
       template: '',
       basic_prompt: `background: '''[{context}]'''
 Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".`,
+    },
+    memory: {
+      type: 'conversation_buffer_windowMemory',
+      k: 5,
+      max_token_limit: 2000,
     },
     retriever: {
       type: 'pinecone_hybrid_search',
@@ -125,6 +135,11 @@ Use the text separated by three quotation marks in the background to answer the 
       check_prompt: `The goal is [{target}].
 Please determine if this conversation has achieved its objective. If the objective has been met, simply respond with "yes" and refrain from adding further comments. If the objective hasn't been met, in order to continue pursuing the objective, please raise a follow-up question based on the content of this conversation. Ensure that, in the event the objective hasn't been met, your question is definitely aimed at achieving the objective and doesn't deviate from it."`,
       follow_up_questions_num: 1,
+    },
+    memory: {
+      type: 'conversation_buffer_windowMemory',
+      k: 5,
+      max_token_limit: 2000,
     },
   },
 }
@@ -171,3 +186,21 @@ Prioritize using the text separated by three quotation marks in the background t
 If the answer cannot be found in the text, you may use other known information to answer, but ensure the answer is correct and do not provide false information.`,
   },
 ]
+
+export const MEMORY_TYPE = [
+  { label: 'NoMemory', value: 'no_memory' },
+  {
+    label: 'ConversationBufferWindowMemory',
+    value: 'conversation_buffer_window_memory',
+  },
+  {
+    label: 'ConversationTokenBufferMemory',
+    value: 'conversation_token_buffer_memory',
+  },
+  { label: 'SummaryMemory', value: 'summary_memory' },
+]
+export const HAS_MAX_TOKEN_LIMIT = [
+  'conversation_token_buffer_memory',
+  'summary_memory',
+]
+export const HAS_K = ['conversation_buffer_window_memory']

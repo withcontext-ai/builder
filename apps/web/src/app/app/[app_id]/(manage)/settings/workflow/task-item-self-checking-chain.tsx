@@ -25,6 +25,7 @@ import {
 } from './const'
 import {
   InputItem,
+  MemoryFormItem,
   MentionTextareaItem,
   SelectItem,
   SlideItem,
@@ -93,6 +94,11 @@ const FormSchema = z.object({
     check_prompt: z.string().optional(),
     follow_up_questions_num: z.number().min(0).step(1),
   }),
+  memory: z.object({
+    type: z.string().optional(),
+    k: z.number().optional(),
+    max_token_limit: z.number().optional(),
+  }),
 })
 
 type IFormSchema = z.infer<typeof FormSchema>
@@ -146,6 +152,8 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
           <FormItemLLM />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <FormItemPrompt />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <MemoryFormItem />
         </div>
       </div>
     </div>
