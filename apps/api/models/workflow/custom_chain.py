@@ -1,4 +1,7 @@
 import asyncio
+import inspect
+import time
+from enum import Enum
 from typing import (
     Any,
     AsyncIterator,
@@ -10,67 +13,34 @@ from typing import (
     Union,
     cast,
 )
-from enum import Enum
-import time
 from uuid import UUID
+
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForChainRun,
-    CallbackManagerForChainRun,
     AsyncCallbackManagerForLLMRun,
+    CallbackManagerForChainRun,
 )
 from langchain.chains import (
     ConversationChain,
+    LLMChain,
     LLMSummarizationCheckerChain,
     SequentialChain,
-    LLMChain,
 )
 from langchain.chains.base import Chain
-from langchain.prompts.base import BasePromptTemplate
-from langchain.schema.language_model import BaseLanguageModel
-from langchain.schema import BaseMessage, SystemMessage, HumanMessage, AIMessage
-from loguru import logger
-from pydantic import Extra, root_validator, Field
-import inspect
-from langchain.schema.messages import get_buffer_string
-
-from models.prompt_manager.compress import PromptCompressor
 from langchain.chat_models import ChatOpenAI
+from langchain.prompts.base import BasePromptTemplate
 from langchain.retrievers import SelfQueryRetriever
+from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from langchain.schema.language_model import BaseLanguageModel
+from langchain.schema.messages import get_buffer_string
+from loguru import logger
+from models.base.model import Memory
+from models.prompt_manager.compress import PromptCompressor
+from pydantic import Extra, Field, root_validator
 from utils.base import to_string
 
-
-class CustomAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
-    def __init__(self, queue, done) -> None:
-        self.done = done
-        self.queue = queue
-
-    async def on_llm_new_token(
-        self, token: str, **kwargs: Any
-    ) -> Coroutine[Any, Any, None]:
-        if token is not None and token != "":
-            await self.queue.put(token)
-
-    async def on_chain_end(self, response: Any, **kwargs: Any) -> None:
-        self.done.set()
-
-    async def on_chat_model_start(
-        self,
-        serialized: Dict[str, Any],
-        messages: List[List[BaseMessage]],
-        *,
-        run_id: UUID,
-        parent_run_id: UUID | None = None,
-        tags: List[str] | None = None,
-        metadata: Dict[str, Any] | None = None,
-        **kwargs: Any,
-    ) -> Any:
-        pass
-
-    async def on_llm_error(
-        self, error: Exception | KeyboardInterrupt, **kwargs: Any
-    ) -> None:
-        return await super().on_llm_error(error, **kwargs)
+from .callbacks import CustomAsyncIteratorCallbackHandler
 
 
 class TargetedChainStatus(str, Enum):
@@ -84,6 +54,7 @@ class TargetedChain(Chain):
     system_prompt: BasePromptTemplate
     check_prompt: BasePromptTemplate
     llm: ChatOpenAI
+    memory: Memory
     output_key: str = "text"
     max_retries: int = 0
     process: str = TargetedChainStatus.INIT
@@ -345,6 +316,7 @@ class EnhanceSequentialChain(SequentialChain):
 class EnhanceConversationChain(Chain):
     prompt: BasePromptTemplate
     llm: ChatOpenAI
+    memory: Memory
     output_key: str = "text"
     dialog_key: str = "dialog"
 
@@ -388,6 +360,7 @@ class EnhanceConversationChain(Chain):
 class EnhanceConversationalRetrievalChain(Chain):
     prompt: BasePromptTemplate
     llm: ChatOpenAI
+    memory: Memory
     output_key: str = "text"
     retriever: SelfQueryRetriever
     dialog_key: str = "dialog"

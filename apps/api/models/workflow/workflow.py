@@ -1,28 +1,20 @@
 import asyncio
-from typing import List, Optional, Union, Dict
+from typing import List, Optional
 
-import redis
-from langchain.callbacks import (
-    AsyncIteratorCallbackHandler,
-    OpenAICallbackHandler,
-    get_openai_callback,
-)
-from langchain.chains import LLMChain, SequentialChain
+from langchain.callbacks import OpenAICallbackHandler
 from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
-from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
-from langchain.schema import BaseMessage, HumanMessage, AIMessage
-from langchain.schema.messages import get_buffer_string
+from langchain.schema import AIMessage, BaseMessage, HumanMessage
 from loguru import logger
-from models.base.model import Model
+from models.base.model import Model, Chain
 from models.retrieval import Retriever
+from pydantic import BaseModel
 from utils.config import (
+    AZURE_API_KEY,
     AZURE_API_VERSION,
     AZURE_BASE_URL,
     AZURE_DEPLOYMENT_NAME,
-    AZURE_API_KEY,
 )
-from pydantic import BaseModel
 
 from .callbacks import (
     CostCalcAsyncHandler,
@@ -36,7 +28,6 @@ from .custom_chain import (
     EnhanceConversationChain,
     EnhanceSequentialChain,
     TargetedChain,
-    TargetedChainStatus,
 )
 from .utils import (
     extract_tool_patterns_from_brackets,
@@ -73,8 +64,8 @@ class Workflow(BaseModel):
         self.cost_content = TokenCostProcess()
         self.dialog_keys = []
         self.error_flags = []
-        for index, _chain in enumerate(model.chains):
-            llm, prompt_template = self._prepare_llm_and_template(_chain, index)
+        for _chain in model.chains:
+            llm, prompt_template = self._prepare_llm_and_template(_chain)
             chain = self._prepare_chain(_chain, llm, prompt_template)
             if _chain.key is None:
                 logger.warning(f"Chain key is None. model_id: {model.id}")
@@ -130,7 +121,7 @@ class Workflow(BaseModel):
         self.cost_content.successful_requests = 0
         self.context.queue = asyncio.Queue()
 
-    def _prepare_llm_and_template(self, _chain, index):
+    def _prepare_llm_and_template(self, _chain: Chain):
         llm = _chain.llm.dict()
         llm_model = llm.pop("name")
         # TODO add max_tokens to chain
@@ -234,7 +225,7 @@ class Workflow(BaseModel):
         )
         return llm, [prompt_template]
 
-    def _prepare_chain(self, _chain, llm, prompt_template: List[PromptTemplate]):
+    def _prepare_chain(self, _chain: Chain, llm, prompt_template: List[PromptTemplate]):
         match _chain.chain_type:
             case "conversational_retrieval_qa_chain":
                 try:
@@ -290,6 +281,7 @@ class Workflow(BaseModel):
             case _:
                 logger.error(f"Chain type {_chain.chain_type} not supported")
                 raise Exception("Chain type not supported")
+        chain.memory = _chain.memory
         return chain
 
     async def agenerate(self, messages: List[BaseMessage]) -> str:
