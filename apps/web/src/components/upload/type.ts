@@ -69,6 +69,12 @@ export interface UploadChangeParam<T = UploadFile> {
   event?: { percent: number }
 }
 
+export type ListTypeProps =
+  | 'images-list'
+  | 'files'
+  | 'image'
+  | 'update-image'
+  | 'update-file'
 export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   name?: string
   controller?: AbortController
@@ -80,7 +86,7 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   defaultFileList?: Array<UploadFile<T>>
   fileList?: FileProps[]
   type?: 'drag' | 'select'
-  listType?: 'images-list' | 'files' | 'image' | 'update-image' | 'update-file'
+  listType?: ListTypeProps
   action?:
     | string
     | ((file: RcFile) => string)

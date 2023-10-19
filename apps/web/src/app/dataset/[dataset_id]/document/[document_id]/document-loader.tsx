@@ -40,10 +40,10 @@ const DocumentLoader = ({ form }: IProps) => {
 
   const showButton = useMemo(() => {
     const files = formValues.files?.filter(
-      (item: any) => item?.type !== 'annotated_data'
+      (item: any) => item?.type === loaderType
     )
     return (files?.length === 0 && !isAdd) || isAdd
-  }, [formValues.files, isAdd])
+  }, [formValues.files, isAdd, loaderType])
 
   return (
     <section id="loaders" className="w-full py-6">

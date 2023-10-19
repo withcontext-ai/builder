@@ -74,7 +74,7 @@ export const FileImage = ({
   />
 )
 
-export const PDFFile = (props: FileItemProps) => {
+export const FileCard = (props: FileItemProps) => {
   const { file, listProps, fileNameStyle, onRemove, className } = props
   const showIcon = checkShowIcon(listProps || false)
   const [open, setOpen] = useState<boolean>(false)
@@ -156,7 +156,7 @@ export const PDFFile = (props: FileItemProps) => {
   )
 }
 
-export const ImageFile = (props: FileItemProps) => {
+export const ImageCard = (props: FileItemProps) => {
   const { className, file, listProps, onRemove } = props
   const showIcon = checkShowIcon(listProps || false)
   const [open, setOpen] = useState<boolean>(false)

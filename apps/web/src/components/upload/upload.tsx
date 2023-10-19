@@ -1,31 +1,32 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { pick } from 'lodash'
-import { Camera, UploadCloud, Upload as UploadIcon } from 'lucide-react'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
 
 import { cn, nanoid } from '@/lib/utils'
 
-import { Button } from '../ui/button'
-import { ImageFile, PDFFile } from './component'
+import { ImageCard } from './component'
 import {
   AbortRef,
   BeforeUploadValueType,
   FilePercent,
+  ListTypeProps,
   RcFile,
   UploadChangeParam,
   UploadFile,
   UploadProps,
 } from './type'
+import UploadButton from './upload-button'
+import UploadFileList from './upload-file-list'
 import { changeToUploadFile, file2Obj, FileProps, uploadFile } from './utils'
+import UploadWrapper from './wrapper'
 
 const Upload = (props: UploadProps) => {
   const {
     fileList,
     maxCount,
     onChange,
-    onDrop,
     accept,
     bgText = '',
     bgColor = 'slate',
@@ -33,7 +34,6 @@ const Upload = (props: UploadProps) => {
     multiple = true,
     type = 'select',
     listType = 'pdf',
-    listProps = true,
     fileType,
     data,
     className,
@@ -52,7 +52,6 @@ const Upload = (props: UploadProps) => {
     BeforeUploadValueType | Promise<BeforeUploadValueType>
   >(true)
   const [mergedFileList, setMergedFileList] = useState<UploadFile<any>[]>(files)
-  const [_, setDragState] = React.useState<string>('drop')
   // abort axios request
   const aborts = useRef<AbortRef>([])
   const [process, setProcess] = useState<FilePercent[]>([])
@@ -112,15 +111,15 @@ const Upload = (props: UploadProps) => {
             ...changeInfo,
             onChangeFileList,
             setIsUploading,
-            fileType,
             setProcess,
           })
         }
       })
     },
 
-    [maxCount, isValid, onChangeFileList, fileType]
+    [maxCount, isValid, onChangeFileList]
   )
+
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
     let parsedFile: File | Blob | string = file
     if (beforeUpload) {
@@ -168,19 +167,10 @@ const Upload = (props: UploadProps) => {
       } else {
         onChangeFileList?.([])
       }
-
       return removedFileList
     })
   }, [])
 
-  const onFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    setDragState(e.type)
-    if (e.type === 'drop') {
-      onDrop?.(e)
-    }
-  }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rcUploadProps = {
     onBatchStart,
     ...props,
@@ -202,163 +192,44 @@ const Upload = (props: UploadProps) => {
   const showUpdateImageList = useMemo(() => {
     const latest = mergedFileList[mergedFileList?.length - 1]
     return mergedFileList?.length !== 0 ? (
-      <ImageFile {...props} file={latest} listProps={false} key={latest?.uid} />
+      <ImageCard {...props} file={latest} listProps={false} key={latest?.uid} />
     ) : (
       bgText
     )
   }, [bgText, mergedFileList, props])
 
-  const selectDefaultButton = React.useMemo(() => {
-    if (listType === 'files') {
-      return (
-        <Button type="button">
-          <UploadIcon size={16} strokeWidth={3} />
-          <span className="pl-2">Upload File</span>
-        </Button>
-      )
-    }
-    if (listType === 'update-image') {
-      return (
-        <Button
-          type="button"
-          variant="outline"
-          disabled={isUploading}
-          className={cn(
-            'relative z-10 flex h-16 w-16 items-center justify-center rounded-lg border p-0',
-            mergedFileList?.length === 0
-              ? `bg-${bgColor}-600 text-white`
-              : 'border-none',
-            `hover:${bgColor ? `bg-${bgColor}-600` : 'bg-white'}`,
-            'hover:text-white'
-          )}
-        >
-          {showUpdateImageList}
-          <div className="z-1 absolute bottom-[-8px] right-[-8px] flex h-6 w-6  items-center justify-center rounded-full border bg-white text-black">
-            <Camera size={16} strokeWidth={2} />
-          </div>
-        </Button>
-      )
-    } else {
-      return (
-        <Button
-          type="button"
-          variant="outline"
-          className="z-1 h-16 w-16 bg-slate-50 "
-        >
-          <Camera size={28} />
-        </Button>
-      )
-    }
-  }, [bgColor, isUploading, listType, mergedFileList, showUpdateImageList])
-  const defaultButton = React.useMemo(() => {
-    // 上传按钮的默认样式
-    if (type === 'drag') {
-      return (
-        <div
-          className="
-         flex h-20 w-[440px] items-center justify-center gap-4 rounded-lg border border-dashed bg-slate-50 text-base transition delay-150 ease-in-out hover:shadow-md"
-        >
-          <UploadCloud />
-          <div className="flex gap-1">
-            Drag and drop file, or<span className="font-semibold">Browse</span>
-          </div>
-        </div>
-      )
-    }
-    return selectDefaultButton
-  }, [selectDefaultButton, type])
-
-  const showUploadIcon = React.useMemo(() => {
+  const hiddenUploadIcon = useMemo(() => {
     const file = mergedFileList?.find(
       (item: UploadFile) => item?.type === fileType
     )
     const showImage = listType === 'image' && mergedFileList?.length !== 0
-    const image = mergedFileList[0]
-    const showOnePdf = listType === 'update-file' && type === 'drag' && file
-    return showImage ? (
-      <ImageFile
-        key={image?.url || image?.uid}
-        file={image}
-        onRemove={handleRemove}
-        className={cn('h-16 w-16', className)}
-        listProps={listProps}
-      />
-    ) : showOnePdf ? (
-      <PDFFile
-        {...props}
-        className={cn(file?.type !== fileType ? 'hidden' : 'block')}
-        file={file}
-        onRemove={handleRemove}
-        listProps={listProps}
-        key={file?.uid}
-      />
-    ) : (
-      <RcUpload {...rcUploadProps} ref={upload}>
-        {props?.children || defaultButton}
-      </RcUpload>
-    )
-  }, [
-    mergedFileList,
-    listType,
-    type,
-    handleRemove,
-    className,
-    listProps,
-    props,
-    fileType,
-    rcUploadProps,
-    defaultButton,
-  ])
-  return (
-    <div>
-      <div
-        className={cn(
-          'flex cursor-pointer flex-col items-start justify-start',
-          listType === 'image' ? 'gap-0' : 'gap-2',
-          listType === 'files' || listType === 'update-file'
-            ? 'h-full w-full'
-            : 'h-16 w-16',
-          className
-        )}
-        onClick={onFileDrop}
-      >
-        {showUploadIcon}
+    const showOnePdf =
+      listType === 'update-file' && type === 'drag' && file?.uid !== ''
+    return (showImage || showOnePdf) as boolean
+  }, [mergedFileList, listType, fileType])
 
-        <div
-          className={cn(
-            'flex w-full gap-2',
-            listType === 'images-list' ? 'flex-row flex-wrap' : 'flex-col'
-          )}
-        >
-          {(listType === 'files' || listType === 'images-list') &&
-            mergedFileList?.map((file: UploadFile) => {
-              const percent = process?.filter(
-                (item) => item?.uid === file?.uid
-              )?.[0]?.percent
-              return listType !== 'images-list' ? (
-                <PDFFile
-                  {...props}
-                  className={cn(file?.type !== fileType ? 'hidden' : 'block')}
-                  file={file}
-                  onRemove={handleRemove}
-                  listProps={listProps}
-                  key={file?.uid}
-                  progress={percent}
-                />
-              ) : (
-                <ImageFile
-                  {...props}
-                  file={file}
-                  onRemove={handleRemove}
-                  listProps={listProps}
-                  key={file?.uid}
-                  progress={percent}
-                />
-              )
-            })}
-        </div>
+  return (
+    <UploadWrapper className={className} listType={listType as ListTypeProps}>
+      <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
+        <RcUpload {...rcUploadProps} ref={upload}>
+          <UploadButton
+            bgColor={bgColor}
+            listType={listType as ListTypeProps}
+            type={type}
+            mergedFileList={mergedFileList}
+          >
+            {showUpdateImageList}
+          </UploadButton>
+        </RcUpload>
       </div>
-    </div>
+
+      <UploadFileList
+        {...props}
+        mergedFileList={mergedFileList}
+        process={process}
+        onRemove={handleRemove}
+      />
+    </UploadWrapper>
   )
 }
 
