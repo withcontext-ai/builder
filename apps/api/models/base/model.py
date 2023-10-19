@@ -28,11 +28,18 @@ class Prompt(BaseModel):
     basic_prompt: Optional[str] = Field(default=None)
 
 
+class Memory(BaseModel):
+    memory_type: str = Field(default="conversation_buffer_window_memory")
+    k: int = Field(default=5)
+    max_token_limit: int = Field(default=2000)
+
+
 class Chain(BaseModel):
     llm: LLM
     prompt: Prompt
     datasets: Optional[list[str]] = []
     chain_type: str
+    memory: Optional[Memory]
     key: Optional[str] = None
 
 
