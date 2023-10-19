@@ -237,7 +237,10 @@ class Workflow(BaseModel):
                         }
                     )
                     chain = EnhanceConversationalRetrievalChain(
-                        prompt=prompt_template[0], retriever=retriever, llm=llm
+                        prompt=prompt_template[0],
+                        retriever=retriever,
+                        llm=llm,
+                        memory=_chain.memory,
                     )
 
                     chain.callbacks = [
@@ -254,6 +257,7 @@ class Workflow(BaseModel):
                     chain = EnhanceConversationChain(
                         llm=llm,
                         prompt=prompt_template[0],
+                        memory=_chain.memory,
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(self.error_flags),
@@ -270,6 +274,7 @@ class Workflow(BaseModel):
                         check_prompt=prompt_template[1],
                         max_retries=_chain.prompt.follow_up_questions_num + 1,
                         target=_chain.prompt.target,
+                        memory=_chain.memory,
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(self.error_flags),
@@ -281,7 +286,7 @@ class Workflow(BaseModel):
             case _:
                 logger.error(f"Chain type {_chain.chain_type} not supported")
                 raise Exception("Chain type not supported")
-        chain.memory = _chain.memory
+
         return chain
 
     async def agenerate(self, messages: List[BaseMessage]) -> str:
