@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
     const app_id = accessInfo.app_id
     const team_id = accessInfo.team?.id
     const access_token = accessInfo.access_token
+    const user_id = accessInfo.authed_user?.id ?? ''
     if (!app_id) throw new Error('app_id is undefined')
     if (!team_id) throw new Error('team_id is undefined')
     if (!access_token) throw new Error('app_id is undefined')
@@ -48,6 +49,19 @@ export async function GET(req: NextRequest) {
       team_id,
       access_token,
     })
+
+    // check if the user email from slack is same as the state value
+    const userInfo = await slack.getUserInfo(user_id)
+    const email = userInfo?.profile?.email
+    if (!email) {
+      throw new Error('email is undefined, add scope users:read.email')
+    }
+    const state = query.get('state') // the state value is our user's email who request to install this app
+    if (email !== state) {
+      throw new Error(
+        'The email you use to log in to Slack is inconsistent with the email you use to log in to Context Builder.'
+      )
+    }
 
     const teamInfo = await slack.client.team.info({ team: team_id })
     if (!teamInfo.team) throw new Error('team is undefined')
@@ -62,9 +76,7 @@ export async function GET(req: NextRequest) {
     }
     const slack_team = await slack.addOrUpdateTeam(team)
 
-    const user = {
-      user_id: accessInfo.authed_user?.id ?? '',
-    }
+    const user = { user_id }
     const slack_user = await slack.addOrUpdateUser(user)
 
     if (slack_user.is_admin === false) {
