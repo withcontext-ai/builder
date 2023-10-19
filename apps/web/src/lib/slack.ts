@@ -481,7 +481,6 @@ export class SlackUtils {
       )
       .orderBy(desc(SlackUserAppsTable.updated_at))
       .limit(1)
-    console.log('currentSession:', currentSession)
     return currentSession
   }
 }
