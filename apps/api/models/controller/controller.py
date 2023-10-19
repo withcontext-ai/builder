@@ -369,9 +369,10 @@ class DatasetManager(BaseManager):
                                 doc.hundredth_ids[0] += 1
                         else:
                             adjusted = False
-                            if current_page_size <= doc.hundredth_ids[0]:
-                                adjusted = True
-                                doc.hundredth_ids[0] += 1
+                            if doc.hundredth_ids:
+                                if current_page_size <= doc.hundredth_ids[0]:
+                                    adjusted = True
+                                    doc.hundredth_ids[0] += 1
                             for i in range(len(doc.hundredth_ids) - 1):
                                 if (
                                     adjusted
