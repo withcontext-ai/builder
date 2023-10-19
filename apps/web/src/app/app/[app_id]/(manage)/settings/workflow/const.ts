@@ -135,9 +135,7 @@ Use the text separated by three quotation marks in the background to answer the 
       check_prompt: `The goal is [{target}].
 Please determine if this conversation has achieved its objective. If the objective has been met, simply respond with "yes" and refrain from adding further comments. If the objective hasn't been met, in order to continue pursuing the objective, please raise a follow-up question based on the content of this conversation. Ensure that, in the event the objective hasn't been met, your question is definitely aimed at achieving the objective and doesn't deviate from it."`,
       follow_up_questions_num: 1,
-      output_definition: `The goal is [{target}].
-      [{toolx.dialog}]
-      Please output the target based on this conversation.`,
+      output_definition: '',
     },
     memory: {
       memory_type: 'conversation_buffer_window_memory',
