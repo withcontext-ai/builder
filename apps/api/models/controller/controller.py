@@ -309,7 +309,11 @@ class DatasetManager(BaseManager):
                 }
             }
         )
-        docs = asyncio.run(retriever.aget_relevant_documents(query))
+        retriever.search_kwargs["k"] = 10000
+        retriever.search_type = 'similarity_score_threshold'
+        docs_and_similarities = asyncio.run(retriever.aget_relevant_documents(query))
+        docs = [doc for doc, _ in docs_and_similarities]
+        docs = [doc for doc in docs if query.lower() in doc.page_content.lower()]
         segments = []
         segments_id = []
         for _doc in docs:
@@ -369,9 +373,10 @@ class DatasetManager(BaseManager):
                                 doc.hundredth_ids[0] += 1
                         else:
                             adjusted = False
-                            if current_page_size <= doc.hundredth_ids[0]:
-                                adjusted = True
-                                doc.hundredth_ids[0] += 1
+                            if doc.hundredth_ids:
+                                if current_page_size <= doc.hundredth_ids[0]:
+                                    adjusted = True
+                                    doc.hundredth_ids[0] += 1
                             for i in range(len(doc.hundredth_ids) - 1):
                                 if (
                                     adjusted
