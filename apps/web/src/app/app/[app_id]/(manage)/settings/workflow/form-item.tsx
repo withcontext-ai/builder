@@ -1,4 +1,4 @@
-import { HTMLInputTypeAttribute, ReactNode, useEffect, useState } from 'react'
+import { HTMLInputTypeAttribute, ReactNode, useState } from 'react'
 import {
   AlertCircleIcon,
   Check,
@@ -57,7 +57,6 @@ export function InputItem<T extends FieldValues>({
   placeholder,
   min,
   max,
-  defaultValue,
 }: IInputItem<T>) {
   const form = useFormContext()
 
