@@ -93,9 +93,10 @@ const FormSchema = z.object({
     target: z.string().optional(),
     check_prompt: z.string().optional(),
     follow_up_questions_num: z.number().min(0).step(1),
+    output_definition: z.string().optional(),
   }),
   memory: z.object({
-    type: z.string().optional(),
+    memory_type: z.string().optional(),
     k: z.number().optional(),
     max_token_limit: z.number().optional(),
   }),
@@ -297,6 +298,16 @@ function FormItemPrompt() {
           type="number"
           label="Maximum follow-up questions"
           min={0}
+        />
+        <MentionTextareaItem<IFormSchema>
+          name="prompt.output_definition"
+          label={
+            <FormItemTitle
+              title="Output Definition"
+              tip="With the following configuration,to define the potential output of this conversation."
+            />
+          }
+          data={suggestionData}
         />
       </div>
     </div>

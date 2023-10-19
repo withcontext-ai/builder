@@ -69,7 +69,7 @@ const FormSchema = z.object({
     template: z.string().optional(),
   }),
   memory: z.object({
-    type: z.string().optional(),
+    memory_type: z.string().optional(),
     k: z.number().optional(),
     max_token_limit: z.number().optional(),
   }),

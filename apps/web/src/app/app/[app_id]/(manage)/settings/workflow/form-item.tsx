@@ -48,7 +48,6 @@ interface IInputItem<T> {
   placeholder?: string
   min?: number
   max?: number
-  defaultValue?: string | number
 }
 
 export function InputItem<T extends FieldValues>({
@@ -74,7 +73,6 @@ export function InputItem<T extends FieldValues>({
               placeholder={placeholder}
               type={type}
               {...field}
-              defaultValue={defaultValue}
               value={field.value}
               onChange={(e) => {
                 if (type === 'number') {
@@ -427,7 +425,7 @@ export function MentionTextareaItem<T extends FieldValues>({
 export function MemoryFormItem() {
   const form = useFormContext()
   const memory = form.getValues()?.memory
-  const type = memory?.type
+  const type = memory?.memory_type
   const showLimitToken = HAS_MAX_TOKEN_LIMIT?.includes(type)
   const showK = HAS_K?.includes(type)
 
@@ -436,24 +434,18 @@ export function MemoryFormItem() {
       <div className="text-sm font-medium text-slate-500">MEMORY</div>
       <div className="space-y-8">
         <SelectItem<IFormSchema>
-          name="memory.type"
+          name="memory.memory_type"
           label="Memory Type"
           options={MEMORY_TYPE}
         />
         {showK && (
-          <InputItem<IFormSchema>
-            name="memory.k"
-            type="number"
-            label="k"
-            defaultValue={5}
-          />
+          <InputItem<IFormSchema> name="memory.k" type="number" label="k" />
         )}
         {showLimitToken && (
           <InputItem<IFormSchema>
             name="memory.max_token_limit"
             type="number"
             label="Max Token Limit"
-            defaultValue={2000}
           />
         )}
       </div>

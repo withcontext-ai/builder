@@ -87,7 +87,7 @@ export const TASK_DEFAULT_VALUE_MAP = {
       template: '',
     },
     memory: {
-      type: 'conversation_buffer_windowMemory',
+      memory_type: 'conversation_buffer_window_memory',
       k: 5,
       max_token_limit: 2000,
     },
@@ -108,7 +108,7 @@ export const TASK_DEFAULT_VALUE_MAP = {
 Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".`,
     },
     memory: {
-      type: 'conversation_buffer_windowMemory',
+      memory_type: 'conversation_buffer_window_memory',
       k: 5,
       max_token_limit: 2000,
     },
@@ -135,9 +135,12 @@ Use the text separated by three quotation marks in the background to answer the 
       check_prompt: `The goal is [{target}].
 Please determine if this conversation has achieved its objective. If the objective has been met, simply respond with "yes" and refrain from adding further comments. If the objective hasn't been met, in order to continue pursuing the objective, please raise a follow-up question based on the content of this conversation. Ensure that, in the event the objective hasn't been met, your question is definitely aimed at achieving the objective and doesn't deviate from it."`,
       follow_up_questions_num: 1,
+      output_definition: `The goal is [{target}].
+      [{toolx.dialog}]
+      Please output the target based on this conversation.`,
     },
     memory: {
-      type: 'conversation_buffer_windowMemory',
+      memory_type: 'conversation_buffer_window_memory',
       k: 5,
       max_token_limit: 2000,
     },
