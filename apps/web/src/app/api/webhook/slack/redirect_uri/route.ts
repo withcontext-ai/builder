@@ -10,6 +10,13 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   try {
     const query = req.nextUrl.searchParams
+
+    // error handling
+    const error_description = query.get('error_description')
+    if (error_description) {
+      throw new Error(error_description)
+    }
+
     const code = query.get('code')
     if (!code) throw new Error('code is undefined')
 
@@ -61,11 +68,8 @@ export async function GET(req: NextRequest) {
     const slack_user = await slack.addOrUpdateUser(user)
 
     if (slack_user.is_admin === false) {
-      const status = 'error'
-      const title = 'Failed'
-      const desc = `Only the administrator of this workspace has the privilege to share.`
-      return NextResponse.redirect(
-        new URL(`/result?${encodeQueryData({ status, title, desc })}`, req.url)
+      throw new Error(
+        `Only the administrator of this workspace has the privilege to share.`
       )
     }
 
@@ -81,13 +85,26 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    const status = 'success'
-    const title = 'Success'
-    const desc = `You can close this page`
     return NextResponse.redirect(
-      new URL(`/result?${encodeQueryData({ status, title, desc })}`, req.url)
+      new URL(
+        `/result?${encodeQueryData({
+          status: 'success',
+          title: 'Success',
+          desc: 'You can close this page',
+        })}`,
+        req.url
+      )
     )
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message })
+    return NextResponse.redirect(
+      new URL(
+        `/result?${encodeQueryData({
+          status: 'error',
+          title: 'Failed',
+          desc: error.message,
+        })}`,
+        req.url
+      )
+    )
   }
 }
