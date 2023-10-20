@@ -5,7 +5,11 @@ import { safeParse } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
-import { SUB_TYPE_MAP } from '../(manage)/settings/workflow/const'
+import {
+  HAS_K,
+  HAS_MAX_TOKEN_LIMIT,
+  SUB_TYPE_MAP,
+} from '../(manage)/settings/workflow/const'
 import { WorkflowItem } from '../(manage)/settings/workflow/type'
 import { formatRetrieverType } from '../(manage)/settings/workflow/utils'
 import styles from './mention-textarea.module.css'
@@ -40,6 +44,12 @@ export default function TaskDetail({ value, onClose }: IProps) {
   const datasets = linkedDatasets?.filter(
     (item) => datasetIds?.includes(item?.dataset_id)
   )
+  const memoryType = formValue?.memory?.memory_type
+  const k = formValue?.memory?.k
+  const maxTokenLimit = formValue?.memory?.max_token_limit
+  const outputDefinition = formValue?.prompt?.output_definition
+  const showLimitToken = HAS_MAX_TOKEN_LIMIT?.includes(memoryType)
+  const showK = HAS_K?.includes(memoryType)
 
   return (
     <div className="space-y-8">
@@ -71,11 +81,18 @@ export default function TaskDetail({ value, onClose }: IProps) {
           value={followUpQuestionsNumber}
         />
       )}
+      {outputDefinition && (
+        <PromptItem title="Output Definition" value={outputDefinition} />
+      )}
 
       <Item label="Temperature" value={temperature} />
       <Item label="Top P" value={topP} />
       <Item label="Presence Penalty" value={presencePenalty} />
       <Item label="Frequency Penalty" value={frequencyPenalty} />
+      <Item label="Memory Type" value={memoryType} />
+      {showK && <Item label="k" value={k} />}
+      {showLimitToken && <Item label="Max Token Limit" value={maxTokenLimit} />}
+
       <Item label="Retrievers" value={retriever} />
       <DatasetItem datasets={datasets} />
     </div>
