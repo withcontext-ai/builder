@@ -120,8 +120,6 @@ const Upload = (props: UploadProps) => {
     [maxCount, isValid, onChangeFileList]
   )
 
-  console.log(isUploading, '0000isUploading')
-
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
     let parsedFile: File | Blob | string = file
     if (beforeUpload) {
@@ -146,36 +144,31 @@ const Upload = (props: UploadProps) => {
     })
   }
 
-  const handleRemove = useCallback(
-    (file: UploadFile) => {
-      setMergedFileList((files: UploadFile<any>[]) => {
-        const removedFileList = files?.filter(
-          (item: UploadFile) => item?.uid !== file?.uid
-        )
-        if (removedFileList?.length) {
-          // to abort the current axios request
-          const current = aborts?.current?.find(
-            (item) => item?.uid === file?.uid
-          )
-          current?.control?.abort()
+  const handleRemove = useCallback((file: UploadFile) => {
+    setMergedFileList((files: UploadFile<any>[]) => {
+      const removedFileList = files?.filter(
+        (item: UploadFile) => item?.uid !== file?.uid
+      )
+      if (removedFileList?.length) {
+        // to abort the current axios request
+        const current = aborts?.current?.find((item) => item?.uid === file?.uid)
+        current?.control?.abort()
 
-          // handle fileList
-          const removed = removedFileList?.reduce(
-            (m: FileProps[], item: UploadFile) => {
-              m.push(pick(item, ['url', 'uid', 'type', 'name']))
-              return m
-            },
-            []
-          )
-          onChangeFileList?.(removed)
-        } else {
-          onChangeFileList?.([])
-        }
-        return removedFileList
-      })
-    },
-    [mergedFileList]
-  )
+        // handle fileList
+        const removed = removedFileList?.reduce(
+          (m: FileProps[], item: UploadFile) => {
+            m.push(pick(item, ['url', 'uid', 'type', 'name']))
+            return m
+          },
+          []
+        )
+        onChangeFileList?.(removed)
+      } else {
+        onChangeFileList?.([])
+      }
+      return removedFileList
+    })
+  }, [])
 
   const rcUploadProps = {
     onBatchStart,

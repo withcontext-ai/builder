@@ -62,13 +62,11 @@ export type ListTypeProps =
 export type FileType = 'pdf' | 'word' | 'image'
 export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   name?: string
-  controller?: AbortController
   onChangeFileList?: (files: FileProps[]) => void
   setUploading?: (s: boolean) => void
   bgColor?: string
   bgText?: string
   fileType?: FileType
-  defaultFileList?: Array<UploadFile<T>>
   fileList?: FileProps[]
   type?: 'drag' | 'select'
   listType?: ListTypeProps
@@ -87,12 +85,10 @@ export interface UploadProps<T = any> extends Pick<RcUploadProps, 'capture'> {
   ) => BeforeUploadValueType | Promise<BeforeUploadValueType>
   onChange?: (info: UploadChangeParam<UploadFile<T>>) => void
   className?: string
-  fileNameStyle?: string
   onPreview?: (file: UploadFile<T>) => void
   onDownload?: (file: UploadFile<T>) => void
   customRequest?: (options: RcCustomRequestOptions) => void
   withCredentials?: boolean
-  openFileDialogOnClick?: boolean
   locale?: UploadLocale
   progress?: ReactNode
   maxCount?: number
