@@ -11,6 +11,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
+import MissortPdfIcon from '../icons/MissortPdfIcon'
+import MissortWordIcon from '../icons/MissortWordIcon'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent } from '../ui/dialog'
 import { Progress } from '../ui/progress'
@@ -66,13 +68,13 @@ export const FileImage = ({
 }: {
   type: string
   className?: string
-}) => (
-  <img
-    src={type === 'pdf' ? '/pdf.png' : '/word.png'}
-    alt="pdf"
-    className={cn('flex h-[32px] w-[32px]', className)}
-  />
-)
+}) => {
+  if (type === 'word')
+    return <MissortWordIcon className={cn('w-8 h-8 shrink-0', className)} />
+
+  if (type === 'pdf')
+    return <MissortPdfIcon className={cn('w-8 h-8 shrink-0', className)} />
+}
 
 export const FileCard = (props: FileItemProps) => {
   const { file, listProps, fileNameStyle, onRemove, className } = props

@@ -68,6 +68,7 @@ const Upload = (props: UploadProps) => {
 
   useEffect(() => {
     setUploading?.(isUploading)
+    setIsUploading(isUploading)
   }, [isUploading, setUploading])
 
   // browner close to conform when uploading
@@ -97,6 +98,7 @@ const Upload = (props: UploadProps) => {
       flushSync(() => {
         setMergedFileList(cloneList)
       })
+      setMergedFileList(cloneList)
       const changeInfo: UploadChangeParam<UploadFile> = {
         file: file as UploadFile,
         fileList: cloneList,
@@ -144,31 +146,36 @@ const Upload = (props: UploadProps) => {
     })
   }
 
-  const handleRemove = useCallback((file: UploadFile) => {
-    setMergedFileList((files: UploadFile<any>[]) => {
-      const removedFileList = files?.filter(
-        (item: UploadFile) => item?.uid !== file?.uid
-      )
-      if (removedFileList?.length) {
-        // to abort the current axios request
-        const current = aborts?.current?.find((item) => item?.uid === file?.uid)
-        current?.control?.abort()
-
-        // handle fileList
-        const removed = removedFileList?.reduce(
-          (m: FileProps[], item: UploadFile) => {
-            m.push(pick(item, ['url', 'uid', 'type', 'name']))
-            return m
-          },
-          []
+  const handleRemove = useCallback(
+    (file: UploadFile) => {
+      setMergedFileList((files: UploadFile<any>[]) => {
+        const removedFileList = files?.filter(
+          (item: UploadFile) => item?.uid !== file?.uid
         )
-        onChangeFileList?.(removed)
-      } else {
-        onChangeFileList?.([])
-      }
-      return removedFileList
-    })
-  }, [])
+        if (removedFileList?.length) {
+          // to abort the current axios request
+          const current = aborts?.current?.find(
+            (item) => item?.uid === file?.uid
+          )
+          current?.control?.abort()
+
+          // handle fileList
+          const removed = removedFileList?.reduce(
+            (m: FileProps[], item: UploadFile) => {
+              m.push(pick(item, ['url', 'uid', 'type', 'name']))
+              return m
+            },
+            []
+          )
+          onChangeFileList?.(removed)
+        } else {
+          onChangeFileList?.([])
+        }
+        return removedFileList
+      })
+    },
+    [mergedFileList]
+  )
 
   const rcUploadProps = {
     onBatchStart,
@@ -200,7 +207,7 @@ const Upload = (props: UploadProps) => {
     ) : (
       bgText
     )
-  }, [bgText, mergedFileList, props])
+  }, [bgText, mergedFileList, props, isUploading])
 
   const hiddenUploadIcon = useMemo(() => {
     const file = mergedFileList?.find(
@@ -211,7 +218,6 @@ const Upload = (props: UploadProps) => {
       listType === 'update-file' && type === 'drag' && file?.uid !== ''
     return (showImage || showOnePdf) as boolean
   }, [mergedFileList, listType, fileType])
-
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
       <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
