@@ -39,7 +39,7 @@ class Chain(BaseModel):
     prompt: Prompt
     datasets: Optional[list[str]] = []
     chain_type: str
-    memory: Optional[Memory]
+    memory: Optional[Memory] = Field(default_factory=lambda: Memory())
     key: Optional[str] = None
 
 
