@@ -175,25 +175,24 @@ class DatasetManager(BaseManager):
         new_data["retrieval"] = retrieval_dict
         # Let's start all over again first
         chains = []
-        if len(new_data["documents"]) != 0:
-            new_dataset = Dataset(id=dataset_id, **new_data)
-            Retriever.create_index(new_dataset)
-            for chain in chains:
-                parts = chain.split("-", 1)
-                Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
-            handler.update_dataset_status(dataset_id, 0)
-            new_dataset_dict = new_dataset.dict()
-            for document in new_dataset_dict["documents"]:
-                document["hundredth_ids"] = [
-                    i for i in range(99, document["page_size"], 100)
-                ]
-            current_data["documents"].extend(new_dataset_dict["documents"])
-            self.redis.set(urn, json.dumps(current_data))
-            logger.info(
-                f"Updated dataset {dataset_id} in cache, dataset: {current_data}"
-            )
-            self._update_dataset(dataset_id, current_data)
-            return
+        new_dataset = Dataset(id=dataset_id, **new_data)
+        Retriever.create_index(new_dataset)
+        for chain in chains:
+            parts = chain.split("-", 1)
+            Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
+        handler.update_dataset_status(dataset_id, 0)
+        new_dataset_dict = new_dataset.dict()
+        for document in new_dataset_dict["documents"]:
+            document["hundredth_ids"] = [
+                i for i in range(99, document["page_size"], 100)
+            ]
+        current_data["documents"].extend(new_dataset_dict["documents"])
+        self.redis.set(urn, json.dumps(current_data))
+        logger.info(
+            f"Updated dataset {dataset_id} in cache, dataset: {current_data}"
+        )
+        self._update_dataset(dataset_id, current_data)
+        return
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
