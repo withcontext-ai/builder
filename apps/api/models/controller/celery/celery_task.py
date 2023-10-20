@@ -32,7 +32,7 @@ def background_upsert_dataset(self, id: str, dataset_info: dict):
     except Exception as e:
         logger.error(f"Error during upsert for dataset {id}: {e}")
         try:
-            # retry the task in 120 seconds
-            self.retry(countdown=120)
+            # retry the task in 60 seconds
+            self.retry(countdown=60)
         except MaxRetriesExceededError:
             pass
