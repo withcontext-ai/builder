@@ -53,6 +53,7 @@ class TargetedChainStatus(str, Enum):
 class TargetedChain(Chain):
     system_prompt: BasePromptTemplate
     check_prompt: BasePromptTemplate
+    output_definition: BasePromptTemplate
     llm: ChatOpenAI
     memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
@@ -133,7 +134,7 @@ class TargetedChain(Chain):
 
     async def get_output(
         self,
-        pre_dialog: str,
+        input: dict,
     ):
         if self.process == TargetedChainStatus.RUNNING:
             return ""
@@ -141,14 +142,16 @@ class TargetedChain(Chain):
         if self.need_output is False:
             return ""
 
-        pre_prompt = "The goal is " + self.target + "\n"
-        suffix_prompt = "Please output the target based on this conversation."
         run_manager = AsyncCallbackManagerForChainRun.get_noop_manager()
         response = await self.llm.agenerate(
             messages=[
                 [
                     SystemMessage(content=""),
-                    HumanMessage(content=pre_prompt + pre_dialog + suffix_prompt),
+                    HumanMessage(
+                        content=self.output_definition.format_prompt(
+                            **input
+                        ).to_string()
+                    ),
                 ]
             ],
             callbacks=run_manager.get_child(),

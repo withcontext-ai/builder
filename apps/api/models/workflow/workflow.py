@@ -202,6 +202,16 @@ class Workflow(BaseModel):
                 template = template.replace("{" + var + "}", "{{ " + var + " }}")
 
         if _chain.chain_type == "self_checking_chain":
+            output_definition_template = replace_dot_with_dash_for_tool_pattern(
+                output_definition_template
+            )
+            check_prompt = replace_dot_with_dash_for_tool_pattern(
+                _chain.prompt.check_prompt
+            )
+            input_variables += extract_tool_patterns_from_brackets(check_prompt)
+            input_variables += extract_tool_patterns_from_brackets(
+                output_definition_template
+            )
             system_template = PromptTemplate(
                 template=template,
                 input_variables=input_variables,
@@ -209,7 +219,7 @@ class Workflow(BaseModel):
                 template_format="jinja2",
             )
             check_prompt = _chain.prompt.check_prompt.replace(
-                "[{target}]", _chain.prompt.target
+                "[{target}]", check_prompt
             )
             check_template = PromptTemplate(
                 template=check_prompt,
@@ -217,7 +227,16 @@ class Workflow(BaseModel):
                 validate_template=True,
                 template_format="jinja2",
             )
-            return llm, [system_template, check_template]
+            output_definition_template = output_definition_template.replace(
+                "[{target}]", _chain.prompt.target
+            )
+            output_definition = PromptTemplate(
+                template=output_definition_template,
+                validate_template=True,
+                template_format="jinja2",
+                input_variables=input_variables,
+            )
+            return llm, [system_template, check_template, output_definition]
 
         prompt_template = PromptTemplate(
             template=template,
@@ -277,6 +296,7 @@ class Workflow(BaseModel):
                         max_retries=_chain.prompt.follow_up_questions_num + 1,
                         target=_chain.prompt.target,
                         memory_option=_chain.memory,
+                        output_definition=prompt_template[2],
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(self.error_flags),
