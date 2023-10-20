@@ -89,7 +89,7 @@ export default function TaskDetail({ value, onClose }: IProps) {
       <Item label="Top P" value={topP} />
       <Item label="Presence Penalty" value={presencePenalty} />
       <Item label="Frequency Penalty" value={frequencyPenalty} />
-      <Item label="Memory Type" value={memoryType} />
+      <Item label="Memory Type" value={formatRetrieverType(memoryType)} />
       {showK && <Item label="k" value={k} />}
       {showLimitToken && <Item label="Max Token Limit" value={maxTokenLimit} />}
 
