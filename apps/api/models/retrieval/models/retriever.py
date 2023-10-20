@@ -46,7 +46,6 @@ class Retriever:
     @classmethod
     def create_index(cls, dataset: Dataset):
         docs = load_and_split_documents([dataset])
-        print('49!!!!')
         embedding = OpenAIEmbeddings()
         ids = [doc.metadata["urn"] for doc in docs]
         texts = [doc.page_content for doc in docs]

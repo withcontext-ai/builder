@@ -185,10 +185,7 @@ class DatasetManager(BaseManager):
             '''
             if len(new_data["documents"]) != 0:
                 dataset = Dataset(id=dataset_id, **new_data)
-                print(dataset)
-                print('189!!!!!')
                 Retriever.create_index(dataset)
-                print('191!!!!')
                 for chain in chains:
                     parts = chain.split("-", 1)
                     Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])

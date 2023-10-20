@@ -28,27 +28,11 @@ def background_upsert_dataset(self, id: str, dataset_info: dict):
     try:
         dataset_manager.upsert_dataset(id, dataset_info)
         logger.info(f"Upsert for dataset {id} completed.")
-        self.update_state(state='PROGRESS', meta={'progress': 50})
+        self.update_state(state='PROGRESS', meta={'progress': 100})
     except Exception as e:
         logger.error(f"Error during upsert for dataset {id}: {e}")
         try:
-            # retry the task in 60 seconds
-            self.retry(countdown=60)
+            # retry the task in 120 seconds
+            self.retry(countdown=120)
         except MaxRetriesExceededError:
             pass
-
-'''
-@app.task(bind=True)
-def background_create_dataset(self, dataset: Dataset):
-    try:
-        dataset_manager.save_dataset(dataset)
-        logger.info(f"Dataset {dataset.id} created.")
-        self.update_state(state='PROGRESS', meta={'progress': 50})
-    except Exception as e:
-        logger.error(f"Error during creation of dataset {dataset.id}: {e}")
-        try:
-            # retry the task in 60 seconds
-            self.retry(countdown=60)
-        except MaxRetriesExceededError:
-            pass
-'''

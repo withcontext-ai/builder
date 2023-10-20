@@ -79,7 +79,6 @@ async def update_dataset(
                 if uid is None:
                     logger.warning(f"UID not found in document {doc}")
                 dataset_manager.delete_preview_segment(id, uid)
-            print('update!!!!s')
             background_upsert_dataset.delay(id, dataset)
             return {"message": "success", "status": 200}
         except Exception as e:
