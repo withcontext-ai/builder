@@ -17,7 +17,7 @@ import { Button } from '../ui/button'
 import { Dialog, DialogContent } from '../ui/dialog'
 import { Progress } from '../ui/progress'
 import { Toggle } from '../ui/toggle'
-import { FileItemProps, UploadFile } from './type'
+import { FileItemProps, FileType, UploadFile } from './type'
 import { checkShowIcon } from './utils'
 
 interface IconBoxProps {
@@ -66,7 +66,7 @@ export const FileImage = ({
   className,
   type,
 }: {
-  type: string
+  type: FileType
   className?: string
 }) => {
   if (type === 'word')
@@ -77,7 +77,7 @@ export const FileImage = ({
 }
 
 export const FileCard = (props: FileItemProps) => {
-  const { file, listProps, fileNameStyle, onRemove, className } = props
+  const { file, listProps, onRemove, className } = props
   const showIcon = checkShowIcon(listProps || false)
   const [open, setOpen] = useState<boolean>(false)
   const preview = (file: UploadFile) => {
@@ -99,13 +99,13 @@ export const FileCard = (props: FileItemProps) => {
       <div
         className={cn(
           'relative z-10 flex h-full w-full rounded-md border p-4',
-          file?.status === 'error' ? 'border-[#ff4d4f]' : '',
+          file?.status === 'error' ? 'border-red-600' : '',
           className
         )}
       >
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex-b flex w-[90%] items-center gap-2">
-            <FileImage type={file?.type || 'pdf'} />
+            <FileImage type={file?.type as FileType} />
             <div className="flex w-full flex-col gap-1 truncate">
               <div className="truncate">{file?.name}</div>
               {file?.status === 'uploading' && (
@@ -147,7 +147,7 @@ export const FileCard = (props: FileItemProps) => {
         </div>
       </div>
       {file?.status === 'error' && (
-        <div className="line-clamp-1 text-[rgb(255,77,79)]">
+        <div className="line-clamp-1 bg-red-600">
           {file?.error?.message || props?.locale?.uploadError}
         </div>
       )}
@@ -157,7 +157,7 @@ export const FileCard = (props: FileItemProps) => {
 }
 
 export const ImageCard = (props: FileItemProps) => {
-  const { className, file, listProps, onRemove } = props
+  const { className, file, listProps, onRemove, listType } = props
   const showIcon = checkShowIcon(listProps || false)
   const [open, setOpen] = useState<boolean>(false)
   const preview = (event: React.SyntheticEvent) => {
@@ -174,8 +174,9 @@ export const ImageCard = (props: FileItemProps) => {
         className={cn(
           'relative h-16 w-16 rounded-lg p-0',
           className,
-          file?.status === 'error' ? 'border-[#ff4d4f]' : '',
-          file?.status === 'uploading' ? 'bg-gray-50 p-1' : ''
+          file?.status === 'error' && 'border-red-600	',
+          file?.status === 'uploading' && 'bg-gray-50 p-1',
+          file?.status === 'uploading' && listType === 'image' && 'p-0'
         )}
         key={file?.uid || file?.url}
       >
@@ -212,7 +213,7 @@ export const ImageCard = (props: FileItemProps) => {
         )}
       </div>
       {file?.status === 'error' && (
-        <div className="line-clamp-1 text-[rgb(255,77,79)]">
+        <div className="line-clamp-1 text-red-600">
           {file?.error?.message || props?.locale?.uploadError}
         </div>
       )}

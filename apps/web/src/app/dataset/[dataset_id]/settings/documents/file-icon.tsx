@@ -2,6 +2,7 @@ import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { NewDocument } from '@/db/documents/schema'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { FileImage } from '@/components/upload/component'
+import { FileType } from '@/components/upload/type'
 
 interface IProps {
   data: Partial<NewDocument>
@@ -17,7 +18,7 @@ const FileIcon = ({ data, className, isSegment }: IProps) => {
       {!isNotedData ? (
         <FileImage
           className={cn('h-4 w-4', className)}
-          type={data?.type || 'pdf'}
+          type={data?.type as FileType}
         />
       ) : (
         <Avatar

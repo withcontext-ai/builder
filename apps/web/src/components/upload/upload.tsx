@@ -201,7 +201,7 @@ const Upload = (props: UploadProps) => {
       (item: UploadFile) => item?.type === fileType
     )
     return listType === 'update-file' && type === 'drag' && file?.uid !== ''
-  }, [mergedFileList, listType, fileType])
+  }, [mergedFileList, listType, type, fileType])
 
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
