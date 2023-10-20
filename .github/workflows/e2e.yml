@@ -14,6 +14,7 @@ jobs:
           echo "Deployment Ref: ${{ github.event.deployment.ref }}"
           echo "Ref: ${{ github.ref }}"
           echo "Ref: ${{ github.sha }}"
+
   e2e_test:
     runs-on: ubuntu-latest
     name: E2E Testing
