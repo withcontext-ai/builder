@@ -54,7 +54,7 @@ class TargetedChain(Chain):
     system_prompt: BasePromptTemplate
     check_prompt: BasePromptTemplate
     llm: ChatOpenAI
-    memory: Memory
+    memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
     max_retries: int = 0
     process: str = TargetedChainStatus.INIT
@@ -316,7 +316,7 @@ class EnhanceSequentialChain(SequentialChain):
 class EnhanceConversationChain(Chain):
     prompt: BasePromptTemplate
     llm: ChatOpenAI
-    memory: Memory
+    memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
     dialog_key: str = "dialog"
 
@@ -349,6 +349,7 @@ class EnhanceConversationChain(Chain):
             inputs=inputs,
             model=self.llm.model_name,
             chain_dialog_key=self.dialog_key,
+            memory=self.memory_option,
         )
         response = await self.llm.agenerate(
             messages=[messages],
@@ -360,7 +361,7 @@ class EnhanceConversationChain(Chain):
 class EnhanceConversationalRetrievalChain(Chain):
     prompt: BasePromptTemplate
     llm: ChatOpenAI
-    memory: Memory
+    memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
     retriever: SelfQueryRetriever
     dialog_key: str = "dialog"
@@ -402,7 +403,11 @@ class EnhanceConversationalRetrievalChain(Chain):
         inputs["context"] = context
 
         messages = await PromptCompressor.get_compressed_messages(
-            self.prompt, inputs, self.llm.model_name
+            self.prompt,
+            inputs,
+            self.llm.model_name,
+            memory=self.memory_option,
+            chain_dialog_key=self.dialog_key,
         )
         response = await self.llm.agenerate(
             messages=[messages],
