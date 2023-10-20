@@ -7,7 +7,7 @@ from celery.exceptions import MaxRetriesExceededError
 from urllib.parse import quote_plus
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 
-print('celery start')
+logger.info("Celery Start")
 app = Celery('celery_task')
 
 
