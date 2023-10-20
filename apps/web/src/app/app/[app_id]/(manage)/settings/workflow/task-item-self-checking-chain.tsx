@@ -152,7 +152,7 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
         <div className="space-y-6">
           <FormItemLLM />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
-          <FormItemPrompt keyLabel={keyLabel} />
+          <FormItemPrompt />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <MemoryFormItem />
         </div>
