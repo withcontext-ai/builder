@@ -153,7 +153,7 @@ class DatasetManager(BaseManager):
         urn = self.get_dataset_urn(dataset_id)
         current_data_raw = self.redis.get(urn)
         current_data = json.loads(current_data_raw) if current_data_raw else {}
-        # Identify new or updated keys/values in update_data
+        # identify new documents in update_data
         current_uids = {doc['uid'] for doc in current_data.get('documents', [])}
         updated_documents = update_data.get('documents', [])
         new_documents = [doc for doc in updated_documents if doc['uid'] not in current_uids]
@@ -173,8 +173,8 @@ class DatasetManager(BaseManager):
             retrieval_dict = dataset.retrieval
         new_data.pop("retrieval", None)
         new_data["retrieval"] = retrieval_dict
-        # Let's start all over again first
-        chains = []
+        # update new documents
+        chains = Retriever.get_relative_chains(dataset)
         new_dataset = Dataset(id=dataset_id, **new_data)
         Retriever.create_index(new_dataset)
         for chain in chains:
@@ -187,10 +187,13 @@ class DatasetManager(BaseManager):
                 i for i in range(99, document["page_size"], 100)
             ]
         current_data["documents"].extend(new_dataset_dict["documents"])
+        # store in redis and psql
         self.redis.set(urn, json.dumps(current_data))
         logger.info(
             f"Updated dataset {dataset_id} in cache, dataset: {current_data}"
         )
+        for document in current_data["documents"]:
+            document.hundredth_ids = []
         self._update_dataset(dataset_id, current_data)
         return
 
