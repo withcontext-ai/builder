@@ -421,8 +421,8 @@ export function MentionTextareaItem<T extends FieldValues>({
   )
 }
 
-export function MemoryFormItem() {
-  const form = useFormContext()
+export function MemoryFormItem<T extends FieldValues>() {
+  const form = useFormContext<T>()
   const memory = form.getValues()?.memory
   const type = memory?.memory_type
   const showLimitToken = HAS_MAX_TOKEN_LIMIT?.includes(type)
