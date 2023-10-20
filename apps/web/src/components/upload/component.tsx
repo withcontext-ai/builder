@@ -11,8 +11,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
-import MissortPdfIcon from '../icons/MissortPdfIcon'
-import MissortWordIcon from '../icons/MissortWordIcon'
+import MicrosoftPdfIcon from '../icons/MicrosoftPdfIcon'
+import MicrosoftWordIcon from '../icons/MicrosoftWordIcon'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent } from '../ui/dialog'
 import { Progress } from '../ui/progress'
@@ -70,10 +70,10 @@ export const FileImage = ({
   className?: string
 }) => {
   if (type === 'word')
-    return <MissortWordIcon className={cn('w-8 h-8 shrink-0', className)} />
+    return <MicrosoftWordIcon className={cn('h-8 w-8 shrink-0', className)} />
 
   if (type === 'pdf')
-    return <MissortPdfIcon className={cn('w-8 h-8 shrink-0', className)} />
+    return <MicrosoftPdfIcon className={cn('h-8 w-8 shrink-0', className)} />
 }
 
 export const FileCard = (props: FileItemProps) => {
@@ -106,10 +106,8 @@ export const FileCard = (props: FileItemProps) => {
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex-b flex w-[90%] items-center gap-2">
             <FileImage type={file?.type || 'pdf'} />
-            <div className="flex w-full flex-col gap-1">
-              <div className={cn('line-clamp-1 break-all', fileNameStyle)}>
-                {file?.name}
-              </div>
+            <div className="flex w-full flex-col gap-1 truncate">
+              <div className="truncate">{file?.name}</div>
               {file?.status === 'uploading' && (
                 <Progress value={process} className="h-1" />
               )}

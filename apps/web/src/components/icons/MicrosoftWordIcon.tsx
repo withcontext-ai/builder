@@ -1,6 +1,6 @@
 import React, { SVGProps } from 'react'
 
-export function MissortWordIcon(props: SVGProps<SVGSVGElement>) {
+export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -130,4 +130,4 @@ export function MissortWordIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-export default MissortWordIcon
+export default MicrosoftWordIcon

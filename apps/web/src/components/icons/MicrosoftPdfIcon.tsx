@@ -1,6 +1,6 @@
 import React, { SVGProps } from 'react'
 
-export function MissortPdfIcon(props: SVGProps<SVGSVGElement>) {
+export function MicrosoftPdfIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       version="1.1"
@@ -36,4 +36,4 @@ export function MissortPdfIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-export default MissortPdfIcon
+export default MicrosoftPdfIcon

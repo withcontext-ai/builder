@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { pick } from 'lodash'
-import { nanoid } from 'nanoid'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
@@ -16,7 +15,6 @@ import {
   RcFile,
   UploadChangeParam,
   UploadFile,
-  UploadFileStatus,
   UploadProps,
 } from './type'
 import UploadButton from './upload-button'
@@ -37,7 +35,6 @@ const Upload = (props: UploadProps) => {
     type = 'select',
     listType = 'pdf',
     fileType,
-    data,
     className,
     disabled: mergedDisabled,
     customRequest = () => {},
@@ -183,7 +180,6 @@ const Upload = (props: UploadProps) => {
   const rcUploadProps = {
     onBatchStart,
     ...props,
-    data,
     multiple,
     action,
     accept,

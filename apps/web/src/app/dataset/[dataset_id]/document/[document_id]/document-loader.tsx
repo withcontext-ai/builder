@@ -8,6 +8,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
+import { FileType, UPLOAD_ACCEPT_MAP } from '@/components/upload/type'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
@@ -82,9 +83,7 @@ const DocumentLoader = ({ form }: IProps) => {
                     listType={showButton ? 'files' : 'update-file'}
                     type="drag"
                     fileType={loaderType}
-                    accept={
-                      loaderType === 'pdf' ? 'application/pdf' : '.doc, .docx'
-                    }
+                    accept={UPLOAD_ACCEPT_MAP[loaderType as FileType]}
                     fileList={files}
                     onChangeFileList={onChangeFileList}
                   />
