@@ -161,93 +161,39 @@ class DatasetManager(BaseManager):
             new_data = {'documents': new_documents}
         else:
             new_data = {}
-        print('new_data!!!')
-        print(new_data)
         if not new_data:
             logger.info(f"No new data to update for dataset {dataset_id}")
             return
-        if update_data.get("documents"):
-            handler = DatasetWebhookHandler()
-            handler.update_dataset_status(dataset_id, 1)
-            dataset = self.get_datasets(dataset_id)[0]
-            if update_data.get("retrieval"):
-                retrieval_dict = update_data["retrieval"]
-            else:
-                retrieval_dict = dataset.retrieval
-            update_data.pop("retrieval", None)
-            update_data["retrieval"] = retrieval_dict
-            # Let's start all over again first
-            chains = []
-            '''
-            if len(dataset.documents) != 0:
-                chains = Retriever.get_relative_chains(dataset)
-                Retriever.delete_index(dataset)
-            '''
-            if len(new_data["documents"]) != 0:
-                dataset = Dataset(id=dataset_id, **new_data)
-                Retriever.create_index(dataset)
-                for chain in chains:
-                    parts = chain.split("-", 1)
-                    Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
-                print('195!!!')
-                handler.update_dataset_status(dataset_id, 0)
-                dataset_dict_for_redis = copy.deepcopy(dataset.dict())
-                print('198!!!')
-                for document in dataset_dict_for_redis["documents"]:
-                    document["hundredth_ids"] = [
-                        i for i in range(99, document["page_size"], 100)
-                    ]
-                current_data.update(dataset_dict_for_redis)
-                self.redis.set(urn, json.dumps(current_data))
-                logger.info(
-                    f"Updated dataset {dataset_id} in cache with new data: {dataset_dict_for_redis}"
-                )
-                self._update_dataset(dataset_id, update_data)
-                return
-        self._update_dataset(dataset_id, update_data)
-
-    '''
-    def update_dataset(self, dataset_id: str, update_data: dict):
-        logger.info(f"Updating dataset {dataset_id}")
-        urn = self.get_dataset_urn(dataset_id)
-        if self.redis.get(urn):
-            self.redis.delete(urn)
-        if update_data.get("documents"):
-            handler = DatasetWebhookHandler()
-            handler.update_dataset_status(dataset_id, 1)
-            dataset = self.get_datasets(dataset_id)[0]
-            if update_data.get("retrieval"):
-                retrieval_dict = update_data["retrieval"]
-            else:
-                retrieval_dict = dataset.retrieval
-            update_data.pop("retrieval", None)
-            update_data["retrieval"] = retrieval_dict
-            # Let's start all over again first
-            chains = []
-            if len(dataset.documents) != 0:
-                chains = Retriever.get_relative_chains(dataset)
-                Retriever.delete_index(dataset)
-            if len(update_data["documents"]) != 0:
-                dataset = Dataset(id=dataset_id, **update_data)
-                # pages updated
-                Retriever.create_index(dataset)
-                for chain in chains:
-                    parts = chain.split("-", 1)
-                    Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
-                handler.update_dataset_status(dataset_id, 0)
-                dataset_dict_for_redis = copy.deepcopy(dataset.dict())
-                for document in dataset_dict_for_redis["documents"]:
-                    document["hundredth_ids"] = [
-                        i for i in range(99, document["page_size"], 100)
-                    ]
-                self.redis.set(urn, json.dumps(dataset_dict_for_redis))
-                logger.info(
-                    f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict_for_redis}"
-                )
-                self._update_dataset(dataset_id, dataset.dict())
-                return
-        self._update_dataset(dataset_id, update_data)
-    '''
+        handler = DatasetWebhookHandler()
+        handler.update_dataset_status(dataset_id, 1)
+        dataset = self.get_datasets(dataset_id)[0]
+        if new_data.get("retrieval"):
+            retrieval_dict = new_data["retrieval"]
+        else:
+            retrieval_dict = dataset.retrieval
+        new_data.pop("retrieval", None)
+        new_data["retrieval"] = retrieval_dict
+        # Let's start all over again first
+        chains = []
+        if len(new_data["documents"]) != 0:
+            new_dataset = Dataset(id=dataset_id, **new_data)
+            Retriever.create_index(new_dataset)
+            for chain in chains:
+                parts = chain.split("-", 1)
+                Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
+            handler.update_dataset_status(dataset_id, 0)
+            new_dataset_dict = new_dataset.dict()
+            for document in new_dataset_dict["documents"]:
+                document["hundredth_ids"] = [
+                    i for i in range(99, document["page_size"], 100)
+                ]
+            current_data["documents"].extend(new_dataset_dict["documents"])
+            self.redis.set(urn, json.dumps(current_data))
+            logger.info(
+                f"Updated dataset {dataset_id} in cache, dataset: {current_data}"
+            )
+            self._update_dataset(dataset_id, current_data)
+            return
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
