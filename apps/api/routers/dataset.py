@@ -12,6 +12,9 @@ from models.retrieval import Retriever
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import Query
+from models.controller.celery.celery_task import background_upsert_dataset
+
+
 
 executor = ThreadPoolExecutor(max_workers=1000)
 
@@ -57,15 +60,6 @@ async def create_dataset(dataset: Dataset):
                 status_code=400, detail="Dataset not created with error: {}".format(e)
             )
 
-
-def background_upsert_dataset(id: str, dataset_info: dict):
-    try:
-        dataset_manager.upsert_dataset(id, dataset_info)
-        logger.info(f"Upsert for dataset {id} completed.")
-    except Exception as e:
-        logger.error(f"Error during upsert for dataset {id}: {e}")
-
-
 @router.patch("/{id}", tags=["datasets"])
 async def update_dataset(
     id: str,
@@ -85,8 +79,8 @@ async def update_dataset(
                 if uid is None:
                     logger.warning(f"UID not found in document {doc}")
                 dataset_manager.delete_preview_segment(id, uid)
-            loop = asyncio.get_event_loop()
-            loop.run_in_executor(executor, background_upsert_dataset, id, dataset)
+            print('update!!!!s')
+            background_upsert_dataset.delay(id, dataset)
             return {"message": "success", "status": 200}
         except Exception as e:
             logger.error(e)

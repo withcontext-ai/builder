@@ -151,6 +151,68 @@ class DatasetManager(BaseManager):
     def update_dataset(self, dataset_id: str, update_data: dict):
         logger.info(f"Updating dataset {dataset_id}")
         urn = self.get_dataset_urn(dataset_id)
+        current_data_raw = self.redis.get(urn)
+        current_data = json.loads(current_data_raw) if current_data_raw else {}
+        # Identify new or updated keys/values in update_data
+        current_uids = {doc['uid'] for doc in current_data.get('documents', [])}
+        updated_documents = update_data.get('documents', [])
+        new_documents = [doc for doc in updated_documents if doc['uid'] not in current_uids]
+        if new_documents:
+            new_data = {'documents': new_documents}
+        else:
+            new_data = {}
+        print('new_data!!!')
+        print(new_data)
+        if not new_data:
+            logger.info(f"No new data to update for dataset {dataset_id}")
+            return
+        if update_data.get("documents"):
+            handler = DatasetWebhookHandler()
+            handler.update_dataset_status(dataset_id, 1)
+            dataset = self.get_datasets(dataset_id)[0]
+            if update_data.get("retrieval"):
+                retrieval_dict = update_data["retrieval"]
+            else:
+                retrieval_dict = dataset.retrieval
+            update_data.pop("retrieval", None)
+            update_data["retrieval"] = retrieval_dict
+            # Let's start all over again first
+            chains = []
+            '''
+            if len(dataset.documents) != 0:
+                chains = Retriever.get_relative_chains(dataset)
+                Retriever.delete_index(dataset)
+            '''
+            if len(new_data["documents"]) != 0:
+                dataset = Dataset(id=dataset_id, **new_data)
+                print(dataset)
+                print('189!!!!!')
+                Retriever.create_index(dataset)
+                print('191!!!!')
+                for chain in chains:
+                    parts = chain.split("-", 1)
+                    Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
+                print('195!!!')
+                handler.update_dataset_status(dataset_id, 0)
+                dataset_dict_for_redis = copy.deepcopy(dataset.dict())
+                print('198!!!')
+                for document in dataset_dict_for_redis["documents"]:
+                    document["hundredth_ids"] = [
+                        i for i in range(99, document["page_size"], 100)
+                    ]
+                current_data.update(dataset_dict_for_redis)
+                self.redis.set(urn, json.dumps(current_data))
+                logger.info(
+                    f"Updated dataset {dataset_id} in cache with new data: {dataset_dict_for_redis}"
+                )
+                self._update_dataset(dataset_id, update_data)
+                return
+        self._update_dataset(dataset_id, update_data)
+
+    '''
+    def update_dataset(self, dataset_id: str, update_data: dict):
+        logger.info(f"Updating dataset {dataset_id}")
+        urn = self.get_dataset_urn(dataset_id)
         if self.redis.get(urn):
             self.redis.delete(urn)
         if update_data.get("documents"):
@@ -188,6 +250,7 @@ class DatasetManager(BaseManager):
                 self._update_dataset(dataset_id, dataset.dict())
                 return
         self._update_dataset(dataset_id, update_data)
+    '''
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):
