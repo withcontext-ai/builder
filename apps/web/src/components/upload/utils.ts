@@ -85,9 +85,7 @@ export const uploadFile = async ({
   aborts,
   setProcess,
   onChangeFileList,
-  setIsUploading,
 }: UploadFileProps) => {
-  setIsUploading(true)
   if (!file) return
   file.status = 'uploading'
   const filename = encodeURIComponent(file?.name || '')
@@ -95,7 +93,6 @@ export const uploadFile = async ({
   const { success, data } = await res.json()
   if (!success) {
     file.status = 'error'
-    setIsUploading(false)
   }
   const { upload_url, upload_fields, file_url } = data as {
     provider: string
@@ -126,14 +123,12 @@ export const uploadFile = async ({
     .then(async () => {
       file.status = 'success'
       file.url = file_url
-      setIsUploading(false)
       handleSuccess({
         setMergedFileList,
         onChangeFileList,
       })
     })
     .catch(async (error) => {
-      setIsUploading(false)
       file.status = 'error'
       console.error(error)
     })

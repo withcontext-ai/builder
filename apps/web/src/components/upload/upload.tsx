@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { pick } from 'lodash'
+import { nanoid } from 'nanoid'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
@@ -15,6 +16,7 @@ import {
   RcFile,
   UploadChangeParam,
   UploadFile,
+  UploadFileStatus,
   UploadProps,
 } from './type'
 import UploadButton from './upload-button'
@@ -85,7 +87,7 @@ const Upload = (props: UploadProps) => {
   }, [isUploading])
 
   const onInternalChange = useCallback(
-    (file: UploadFile, changedFileList: UploadFile[]) => {
+    async (file: UploadFile, changedFileList: UploadFile[]) => {
       let cloneList = [...changedFileList]
       // Cut to match count
       if (maxCount === 1) {
@@ -104,23 +106,24 @@ const Upload = (props: UploadProps) => {
         fileList: cloneList,
       }
 
-      flushSync(() => {
-        // google api for upload
-        if (isValid) {
-          uploadFile({
-            aborts: aborts,
-            setMergedFileList,
-            ...changeInfo,
-            onChangeFileList,
-            setIsUploading,
-            setProcess,
-          })
-        }
-      })
+      setIsUploading(true)
+      // google api for upload
+      if (isValid) {
+        await uploadFile({
+          aborts: aborts,
+          setMergedFileList,
+          ...changeInfo,
+          onChangeFileList,
+          setProcess,
+        })
+      }
+      setIsUploading(false)
     },
 
     [maxCount, isValid, onChangeFileList]
   )
+
+  console.log(isUploading, '0000isUploading')
 
   const mergedBeforeUpload = async (file: RcFile, fileListArgs: RcFile[]) => {
     let parsedFile: File | Blob | string = file
@@ -198,26 +201,19 @@ const Upload = (props: UploadProps) => {
   const showUpdateImageList = useMemo(() => {
     const latest = mergedFileList[mergedFileList?.length - 1]
     return latest?.uid ? (
-      <ImageCard
-        {...props}
-        file={{ ...latest, status: latest?.status || 'uploading' }}
-        listProps={false}
-        key={latest?.uid}
-      />
+      <ImageCard {...props} file={latest} listProps={false} key={latest?.uid} />
     ) : (
       bgText
     )
-  }, [bgText, mergedFileList, props, isUploading])
+  }, [bgText, mergedFileList, props])
 
   const hiddenUploadIcon = useMemo(() => {
     const file = mergedFileList?.find(
       (item: UploadFile) => item?.type === fileType
     )
-    const showImage = listType === 'image' && mergedFileList?.length !== 0
-    const showOnePdf =
-      listType === 'update-file' && type === 'drag' && file?.uid !== ''
-    return (showImage || showOnePdf) as boolean
+    return listType === 'update-file' && type === 'drag' && file?.uid !== ''
   }, [mergedFileList, listType, fileType])
+
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
       <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
