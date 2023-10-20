@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronRightIcon, Info } from 'lucide-react'
-import { useForm, useFormContext } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { cn } from '@/lib/utils'
@@ -246,7 +246,7 @@ function FormItemLLM() {
   )
 }
 
-function FormItemPrompt({ keyLabel }: { keyLabel?: string }) {
+function FormItemPrompt() {
   const workflowData = useWorkflowContext((state) => state.workflowData)
 
   const suggestionData = React.useMemo(
@@ -256,16 +256,6 @@ function FormItemPrompt({ keyLabel }: { keyLabel?: string }) {
     ],
     [workflowData]
   )
-  const form = useFormContext()
-
-  React.useEffect(() => {
-    form.setValue(
-      'prompt.output_definition',
-      `The goal is [{target}].
-[{${keyLabel}.dialog}].
-Please output the target based on this conversation.`
-    )
-  }, [])
 
   return (
     <div className="space-y-4">
