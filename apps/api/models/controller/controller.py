@@ -148,54 +148,62 @@ class DatasetManager(BaseManager):
             .values(**update_data)
         )
 
-    def update_dataset(self, dataset_id: str, update_data: dict):
-        logger.info(f"Updating dataset {dataset_id}")
-        urn = self.get_dataset_urn(dataset_id)
-        current_data_raw = self.redis.get(urn)
-        current_data = json.loads(current_data_raw) if current_data_raw else {}
-        # identify new documents in update_data
+    def get_documents_to_add(self, current_data: dict, new_data: dict):
         current_uids = {doc['uid'] for doc in current_data.get('documents', [])}
-        updated_documents = update_data.get('documents', [])
-        new_documents = [doc for doc in updated_documents if doc['uid'] not in current_uids]
-        if new_documents:
-            new_data = {'documents': new_documents}
-        else:
-            new_data = {}
-        if not new_data:
-            logger.info(f"No new data to update for dataset {dataset_id}")
-            return
+        updated_documents = new_data.get('documents', [])
+        return [doc for doc in updated_documents if doc['uid'] not in current_uids]
+
+    def get_documents_to_delete(self, current_data: dict, new_data: dict):
+        new_uids = {doc['uid'] for doc in new_data.get('documents', [])}
+        current_documents = current_data.get('documents', [])
+        return [doc for doc in current_documents if doc['uid'] not in new_uids]
+
+    def add_document_to_dataset(self, dataset_id: str, new_document: dict):
         handler = DatasetWebhookHandler()
         handler.update_dataset_status(dataset_id, 1)
         dataset = self.get_datasets(dataset_id)[0]
-        if new_data.get("retrieval"):
-            retrieval_dict = new_data["retrieval"]
+        if new_document.get("retrieval"):
+            retrieval_dict = new_document["retrieval"]
         else:
             retrieval_dict = dataset.retrieval
-        new_data.pop("retrieval", None)
-        new_data["retrieval"] = retrieval_dict
-        # update new documents
-        chains = Retriever.get_relative_chains(dataset)
-        new_dataset = Dataset(id=dataset_id, **new_data)
+        new_document.pop("retrieval", None)
+        new_document["retrieval"] = retrieval_dict
+        chains = Retriever.get_relative_chains(dataset_id)
+        # create index for new document
+        new_dataset = Dataset(id=dataset_id, **new_document)
         Retriever.create_index(new_dataset)
         for chain in chains:
             parts = chain.split("-", 1)
-            Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
+            Retriever.add_relative_chain_to_document(new_document, parts[0], parts[1]) 
         handler.update_dataset_status(dataset_id, 0)
         new_dataset_dict = new_dataset.dict()
-        for document in new_dataset_dict["documents"]:
-            document["hundredth_ids"] = [
-                i for i in range(99, document["page_size"], 100)
-            ]
+        new_dataset_dict["hundredth_ids"] = [i for i in range(99, new_dataset_dict["page_size"], 100)]
+        current_data = json.loads(self.redis.get(urn))
+        # add to existed documents
         current_data["documents"].extend(new_dataset_dict["documents"])
-        # store in redis and psql
+        # update in redis and psql
+        urn = self.get_dataset_urn(dataset_id)
+        logger.info(f"Added document {new_document['uid']} to dataset {dataset_id}")
         self.redis.set(urn, json.dumps(current_data))
-        logger.info(
-            f"Updated dataset {dataset_id} in cache, dataset: {current_data}"
-        )
         for document in current_data["documents"]:
             document.hundredth_ids = []
         self._update_dataset(dataset_id, current_data)
-        return
+
+    def delete_document_from_dataset(self, dataset_id: str, document_to_delete: str):
+        uid = document_to_delete['uid']
+        logger.info(f"Deleting document {uid} from dataset {dataset_id}")
+        # delete documents's index
+        new_dataset = Dataset(id=dataset_id, **document_to_delete)
+        Retriever.create_index(new_dataset)
+        urn = self.get_dataset_urn(dataset_id)
+        current_data = json.loads(self.redis.get(urn))
+        current_data["documents"] = [doc for doc in current_data.get('documents', []) if doc['uid'] != uid]
+        # update in redis and psql
+        self.redis.set(urn, json.dumps(current_data))
+        logger.info(f"Deleted document {uid} from dataset {dataset_id}")
+        for document in current_data["documents"]:
+            document.hundredth_ids = []
+        self._update_dataset(dataset_id, current_data)
 
     @BaseManager.db_session
     def delete_dataset(self, dataset_id: str):

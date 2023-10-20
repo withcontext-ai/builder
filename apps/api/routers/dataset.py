@@ -12,7 +12,8 @@ from models.retrieval import Retriever
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import Query
-from models.controller.celery.celery_task import background_upsert_dataset
+from models.controller.celery.celery_task import background_add_document, background_delete_document
+import json
 
 
 
@@ -79,7 +80,13 @@ async def update_dataset(
                 if uid is None:
                     logger.warning(f"UID not found in document {doc}")
                 dataset_manager.delete_preview_segment(id, uid)
-            background_upsert_dataset.delay(id, dataset)
+            current_data = json.loads(dataset_manager.get_datasets(id))
+            docs_to_add = dataset_manager.get_documents_to_add(current_data, dataset)
+            docs_to_delete = dataset_manager.get_documents_to_delete(current_data, dataset)
+            for doc in docs_to_add:
+                background_add_document.delay(id, doc)
+            for doc in docs_to_delete:
+                background_delete_document.delay(id, doc)
             return {"message": "success", "status": 200}
         except Exception as e:
             logger.error(e)
