@@ -80,7 +80,7 @@ async def update_dataset(
                 if uid is None:
                     logger.warning(f"UID not found in document {doc}")
                 dataset_manager.delete_preview_segment(id, uid)
-            current_data = json.loads(dataset_manager.get_datasets(id))
+            current_data = dataset_manager.get_datasets(id)[0].dict()
             docs_to_add = dataset_manager.get_documents_to_add(current_data, dataset)
             docs_to_delete = dataset_manager.get_documents_to_delete(current_data, dataset)
             for doc in docs_to_add:

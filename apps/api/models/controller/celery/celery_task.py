@@ -8,6 +8,7 @@ from urllib.parse import quote_plus
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 from functools import wraps
 from celery.exceptions import MaxRetriesExceededError
+import traceback
 
 logger.info("Celery Start")
 app = Celery('celery_task')
@@ -17,8 +18,8 @@ app = Celery('celery_task')
 
 broker_host = UPSTASH_REDIS_REST_URL
 broker_port = 30535
-broker_db = 0  # Database 1 for the broker
-results_db = 0  # Database 2 for the results
+broker_db = 0 
+results_db = 0
 password = UPSTASH_REDIS_REST_TOKEN
 
 app.conf.broker_url = f"rediss://:{password}@{broker_host}:{broker_port}/{broker_db}?ssl_cert_reqs=CERT_REQUIRED"
@@ -30,7 +31,7 @@ def retry_on_exception(task_func):
         try:
             return task_func(task_instance, *args, **kwargs)
         except Exception as e:
-            logger.error(f"Error in task {task_func.__name__}: {e}")
+            logger.error(f"Error in task {task_func.__name__}: {e}\n{traceback.format_exc()}")
             try:
                 # Use task_instance.retry to retry the task.
                 task_instance.retry(countdown=60)
