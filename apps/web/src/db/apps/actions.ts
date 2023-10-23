@@ -1,7 +1,6 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
-import axios from 'axios'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { difference, isEmpty, pick } from 'lodash'
 
@@ -9,7 +8,7 @@ import { auth, currentUserEmail } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
-import { nanoid, safeParse } from '@/lib/utils'
+import { http, nanoid, safeParse } from '@/lib/utils'
 import { TreeItem } from '@/components/dnd/types'
 import {
   DEFAULT_WORKFLOW_DATA,
@@ -68,16 +67,14 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       })
 
       const chains = DEFAULT_WORKFLOW_DATA.map(taskToApiFormatter)
-      const { data: res } = await axios.post(
+      const data = await http(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
         {
-          chains,
+          method: 'POST',
+          body: JSON.stringify({ chains }),
         }
       )
-      if (res.status !== 200) {
-        throw new Error(`API service error: ${res.message}`)
-      }
-      api_model_id = res?.data?.id
+      api_model_id = data?.id
     }
 
     const appVal = {
@@ -138,14 +135,14 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
         },
       })
 
-      let { data: res } = await axios.post(
+      const data = await http(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-        { model_id: api_model_id }
+        {
+          method: 'POST',
+          body: JSON.stringify({ model_id: api_model_id }),
+        }
       )
-      if (res.status !== 200) {
-        throw new Error(`API service error: ${res.message}`)
-      }
-      api_session_id = res?.data?.session_id
+      api_session_id = data?.session_id
     }
 
     const sessionVal = {
@@ -275,13 +272,13 @@ export async function editApp(appId: string, newValue: Partial<NewApp>) {
           'enable_video_interaction',
         ])
         if (!isEmpty(payload)) {
-          let { data: res } = await axios.patch(
+          await http(
             `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-            payload
+            {
+              method: 'PATCH',
+              body: JSON.stringify(payload),
+            }
           )
-          if (res.status !== 200) {
-            throw new Error(`API service error: ${res.message}`)
-          }
         }
       }
     }
@@ -362,13 +359,13 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
       ) as WorkflowItem[]
       const workflow = formatTreeWithData(tree, data)
       const chains = workflow.map(taskToApiFormatter)
-      let { data: res } = await axios.patch(
+      await http(
         `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-        { chains }
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ chains }),
+        }
       )
-      if (res.status !== 200) {
-        throw new Error(`API service error: ${res.message}`)
-      }
     }
 
     // BEGIN link datasets to this app
@@ -579,14 +576,13 @@ export async function addDebugSession(api_model_id: string) {
 
     const email = await currentUserEmail()
 
-    let { data: res } = await axios.post(
+    const data = await http(
       `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-      { model_id: api_model_id }
+      {
+        method: 'POST',
+        body: JSON.stringify({ model_id: api_model_id }),
+      }
     )
-
-    if (res.status !== 200) {
-      throw new Error(`API service error: ${res.message}`)
-    }
 
     await logsnag?.track({
       user_id: userId,
@@ -601,7 +597,7 @@ export async function addDebugSession(api_model_id: string) {
       },
     })
 
-    return res?.data?.session_id
+    return data?.session_id
   } catch (error: any) {
     const { userId } = auth()
     if (userId) {
@@ -639,17 +635,11 @@ export async function getDebugSessionId({
   const workflow = formatTreeWithData(tree, data)
   const chains = workflow.map(taskToApiFormatter)
 
-  const { data: res } = await axios.post(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/models`,
-    {
-      chains,
-    }
-  )
+  const res = await http(`${process.env.AI_SERVICE_API_BASE_URL}/v1/models`, {
+    method: 'POST',
+    body: JSON.stringify({ chains }),
+  })
 
-  if (res.status !== 200) {
-    throw new Error(`AI service error: ${res.message}`)
-  }
-
-  const api_model_id = res?.data?.id
+  const api_model_id = res?.id
   return await addDebugSession(api_model_id)
 }

@@ -120,3 +120,13 @@ export const labelFilterBuilder =
     if (label?.toLowerCase().includes(search.toLowerCase())) return 1
     return 0
   }
+
+export async function http<T>(url: string, config: RequestInit) {
+  const { data } = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...config,
+  }).then((res) => res.json())
+  return data
+}
