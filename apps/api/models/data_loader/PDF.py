@@ -42,11 +42,10 @@ class PDFLoader:
                             chunk_size=document.split_option.get("chunk_size", 100),
                         )
                     )
-                    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                    text_splitter = CharacterTextSplitter(
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
                         separator="\n",
-                        is_separator_regex=True,
                     )
                     pdf_content = storage_client.load(document.url)
                     text = PDFLoader.extract_text_from_pdf(pdf_content)
@@ -71,11 +70,10 @@ class PDFLoader:
                             chunk_size=document.split_option.get("chunk_size", 100),
                         )
                     )
-                    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+                    text_splitter = CharacterTextSplitter(
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
                         separator="\n",
-                        is_separator_regex=True,
                     )
                     _doc.append(
                         Document(

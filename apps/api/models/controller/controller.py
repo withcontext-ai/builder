@@ -310,7 +310,7 @@ class DatasetManager(BaseManager):
             }
         )
         retriever.search_kwargs["k"] = 10000
-        retriever.search_type = 'similarity_score_threshold'
+        retriever.search_type = "similarity_score_threshold"
         docs_and_similarities = asyncio.run(retriever.aget_relevant_documents(query))
         docs = [doc for doc, _ in docs_and_similarities]
         docs = [doc for doc in docs if query.lower() in doc.page_content.lower()]
@@ -462,11 +462,10 @@ class DatasetManager(BaseManager):
                 break
         if doc_type == None:
             raise ValueError("UID not found in dataset documents")
-        text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        text_splitter = CharacterTextSplitter(
             chunk_size=splitter.get("chunk_size", 100),
             chunk_overlap=splitter.get("chunk_overlap", 0),
             separator="\n",
-            is_separator_regex=True,
         )
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
