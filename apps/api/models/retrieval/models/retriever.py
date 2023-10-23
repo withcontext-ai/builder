@@ -20,7 +20,8 @@ from pdfminer.pdfpage import PDFPage
 from pydantic import Field
 from utils import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 from ..webhook import WebhookHandler
-from models.data_loader import PDFHandler, load_and_split_documents  
+from models.data_loader import PDFHandler, load_and_split_documents
+
 
 class PatchedSelfQueryRetriever(SelfQueryRetriever):
     async def _aget_relevant_documents(
@@ -36,11 +37,12 @@ class PatchedSelfQueryRetriever(SelfQueryRetriever):
             )
         elif self.search_type == "mmr":
             docs = await self.vectorstore.amax_marginal_relevance_search(
-                query,  **self.search_kwargs
+                query, **self.search_kwargs
             )
         else:
             raise ValueError(f"search_type of {self.search_type} not allowed.")
         return docs
+
 
 class Retriever:
     @classmethod
@@ -75,6 +77,7 @@ class Retriever:
                 dataset.id, doc.uid, doc.content_size, 0
             )
         return vector_store
+
     @classmethod
     def delete_index(cls, dataset: Dataset):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
@@ -201,13 +204,16 @@ class Retriever:
             ],
         )
         retriever.search_kwargs = {"filter": filter}
+        retriever.search_type = "mmr"
         return retriever
 
     @classmethod
     def fetch_vectors(cls, ids: List[str]) -> Dict:
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = Index("context-prod")
-        result = index.fetch(namespace="withcontext", ids=ids).to_dict().get("vectors", {})
+        result = (
+            index.fetch(namespace="withcontext", ids=ids).to_dict().get("vectors", {})
+        )
         valid_vectors = {k: v for k, v in result.items() if v}
         return valid_vectors
 
@@ -229,4 +235,3 @@ class Retriever:
     def get_metadata(cls, id):
         vector = cls.fetch_vectors([id])
         return vector.get(id, {}).get("metadata", {})
-    
