@@ -79,6 +79,45 @@ function cleanWorkflowData(data: WorkflowItem[]) {
   return result
 }
 
+function fixTokenLimit(data: WorkflowItem[]) {
+  const result = []
+
+  for (const item of data) {
+    const { id, subType, formValueStr, type, key } = item
+    const formValue = safeParse(formValueStr, {})
+    let newValue = { ...formValue }
+    // llm.max_tokens
+    if (!formValue?.memory?.memory_type) {
+      newValue = {
+        ...newValue,
+        memory: {
+          memory: 'conversation_buffer_window_memory',
+          k: 5,
+          max_token_limit: 2000,
+        },
+      }
+    }
+    if (
+      subType === 'self_checking_chain' &&
+      !formValue?.prompt?.output_definition
+    ) {
+      const keyLabel = `${type}-${key}`
+      const output_definition = `The goal is [{target}].
+      [{${keyLabel}.dialog}].
+      Please output the target based on this conversation.`
+      newValue.prompt.output_definition = output_definition
+    }
+
+    if (formValue?.llm.max_tokens === 2048) {
+      newValue.llm.max_tokens = 256
+    }
+    const newItem = { ...item, formValueStr: JSON.stringify(newValue) }
+    result.push(newItem)
+  }
+
+  return result
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
