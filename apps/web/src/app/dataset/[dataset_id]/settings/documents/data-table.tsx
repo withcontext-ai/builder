@@ -224,6 +224,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
         uid={currentId?.current?.shortId}
         open={open}
         setOpen={setOpen}
+        confirmDelete={() => setSynchronizeNum((v) => v + 1)}
       />
     </div>
   )
