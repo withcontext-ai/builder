@@ -1,14 +1,9 @@
 from celery import Celery
-from models.base.dataset import Dataset
 from models.controller import dataset_manager
 from loguru import logger
-from celery import current_task
 from celery.exceptions import MaxRetriesExceededError
-from urllib.parse import quote_plus
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 from functools import wraps
-from celery.exceptions import MaxRetriesExceededError
-import traceback
 
 logger.info("Celery Start")
 app = Celery('celery_task')
@@ -34,7 +29,7 @@ def retry_on_exception(task_func, max_retries=3):
                 return task_func(task_instance, *args, **kwargs)
             except Exception as e:
                 retries += 1
-                logger.error(f"Error in task {task_func.__name__} [Attempt {retries}/{max_retries}]: {e}\n{traceback.format_exc()}")
+                logger.error(f"Error executing task {task_func.__name__}: {e}")
                 if retries <= max_retries:
                     try:
                         # Use task_instance.retry to retry the task.

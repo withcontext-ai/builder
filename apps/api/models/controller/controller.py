@@ -15,7 +15,6 @@ from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
 import json
-import copy
 
 from models.prompt_manager.manager import PromptManagerMixin
 
@@ -189,7 +188,6 @@ class DatasetManager(BaseManager):
         # update in redis and psql
         logger.info(f"Added document {new_document['uid']} to dataset {dataset_id}")
         self.redis.set(urn, json.dumps(current_data))
-        print(current_data)
         for document in current_data["documents"]:
             document["hundredth_ids"] = []
         self._update_dataset(dataset_id, current_data)
@@ -200,7 +198,7 @@ class DatasetManager(BaseManager):
         # delete documents's index
         _document_to_delete = {'documents': [document_to_delete]}
         new_dataset = Dataset(id=dataset_id, **_document_to_delete)
-        Retriever.create_index(new_dataset)
+        Retriever.delete_index(new_dataset)
         urn = self.get_dataset_urn(dataset_id)
         current_data = json.loads(self.redis.get(urn))
         current_data["documents"] = [doc for doc in current_data.get('documents', []) if doc['uid'] != uid]
