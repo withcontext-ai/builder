@@ -7,7 +7,10 @@ import { db } from '@/lib/drizzle-edge'
 import { safeParse } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
 import { TreeItem } from '@/components/dnd/types'
-import { TASK_DEFAULT_VALUE_MAP } from '@/app/app/[app_id]/(manage)/settings/workflow/const'
+import {
+  DEFAULT_MEMORY,
+  TASK_DEFAULT_VALUE_MAP,
+} from '@/app/app/[app_id]/(manage)/settings/workflow/const'
 import { WorkflowItem } from '@/app/app/[app_id]/(manage)/settings/workflow/type'
 import {
   formatTreeWithData,
@@ -89,11 +92,7 @@ function fixTokenLimit(data: WorkflowItem[]) {
     if (!formValue?.memory?.memory_type) {
       newValue = {
         ...newValue,
-        memory: {
-          memory: 'conversation_buffer_window_memory',
-          k: 5,
-          max_token_limit: 2000,
-        },
+        memory: DEFAULT_MEMORY,
       }
     }
     if (

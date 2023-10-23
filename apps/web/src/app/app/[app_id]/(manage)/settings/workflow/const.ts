@@ -7,6 +7,22 @@ import { WorkflowItem } from './type'
 export const DEFAULT_MAX_TOKENS = 256
 export const MAX_MAX_TOKENS = 4096
 
+const DEFAULT_LLM = {
+  name: 'gpt-3.5-turbo',
+  api_key: '',
+  temperature: 0.7,
+  max_tokens: DEFAULT_MAX_TOKENS,
+  top_p: 1,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+}
+
+export const DEFAULT_MEMORY = {
+  memory_type: 'conversation_buffer_window_memory',
+  k: 5,
+  max_token_limit: 2000,
+}
+
 export const TYPE_MAP = {
   tool: {
     title: 'Tools',
@@ -74,44 +90,20 @@ export const ADD_TASK_BUTTON_CONFIG = [
 
 export const TASK_DEFAULT_VALUE_MAP = {
   conversation_chain: {
-    llm: {
-      name: 'gpt-3.5-turbo',
-      api_key: '',
-      temperature: 0.9,
-      max_tokens: DEFAULT_MAX_TOKENS,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-    },
+    llm: DEFAULT_LLM,
     prompt: {
       template: '',
     },
-    memory: {
-      memory_type: 'conversation_buffer_window_memory',
-      k: 5,
-      max_token_limit: 2000,
-    },
+    memory: DEFAULT_MEMORY,
   },
   conversational_retrieval_qa_chain: {
-    llm: {
-      name: 'gpt-3.5-turbo',
-      api_key: '',
-      temperature: 0.9,
-      max_tokens: DEFAULT_MAX_TOKENS,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-    },
+    llm: DEFAULT_LLM,
     prompt: {
       template: '',
       basic_prompt: `background: '''[{context}]'''
 Use the text separated by three quotation marks in the background to answer the question. Do not add any additional information. Make sure the answer is correct, do not output false content. If the answer cannot be found in the text, please write "The answer is not provided in the document".`,
     },
-    memory: {
-      memory_type: 'conversation_buffer_window_memory',
-      k: 5,
-      max_token_limit: 2000,
-    },
+    memory: DEFAULT_MEMORY,
     retriever: {
       type: 'pinecone_hybrid_search',
     },
@@ -120,15 +112,7 @@ Use the text separated by three quotation marks in the background to answer the 
     },
   },
   self_checking_chain: {
-    llm: {
-      name: 'gpt-3.5-turbo',
-      api_key: '',
-      temperature: 0.9,
-      max_tokens: DEFAULT_MAX_TOKENS,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-    },
+    llm: DEFAULT_LLM,
     prompt: {
       template: '',
       target: '',
@@ -137,11 +121,7 @@ Please determine if this conversation has achieved its objective. If the objecti
       follow_up_questions_num: 1,
       output_definition: '',
     },
-    memory: {
-      memory_type: 'conversation_buffer_window_memory',
-      k: 5,
-      max_token_limit: 2000,
-    },
+    memory: DEFAULT_MEMORY,
   },
 }
 
