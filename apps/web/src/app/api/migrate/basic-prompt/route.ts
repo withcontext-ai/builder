@@ -86,7 +86,6 @@ function fixTokenLimit(data: WorkflowItem[]) {
     const { id, subType, formValueStr, type, key } = item
     const formValue = safeParse(formValueStr, {})
     let newValue = { ...formValue }
-    // llm.max_tokens
     if (!formValue?.memory?.memory_type) {
       newValue = {
         ...newValue,
@@ -108,9 +107,9 @@ function fixTokenLimit(data: WorkflowItem[]) {
       newValue.prompt.output_definition = output_definition
     }
 
-    if (formValue?.llm.max_tokens === 2048) {
-      newValue.llm.max_tokens = 256
-    }
+    newValue.llm.max_tokens = 256
+    newValue.llm.temperature = 0.7
+
     const newItem = { ...item, formValueStr: JSON.stringify(newValue) }
     result.push(newItem)
   }
@@ -145,10 +144,8 @@ export async function GET(req: NextRequest) {
         []
       ) as WorkflowItem[]
 
-      const new_workflow_data = cleanWorkflowData(workflow_data)
-      const new_published_workflow_data = cleanWorkflowData(
-        published_workflow_data
-      )
+      const new_workflow_data = fixTokenLimit(workflow_data)
+      const new_published_workflow_data = fixTokenLimit(published_workflow_data)
       const newApp = {
         short_id,
         api_model_id,
