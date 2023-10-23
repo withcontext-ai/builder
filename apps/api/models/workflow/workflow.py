@@ -203,7 +203,7 @@ class Workflow(BaseModel):
 
         if _chain.chain_type == "self_checking_chain":
             output_definition_template = replace_dot_with_dash_for_tool_pattern(
-                output_definition_template
+                _chain.prompt.output_definition
             )
             check_prompt = replace_dot_with_dash_for_tool_pattern(
                 _chain.prompt.check_prompt
@@ -212,15 +212,37 @@ class Workflow(BaseModel):
             input_variables += extract_tool_patterns_from_brackets(
                 output_definition_template
             )
+            for var in input_variables:
+                output_definition_template = output_definition_template.replace(
+                    "[{" + var + "}]", "{{ " + var + " }}"
+                )
+                check_prompt = check_prompt.replace(
+                    "[{" + var + "}]", "{{ " + var + " }}"
+                )
+            for i in range(len(input_variables)):
+                var = input_variables[i]
+                if var.startswith("tool-"):
+                    _var = "_".join(var.split("-"))
+                    output_definition_template = output_definition_template.replace(
+                        "{{ " + var + " }}", "{{ " + _var + " }}"
+                    )
+                    check_prompt = check_prompt.replace(
+                        "{{ " + var + " }}", "{{ " + _var + " }}"
+                    )
+                    input_variables[i] = _var
+                else:
+                    template = template.replace("{" + var + "}", "{{ " + var + " }}")
+                    output_definition_template.replace(
+                        "{" + var + "}", "{{ " + var + " }}"
+                    )
+                    check_prompt.replace("{" + var + "}", "{{ " + var + " }}")
             system_template = PromptTemplate(
                 template=template,
                 input_variables=input_variables,
                 validate_template=True,
                 template_format="jinja2",
             )
-            check_prompt = _chain.prompt.check_prompt.replace(
-                "[{target}]", check_prompt
-            )
+            check_prompt = check_prompt.replace("[{target}]", _chain.prompt.target)
             check_template = PromptTemplate(
                 template=check_prompt,
                 input_variables=input_variables,
