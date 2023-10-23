@@ -134,13 +134,21 @@ class TargetedChain(Chain):
 
     async def get_output(
         self,
-        input: dict,
+        inputs: dict,
     ):
         if self.process == TargetedChainStatus.RUNNING:
             return ""
 
         if self.need_output is False:
             return ""
+
+        copy_inputs = inputs.copy()
+        for k in copy_inputs:
+            if "dialog" in k:
+                try:
+                    copy_inputs[k] = get_buffer_string(copy_inputs[k])
+                except:
+                    logger.error(f"Error in get_output: {copy_inputs[k]}")
 
         run_manager = AsyncCallbackManagerForChainRun.get_noop_manager()
         response = await self.llm.agenerate(
@@ -149,7 +157,7 @@ class TargetedChain(Chain):
                     SystemMessage(content=""),
                     HumanMessage(
                         content=self.output_definition.format_prompt(
-                            **input
+                            **copy_inputs
                         ).to_string()
                     ),
                 ]
@@ -212,7 +220,7 @@ class EnhanceSequentialChain(SequentialChain):
                         )
                     )
                     outputs[chain.output_key] = await chain.get_output(
-                        get_buffer_string(pre_dialog)
+                        inputs=self.known_values
                     )
                     self.known_values.update(outputs)
                     self.current_chain_io.append(
