@@ -95,7 +95,7 @@ class PromptCompressor(
         while sumrize_step < 5 and current_tokens > max_tokens:
             summarize_chain = load_summarize_chain(OpenAI(), chain_type=chain_type)
             token_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-                chunk_size=100, chunk_overlap=0, separator="\n"
+                chunk_size=100, chunk_overlap=0, separator="\n", is_separator_regex=True
             )
             documents = token_splitter.split_text(content)
             documents = [Document(page_content=document) for document in documents]

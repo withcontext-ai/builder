@@ -465,6 +465,8 @@ class DatasetManager(BaseManager):
         text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=splitter.get("chunk_size", 100),
             chunk_overlap=splitter.get("chunk_overlap", 0),
+            separator="\n",
+            is_separator_regex=True,
         )
         if doc_type == "pdf":
             storage_client = GoogleCloudStorageClient()
