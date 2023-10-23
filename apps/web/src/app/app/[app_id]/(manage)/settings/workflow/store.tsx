@@ -70,8 +70,8 @@ const createWorkflowStore = (initProps?: Partial<WorkflowProps>) => {
             subType as keyof typeof TASK_DEFAULT_VALUE_MAP,
             {
               [change]: `The goal is [{target}].
-          [{${keyLabel}.dialog}].
-          Please output the target based on this conversation.`,
+[{${keyLabel}.dialog}].
+Please output the target based on this conversation.`,
             }
           )
           draft.workflowData.push({

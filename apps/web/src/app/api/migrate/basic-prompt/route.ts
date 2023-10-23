@@ -101,8 +101,8 @@ function fixTokenLimit(data: WorkflowItem[]) {
     ) {
       const keyLabel = `${type}-${key}`
       const output_definition = `The goal is [{target}].
-      [{${keyLabel}.dialog}].
-      Please output the target based on this conversation.`
+[{${keyLabel}.dialog}].
+Please output the target based on this conversation.`
       newValue.prompt.output_definition = output_definition
     }
 
