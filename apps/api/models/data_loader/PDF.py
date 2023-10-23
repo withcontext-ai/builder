@@ -45,6 +45,8 @@ class PDFLoader:
                     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
+                        separator="\n",
+                        is_separator_regex=True,
                     )
                     pdf_content = storage_client.load(document.url)
                     text = PDFLoader.extract_text_from_pdf(pdf_content)
@@ -72,6 +74,8 @@ class PDFLoader:
                     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
                         chunk_size=options.splitter.chunk_size,
                         chunk_overlap=options.splitter.chunk_overlap,
+                        separator="\n",
+                        is_separator_regex=True,
                     )
                     _doc.append(
                         Document(
@@ -111,7 +115,7 @@ class PDFLoader:
         total_text = ""
         non_empty_pages_count = 0
         for page in range(num_pages):
-            text = pdf.pages[page].extractText()
+            text = pdf.pages[page].extract_text()
             if text.strip():
                 total_text += text
                 non_empty_pages_count += 1
