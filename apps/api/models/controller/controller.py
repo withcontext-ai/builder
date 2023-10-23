@@ -158,7 +158,6 @@ class DatasetManager(BaseManager):
         return [doc for doc in current_documents if doc['uid'] not in new_uids]
 
     def add_document_to_dataset(self, dataset_id: str, new_document: dict):
-        print(new_document)
         handler = DatasetWebhookHandler()
         handler.update_dataset_status(dataset_id, 1)
         dataset = self.get_datasets(dataset_id)[0]
