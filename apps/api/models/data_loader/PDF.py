@@ -1,5 +1,5 @@
 import io
-import sys
+import re
 
 from langchain.schema import Document
 from langchain.text_splitter import CharacterTextSplitter
@@ -114,6 +114,7 @@ class PDFLoader:
         non_empty_pages_count = 0
         for page in range(num_pages):
             text = pdf.pages[page].extract_text()
+            text = re.sub(r"[\x00-\x1F]+", " ", text)
             if text.strip():
                 total_text += text
                 non_empty_pages_count += 1
