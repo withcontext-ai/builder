@@ -1,6 +1,5 @@
 from fastapi import Query, HTTPException, Path
 import asyncio
-import sys
 from uuid import uuid4
 
 import graphsignal
@@ -13,7 +12,6 @@ from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import Query
 from models.controller.celery.celery_task import background_add_document, background_delete_document
-import json
 
 
 
