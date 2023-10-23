@@ -8,6 +8,7 @@ from loguru import logger
 from models.base import Model
 from models.controller import model_manager, session_state_manager
 from concurrent.futures import ThreadPoolExecutor
+from models.controller.celery.celery_task import background_create_model, background_update_model
 
 executor = ThreadPoolExecutor(max_workers=1000)
 
@@ -36,19 +37,9 @@ async def create_model(model: Model):
     with graphsignal.start_trace("create_model"):
         logger.info(f"model creating: {model}")
         model.id = uuid4().hex
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(executor, background_create_model, model)
+        create_result = background_create_model.apply_async(args=[model])
+        create_result.get(timeout=200)
         return {"data": {"id": model.id}, "message": "success", "status": 200}
-
-
-def background_update_model(id: str, model: dict):
-    try:
-        model_manager.upsert_model(id, model)
-        logger.info(f"model: {model} updated")
-        session_state_manager.delete_session_state_cache_via_model(id)
-    except Exception as e:
-        logger.error(f"Error during update of model: {id}: {e}")
-
 
 @router.patch("/{id}", tags=["models"])
 async def update_model(id: str, model: dict):
@@ -56,8 +47,8 @@ async def update_model(id: str, model: dict):
         logger.info(f"model updating: {model}")
         if model == {}:
             raise HTTPException(status_code=444, detail="Model is empty")
-        loop = asyncio.get_event_loop()
-        loop.run_in_executor(executor, background_update_model, id, model)
+        update_result = background_update_model.apply_async(args=[id, model])
+        update_result.get(timeout=200)
         return {"message": "success", "status": 200}
 
 

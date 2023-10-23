@@ -11,7 +11,7 @@ from models.retrieval import Retriever
 from pydantic import BaseModel
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import Query
-from models.controller.celery.celery_task import background_add_document, background_delete_document
+from models.controller.celery.celery_task import background_create_dataset, background_add_document, background_delete_document
 
 
 
@@ -35,23 +35,14 @@ def get_dataset(id: str):
             raise HTTPException(status_code=404, detail="Dataset not found")
         return {"data": dataset, "message": "success", "status": 200}
 
-
-def background_create_dataset(dataset: Dataset):
-    try:
-        dataset_manager.save_dataset(dataset)
-        logger.info(f"Dataset {dataset.id} created.")
-    except Exception as e:
-        logger.error(f"Error during creation of dataset {dataset.id}: {e}")
-
-
 @router.post("/", tags=["datasets"])
 async def create_dataset(dataset: Dataset):
     with graphsignal.start_trace("create_dataset"):
         logger.info(f"dataset creating: {dataset}")
         dataset.id = uuid4().hex
         try:
-            loop = asyncio.get_event_loop()
-            loop.run_in_executor(executor, background_create_dataset, dataset)
+            create_result = background_create_dataset.apply_async(args=[dataset])
+            create_result.get(timeout=200)
             return {"data": {"id": dataset.id}, "message": "success", "status": 200}
         except Exception as e:
             logger.error(e)
