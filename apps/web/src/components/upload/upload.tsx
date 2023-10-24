@@ -200,7 +200,7 @@ const Upload = (props: UploadProps) => {
     const file = mergedFileList?.find(
       (item: UploadFile) => item?.type === fileType
     )
-    return listType === 'update-file' && type === 'drag' && file?.uid !== ''
+    return listType === 'update-file' && type === 'drag' && file?.uid
   }, [mergedFileList, listType, type, fileType])
 
   return (

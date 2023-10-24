@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { cn } from '@/lib/utils'
 
 import { FileCard, ImageCard } from './component'
@@ -19,10 +21,21 @@ const UploadFileList = ({
   ...props
 }: IProps) => {
   const showFiles = listType === 'files' || listType === 'update-file'
-  const latestIndex = mergedFileList?.length - 1
-  const _mergedFileList =
-    listType === 'update-image' ? [mergedFileList[latestIndex]] : mergedFileList
   const hiddenList = listType === 'update-image' || listType === 'image'
+
+  const _mergedFileList = useMemo(() => {
+    const latestIndex = mergedFileList?.length - 1
+    const current = mergedFileList?.filter(
+      (item: UploadFile) => item?.type === fileType
+    )
+    const currentLen = current?.length - 1
+    return listType === 'update-image'
+      ? [mergedFileList[latestIndex]]
+      : listType === 'update-file'
+      ? [current[currentLen]]
+      : mergedFileList
+  }, [fileType, listType, mergedFileList])
+
   return (
     <div
       className={cn(

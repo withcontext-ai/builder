@@ -1,7 +1,5 @@
 'use client'
 
-import { useMemo } from 'react'
-
 import {
   FormControl,
   FormField,
@@ -39,13 +37,6 @@ const DocumentLoader = ({ form }: IProps) => {
   const loaderType = formValues?.loaderType
   const isNotedData = loaderType === 'annotated_data'
 
-  const showButton = useMemo(() => {
-    const files = formValues.files?.filter(
-      (item: any) => item?.type === loaderType
-    )
-    return (files?.length === 0 && !isAdd) || isAdd
-  }, [formValues.files, isAdd, loaderType])
-
   return (
     <section id="loaders" className="w-full py-6">
       <div className="mb-6 text-sm font-normal leading-6 text-slate-600">
@@ -80,7 +71,7 @@ const DocumentLoader = ({ form }: IProps) => {
                       showDownloadIcon: false,
                       showPreviewIcon: false,
                     }}
-                    listType={showButton ? 'files' : 'update-file'}
+                    listType={isAdd ? 'files' : 'update-file'}
                     type="drag"
                     fileType={loaderType}
                     accept={UPLOAD_ACCEPT_MAP[loaderType as FileType]}
