@@ -75,6 +75,7 @@ const DocumentLoader = ({ form }: IProps) => {
                     type="drag"
                     fileType={loaderType}
                     accept={UPLOAD_ACCEPT_MAP[loaderType as FileType]}
+                    multiple={isAdd}
                     fileList={files}
                     onChangeFileList={onChangeFileList}
                   />
