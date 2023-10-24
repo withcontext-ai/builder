@@ -121,12 +121,11 @@ export const labelFilterBuilder =
     return 0
   }
 
-export async function http<T>(url: string, config: RequestInit) {
-  const { data } = await fetch(url, {
+export async function http<T>(url: string, config: RequestInit): Promise<T> {
+  return fetch(url, {
     headers: {
       'Content-Type': 'application/json',
     },
     ...config,
   }).then((res) => res.json())
-  return data
 }

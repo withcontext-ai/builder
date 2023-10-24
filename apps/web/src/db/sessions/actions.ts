@@ -45,14 +45,18 @@ export async function addSession(appId: string) {
 
   let api_session_id = null
   if (flags.enabledAIService) {
-    const data = await http(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ model_id: foundApp?.api_model_id }),
-      }
-    )
-    api_session_id = data?.session_id
+    const res = await http<{
+      data: { session_id: string }
+      status: number
+      message: string
+    }>(`${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`, {
+      method: 'POST',
+      body: JSON.stringify({ model_id: foundApp?.api_model_id }),
+    })
+    if (res.status !== 200) {
+      throw new Error(`AI service error: ${res.message}`)
+    }
+    api_session_id = res?.data?.session_id
   }
 
   const [allSessions] = await db
@@ -184,14 +188,18 @@ export async function getLatestSessionId(appId: string) {
 
       let api_session_id = null
       if (flags.enabledAIService) {
-        const data = await http(
-          `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ model_id: foundApp?.api_model_id }),
-          }
-        )
-        api_session_id = data?.session_id
+        const res = await http<{
+          data: { session_id: string }
+          status: number
+          message: string
+        }>(`${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`, {
+          method: 'POST',
+          body: JSON.stringify({ model_id: foundApp?.api_model_id }),
+        })
+        if (res.status !== 200) {
+          throw new Error(`AI service error: ${res.message}`)
+        }
+        api_session_id = res?.data?.session_id
       }
       const sessionVal = {
         short_id: nanoid(),
