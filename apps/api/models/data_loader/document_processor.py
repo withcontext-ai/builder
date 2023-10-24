@@ -1,26 +1,27 @@
-from typing import List
-from models.base.dataset import Dataset, Document
-from langchain.text_splitter import CharacterTextSplitter
-from abc import ABC, abstractmethod
 import io
 import os
+import re
 import subprocess
-import tempfile
 import sys
+import tempfile
+from abc import ABC, abstractmethod
+from typing import List
+
 from docx import Document as WordDocument
+from langchain.schema import Document
+from langchain.text_splitter import CharacterTextSplitter
+from loguru import logger
+from models.base.dataset import Dataset, Document
 from models.data_loader.document_settings import (
-    PDFSplitterOption,
     PDFEmbeddingOption,
     PDFRetrivalOption,
+    PDFSplitterOption,
 )
-from langchain.schema import Document
-from loguru import logger
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
-from utils.StorageClient import GoogleCloudStorageClient, AnnotatedDataStorageClient
-import requests
+from utils.StorageClient import AnnotatedDataStorageClient, GoogleCloudStorageClient
 
 # Mixins
 
@@ -107,6 +108,7 @@ class PDFHandler(DocumentHandler):
             fake_file_handle.truncate(0)
             fake_file_handle.seek(0)
             if text.strip():
+                text = re.sub(r"[\x00-\x1F]+", " ", text)
                 total_text += text
                 non_empty_pages_count += 1
                 if non_empty_pages_count >= preview_size:
