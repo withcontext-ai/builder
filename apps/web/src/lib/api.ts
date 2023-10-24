@@ -1,18 +1,19 @@
 export const API_BASE_URL = process.env.AI_SERVICE_API_BASE_URL
 
 async function http<T>(path: string, config: RequestInit): Promise<T> {
-  const request = new Request(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...config,
   })
-  const response = await fetch(request)
-
   if (!response.ok) {
     throw new Error(response.statusText)
   }
 
-  // may error if there is no body, return empty array
-  return response.json().catch(() => ({}))
+  const json = await response.json()
+  if (json.status !== 200) {
+    throw new Error(`API service error: ${json.message}`)
+  }
+  return json.data
 }
 
 async function get<T>(path: string, config?: RequestInit): Promise<T> {
