@@ -41,7 +41,7 @@ async def create_dataset(dataset: Dataset):
         logger.info(f"dataset creating: {dataset}")
         dataset.id = uuid4().hex
         try:
-            create_result = background_create_dataset.apply_async(args=[dataset])
+            create_result = background_create_dataset.delay(dataset.dict())
             create_result.get(timeout=200)
             return {"data": {"id": dataset.id}, "message": "success", "status": 200}
         except Exception as e:

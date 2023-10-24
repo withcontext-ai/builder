@@ -23,21 +23,12 @@ def get_model(id: str):
             raise HTTPException(status_code=404, detail="Model not found")
         return {"data": model, "message": "success", "status": 200}
 
-
-def background_create_model(model: Model):
-    try:
-        model_manager.save_model(model)
-        logger.info(f"model: {model} created")
-    except Exception as e:
-        logger.error(f"Error during creation of model: {model.id}: {e}")
-
-
 @router.post("/", tags=["models"])
 async def create_model(model: Model):
     with graphsignal.start_trace("create_model"):
         logger.info(f"model creating: {model}")
         model.id = uuid4().hex
-        create_result = background_create_model.apply_async(args=[model])
+        create_result = background_create_model.delay(model.dict())
         create_result.get(timeout=200)
         return {"data": {"id": model.id}, "message": "success", "status": 200}
 
@@ -47,10 +38,9 @@ async def update_model(id: str, model: dict):
         logger.info(f"model updating: {model}")
         if model == {}:
             raise HTTPException(status_code=444, detail="Model is empty")
-        update_result = background_update_model.apply_async(args=[id, model])
+        update_result = background_update_model.delay(id, model)
         update_result.get(timeout=200)
         return {"message": "success", "status": 200}
-
 
 @router.delete("/{id}", tags=["models"])
 def delete_model(id: str):

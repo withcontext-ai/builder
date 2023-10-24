@@ -45,7 +45,8 @@ def retry_on_exception(task_func, max_retries=3):
 
 @app.task(bind=True)
 @retry_on_exception
-def background_create_dataset(self, dataset: Dataset):
+def background_create_dataset(self, dataset_dict: dict):
+    dataset = Dataset(**dataset_dict)
     dataset_manager.save_dataset(dataset)
     logger.info(f"Dataset {dataset.id} created.")
     self.update_state(state='PROGRESS', meta={'progress': 100})
@@ -66,14 +67,16 @@ def background_delete_document(self, dataset_id: str, document_uid: str):
 
 @app.task(bind=True)
 @retry_on_exception
-def background_create_model(self, model: Model):
+def background_create_model(self, model_dict: dict):
+    model = Model(**model_dict)
     model_manager.save_model(model)
     logger.info(f"model: {model} created")
     self.update_state(state='PROGRESS', meta={'progress': 100})
 
 @app.task(bind=True)
 @retry_on_exception
-def background_update_model(id: str, model: dict):
+def background_update_model(self, id: str, model: dict):
     model_manager.upsert_model(id, model)
     logger.info(f"model: {model} updated")
     session_state_manager.delete_session_state_cache_via_model(id)
+    self.update_state(state='PROGRESS', meta={'progress': 100})
