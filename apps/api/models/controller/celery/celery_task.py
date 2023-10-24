@@ -22,7 +22,7 @@ password = UPSTASH_REDIS_REST_TOKEN
 app.conf.broker_url = f"rediss://:{password}@{broker_host}:{broker_port}/{broker_db}?ssl_cert_reqs=CERT_REQUIRED"
 app.conf.result_backend = f"rediss://:{password}@{broker_host}:{broker_port}/{results_db}?ssl_cert_reqs=CERT_REQUIRED"
 
-def retry_on_exception(task_func, max_retries=3):
+def retry_on_exception(task_func=None, max_retries=3, countdown=60):
     @wraps(task_func)
     def wrapper(task_instance, *args, **kwargs):
         retries = 0
@@ -35,8 +35,8 @@ def retry_on_exception(task_func, max_retries=3):
                 if retries <= max_retries:
                     try:
                         # Use task_instance.retry to retry the task.
-                        task_instance.retry(countdown=60)
-                    except MaxRetriesExceededError:  # Make sure this exception is defined or imported.
+                        task_instance.retry(countdown=countdown)
+                    except MaxRetriesExceededError:
                         logger.error(f"Max retries exceeded for task {task_func.__name__}")
                         break
                 else:
@@ -44,7 +44,7 @@ def retry_on_exception(task_func, max_retries=3):
     return wrapper
 
 @app.task(bind=True)
-@retry_on_exception
+@retry_on_exception(countdown=10)
 def background_create_dataset(self, dataset_dict: dict):
     dataset = Dataset(**dataset_dict)
     dataset_manager.save_dataset(dataset)
@@ -66,7 +66,7 @@ def background_delete_document(self, dataset_id: str, document_uid: str):
     self.update_state(state='PROGRESS', meta={'progress': 100})
 
 @app.task(bind=True)
-@retry_on_exception
+@retry_on_exception(countdown=10)
 def background_create_model(self, model_dict: dict):
     model = Model(**model_dict)
     model_manager.save_model(model)
@@ -74,7 +74,7 @@ def background_create_model(self, model_dict: dict):
     self.update_state(state='PROGRESS', meta={'progress': 100})
 
 @app.task(bind=True)
-@retry_on_exception
+@retry_on_exception(countdown=10)
 def background_update_model(self, id: str, model: dict):
     model_manager.upsert_model(id, model)
     logger.info(f"model: {model} updated")

@@ -42,7 +42,7 @@ async def create_dataset(dataset: Dataset):
         dataset.id = uuid4().hex
         try:
             create_result = background_create_dataset.delay(dataset.dict())
-            create_result.get(timeout=200)
+            create_result.get(timeout=30)
             return {"data": {"id": dataset.id}, "message": "success", "status": 200}
         except Exception as e:
             logger.error(e)

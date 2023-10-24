@@ -29,7 +29,7 @@ async def create_model(model: Model):
         logger.info(f"model creating: {model}")
         model.id = uuid4().hex
         create_result = background_create_model.delay(model.dict())
-        create_result.get(timeout=200)
+        create_result.get(timeout=30)
         return {"data": {"id": model.id}, "message": "success", "status": 200}
 
 @router.patch("/{id}", tags=["models"])
@@ -39,7 +39,7 @@ async def update_model(id: str, model: dict):
         if model == {}:
             raise HTTPException(status_code=444, detail="Model is empty")
         update_result = background_update_model.delay(id, model)
-        update_result.get(timeout=200)
+        update_result.get(timeout=30)
         return {"message": "success", "status": 200}
 
 @router.delete("/{id}", tags=["models"])
