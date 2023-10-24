@@ -22,7 +22,7 @@ password = UPSTASH_REDIS_REST_TOKEN
 app.conf.broker_url = f"rediss://:{password}@{broker_host}:{broker_port}/{broker_db}?ssl_cert_reqs=CERT_REQUIRED"
 app.conf.result_backend = f"rediss://:{password}@{broker_host}:{broker_port}/{results_db}?ssl_cert_reqs=CERT_REQUIRED"
 
-def retry_on_exception(task_func=None, max_retries=3, countdown=60):
+def retry_on_exception(task_func, max_retries=3, countdown=60):
     @wraps(task_func)
     def wrapper(task_instance, *args, **kwargs):
         retries = 0
@@ -34,7 +34,7 @@ def retry_on_exception(task_func=None, max_retries=3, countdown=60):
                 logger.error(f"Error executing task {task_func.__name__}: {e}")
                 if retries <= max_retries:
                     try:
-                        # Use task_instance.retry to retry the task.
+                        # use task_instance.retry to retry the task.
                         task_instance.retry(countdown=countdown)
                     except MaxRetriesExceededError:
                         logger.error(f"Max retries exceeded for task {task_func.__name__}")
