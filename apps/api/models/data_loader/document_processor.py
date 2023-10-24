@@ -11,7 +11,7 @@ from docx import Document as WordDocument
 from langchain.schema import Document
 from langchain.text_splitter import CharacterTextSplitter
 from loguru import logger
-from models.base.dataset import Dataset, Document
+from models.base.dataset import Dataset, Document as DocumentModel
 from models.data_loader.document_settings import (
     PDFEmbeddingOption,
     PDFRetrivalOption,
@@ -53,7 +53,7 @@ class DocumentHandler(ABC, DocumentProcessingMixin):
         # By default, consider the URL as the source.
         return {"source": document.url}
 
-    def process(self, document: Document, dataset: Dataset) -> List[Document]:
+    def process(self, document: DocumentModel, dataset: Dataset) -> List[Document]:
         content = self.fetch_content(document)
         metadata = self.generate_metadata(document)
         pages = self.split_content(content)
