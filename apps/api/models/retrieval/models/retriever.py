@@ -200,7 +200,7 @@ class Retriever:
                 ),
             ],
         )
-        retriever.search_kwargs = {"filter": filter, "k": 8}
+        retriever.search_kwargs = {"filter": filter}
         retriever.search_type = "mmr"
         return retriever
 
