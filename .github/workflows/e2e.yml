@@ -4,22 +4,10 @@ on:
   deployment_status:
 
 jobs:
-  log:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log Deployment Status
-        run: |
-          echo "Deployment Status: ${{ github.event.deployment_status.state }}"
-          echo "Deployment URL: ${{ github.event.deployment_status.target_url }}"
-          echo "Deployment Ref: ${{ github.event.deployment.ref }}"
-          echo "Deployment Env: ${{ github.event.deployment.environment }}"
-          echo "Ref: ${{ github.ref }}"
-          echo "Ref: ${{ github.sha }}"
-
   e2e_test:
     runs-on: ubuntu-latest
     name: E2E Testing
-    if: ${{ github.event.deployment.environment == 'preview' }}
+    if: ${{ github.event.deployment.environment == 'Preview' }}
     steps:
       - uses: actions/checkout@v3
         with:
