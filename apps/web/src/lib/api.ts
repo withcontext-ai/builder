@@ -10,7 +10,7 @@ async function http<T>(path: string, config: RequestInit): Promise<T> {
   }
 
   const json = await response.json()
-  if (json.status !== 200) {
+  if (+json.status !== 200) {
     throw new Error(`API service error: ${json.message}`)
   }
   return json.data

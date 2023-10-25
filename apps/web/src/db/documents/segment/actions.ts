@@ -21,15 +21,9 @@ export async function getSegments(
   if (search) {
     params = `query=${search}`
   }
-  const data = await fetch(
-    `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}/document/${uid}?${params}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'GET',
-    }
-  ).then((res) => res.json())
+  const data = api.get<{ segments: any[]; totalItems: number }>(
+    `/v1/datasets/${api_dataset_id}/document/${uid}?${params}`
+  )
   return data
 }
 
