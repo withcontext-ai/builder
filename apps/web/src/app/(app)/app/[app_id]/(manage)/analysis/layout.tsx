@@ -11,7 +11,7 @@ interface IProps {
   children: React.ReactNode
   params: { app_id: string }
 }
-
+// TODO: merge with apps/web/src/app/(app)/app/[app_id]/(manage)/settings/layout.tsx
 export default async function MonitoringLayout({ children, params }: IProps) {
   const { app_id } = params
   const { userId } = auth()
