@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { auth } from '@clerk/nextjs'
 
+import { currentUser } from '@/lib/auth'
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { getApp } from '@/db/apps/actions'
 import AppSettingDialog from '@/components/app-setting-dialog'
@@ -14,7 +15,8 @@ export default async function Header({ appId }: IProps) {
   const color = getAvatarBgColor(appId)
   const appDetail = await getApp(appId)
   const { name, description: desc, icon } = appDetail
-  const isOwner = userId === appDetail.created_by
+  const { isAdmin } = await currentUser()
+  const isOwner = userId === appDetail.created_by || isAdmin
 
   return (
     <div>
