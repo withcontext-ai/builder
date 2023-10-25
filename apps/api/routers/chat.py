@@ -67,6 +67,7 @@ async def send_message(
     session_id: str,
     filt=False,
     start_time=None,
+    reload=False,
 ) -> AsyncIterable[str]:
     messages = []
     for message_content in messages_contents:
@@ -93,7 +94,7 @@ async def send_message(
             detail=f"Model {model_id} has {len(models)} models in model manager",
         )
     model = models[0]
-    workflow = session_state_manager.get_workflow(session_id, model)
+    workflow = session_state_manager.get_workflow(session_id, model, reload=reload)
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
@@ -150,7 +151,7 @@ async def send_message(
             }
             yield f"data: {json.dumps(info)}\n\n"
     yield "data: [DONE]\n\n"
-    session_state_manager.save_workflow_status(session_id, workflow)
+    session_state_manager.save_workflow_status(session_id, workflow, reload=reload)
 
 
 async def send_done_message():
@@ -178,7 +179,12 @@ async def stream_completions(body: CompletionsRequest):
             )
         else:
             return StreamingResponse(
-                send_message(body.messages, body.session_id, start_time=start_time),
+                send_message(
+                    body.messages,
+                    body.session_id,
+                    start_time=start_time,
+                    reload=body.reload,
+                ),
                 media_type="text/event-stream",
             )
 

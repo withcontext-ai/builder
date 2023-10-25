@@ -11,6 +11,7 @@ class Messages(BaseModel):
 class CompletionsRequest(BaseModel):
     session_id: str
     messages: List[Messages]
+    reload: bool = False
 
 
 class VideoCompletionsRequest(BaseModel):
