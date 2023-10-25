@@ -412,7 +412,6 @@ class EnhanceConversationalRetrievalChain(Chain):
         )
         context = "\n".join([to_string(doc.page_content) for doc in docs])
         inputs["context"] = context
-
         messages = await PromptCompressor.get_compressed_messages(
             self.prompt,
             inputs,

@@ -127,11 +127,8 @@ class Workflow(BaseModel):
         llm = _chain.llm.dict()
         llm_model = llm.pop("name")
         # TODO add max_tokens to chain
-        llm.pop("max_tokens")
+        max_token = llm.pop("max_tokens")
         temperature = llm.pop("temperature")
-        top_p = llm.pop("top_p")
-        frequency_penalty = llm.pop("frequency_penalty")
-        presence_penalty = llm.pop("presence_penalty")
         if llm_model == "Azure-GPT-3.5":
             llm = AzureChatOpenAI(
                 openai_api_base=AZURE_BASE_URL,
@@ -146,9 +143,6 @@ class Workflow(BaseModel):
                         self.io_traces, self.get_chain_output_key(_chain.key)
                     ),
                 ],
-                top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty,
             )
         else:
             llm = ChatOpenAI(
@@ -156,15 +150,13 @@ class Workflow(BaseModel):
                 model_kwargs=llm,
                 streaming=True,
                 temperature=temperature,
+                max_tokens=max_token,
                 callbacks=[
                     CostCalcAsyncHandler(llm_model, self.cost_content),
                     IOTraceCallbackHandler(
                         self.io_traces, self.get_chain_output_key(_chain.key)
                     ),
                 ],
-                top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty,
             )
         template = _chain.prompt.template
 

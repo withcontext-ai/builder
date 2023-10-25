@@ -128,9 +128,6 @@ class Retriever:
         known_chains.append(chain_urn)
         logger.info(f"Adding chain {chain_urn} to dataset {dataset.id}")
         logger.info(f"Known chains: {known_chains}")
-        logger.info(
-            f"Dataset {dataset.id} has {len(dataset.documents)} documents, first documents: {dataset.documents[0].page_size} pages"
-        )
         for doc in dataset.documents:
             if doc.page_size == 0:
                 logger.warning(
