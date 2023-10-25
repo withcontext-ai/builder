@@ -1,28 +1,32 @@
-from typing import List
-from models.base.dataset import Dataset, Document
-from langchain.text_splitter import CharacterTextSplitter
-from abc import ABC, abstractmethod
 import io
 import os
+import re
 import subprocess
-import tempfile
 import sys
+import tempfile
+from abc import ABC, abstractmethod
+from typing import List
+
 from docx import Document as WordDocument
-from models.data_loader.document_settings import PDFSplitterOption, PDFEmbeddingOption, PDFRetrivalOption
 from langchain.schema import Document
+from langchain.text_splitter import CharacterTextSplitter
 from loguru import logger
+from models.base.dataset import Dataset, Document as DocumentModel
+from models.data_loader.document_settings import (
+    PDFEmbeddingOption,
+    PDFRetrivalOption,
+    PDFSplitterOption,
+)
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
-from utils.StorageClient import GoogleCloudStorageClient, AnnotatedDataStorageClient
-import requests
+from utils.StorageClient import AnnotatedDataStorageClient, GoogleCloudStorageClient
 
 # Mixins
 
 
 class DocumentProcessingMixin:
-
     def get_text_splitter(self, document: Document) -> CharacterTextSplitter:
         options = PDFRetrivalOption(
             splitter=PDFSplitterOption(
@@ -30,9 +34,10 @@ class DocumentProcessingMixin:
                 chunk_size=document.split_option.get("chunk_size", 100),
             )
         )
-        return CharacterTextSplitter.from_tiktoken_encoder(
+        return CharacterTextSplitter(
             chunk_size=options.splitter.chunk_size,
             chunk_overlap=options.splitter.chunk_overlap,
+            separator="\n",
         )
 
     def split_content(self, content: str) -> List[str]:
@@ -40,26 +45,22 @@ class DocumentProcessingMixin:
 
 
 class DocumentHandler(ABC, DocumentProcessingMixin):
-
     @abstractmethod
     def fetch_content(self, document: Document) -> str:
         pass
 
     def generate_metadata(self, document: Document) -> dict:
         # By default, consider the URL as the source.
-        return {
-            "source": document.url
-        }
+        return {"source": document.url}
 
-    def process(self, document: Document, dataset: Dataset) -> List[Document]:
+    def process(self, document: DocumentModel, dataset: Dataset) -> List[Document]:
         content = self.fetch_content(document)
         metadata = self.generate_metadata(document)
         pages = self.split_content(content)
         all_docs = []
         text_splitter = self.get_text_splitter(document)
         for page_content in pages:
-            docs = [Document(page_content=page_content,
-                             metadata=metadata.copy())]
+            docs = [Document(page_content=page_content, metadata=metadata.copy())]
             all_docs.extend(docs)
         all_docs = text_splitter.split_documents(all_docs)
         document.page_size = len(all_docs)
@@ -68,14 +69,16 @@ class DocumentHandler(ABC, DocumentProcessingMixin):
             document.content_size += len(segment.page_content)
         for page_number, doc in enumerate(all_docs):
             doc.metadata["page_number"] = page_number
-            doc.metadata["urn"] = f"{dataset.id}-{document.url}-{doc.metadata['page_number']}"
+            doc.metadata[
+                "urn"
+            ] = f"{dataset.id}-{document.url}-{doc.metadata['page_number']}"
         logger.info(
-            f"got documents: {len(all_docs)} while loading dataset {dataset.id}")
+            f"got documents: {len(all_docs)} while loading dataset {dataset.id}"
+        )
         return all_docs
 
 
 class PDFHandler(DocumentHandler):
-
     @staticmethod
     def get_document_page_size(document: Document) -> int:
         if document.page_size != 0:
@@ -105,6 +108,7 @@ class PDFHandler(DocumentHandler):
             fake_file_handle.truncate(0)
             fake_file_handle.seek(0)
             if text.strip():
+                text = re.sub(r"[\x00-\x1F]+", " ", text)
                 total_text += text
                 non_empty_pages_count += 1
                 if non_empty_pages_count >= preview_size:
@@ -121,7 +125,6 @@ class PDFHandler(DocumentHandler):
 
 
 class AnnotatedDataHandler(DocumentHandler):
-
     def fetch_content(self, document: Document) -> str:
         document.url = document.uid
         webhook_handler = AnnotatedDataStorageClient()
@@ -132,17 +135,16 @@ class AnnotatedDataHandler(DocumentHandler):
 
     def generate_metadata(self, document: Document) -> dict:
         # For annotated data, the UID is the source.
-        return {
-            "source": document.uid
-        }
+        return {"source": document.uid}
 
 
 class WordHandler(DocumentHandler):
-
-    def fetch_content(self, document: Document, preview_size: int = float("inf")) -> str:
+    def fetch_content(
+        self, document: Document, preview_size: int = float("inf")
+    ) -> str:
         storage_client = GoogleCloudStorageClient()
         word_content = storage_client.load(document.url)
-        preview_content_size = document.split_option['chunk_size'] * preview_size
+        preview_content_size = document.split_option["chunk_size"] * preview_size
         if document.url.endswith(".docx"):
             return self.extract_text_from_docx(word_content, preview_content_size)
         elif document.url.endswith(".doc"):
@@ -150,32 +152,37 @@ class WordHandler(DocumentHandler):
         else:
             raise Exception("Unsupported Word format")
 
-    def extract_text_from_docx(self, content: io.BytesIO, preview_content_size: int = float("inf")) -> str:
+    def extract_text_from_docx(
+        self, content: io.BytesIO, preview_content_size: int = float("inf")
+    ) -> str:
         word_doc = WordDocument(content)
         full_text = []
         for para in word_doc.paragraphs:
             full_text.append(para.text)
             if len(full_text) >= preview_content_size:
                 break
-        return '\n'.join(full_text)
+        return "\n".join(full_text)
 
-    def extract_text_from_doc(self, content: io.BytesIO, preview_content_size: int = float("inf")) -> str:
+    def extract_text_from_doc(
+        self, content: io.BytesIO, preview_content_size: int = float("inf")
+    ) -> str:
         def get_unoconv_path() -> str:
             try:
                 result = subprocess.run(
-                    ["which", "unoconv"], capture_output=True, text=True)
+                    ["which", "unoconv"], capture_output=True, text=True
+                )
                 if result.returncode == 0:
                     return result.stdout.strip()
             except Exception as e:
                 pass
             raise EnvironmentError("unoconv is not found in the system PATH.")
+
         unoconv_path = get_unoconv_path()
         # Convert .doc to .docx using unoconv
         with tempfile.NamedTemporaryFile(suffix=".doc", delete=False) as temp_doc:
             temp_doc.write(content.read())
         temp_docx = temp_doc.name + "x"
-        subprocess.run([unoconv_path, "-f", "docx",
-                       "-o", temp_docx, temp_doc.name])
+        subprocess.run([unoconv_path, "-f", "docx", "-o", temp_docx, temp_doc.name])
         with open(temp_docx, "rb") as docx_file:
             full_text = self.extract_text_from_docx(docx_file, preview_content_size)
         os.remove(temp_doc.name)

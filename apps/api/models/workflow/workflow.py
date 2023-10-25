@@ -6,7 +6,7 @@ from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import AIMessage, BaseMessage, HumanMessage
 from loguru import logger
-from models.base.model import Model, Chain
+from models.base.model import Model, Chain, Memory
 from models.retrieval import Retriever
 from pydantic import BaseModel
 from utils.config import (
@@ -65,6 +65,8 @@ class Workflow(BaseModel):
         self.dialog_keys = []
         self.error_flags = []
         for _chain in model.chains:
+            if _chain.memory == None:
+                _chain.memory = Memory()
             llm, prompt_template = self._prepare_llm_and_template(_chain)
             chain = self._prepare_chain(_chain, llm, prompt_template)
             if _chain.key is None:
@@ -200,22 +202,63 @@ class Workflow(BaseModel):
                 template = template.replace("{" + var + "}", "{{ " + var + " }}")
 
         if _chain.chain_type == "self_checking_chain":
+            output_definition_template = replace_dot_with_dash_for_tool_pattern(
+                _chain.prompt.output_definition
+            )
+            check_prompt = replace_dot_with_dash_for_tool_pattern(
+                _chain.prompt.check_prompt
+            )
+            input_variables += extract_tool_patterns_from_brackets(check_prompt)
+            input_variables += extract_tool_patterns_from_brackets(
+                output_definition_template
+            )
+            for var in input_variables:
+                output_definition_template = output_definition_template.replace(
+                    "[{" + var + "}]", "{{ " + var + " }}"
+                )
+                check_prompt = check_prompt.replace(
+                    "[{" + var + "}]", "{{ " + var + " }}"
+                )
+            for i in range(len(input_variables)):
+                var = input_variables[i]
+                if var.startswith("tool-"):
+                    _var = "_".join(var.split("-"))
+                    output_definition_template = output_definition_template.replace(
+                        "{{ " + var + " }}", "{{ " + _var + " }}"
+                    )
+                    check_prompt = check_prompt.replace(
+                        "{{ " + var + " }}", "{{ " + _var + " }}"
+                    )
+                    input_variables[i] = _var
+                else:
+                    template = template.replace("{" + var + "}", "{{ " + var + " }}")
+                    output_definition_template.replace(
+                        "{" + var + "}", "{{ " + var + " }}"
+                    )
+                    check_prompt.replace("{" + var + "}", "{{ " + var + " }}")
             system_template = PromptTemplate(
                 template=template,
                 input_variables=input_variables,
                 validate_template=True,
                 template_format="jinja2",
             )
-            check_prompt = _chain.prompt.check_prompt.replace(
-                "[{target}]", _chain.prompt.target
-            )
+            check_prompt = check_prompt.replace("[{target}]", _chain.prompt.target)
             check_template = PromptTemplate(
                 template=check_prompt,
                 input_variables=input_variables,
                 validate_template=True,
                 template_format="jinja2",
             )
-            return llm, [system_template, check_template]
+            output_definition_template = output_definition_template.replace(
+                "[{target}]", _chain.prompt.target
+            )
+            output_definition = PromptTemplate(
+                template=output_definition_template,
+                validate_template=True,
+                template_format="jinja2",
+                input_variables=input_variables,
+            )
+            return llm, [system_template, check_template, output_definition]
 
         prompt_template = PromptTemplate(
             template=template,
@@ -237,7 +280,10 @@ class Workflow(BaseModel):
                         }
                     )
                     chain = EnhanceConversationalRetrievalChain(
-                        prompt=prompt_template[0], retriever=retriever, llm=llm
+                        prompt=prompt_template[0],
+                        retriever=retriever,
+                        llm=llm,
+                        memory_option=_chain.memory,
                     )
 
                     chain.callbacks = [
@@ -254,6 +300,7 @@ class Workflow(BaseModel):
                     chain = EnhanceConversationChain(
                         llm=llm,
                         prompt=prompt_template[0],
+                        memory_option=_chain.memory,
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(self.error_flags),
@@ -270,6 +317,8 @@ class Workflow(BaseModel):
                         check_prompt=prompt_template[1],
                         max_retries=_chain.prompt.follow_up_questions_num + 1,
                         target=_chain.prompt.target,
+                        memory_option=_chain.memory,
+                        output_definition=prompt_template[2],
                     )
                     chain.callbacks = [
                         LLMAsyncIteratorCallbackHandler(self.error_flags),
@@ -281,7 +330,7 @@ class Workflow(BaseModel):
             case _:
                 logger.error(f"Chain type {_chain.chain_type} not supported")
                 raise Exception("Chain type not supported")
-        chain.memory = _chain.memory
+
         return chain
 
     async def agenerate(self, messages: List[BaseMessage]) -> str:
