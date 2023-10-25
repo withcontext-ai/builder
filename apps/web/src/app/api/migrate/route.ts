@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import axios from 'axios'
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { db } from '@/lib/drizzle-edge'
 import { safeParse } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
-import { WorkflowItem } from '@/app/app/[app_id]/(manage)/settings/workflow/type'
-import { taskToApiFormatter } from '@/app/app/[app_id]/(manage)/settings/workflow/utils'
+import { WorkflowItem } from '@/app/(app)/app/[app_id]/(manage)/settings/workflow/type'
+import { taskToApiFormatter } from '@/app/(app)/app/[app_id]/(manage)/settings/workflow/utils'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
