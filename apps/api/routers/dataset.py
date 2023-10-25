@@ -9,13 +9,8 @@ from models.base.dataset import Dataset
 from models.controller import dataset_manager
 from models.retrieval import Retriever
 from pydantic import BaseModel
-from concurrent.futures import ThreadPoolExecutor
 from fastapi import Query
 from models.controller.celery.celery_task import background_create_dataset, background_add_document, background_delete_document
-
-
-
-executor = ThreadPoolExecutor(max_workers=1000)
 
 
 class IndexResponse(BaseModel):

@@ -7,10 +7,8 @@ from fastapi import APIRouter, HTTPException, Request
 from loguru import logger
 from models.base import Model
 from models.controller import model_manager, session_state_manager
-from concurrent.futures import ThreadPoolExecutor
 from models.controller.celery.celery_task import background_create_model, background_update_model
 
-executor = ThreadPoolExecutor(max_workers=1000)
 
 router = APIRouter(prefix="/v1/models")
 
