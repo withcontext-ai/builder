@@ -11,8 +11,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
-import MicrosoftPdfIcon from '../icons/MicrosoftPdfIcon'
-import MicrosoftWordIcon from '../icons/MicrosoftWordIcon'
+import PdfIcon from '../icons/MicrosoftPdfIcon'
+import MicrosoftWordIcon from '../icons/PdfIcon'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent } from '../ui/dialog'
 import { Progress } from '../ui/progress'
@@ -73,7 +73,7 @@ export const FileImage = ({
     return <MicrosoftWordIcon className={cn('h-8 w-8 shrink-0', className)} />
 
   if (type === 'pdf')
-    return <MicrosoftPdfIcon className={cn('h-8 w-8 shrink-0', className)} />
+    return <PdfIcon className={cn('h-8 w-8 shrink-0', className)} />
 }
 
 export const FileCard = (props: FileItemProps) => {

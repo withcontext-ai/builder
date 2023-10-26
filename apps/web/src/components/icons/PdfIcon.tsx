@@ -1,6 +1,6 @@
 import React, { SVGProps } from 'react'
 
-export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
+export function PdfIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -130,4 +130,4 @@ export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-export default MicrosoftWordIcon
+export default PdfIcon
