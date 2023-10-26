@@ -6,7 +6,7 @@ from typing import AsyncIterable, Awaitable, List
 
 import graphsignal
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from models.response.response import OpenAIStreamResponse
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from loguru import logger
 from models.base import Choices, CompletionsRequest, CompletionsResponse
@@ -67,7 +67,6 @@ async def send_message(
     session_id: str,
     filt=False,
     start_time=None,
-    reload=False,
 ) -> AsyncIterable[str]:
     messages = []
     for message_content in messages_contents:
@@ -94,7 +93,7 @@ async def send_message(
             detail=f"Model {model_id} has {len(models)} models in model manager",
         )
     model = models[0]
-    workflow = session_state_manager.get_workflow(session_id, model, reload=reload)
+    workflow = session_state_manager.get_workflow(session_id, model)
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
@@ -151,7 +150,7 @@ async def send_message(
             }
             yield f"data: {json.dumps(info)}\n\n"
     yield "data: [DONE]\n\n"
-    session_state_manager.save_workflow_status(session_id, workflow, reload=reload)
+    session_state_manager.save_workflow_status(session_id, workflow)
 
 
 async def send_done_message():
@@ -174,16 +173,15 @@ async def stream_completions(body: CompletionsRequest):
             )
             webhook_handler = WebhookHandler()
             webhook_handler.create_video_room_link(body.session_id, link)
-            return StreamingResponse(
+            return OpenAIStreamResponse(
                 send_done_message(), media_type="text/event-stream"
             )
         else:
-            return StreamingResponse(
+            return OpenAIStreamResponse(
                 send_message(
                     body.messages,
                     body.session_id,
                     start_time=start_time,
-                    reload=body.reload,
                 ),
                 media_type="text/event-stream",
             )
@@ -197,7 +195,7 @@ async def video_stream_completions(
 ):
     with graphsignal.start_trace("completions_video"):
         logger.info(f"completions payload: {body.dict()}")
-        return StreamingResponse(
+        return OpenAIStreamResponse(
             send_message(body.messages, session_id, filt=True),
             media_type="text/event-stream",
         )
