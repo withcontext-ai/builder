@@ -12,6 +12,7 @@
     "format:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,mdx}\" --cache",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
+    "snapshot": "vitest run -u",
     "test:e2e": "playwright test",
     "db:push": "drizzle-kit push:pg --config drizzle.config.ts"
   },
@@ -88,7 +89,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.46.1",
-    "react-markdown": "^8.0.7",
+    "react-markdown": "^9.0.0",
     "react-mentions": "^4.4.10",
     "react-syntax-highlighter": "^15.5.0",
     "react-textarea-autosize": "^8.5.3",

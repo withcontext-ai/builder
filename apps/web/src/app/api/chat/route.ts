@@ -139,6 +139,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const payload = {
     session_id: apiSessionId,
     messages: messageDTO,
+    reload: !!reloadMessageId,
   }
 
   const requestId = nanoid()
@@ -230,6 +231,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
       id: messageId,
     },
   })
+  req.signal.onabort = () => {
+    stream.cancel()
+  }
 
   return new Response(stream)
 }
