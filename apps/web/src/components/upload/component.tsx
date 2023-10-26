@@ -11,8 +11,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 
-import PdfIcon from '../icons/MicrosoftPdfIcon'
-import MicrosoftWordIcon from '../icons/PdfIcon'
+import MicrosoftWordIcon from '../icons/MicrosoftWordIcon'
+import PdfIcon from '../icons/PdfIcon'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent } from '../ui/dialog'
 import { Progress } from '../ui/progress'
