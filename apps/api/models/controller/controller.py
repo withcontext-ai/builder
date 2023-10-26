@@ -1,23 +1,23 @@
 import asyncio
+import copy
+import json
+import time
 from typing import Union
 
+import redis
+from langchain.schema import Document
+from langchain.text_splitter import CharacterTextSplitter
 from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
-from models.workflow import Workflow
-from models.retrieval import Retriever
 from models.data_loader import PDFHandler, WordHandler
-from langchain.text_splitter import CharacterTextSplitter
-from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
-from langchain.schema import Document
+from models.prompt_manager.manager import PromptManagerMixin
+from models.retrieval import Retriever
+from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
+from models.workflow import Workflow
+from utils import AnnotatedDataStorageClient, GoogleCloudStorageClient
+from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 
 from .webhook import WebhookHandler as DatasetWebhookHandler
-from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
-from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
-import redis
-import json
-import copy
-
-from models.prompt_manager.manager import PromptManagerMixin
 
 
 class RelativeManager(BaseManager):
@@ -710,7 +710,17 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             raise Exception("Session state not found")
         return session_states[0].model_id
 
-    def save_workflow_status(self, session_id, workflow, reload=False):
+    def get_session_used_time_urn(self, session_id: str):
+        return f"session_used_time:{session_id}"
+
+    def save_workflow_status(self, session_id, workflow, reload=False, used_time=None):
+        if used_time:
+            last_used_time = self.redis.get(self.get_session_used_time_urn(session_id))
+            if last_used_time:
+                last_used_time = int(last_used_time)
+                if used_time < last_used_time:
+                    return
+
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
                 self.save_chain_status(
@@ -733,7 +743,9 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             session_id, workflow.context.current_chain, reload=reload
         )
 
-    def get_workflow(self, session_id, model, reload=False):
+    def get_workflow(self, session_id, model, reload=False, start_time=time.time()):
+        # set session used time
+        self.redis.set(self.get_session_used_time_urn(session_id), int(start_time))
         if model is None:
             model_id = self.get_model_id(session_id)
             if model_id is None:
@@ -833,7 +845,8 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
     def save_workflow_step(self, session_id, current_step, reload=False):
         if not reload:
             history_step = self.redis.get(f"workflow_step:{session_id}")
-            self.redis.set(f"reload_workflow_step:{session_id}", history_step)
+            if history_step:
+                self.redis.set(f"reload_workflow_step:{session_id}", history_step)
         self.redis.set(f"workflow_step:{session_id}", current_step)
 
 

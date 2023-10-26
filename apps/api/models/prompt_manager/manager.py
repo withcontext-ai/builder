@@ -14,9 +14,11 @@ class PromptManagerMixin:
     ):
         if not reload:
             current_output = self.get_chain_output(session_id, output_key, False)
-            self.redis.set(
-                self.get_chain_output_urn(session_id, output_key, True), current_output
-            )
+            if current_output:
+                self.redis.set(
+                    self.get_chain_output_urn(session_id, output_key, True),
+                    current_output,
+                )
         self.redis.set(
             self.get_chain_output_urn(session_id, output_key, reload=False), output
         )
