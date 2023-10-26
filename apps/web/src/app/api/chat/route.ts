@@ -77,8 +77,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
     reload: !!reloadMessageId,
   }
 
-  console.log('payload:', payload)
-
   const requestId = nanoid()
   await logsnag?.track({
     user_id: userId,
@@ -142,16 +140,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
         }
         if (reloadMessageId) {
           try {
-            console.log('editMessage:', messageId, newMessage)
             await editMessage(messageId, newMessage)
           } catch (error: any) {
             if (error.message === 'Message not found') {
-              console.log('addMessage 2:', newMessage)
               await addMessage(newMessage)
             }
           }
         } else {
-          console.log('addMessage 1:', newMessage)
           await addMessage(newMessage)
         }
       },
