@@ -6,28 +6,28 @@ export default function Loading() {
       <Skeleton className="h-10 w-full" />
       <div className="w-full flex-1 space-y-12 overflow-hidden p-4">
         <div className="flex items-start space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
           <div className="w-full space-y-4">
             <Skeleton className="h-4 w-[250px]" />
             <Skeleton className="h-64 w-3/4" />
           </div>
         </div>
         <div className="flex items-start space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
           <div className="w-full space-y-4">
             <Skeleton className="h-4 w-[250px]" />
             <Skeleton className="h-64 w-3/4" />
           </div>
         </div>
         <div className="flex items-start space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
           <div className="w-full space-y-4">
             <Skeleton className="h-4 w-[250px]" />
             <Skeleton className="h-64 w-3/4" />
           </div>
         </div>
         <div className="flex items-start space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-12 w-12 shrink-0 rounded-full" />
           <div className="w-full space-y-4">
             <Skeleton className="h-4 w-[250px]" />
             <Skeleton className="h-64 w-3/4" />
