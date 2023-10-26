@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 
-import { auth, currentUser } from '@/lib/auth'
 import { getApp } from '@/db/apps/actions'
+import { checkOwnership } from '@/utils/permission'
+import ManageLayout from '@/components/layouts/manage-layout'
 
 import Sidebar from './sidebar'
 
@@ -12,24 +13,17 @@ interface IProps {
   params: { app_id: string }
 }
 
-export default async function SettingsLayout({ children, params }: IProps) {
+export default async function Layout({ children, params }: IProps) {
   const { app_id } = params
-  const { userId } = auth()
-  const { isAdmin } = await currentUser()
-
   const appDetail = await getApp(app_id)
-  const isOwner = appDetail.created_by === userId
 
-  if (!isOwner && !isAdmin) {
+  if (!checkOwnership(appDetail.created_by)) {
     redirect('/')
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex h-full w-full bg-white">
-      <div className="w-[276px] shrink-0 border-r border-slate-200 bg-slate-50">
-        <Sidebar appId={app_id} appName={appDetail.name} />
-      </div>
-      <div className="flex-1">{children}</div>
-    </div>
+    <ManageLayout sidebar={<Sidebar appId={app_id} appName={appDetail.name} />}>
+      {children}
+    </ManageLayout>
   )
 }
