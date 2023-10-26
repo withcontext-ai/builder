@@ -141,8 +141,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
           ...(metadata?.raw && { raw: metadata.raw }),
         }
         if (reloadMessageId) {
-          await editMessage(messageId, newMessage)
+          try {
+            console.log('editMessage:', messageId, newMessage)
+            await editMessage(messageId, newMessage)
+          } catch (error: any) {
+            if (error.message === 'Message not found') {
+              console.log('addMessage 2:', newMessage)
+              await addMessage(newMessage)
+            }
+          }
         } else {
+          console.log('addMessage 1:', newMessage)
           await addMessage(newMessage)
         }
       },
