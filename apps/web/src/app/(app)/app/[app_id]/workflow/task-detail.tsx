@@ -69,12 +69,18 @@ export default function TaskDetail({ value, onClose }: IProps) {
       </div>
 
       <Item label="Model" value={modelName} />
+
+      <Item label="Temperature" value={temperature} />
+      <Item label="Top P" value={topP} />
+      <Item label="Presence Penalty" value={presencePenalty} />
+      <Item label="Frequency Penalty" value={frequencyPenalty} />
+
       {systemPrompt && (
         <PromptItem title="System Prompt" value={systemPrompt} />
       )}
-      {basicPrompt && <PromptItem title="Basic Prompt" value={basicPrompt} />}
       {target && <Item label="Target" value={target} />}
       {checkPrompt && <PromptItem title="Check Prompt" value={checkPrompt} />}
+      {basicPrompt && <PromptItem title="Basic Prompt" value={basicPrompt} />}
       {followUpQuestionsNumber != null && (
         <Item
           label="Maximum follow-up questions"
@@ -84,11 +90,6 @@ export default function TaskDetail({ value, onClose }: IProps) {
       {outputDefinition && (
         <PromptItem title="Output Definition" value={outputDefinition} />
       )}
-
-      <Item label="Temperature" value={temperature} />
-      <Item label="Top P" value={topP} />
-      <Item label="Presence Penalty" value={presencePenalty} />
-      <Item label="Frequency Penalty" value={frequencyPenalty} />
       <Item label="Memory Type" value={formatRetrieverType(memoryType)} />
       {showK && <Item label="k" value={k} />}
       {showLimitToken && <Item label="Max Token Limit" value={maxTokenLimit} />}
