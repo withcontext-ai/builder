@@ -157,6 +157,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   })
 
   req.signal.onabort = () => {
+    console.log('onabort')
     stream.cancel()
   }
 
