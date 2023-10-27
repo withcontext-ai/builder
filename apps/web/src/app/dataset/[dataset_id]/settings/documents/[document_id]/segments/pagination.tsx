@@ -74,7 +74,7 @@ export function DataTablePagination<TData>({
     const pageSize = table.getState().pagination.pageSize
     const total = table.getPageCount()
     return { current, total, pageSize }
-  }, [table.getState(), table.getPageCount()])
+  }, [table.getState().pagination, table.getPageCount()])
 
   return (
     <div className="flex h-full w-full items-center justify-end px-2">
