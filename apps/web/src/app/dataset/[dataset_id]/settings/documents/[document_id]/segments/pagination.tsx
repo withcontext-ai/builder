@@ -79,9 +79,10 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex h-full w-full items-center justify-end px-2">
       <RcPagination
-        className="flex items-center space-x-6 lg:space-x-8"
+        className="flex items-center space-x-2"
         {...iconsProps}
         {...pageProps}
+        total={1000}
         onChange={(current, _) => {
           table.setPageIndex(current - 1)
         }}
