@@ -49,10 +49,12 @@ export async function OpenAIStream({
 
   const stream = new ReadableStream({
     cancel() {
+      console.log('/lib/openai-stream, cancel')
       aborted = true
       abortController.abort()
     },
     async start(controller) {
+      console.log('/lib/openai-stream, start')
       // prevent the stream from closing when the initial response is too long
       const waitingId = setInterval(() => {
         const queue = encoder.encode(MESSAGE_FOR_KEEP_STREAM_CONNECTION)

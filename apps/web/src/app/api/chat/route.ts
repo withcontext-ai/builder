@@ -155,8 +155,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
       id: messageId,
     },
   })
-
+  console.log('/api/chat')
   req.signal.onabort = () => {
+    console.log('/api/chat, onabort')
     stream.cancel()
   }
 
