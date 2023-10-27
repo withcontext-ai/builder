@@ -189,12 +189,17 @@ const Upload = (props: UploadProps) => {
 
   const showUpdateImageList = useMemo(() => {
     const latest = mergedFileList[mergedFileList?.length - 1]
-    return latest?.uid ? (
-      <ImageCard {...props} file={latest} listProps={false} key={latest?.uid} />
+    return latest?.uid || isUploading ? (
+      <ImageCard
+        {...props}
+        file={{ ...latest }}
+        listProps={false}
+        key={latest?.uid}
+      />
     ) : (
       bgText
     )
-  }, [bgText, mergedFileList, props])
+  }, [bgText, mergedFileList, isUploading, props])
 
   const hiddenUploadIcon = useMemo(() => {
     const file = mergedFileList?.find(
@@ -202,7 +207,6 @@ const Upload = (props: UploadProps) => {
     )
     return listType === 'update-file' && type === 'drag' && file?.uid
   }, [mergedFileList, listType, type, fileType])
-
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
       <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
