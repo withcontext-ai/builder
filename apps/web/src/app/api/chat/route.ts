@@ -156,9 +156,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     },
   })
 
-  req.signal.onabort = () => {
+  req.signal.onabort = async () => {
     console.log('onabort')
-    stream.cancel()
+    await stream.cancel()
   }
 
   return new Response(stream)

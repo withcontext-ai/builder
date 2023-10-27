@@ -49,6 +49,7 @@ export async function OpenAIStream({
 
   const stream = new ReadableStream({
     cancel() {
+      console.log('cancel')
       aborted = true
       abortController.abort()
     },
