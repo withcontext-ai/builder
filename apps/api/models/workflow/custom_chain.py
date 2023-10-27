@@ -110,15 +110,19 @@ class TargetedChain(Chain):
                 messages=[messages],
                 callbacks=run_manager.get_child() if run_manager else None,
             )
-            if response.generations[0][0].text.lower().startswith("yes"):
+            response_text = response.generations[0][0].text
+            if response_text.startswith("AI:"):
+                response_text = response_text[3:]
+            # if response.generations[0][0].text.lower().startswith("yes"):
+            if response_text.lower().startswith("yes") and len(response_text) < 5:
                 self.process = TargetedChainStatus.FINISHED
-                return {self.output_key: response.generations[0][0].text}
+                return {self.output_key: response_text}
             else:
                 self.max_retries -= 1
                 if self.max_retries <= 0:
                     self.process = TargetedChainStatus.ERROR
-                    return {self.output_key: response.generations[0][0].text}
-                question = response.generations[0][0].text
+                    return {self.output_key: response_text}
+                question = response_text
         prompt_value = self.system_prompt.format_prompt(**inputs)
         if self.process == TargetedChainStatus.INIT:
             self.process = TargetedChainStatus.RUNNING
@@ -146,7 +150,9 @@ class TargetedChain(Chain):
         for k in copy_inputs:
             if "dialog" in k:
                 try:
-                    copy_inputs[k] = get_buffer_string(copy_inputs[k])
+                    copy_inputs[k] = get_buffer_string(
+                        copy_inputs[k], human_prefix="User"
+                    )
                 except:
                     logger.error(f"Error in get_output: {copy_inputs[k]}")
 

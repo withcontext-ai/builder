@@ -51,11 +51,14 @@ class Workflow(BaseModel):
     outout_keys: List[str] = []
     outputs: dict = {}
     error_flags: List[Exception] = []
+    disconnect_event: Optional[asyncio.Event] = asyncio.Event()
 
     class Config:
         arbitrary_types_allowed = True
 
-    def __init__(self, model: Model, session_id: str) -> None:
+    def __init__(
+        self, model: Model, session_id: str, disconnect_event: asyncio.Event
+    ) -> None:
         super().__init__()
         chains = []
         self.session_id = session_id
@@ -79,6 +82,7 @@ class Workflow(BaseModel):
             chain_dialog_key = self.get_chain_dialog_key(_chain.key)
             self.known_keys.append(chain_dialog_key)
             self.dialog_keys.append(chain_dialog_key)
+            self.disconnect_event = disconnect_event
         self.context = EnhanceSequentialChain(
             chains=chains,
             input_variables=[QUESTION_KEY, CHAT_HISTORY_KEY, CONTEXT_KEY]

@@ -709,6 +709,7 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         return session_states[0].model_id
 
     def save_workflow_status(self, session_id, workflow):
+        logger.info(f"Saving workflow status {session_id}")
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
                 self.save_chain_status(
@@ -725,13 +726,15 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         self.save_chain_memory(session_id, workflow.context.current_chain_io)
         self.save_workflow_step(session_id, workflow.context.current_chain)
 
-    def get_workflow(self, session_id, model):
+    def get_workflow(self, session_id, model, disconnect_event):
         if model is None:
             model_id = self.get_model_id(session_id)
             if model_id is None:
                 raise Exception("Session state not found")
             model = model_manager.get_models(model_id)[0]
-        workflow = Workflow(model=model, session_id=session_id)
+        workflow = Workflow(
+            model=model, session_id=session_id, disconnect_event=disconnect_event
+        )
         # get chain status
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
