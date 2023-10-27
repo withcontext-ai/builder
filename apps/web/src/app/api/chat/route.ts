@@ -7,10 +7,10 @@ import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
 import { addMessage, editMessage } from '@/db/messages/actions'
 
-export const runtime = 'edge'
+// export const runtime = 'edge'
 // TODO: move to pdx1 (us-west-2) where db is located
 // https://vercel.com/docs/edge-network/regions
-export const preferredRegion = 'cle1' // now at us-east-2 where ai service is located
+// export const preferredRegion = 'cle1' // now at us-east-2 where ai service is located
 export const dynamic = 'force-dynamic'
 
 const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
