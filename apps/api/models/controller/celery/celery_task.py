@@ -25,7 +25,6 @@ app.conf.result_backend = f"rediss://:{password}@{broker_host}:{broker_port}/{re
 def retry_on_exception(task_func=None, max_retries=3, countdown=60):
     if task_func is None:
         return lambda func: retry_on_exception(func, max_retries=max_retries, countdown=countdown)
-
     @wraps(task_func)
     def wrapper(task_instance, *args, **kwargs):
         retries = 0
