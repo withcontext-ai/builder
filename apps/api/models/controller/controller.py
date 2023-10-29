@@ -248,19 +248,6 @@ class DatasetManager(BaseManager):
             self.redis.set(self.get_dataset_urn(dataset.id), json.dumps(dataset.dict()))
         return datasets
 
-    def upsert_dataset(self, dataset_id: str, dataset: dict):
-        dataset_info = self.get_datasets(dataset_id)
-        if dataset_info is None:
-            try:
-                dataset["id"] = dataset_id
-                _dataset = Dataset(**dataset)
-                self.save_dataset(_dataset)
-            except Exception as e:
-                logger.error(f"Error when saving dataset {dataset_id}: {e}")
-                raise e
-        else:
-            self.update_dataset(dataset_id, dataset)
-
     def get_document_segments(
         self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10, query=None
     ):
