@@ -33,7 +33,7 @@ from langchain.prompts.base import BasePromptTemplate
 from langchain.retrievers import SelfQueryRetriever
 from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain.schema.language_model import BaseLanguageModel
-from langchain.schema.messages import get_buffer_string
+from utils.base import get_buffer_string
 from loguru import logger
 from models.base.model import Memory
 from models.prompt_manager.compress import PromptCompressor
@@ -114,7 +114,10 @@ class TargetedChain(Chain):
             if response_text.startswith("AI:"):
                 response_text = response_text[3:]
             # if response.generations[0][0].text.lower().startswith("yes"):
-            if response_text.lower().startswith("yes") and len(response_text) < 5:
+            if (
+                response_text.lower().strip().startswith("yes")
+                and len(response_text) < 5
+            ):
                 self.process = TargetedChainStatus.FINISHED
                 return {self.output_key: response_text}
             else:
@@ -170,6 +173,8 @@ class TargetedChain(Chain):
             ],
             callbacks=run_manager.get_child(),
         )
+        if response.generations[0][0].text.startswith("AI:"):
+            return response.generations[0][0].text[3:].strip()
         return response.generations[0][0].text
 
 
