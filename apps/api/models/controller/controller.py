@@ -161,12 +161,6 @@ class DatasetManager(BaseManager):
         handler = DatasetWebhookHandler()
         handler.update_dataset_status(dataset_id, 1)
         dataset = self.get_datasets(dataset_id)[0]
-        if new_document.get("retrieval"):
-            retrieval_dict = new_document["retrieval"]
-        else:
-            retrieval_dict = dataset.retrieval
-        new_document.pop("retrieval", None)
-        new_document["retrieval"] = retrieval_dict
         chains = []
         if len(dataset.documents) != 0:
             chains = Retriever.get_relative_chains(dataset)
