@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
@@ -21,7 +21,6 @@ function deleteDataset(url: string) {
 }
 
 const Sidebar = ({ datasetId, name }: IProps) => {
-  const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,

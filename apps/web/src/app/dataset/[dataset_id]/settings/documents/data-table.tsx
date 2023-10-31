@@ -153,7 +153,7 @@ const DatasetTable = ({ preload = [], datasetId, total }: IProps) => {
         },
       },
     ],
-    [datasetId]
+    [datasetId, synchronizeNum]
   )
 
   const handleRowClick = useCallback(
