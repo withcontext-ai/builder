@@ -132,17 +132,6 @@ interface ISelectItem<T> {
   showTooltip?: boolean
 }
 
-const TooltipItem = () => (
-  <Tooltip key={item?.value}>
-    <TooltipTrigger asChild>
-      <div className="flex-1 truncate">{item?.label}</div>
-    </TooltipTrigger>
-    <TooltipContent side="right">
-      <p className="max-w-xs">{item?.desc}</p>
-    </TooltipContent>
-  </Tooltip>
-)
-
 export function SelectItem<T extends FieldValues>({
   name,
   label,
