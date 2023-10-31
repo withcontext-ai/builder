@@ -68,6 +68,7 @@ class DocumentHandler(ABC, DocumentProcessingMixin):
             doc.metadata[
                 "urn"
             ] = f"{dataset.id}-{document.url}-{doc.metadata['page_number']}"
+
         logger.info(
             f"got documents: {len(all_docs)} while loading dataset {dataset.id}"
         )

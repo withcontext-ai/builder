@@ -71,6 +71,8 @@ class Retriever:
                 meta_ids.append(_id)
         for id in meta_ids:
             cls.upsert_vector(id=id, content="", metadata=metadata)
+        metadata["text"] = ""
+        cls.upsert_vector(id=f"dataset:{dataset.id}", content="", metadata=metadata)
         webhook_handler = WebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
@@ -87,10 +89,8 @@ class Retriever:
             for i in range(doc.page_size):
                 ids.append(f"{dataset.id}-{doc.url}-{i}")
             ids.append(f"{dataset.id}-{doc.url}")
-        if len(ids) == 1:
-            logger.warning(
-                f"Dataset {dataset.id} has no documents when deleting, or page_size bug"
-            )
+        if len(ids) == 0:
+            logger.warning(f"Dataset {dataset.id} has no documents when deleting")
             return
         index.delete(ids=ids, namespace="withcontext")
 
@@ -98,10 +98,8 @@ class Retriever:
     def get_relative_chains(cls, dataset: Dataset):
         pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
         index = pinecone.Index("context-prod")
-        if len(dataset.documents) == 0:
-            logger.warning(f"Dataset {dataset.id} has no documents when getting chains")
-            return []
-        id = f"{dataset.id}-{dataset.documents[0].url}"
+        id = f"dataset:{dataset.id}"
+        # id = f"{dataset.id}-{dataset.documents[0].url}"
         logger.info(f"Getting vector for id{id}")
         vector = (
             index.fetch(namespace="withcontext", ids=[id])
@@ -110,8 +108,17 @@ class Retriever:
             .get(id, {})
         )
         if vector == {}:
-            logger.warning(f"vector {id} not found when getting chains")
-            return []
+            if len(dataset.documents) == 0:
+                logger.warning(f"Dataset {dataset.id} has no documents when getting")
+                return []
+            id = f"{dataset.id}-{dataset.documents[0].url}"
+            vector = (
+                index.fetch(namespace="withcontext", ids=[id])
+                .to_dict()
+                .get("vectors", {})
+                .get(id, {})
+            )
+            logger.warning(f"vector {id} need to be updated")
         logger.info(
             f"relative chains: {vector.get('metadata', {}).get('relative_chains', [])}"
         )
@@ -150,6 +157,13 @@ class Retriever:
                 namespace="withcontext",
             )
             logger.info(f"Updated {id} with relative chains {known_chains}")
+            id = f"dataset:{dataset.id}"
+            index.update(
+                id=id,
+                set_metadata={"relative_chains": known_chains},
+                namespace="withcontext",
+            )
+            logger.info(f"Updated {id} with relative chains {known_chains}")
 
     @classmethod
     def delete_relative_chain_from_dataset(
@@ -173,6 +187,12 @@ class Retriever:
                     namespace="withcontext",
                 )
             id = f"{dataset.id}-{doc.url}"
+            index.update(
+                id=id,
+                set_metadata={"relative_chains": known_chains},
+                namespace="withcontext",
+            )
+            id = f"dataset:{dataset.id}"
             index.update(
                 id=id,
                 set_metadata={"relative_chains": known_chains},

@@ -153,7 +153,7 @@ class DatasetManager(BaseManager):
         urn = self.get_dataset_urn(dataset_id)
         if self.redis.get(urn):
             self.redis.delete(urn)
-        if update_data.get("documents"):
+        if update_data.get("documents") is not None:
             handler = DatasetWebhookHandler()
             handler.update_dataset_status(dataset_id, 1)
             dataset = self.get_datasets(dataset_id)[0]
@@ -164,10 +164,8 @@ class DatasetManager(BaseManager):
             update_data.pop("retrieval", None)
             update_data["retrieval"] = retrieval_dict
             # Let's start all over again first
-            chains = []
-            if len(dataset.documents) != 0:
-                chains = Retriever.get_relative_chains(dataset)
-                Retriever.delete_index(dataset)
+            chains = Retriever.get_relative_chains(dataset)
+            Retriever.delete_index(dataset)
             if len(update_data["documents"]) != 0:
                 dataset = Dataset(id=dataset_id, **update_data)
                 # pages updated
