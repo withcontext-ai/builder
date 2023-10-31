@@ -14,6 +14,7 @@ class OpenAIStreamResponse(StreamingResponse):
             message = await receive()
             if message["type"] == "http.disconnect":
                 self.disconnect_event.set()
+                logger.info(f"connection closed forrrrr test")
                 break
             else:
                 logger.info(f"message: {message}")
