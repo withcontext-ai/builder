@@ -136,6 +136,9 @@ class DatasetManager(BaseManager):
         if len(dataset.documents) != 0:
             Retriever.create_index(dataset)
         self.redis.set(urn, json.dumps(dataset.dict()))
+        Retriever.upsert_vector(
+            id=f"dataset:{dataset.id}", content="", metadata={"text": ""}
+        )
         handler.update_dataset_status(dataset.id, 0)
 
         return self.table.insert().values(dataset.dict())
@@ -185,6 +188,7 @@ class DatasetManager(BaseManager):
                 )
                 self._update_dataset(dataset_id, dataset.dict())
                 return
+        handler.update_dataset_status(dataset_id, 0)
         self._update_dataset(dataset_id, update_data)
 
     @BaseManager.db_session

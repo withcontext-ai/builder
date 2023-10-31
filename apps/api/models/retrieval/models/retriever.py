@@ -71,8 +71,8 @@ class Retriever:
                 meta_ids.append(_id)
         for id in meta_ids:
             cls.upsert_vector(id=id, content="", metadata=metadata)
-        metadata["text"] = ""
-        cls.upsert_vector(id=f"dataset:{dataset.id}", content="", metadata=metadata)
+        # metadata["text"] = ""
+        # cls.upsert_vector(id=f"dataset:{dataset.id}", content="", metadata=metadata)
         webhook_handler = WebhookHandler()
         for doc in dataset.documents:
             webhook_handler.update_document_status(
@@ -132,7 +132,8 @@ class Retriever:
         index = pinecone.Index("context-prod")
         known_chains = cls.get_relative_chains(dataset)
         chain_urn = f"{model_id}-{chain_key}"
-        known_chains.append(chain_urn)
+        if chain_urn not in known_chains:
+            known_chains.append(chain_urn)
         logger.info(f"Adding chain {chain_urn} to dataset {dataset.id}")
         logger.info(f"Known chains: {known_chains}")
         for doc in dataset.documents:
@@ -157,13 +158,13 @@ class Retriever:
                 namespace="withcontext",
             )
             logger.info(f"Updated {id} with relative chains {known_chains}")
-            id = f"dataset:{dataset.id}"
-            index.update(
-                id=id,
-                set_metadata={"relative_chains": known_chains},
-                namespace="withcontext",
-            )
-            logger.info(f"Updated {id} with relative chains {known_chains}")
+        id = f"dataset:{dataset.id}"
+        index.update(
+            id=id,
+            set_metadata={"relative_chains": known_chains},
+            namespace="withcontext",
+        )
+        logger.info(f"Updated {id} with relative chains {known_chains}")
 
     @classmethod
     def delete_relative_chain_from_dataset(
