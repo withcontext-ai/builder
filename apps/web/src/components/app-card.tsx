@@ -7,6 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface IProps {
   id: string
@@ -35,7 +40,7 @@ export default function AppCard({
               <img
                 src={icon}
                 alt={id}
-                className="relative h-24 w-24 rounded-lg bg-white object-cover"
+                className="h-24 w-24 rounded-lg bg-white object-cover"
               />
             ) : (
               <div
@@ -51,7 +56,14 @@ export default function AppCard({
               {creator}
             </CardDescription>
           </div>
-          <CardTitle className="truncate text-xl">{name}</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CardTitle className="truncate text-xl">{name}</CardTitle>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p className="max-w-xs">{name}</p>
+            </TooltipContent>
+          </Tooltip>
           <CardDescription className="line-clamp-4 break-words text-xs leading-5">
             {description}
           </CardDescription>
