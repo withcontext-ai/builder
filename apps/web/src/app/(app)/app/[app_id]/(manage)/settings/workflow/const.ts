@@ -169,16 +169,27 @@ If the answer cannot be found in the text, you may use other known information t
 ]
 
 export const MEMORY_TYPE = [
-  { label: 'NoMemory', value: 'no_memory' },
+  {
+    label: 'NoMemory',
+    value: 'no_memory',
+    desc: 'During the conversation, the history of previous rounds will not be retained. You can choose this option when you want the AI to perform very specific functions or generate very specific responses.',
+  },
   {
     label: 'ConversationBufferWindowMemory',
     value: 'conversation_buffer_window_memory',
+    desc: 'During the conversation, the history of the previous k rounds will be retained as memory. You can choose this option when you want a more intelligent conversation and the AI to remember the content of the recent few rounds of dialogue.',
   },
+
   {
     label: 'ConversationTokenBufferMemory',
     value: 'conversation_token_buffer_memory',
+    desc: 'During the conversation, the history of the previous X tokens will be retained as memory. You can choose this option when you want a more intelligent conversation, and the AI to remember some of the recent dialogue content.',
   },
-  { label: 'SummaryMemory', value: 'summary_memory' },
+  {
+    label: 'SummaryMemory',
+    value: 'summary_memory',
+    desc: 'During the conversation, all the summarized historical dialogues will be retained as memory. You can choose this option when you want a more intelligent conversation and aim to ensure the overall context of the entire conversation history remains accurate.',
+  },
 ]
 export const HAS_MAX_TOKEN_LIMIT = [
   'conversation_token_buffer_memory',

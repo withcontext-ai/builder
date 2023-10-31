@@ -36,6 +36,11 @@ import {
 } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { MentionTextarea } from '@/components/mention-textarea'
 
 import { HAS_K, HAS_MAX_TOKEN_LIMIT, MEMORY_TYPE } from './const'
@@ -123,13 +128,26 @@ export function TextareaItem<T extends FieldValues>({
 interface ISelectItem<T> {
   name: Path<T>
   label?: string
-  options: { label: string; value: PathValue<T, Path<T>> }[]
+  options: { label: string; value: PathValue<T, Path<T>>; desc?: string }[]
+  showTooltip?: boolean
 }
+
+const TooltipItem = () => (
+  <Tooltip key={item?.value}>
+    <TooltipTrigger asChild>
+      <div className="flex-1 truncate">{item?.label}</div>
+    </TooltipTrigger>
+    <TooltipContent side="right">
+      <p className="max-w-xs">{item?.desc}</p>
+    </TooltipContent>
+  </Tooltip>
+)
 
 export function SelectItem<T extends FieldValues>({
   name,
   label,
   options,
+  showTooltip = false,
 }: ISelectItem<T>) {
   const form = useFormContext<T>()
   const [open, setOpen] = useState(false)
@@ -182,7 +200,18 @@ export function SelectItem<T extends FieldValues>({
                             : 'opacity-0'
                         )}
                       />
-                      {item.label}
+                      {showTooltip ? (
+                        <Tooltip key={item?.value}>
+                          <TooltipTrigger asChild>
+                            <div className="flex-1 truncate">{item?.label}</div>
+                          </TooltipTrigger>
+                          <TooltipContent side="right">
+                            <p className="max-w-xs">{item?.desc}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        item?.label
+                      )}
                     </CommandItem>
                   ))}
                 </CommandGroup>
@@ -436,6 +465,7 @@ export function MemoryFormItem<T extends FieldValues>() {
           name="memory.memory_type"
           label="Memory Type"
           options={MEMORY_TYPE}
+          showTooltip
         />
         {showK && (
           <InputItem<IFormSchema> name="memory.k" type="number" label="k" />
