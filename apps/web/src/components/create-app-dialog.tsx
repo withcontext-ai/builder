@@ -34,6 +34,8 @@ import { useToast } from '@/components/ui/use-toast'
 import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
+import { UPLOAD_ACCEPT_MAP } from './upload/type'
+
 interface IProps {
   submit?: () => void
   defaultValues?: z.infer<typeof formSchema>
@@ -190,7 +192,7 @@ export default NiceModal.create((props: IProps) => {
                       <Upload
                         listType={image?.length ? 'update-image' : 'image'}
                         setUploading={setUploading}
-                        accept=".png, .jpeg,.webp,.jpg"
+                        accept={UPLOAD_ACCEPT_MAP.image}
                         fileList={image}
                         onChangeFileList={onChangeFileList}
                       />
