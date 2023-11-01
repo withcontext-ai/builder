@@ -92,7 +92,10 @@ class Retriever:
         if len(ids) == 0:
             logger.warning(f"Dataset {dataset.id} has no documents when deleting")
             return
-        index.delete(ids=ids, namespace="withcontext")
+        MAX_IDS_PER_REQUEST = 1000
+        for start_idx in range(0, len(ids), MAX_IDS_PER_REQUEST):
+            batch_ids = ids[start_idx : start_idx + MAX_IDS_PER_REQUEST]
+            index.delete(ids=batch_ids, namespace="withcontext")
 
     @classmethod
     def get_relative_chains(cls, dataset: Dataset):
