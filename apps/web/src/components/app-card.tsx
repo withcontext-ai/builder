@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
@@ -56,14 +58,18 @@ export default function AppCard({
               {creator}
             </CardDescription>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <CardTitle className="truncate text-xl">{name}</CardTitle>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p className="max-w-xs">{name}</p>
-            </TooltipContent>
-          </Tooltip>
+          {name?.length > 30 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CardTitle className="truncate text-xl">{name}</CardTitle>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[300px]">
+                <p className="break-words">{name}</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <CardTitle className="truncate text-xl">{name}</CardTitle>
+          )}
           <CardDescription className="line-clamp-4 break-words text-xs leading-5">
             {description}
           </CardDescription>
