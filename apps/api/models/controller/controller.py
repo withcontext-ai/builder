@@ -187,7 +187,18 @@ class DatasetManager(BaseManager):
                     f"Updating dataset {dataset_id} in cache, dataset: {dataset_dict_for_redis}"
                 )
                 self._update_dataset(dataset_id, dataset.dict())
+                webhook_handler = DocumentWebhookHandler()
+                for doc in dataset.documents:
+                    webhook_handler.update_document_status(
+                        dataset.id, doc.uid, doc.content_size, 0
+                    )
                 return
+        webhook_handler = DocumentWebhookHandler()
+        dataset = Dataset(**update_data, id=dataset_id)
+        for doc in dataset.documents:
+            webhook_handler.update_document_status(
+                dataset.id, doc.uid, doc.content_size, 0
+            )
         handler.update_dataset_status(dataset_id, 0)
         self._update_dataset(dataset_id, update_data)
 
