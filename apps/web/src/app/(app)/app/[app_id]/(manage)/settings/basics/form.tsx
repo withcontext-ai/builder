@@ -11,7 +11,7 @@ import { useDebounce } from 'usehooks-ts'
 import { z } from 'zod'
 
 import { flags } from '@/lib/flags'
-import { fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import { fetcher, getAvatarBgColor, getFirstLetter, nanoid } from '@/lib/utils'
 import {
   Form,
   FormControl,
@@ -88,10 +88,12 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
         {
           url: defaultValues?.icon,
           name: '',
+          uid: nanoid(),
         },
       ]
     : []
   const [image, setImage] = useState<FileProps[]>(values)
+  console.log(image, '---image')
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -171,7 +173,6 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
               accept={UPLOAD_ACCEPT_MAP['image']}
               fileList={image}
               bgColor={color}
-              listProps={false}
               bgText={bgText}
               onChangeFileList={(files) => {
                 const current = files[files?.length - 1]
