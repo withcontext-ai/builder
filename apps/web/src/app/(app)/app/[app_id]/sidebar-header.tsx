@@ -49,6 +49,7 @@ export default function Header(props: IProps) {
             <AppSettingDialog
               appId={app_id}
               name={name}
+              defaultValues={appDetail}
               isOwner={isOwner || isAdmin}
             />
           </div>

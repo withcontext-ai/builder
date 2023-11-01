@@ -7,6 +7,7 @@ import {
   Activity,
   ChevronDown,
   ChevronUp,
+  CopyIcon,
   LogOutIcon,
   Settings,
   Share,
@@ -15,6 +16,7 @@ import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import { cn, fetcher } from '@/lib/utils'
+import { NewApp } from '@/db/apps/schema'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import ConfirmDialog from './confirm-dialog'
+import CreateAppDialog from './create-app-dialog'
 import { Button } from './ui/button'
 
 function leaveApp(url: string) {
@@ -34,9 +37,10 @@ interface IProps {
   appId: string
   name: string
   isOwner: boolean
+  defaultValues?: NewApp
 }
 
-const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
+const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false)
 
@@ -117,6 +121,24 @@ const AppSettingDialog = ({ appId, name, isOwner }: IProps) => {
               })}
               <DropdownMenuSeparator />
             </>
+          )}
+          {isOwner && (
+            <CreateAppDialog
+              defaultValues={defaultValues}
+              isCopy
+              dialogTrigger={
+                <Button
+                  className={cn(
+                    'flex h-8 w-full items-center justify-start gap-2	rounded-sm p-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
+                  )}
+                  variant="ghost"
+                  type="button"
+                >
+                  <CopyIcon size="16" />
+                  Duplicate
+                </Button>
+              }
+            />
           )}
           {renderItem({
             icon: <Share size={16} />,

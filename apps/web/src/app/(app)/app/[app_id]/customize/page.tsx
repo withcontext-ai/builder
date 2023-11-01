@@ -62,7 +62,7 @@ const Customize = async (props: IProps) => {
     // })
   }
   return (
-    <div className={cn(!isAdmin || !isOwner ? 'block' : 'hidden')}>
+    <div className={cn(!isAdmin && !isOwner ? 'block' : 'hidden')}>
       <CreateAppDialog
         defaultValues={defaultValues}
         isCopy
