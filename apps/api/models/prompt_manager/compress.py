@@ -3,7 +3,7 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document, HumanMessage, SystemMessage
-from langchain.schema.messages import get_buffer_string
+from utils.base import get_buffer_string
 from langchain.text_splitter import CharacterTextSplitter
 from loguru import logger
 from models.base.model import Memory

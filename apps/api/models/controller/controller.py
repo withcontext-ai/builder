@@ -1,16 +1,24 @@
 import asyncio
+import copy
+import json
+import time
 from typing import Union
 
+import redis
+from langchain.schema import Document
+from langchain.text_splitter import CharacterTextSplitter
 from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
-from models.workflow import Workflow
-from models.retrieval import Retriever
 from models.data_loader import PDFHandler, WordHandler
-from langchain.text_splitter import CharacterTextSplitter
-from utils import GoogleCloudStorageClient, AnnotatedDataStorageClient
-from langchain.schema import Document
+from models.prompt_manager.manager import PromptManagerMixin
+from models.retrieval import Retriever
+from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
+from models.workflow import Workflow
+from utils import AnnotatedDataStorageClient, GoogleCloudStorageClient
+from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 
 from .webhook import WebhookHandler as DatasetWebhookHandler
+
 from models.retrieval.webhook import WebhookHandler as DocumentWebhookHandler
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 import redis
@@ -135,6 +143,9 @@ class DatasetManager(BaseManager):
         if len(dataset.documents) != 0:
             Retriever.create_index(dataset)
         self.redis.set(urn, json.dumps(dataset.dict()))
+        Retriever.upsert_vector(
+            id=f"dataset:{dataset.id}", content="", metadata={"text": ""}
+        )
         handler.update_dataset_status(dataset.id, 0)
 
         return self.table.insert().values(dataset.dict())
@@ -709,10 +720,14 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         return session_states[0].model_id
 
     def save_workflow_status(self, session_id, workflow):
+        logger.info(f"Saving workflow status {session_id}")
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
                 self.save_chain_status(
-                    session_id, chain.output_keys[0], chain.process, chain.max_retries
+                    session_id,
+                    chain.output_keys[0],
+                    chain.process,
+                    chain.max_retries,
                 )
                 self.save_chain_output(
                     session_id,
@@ -722,13 +737,15 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         self.save_chain_memory(session_id, workflow.context.current_chain_io)
         self.save_workflow_step(session_id, workflow.context.current_chain)
 
-    def get_workflow(self, session_id, model):
+    def get_workflow(self, session_id, model, disconnect_event):
         if model is None:
             model_id = self.get_model_id(session_id)
             if model_id is None:
                 raise Exception("Session state not found")
             model = model_manager.get_models(model_id)[0]
-        workflow = Workflow(model=model, session_id=session_id)
+        workflow = Workflow(
+            model=model, session_id=session_id, disconnect_event=disconnect_event
+        )
         # get chain status
         for chain in workflow.context.chains:
             if type(chain) in workflow.context.state_dependent_chains:
@@ -773,7 +790,8 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             current_status = json.loads(current_status)
             current_status[output_key] = (status, max_retries)
             self.redis.set(
-                self.get_session_state_urn(session_id), json.dumps(current_status)
+                self.get_session_state_urn(session_id),
+                json.dumps(current_status),
             )
         else:
             self.redis.set(

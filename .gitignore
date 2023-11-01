@@ -3,6 +3,9 @@ node_modules
 build/**
 dist/**
 .next/**
+.idea/**
 
 service-account-file.json
 apps/upload-api/uploads/**
+
+playwright/
