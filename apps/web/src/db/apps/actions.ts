@@ -29,7 +29,10 @@ import { SessionsTable } from '../sessions/schema'
 import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
-export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
+export async function addApp(
+  app: Omit<NewApp, 'short_id' | 'created_by'>,
+  isCopy?: boolean
+) {
   const requestId = nanoid()
 
   try {
@@ -75,16 +78,18 @@ export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
       api_model_id = data?.id
     }
 
-    const appVal = {
-      ...app,
-      short_id: nanoid(),
-      workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
-      workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
-      published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
-      published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
-      api_model_id,
-      created_by: userId,
-    }
+    const appVal = !isCopy
+      ? {
+          ...app,
+          short_id: nanoid(),
+          workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+          workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+          published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+          published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+          api_model_id,
+          created_by: userId,
+        }
+      : { ...app, short_id: nanoid(), api_model_id, created_by: userId }
     const [newApp] = await db.insert(AppsTable).values(appVal).returning()
 
     const appId = newApp?.short_id

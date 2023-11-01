@@ -9,6 +9,7 @@ import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
 import { fetcher, nanoid } from '@/lib/utils'
+import { NewApp } from '@/db/apps/schema'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -64,7 +65,7 @@ const formSchema = z.object({
 
 function addApp(
   url: string,
-  { arg }: { arg: { name: string; description?: string; icon?: string } }
+  { arg }: { arg: Partial<NewApp> & { isCopy?: boolean } }
 ) {
   return fetcher(url, {
     method: 'POST',
@@ -73,7 +74,7 @@ function addApp(
 }
 
 const CreateAppDialog = (props: IProps) => {
-  const { dialogTrigger, defaultValues: _defaultValues, isCopy } = props
+  const { dialogTrigger, defaultValues: _defaultValues, isCopy, submit } = props
   const defaultValues = {
     name: _defaultValues?.name || '',
     description: _defaultValues?.description || '',
@@ -104,7 +105,9 @@ const CreateAppDialog = (props: IProps) => {
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
-      const json = await trigger(data)
+      await submit?.()
+      const params = { ...defaultValues, ...data }
+      const json = await trigger({ ...params, isCopy })
       setOpen(false)
       mutate('/api/me/workspace')
       const nextUrl = `/app/${json.appId}/session/${json.sessionId}`

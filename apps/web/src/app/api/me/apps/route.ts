@@ -11,8 +11,10 @@ export async function GET() {
 
 // Create an app for the authenticated user
 export async function POST(req: NextRequest) {
-  const { name, description, icon } = (await req.json()) as NewApp
-  const response = (await addApp({ name, description, icon })) as any
+  const { isCopy = false, ...params } = (await req.json()) as NewApp & {
+    isCopy?: boolean
+  }
+  const response = (await addApp(params, isCopy)) as any
   if (response.error) {
     return NextResponse.json({ success: false, error: response.error })
   } else {
