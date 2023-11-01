@@ -8,7 +8,7 @@ import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
 
-import { fetcher } from '@/lib/utils'
+import { fetcher, nanoid } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -35,6 +35,8 @@ import { FileProps } from './upload/utils'
 interface IProps {
   dialogTrigger?: ReactNode
   submit?: () => void
+  defaultValues?: z.infer<typeof formSchema>
+  isCopy?: boolean
 }
 
 interface FormValuesProps {
@@ -60,12 +62,6 @@ const formSchema = z.object({
   icon: z.string().optional(),
 })
 
-const defaultValues = {
-  name: '',
-  description: '',
-  icon: '',
-}
-
 function addApp(
   url: string,
   { arg }: { arg: { name: string; description?: string; icon?: string } }
@@ -77,7 +73,12 @@ function addApp(
 }
 
 const CreateAppDialog = (props: IProps) => {
-  const { dialogTrigger } = props
+  const { dialogTrigger, defaultValues: _defaultValues, isCopy } = props
+  const defaultValues = {
+    name: _defaultValues?.name || '',
+    description: _defaultValues?.description || '',
+    icon: _defaultValues?.icon || '',
+  }
   const router = useRouter()
   const { mutate } = useSWRConfig()
   const [open, setOpen] = useState<boolean>(false)
@@ -87,8 +88,17 @@ const CreateAppDialog = (props: IProps) => {
   })
   const { reset, setValue } = form
   const { toast } = useToast()
-
-  const [image, setImage] = useState<FileProps[]>([])
+  const _image = defaultValues?.icon
+    ? [
+        {
+          uid: nanoid(),
+          url: defaultValues?.icon,
+          type: 'image',
+          name: '',
+        },
+      ]
+    : []
+  const [image, setImage] = useState<FileProps[]>(_image)
   const [uploading, setUploading] = useState(false)
   const { trigger, isMutating } = useSWRMutation('/api/me/apps', addApp)
 
@@ -111,7 +121,11 @@ const CreateAppDialog = (props: IProps) => {
   const handleCancel = () => {
     setOpen(false)
     reset()
-    setImage([])
+    if (isCopy) {
+      setImage(_image)
+    } else {
+      setImage([])
+    }
   }
 
   const onChangeFileList = (file: FileProps[]) => {

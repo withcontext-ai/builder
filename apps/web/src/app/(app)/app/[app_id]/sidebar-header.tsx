@@ -1,22 +1,25 @@
-import * as React from 'react'
-import { auth } from '@clerk/nextjs'
+'use client'
 
-import { currentUser } from '@/lib/auth'
+import * as React from 'react'
+import { useParams } from 'next/navigation'
+
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
-import { getApp } from '@/db/apps/actions'
+import { NewApp } from '@/db/apps/schema'
 import AppSettingDialog from '@/components/app-setting-dialog'
 
 interface IProps {
-  appId: string
+  isAdmin?: boolean
+  isOwner?: boolean
+  appDetail?: NewApp
 }
 
-export default async function Header({ appId }: IProps) {
-  const { userId } = auth()
-  const color = getAvatarBgColor(appId)
-  const appDetail = await getApp(appId)
-  const { name, description: desc, icon } = appDetail
-  const { isAdmin } = await currentUser()
-  const isOwner = userId === appDetail.created_by
+export default function Header(props: IProps) {
+  const { isAdmin = false, isOwner = false, appDetail } = props
+  const { name, icon, description: desc } = appDetail as NewApp
+  const { app_id } = useParams() as {
+    app_id: string
+  }
+  const color = getAvatarBgColor(app_id)
 
   return (
     <div>
@@ -44,7 +47,7 @@ export default async function Header({ appId }: IProps) {
           <h1 className="mr-2 truncate text-lg font-semibold">{name}</h1>
           <div className="hidden lg:block">
             <AppSettingDialog
-              appId={appId}
+              appId={app_id}
               name={name}
               isOwner={isOwner || isAdmin}
             />

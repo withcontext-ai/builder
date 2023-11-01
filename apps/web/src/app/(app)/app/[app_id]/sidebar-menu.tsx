@@ -2,15 +2,23 @@
 
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { GitCommitIcon, ShareIcon } from 'lucide-react'
+import { GitCommitIcon, GitForkIcon, ShareIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { NewApp } from '@/db/apps/schema'
+
+import Customize from './customize/page'
 
 const MENU_ITEMS = [
   {
     id: 'workflow',
     name: 'Workflow',
     Icon: GitCommitIcon,
+  },
+  {
+    id: 'customize',
+    name: 'Customize',
+    Icon: GitForkIcon,
   },
   {
     id: 'share',
@@ -43,7 +51,12 @@ function MenuItem({
   )
 }
 
-export default function Menu() {
+interface IProps {
+  isAdmin?: boolean
+  isOwner?: boolean
+  appDetail?: NewApp
+}
+export default function Menu(props: IProps) {
   const { app_id } = useParams() as {
     app_id: string
   }
@@ -54,11 +67,13 @@ export default function Menu() {
       {MENU_ITEMS.map(({ id, name, Icon }) => {
         const href = `/app/${app_id}/${id}`
         const isSelected = pathname === href
-        return (
+        return id !== 'customize' ? (
           <MenuItem key={id} href={href} isSelected={isSelected}>
             <Icon className="mr-2 h-5 w-5" />
             <span className="text-sm font-medium">{name}</span>
           </MenuItem>
+        ) : (
+          <Customize {...props} />
         )
       })}
     </ul>
