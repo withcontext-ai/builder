@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode, useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import NiceModal from '@ebay/nice-modal-react'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -35,7 +35,6 @@ import Upload from '@/components/upload/upload'
 import { FileProps } from '@/components/upload/utils'
 
 interface IProps {
-  dialogTrigger?: ReactNode
   submit?: () => void
   defaultValues?: z.infer<typeof formSchema>
   isCopy?: boolean
