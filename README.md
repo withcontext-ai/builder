@@ -1,11 +1,45 @@
 # Context Builder
 
-TODO: one-line description
+*Turning AI app development into clicks, no coding skills required*
+
+## what is Context builder and why we want to build it?
+Following the release of the Low-Level Machine (LLM), numerous tools primarily designed for engineers, such as Flowise and Langflow, have surfaced in the no-code/low-code sphere. Yet, we believe that the crux of AI applications lies in domain knowledge and problem context. Harnessing this belief, we envision a world where anyone, not just engineers, can create customized AI applications relevant to their unique context.
+
+To turn this vision into reality, an improved tool is essential. That's where our project, 'Context Builder', comes into play. The aim is to democratize the creation of AI applications by offering a tool that is not only powerful but also accessible to all.
+
+Our project is guided by the following principles:
+
+- Absolute No-Code: No coding knowledge required.
+- User-Friendly: Simplicity and ease of use are key.
+
+we believe LLM will dramatically decrease the requirements to build an AI apps and ultimately any individual could use tools to build the AI application and that's what we want to build.
+
+
+https://github.com/54microlong/builder/assets/530382/7f61c534-dbd3-4e8f-9cb3-65d3f2faaf38
+
 
 ## ✨ Feature
 
-- TODO: feature 1
-- TODO: feature 2
+- Workflow 
+  - [x] LLM Conversation
+  - [x] Conversational REtrieval QA
+  - [x] Goal-Oriented Conversation
+- Documents integration
+  - [x] PDF documents.
+  - [x] Word documents.
+  - [] Google Doc
+  - [] Notion
+- Use it anywhere
+  - [x] Website
+  - [x] Slack
+  - []  Discord
+- Analysis and dashboard
+  - [x] App monitor and analysis
+  - [x] Conversation logs
+  - [x] Annotation
+- Rich Multimedia Support
+  - [x] Video Conversation
+
 
 ## 🚀 Quick Start / Live Demo
 
