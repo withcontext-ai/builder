@@ -93,7 +93,6 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
       ]
     : []
   const [image, setImage] = useState<FileProps[]>(values)
-  console.log(image, '---image')
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
