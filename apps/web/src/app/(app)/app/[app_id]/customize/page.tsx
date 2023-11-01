@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useModal } from '@ebay/nice-modal-react'
 import { GitForkIcon } from 'lucide-react'
 
 import { cn, safeParse } from '@/lib/utils'
@@ -61,23 +62,21 @@ const Customize = async (props: IProps) => {
     //   published_workflow_data_str: defaultPublishedWorkflowData,
     // })
   }
+  const modal = useModal(CreateAppDialog)
+
   return (
-    <div className={cn(!isAdmin && !isOwner ? 'block' : 'hidden')}>
-      <CreateAppDialog
-        defaultValues={defaultValues}
-        isCopy
-        submit={createTemplateApp}
-        dialogTrigger={
-          <Button
-            className="h-11 w-full justify-start gap-2 rounded-lg p-0 px-2 hover:bg-slate-200"
-            variant="ghost"
-            type="button"
-          >
-            <GitForkIcon size="20" />
-            Customize
-          </Button>
+    <div className={cn(!isAdmin || !isOwner ? 'block' : 'hidden')}>
+      <Button
+        className="h-11 w-full justify-start gap-2 rounded-lg p-0 px-2 hover:bg-slate-200"
+        variant="ghost"
+        type="button"
+        onClick={() =>
+          modal.show({ defaultValues, isCopy: true, submit: createTemplateApp })
         }
-      />
+      >
+        <GitForkIcon size="20" />
+        Customize
+      </Button>
     </div>
   )
 }

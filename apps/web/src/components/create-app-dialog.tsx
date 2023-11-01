@@ -1,7 +1,8 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import NiceModal from '@ebay/nice-modal-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useSWRConfig } from 'swr'
@@ -10,6 +11,7 @@ import { z } from 'zod'
 
 import { fetcher, nanoid } from '@/lib/utils'
 import { NewApp } from '@/db/apps/schema'
+import useNiceModal from '@/hooks/use-nice-modal'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -18,7 +20,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-
 import {
   Form,
   FormControl,
@@ -26,12 +27,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from './ui/form'
-import { Input } from './ui/input'
-import { Textarea } from './ui/textarea'
-import { useToast } from './ui/use-toast'
-import Upload from './upload/upload'
-import { FileProps } from './upload/utils'
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
+import Upload from '@/components/upload/upload'
+import { FileProps } from '@/components/upload/utils'
 
 interface IProps {
   dialogTrigger?: ReactNode
@@ -73,8 +74,10 @@ function addApp(
   })
 }
 
-const CreateAppDialog = (props: IProps) => {
+export default NiceModal.create((props: IProps) => {
+  const { modal, onOpenChange } = useNiceModal()
   const { dialogTrigger, defaultValues: _defaultValues, isCopy, submit } = props
+
   const defaultValues = {
     name: _defaultValues?.name || '',
     description: _defaultValues?.description || '',
@@ -82,7 +85,6 @@ const CreateAppDialog = (props: IProps) => {
   }
   const router = useRouter()
   const { mutate } = useSWRConfig()
-  const [open, setOpen] = useState<boolean>(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -108,7 +110,7 @@ const CreateAppDialog = (props: IProps) => {
       await submit?.()
       const params = { ...defaultValues, ...data }
       const json = await trigger({ ...params, isCopy })
-      setOpen(false)
+      onOpenChange(false)
       mutate('/api/me/workspace')
       const nextUrl = `/app/${json.appId}/session/${json.sessionId}`
       router.push(`/app/${json.appId}/settings/basics?nextUrl=${nextUrl}`)
@@ -122,8 +124,8 @@ const CreateAppDialog = (props: IProps) => {
     }
   }
   const handleCancel = () => {
-    setOpen(false)
     reset()
+    onOpenChange(false)
     if (isCopy) {
       setImage(_image)
     } else {
@@ -137,7 +139,7 @@ const CreateAppDialog = (props: IProps) => {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={(open) => open && setOpen(open)}>
+    <AlertDialog open={modal.visible} onOpenChange={onOpenChange}>
       <AlertDialogTrigger asChild>{dialogTrigger}</AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[488px]">
         <AlertDialogHeader>
@@ -212,5 +214,4 @@ const CreateAppDialog = (props: IProps) => {
       </AlertDialogContent>
     </AlertDialog>
   )
-}
-export default CreateAppDialog
+})

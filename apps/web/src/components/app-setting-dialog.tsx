@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useModal } from '@ebay/nice-modal-react'
 import {
   Activity,
   ChevronDown,
@@ -43,6 +44,7 @@ interface IProps {
 const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false)
+  const modal = useModal(CreateAppDialog)
 
   const router = useRouter()
   const { mutate } = useSWRConfig()
@@ -123,22 +125,23 @@ const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
             </>
           )}
           {isOwner && (
-            <CreateAppDialog
-              defaultValues={defaultValues}
-              isCopy
-              dialogTrigger={
-                <Button
-                  className={cn(
-                    'flex h-8 w-full items-center justify-start gap-2	rounded-sm p-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
-                  )}
-                  variant="ghost"
-                  type="button"
-                >
-                  <CopyIcon size="16" />
-                  Duplicate
-                </Button>
-              }
-            />
+            <Button
+              className={cn(
+                'flex h-8 w-full items-center justify-start gap-2	rounded-sm p-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
+              )}
+              onClick={() => {
+                setOpen(false)
+                modal.show({
+                  defaultValues,
+                  isCopy: true,
+                })
+              }}
+              variant="ghost"
+              type="button"
+            >
+              <CopyIcon size="16" />
+              Duplicate
+            </Button>
           )}
           {renderItem({
             icon: <Share size={16} />,
