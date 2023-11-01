@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { useModal } from '@ebay/nice-modal-react'
 import { GitForkIcon } from 'lucide-react'
@@ -7,7 +9,7 @@ import { NewApp } from '@/db/apps/schema'
 import { Button } from '@/components/ui/button'
 import CreateAppDialog from '@/components/create-app-dialog'
 
-import { WorkflowItem } from '../(manage)/settings/workflow/type'
+import { WorkflowItem } from './(manage)/settings/workflow/type'
 
 interface IProps {
   isAdmin?: boolean
@@ -15,7 +17,7 @@ interface IProps {
   appDetail?: NewApp
 }
 
-const Customize = async (props: IProps) => {
+const CustomizeApp = (props: IProps) => {
   const { isAdmin, isOwner, appDetail } = props
 
   const [defaultValues, setDefaultValues] = useState(appDetail)
@@ -81,4 +83,4 @@ const Customize = async (props: IProps) => {
   )
 }
 
-export default Customize
+export default CustomizeApp

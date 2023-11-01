@@ -7,7 +7,7 @@ import { GitCommitIcon, GitForkIcon, ShareIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NewApp } from '@/db/apps/schema'
 
-import Customize from './customize/page'
+import Customize from './customize-app'
 
 const MENU_ITEMS = [
   {

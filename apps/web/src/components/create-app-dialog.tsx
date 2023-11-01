@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import NiceModal from '@ebay/nice-modal-react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
@@ -40,6 +41,8 @@ interface IProps {
   submit?: () => void
   defaultValues?: z.infer<typeof formSchema>
   isCopy?: boolean
+  dialogTrigger?: ReactNode
+  isAppsPage?: boolean
 }
 
 interface FormValuesProps {
@@ -77,7 +80,7 @@ function addApp(
 
 export default NiceModal.create((props: IProps) => {
   const { modal, onOpenChange } = useNiceModal()
-  const { dialogTrigger, defaultValues: _defaultValues, isCopy, submit } = props
+  const { defaultValues: _defaultValues, isCopy, submit, isAppsPage } = props
 
   const defaultValues = {
     name: _defaultValues?.name || '',
@@ -141,8 +144,16 @@ export default NiceModal.create((props: IProps) => {
 
   return (
     <AlertDialog open={modal.visible} onOpenChange={onOpenChange}>
-      <AlertDialogTrigger asChild>{dialogTrigger}</AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[488px]">
+        {isAppsPage && (
+          <AlertDialogTrigger asChild>
+            <Button size="sm">
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Create App
+            </Button>
+          </AlertDialogTrigger>
+        )}
+
         <AlertDialogHeader>
           <AlertDialogTitle>Create App</AlertDialogTitle>
         </AlertDialogHeader>
