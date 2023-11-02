@@ -4,11 +4,10 @@ import { useModal } from '@ebay/nice-modal-react'
 import { PlusIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-
-import CreateDialog from './create-dataset'
+import CreateDatasetDialog from '@/components/create-dataset-dialog'
 
 const AddDatasetButton = () => {
-  const modal = useModal(CreateDialog)
+  const modal = useModal(CreateDatasetDialog)
 
   return (
     <Button size="sm" onClick={() => modal.show()}>

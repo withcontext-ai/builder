@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
-import { FormSchema, SchemaProps } from '../../../dataset/type'
+import { FormSchema, SchemaProps } from '../app/dataset/type'
 
 const defaultValues = {
   name: '',
