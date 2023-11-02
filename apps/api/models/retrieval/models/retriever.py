@@ -73,11 +73,7 @@ class Retriever:
             cls.upsert_vector(id=id, content="", metadata=metadata)
         # metadata["text"] = ""
         # cls.upsert_vector(id=f"dataset:{dataset.id}", content="", metadata=metadata)
-        webhook_handler = WebhookHandler()
-        for doc in dataset.documents:
-            webhook_handler.update_document_status(
-                dataset.id, doc.uid, doc.content_size, 0
-            )
+
         return vector_store
 
     @classmethod
