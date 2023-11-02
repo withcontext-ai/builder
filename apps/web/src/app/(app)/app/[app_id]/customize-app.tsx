@@ -34,7 +34,7 @@ const CustomizeApp = (props: IProps) => {
     published_workflow_tree_str,
     workflow_data_str,
     workflow_tree_str,
-  } = defaultValues as Partial<NewApp>
+  } = defaultValues as NewApp
 
   const filterTemplateData = (data: WorkflowItem[]) => {
     const template = data?.reduce((m: WorkflowItem[], item: WorkflowItem) => {
@@ -51,23 +51,27 @@ const CustomizeApp = (props: IProps) => {
     return JSON.stringify(template)
   }
   const createTemplateApp = async () => {
-    const _defaultPublishedWorkflowTree = safeParse(
-      published_workflow_tree_str,
-      []
+    const defaultWorkflowTree = filterTemplateData(
+      safeParse(workflow_tree_str, [])
     )
-    const _defaultPublishedWorkflowData = safeParse(
-      published_workflow_data_str,
-      []
+    const defaultWorkflowData = filterTemplateData(
+      safeParse(workflow_data_str, [])
+    )
+    const defaultPublishedWorkflowTree = filterTemplateData(
+      safeParse(published_workflow_tree_str, [])
     )
     const defaultPublishedWorkflowData = filterTemplateData(
-      _defaultPublishedWorkflowData
+      safeParse(published_workflow_data_str, [])
     )
 
     // get filter template data
-    // setDefaultValues({
-    //   ...defaultValues,
-    //   published_workflow_data_str: defaultPublishedWorkflowData,
-    // })
+    setDefaultValues({
+      ...defaultValues,
+      published_workflow_data_str: defaultPublishedWorkflowData,
+      published_workflow_tree_str: defaultPublishedWorkflowTree,
+      workflow_data_str: defaultWorkflowData,
+      workflow_tree_str: defaultWorkflowTree,
+    })
   }
   const modal = useModal(CreateAppDialog)
 
