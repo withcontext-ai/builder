@@ -38,7 +38,7 @@ interface IProps {
   appId: string
   name: string
   isOwner: boolean
-  defaultValues?: NewApp
+  defaultValues?: Partial<NewApp>
 }
 
 const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {

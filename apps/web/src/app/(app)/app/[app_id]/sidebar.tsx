@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { auth } from '@clerk/nextjs'
+import { omit } from 'lodash'
 
 import { currentUser } from '@/lib/auth'
 import { getApp } from '@/db/apps/actions'
@@ -16,6 +17,14 @@ export default async function Sidebar({ appId }: { appId: string }) {
   const appDetail = await getApp(appId)
   const { isAdmin } = await currentUser()
   const isOwner = userId === appDetail.created_by
+  const defaultValues = omit(appDetail, [
+    'api_model_id',
+    'id',
+    'short_id',
+    'created_at',
+    'updated_at',
+    'created_by',
+  ])
   return (
     <div className="flex h-full overflow-hidden">
       <div className="flex w-60 shrink-0 grow flex-col bg-gray-50">
@@ -24,7 +33,11 @@ export default async function Sidebar({ appId }: { appId: string }) {
             <Header appDetail={appDetail} isAdmin={isAdmin} isOwner={isOwner} />
           </Suspense>
           <div className="m-full h-px bg-slate-200" />
-          <Menu appDetail={appDetail} isOwner={isOwner} isAdmin={isAdmin} />
+          <Menu
+            defaultValues={defaultValues}
+            isOwner={isOwner}
+            isAdmin={isAdmin}
+          />
 
           <div className="m-full h-px bg-slate-200" />
           <SessionListHeader appId={appId} />

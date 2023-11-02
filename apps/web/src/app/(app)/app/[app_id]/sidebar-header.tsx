@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useParams } from 'next/navigation'
+import { omit } from 'lodash'
 
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
 import { NewApp } from '@/db/apps/schema'
@@ -20,7 +21,14 @@ export default function Header(props: IProps) {
     app_id: string
   }
   const color = getAvatarBgColor(app_id)
-
+  const defaultValues = omit(appDetail, [
+    'api_model_id',
+    'id',
+    'short_id',
+    'created_at',
+    'updated_at',
+    'created_by',
+  ])
   return (
     <div>
       <div
@@ -49,7 +57,7 @@ export default function Header(props: IProps) {
             <AppSettingDialog
               appId={app_id}
               name={name}
-              defaultValues={appDetail}
+              defaultValues={defaultValues}
               isOwner={isOwner || isAdmin}
             />
           </div>

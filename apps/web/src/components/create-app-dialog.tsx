@@ -37,7 +37,7 @@ import { UPLOAD_ACCEPT_MAP } from './upload/type'
 
 interface IProps {
   submit?: () => void
-  defaultValues?: z.infer<typeof formSchema>
+  defaultValues?: Partial<NewApp>
   isCopy?: boolean
 }
 
@@ -108,7 +108,7 @@ export default NiceModal.create((props: IProps) => {
   const onSubmit = async (data: FormValuesProps) => {
     try {
       await submit?.()
-      const params = { ...defaultValues, ...data }
+      const params = { ..._defaultValues, ...data }
       const json = await trigger({ ...params, isCopy })
       onOpenChange(false)
       mutate('/api/me/workspace')
