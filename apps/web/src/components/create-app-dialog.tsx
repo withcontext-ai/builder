@@ -112,8 +112,7 @@ export default NiceModal.create((props: IProps) => {
       const json = await trigger({ ...params, isCopy })
       onOpenChange(false)
       mutate('/api/me/workspace')
-      const nextUrl = `/app/${json.appId}/session/${json.sessionId}`
-      router.push(`/app/${json.appId}/settings/basics?nextUrl=${nextUrl}`)
+      router.push(`/app/${json.appId}/settings/basics`)
       router.refresh()
     } catch (error: any) {
       toast({
