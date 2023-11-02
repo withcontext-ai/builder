@@ -73,7 +73,9 @@ export default function Menu(props: IProps) {
             <span className="text-sm font-medium">{name}</span>
           </MenuItem>
         ) : (
-          <Customize {...props} />
+          <div key={id}>
+            <Customize {...props} />
+          </div>
         )
       })}
     </ul>
