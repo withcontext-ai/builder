@@ -312,12 +312,12 @@ class EnhanceSequentialChain(SequentialChain):
         # it will result in the loss of a token
         while not self.queue.empty():
             await asyncio.sleep(2)
-        self.done.set()
 
     def _construct_return_dict(self):
         return_dict = {}
         for k in self.output_variables:
             return_dict[k] = self.known_values.get(k, "")
+        self.done.set()
         return return_dict
 
     async def aiter(self) -> AsyncIterator[str]:
