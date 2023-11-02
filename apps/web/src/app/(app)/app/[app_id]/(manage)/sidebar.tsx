@@ -1,14 +1,9 @@
 'use client'
 
 import { PropsWithChildren, useTransition } from 'react'
-import { Route } from 'next'
 import { Url } from 'next/dist/shared/lib/router/router'
 import Link from 'next/link'
-import {
-  useRouter,
-  useSearchParams,
-  useSelectedLayoutSegments,
-} from 'next/navigation'
+import { useRouter, useSelectedLayoutSegments } from 'next/navigation'
 import { ArrowLeftIcon, Loader2Icon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -42,16 +37,16 @@ const SidebarLink = (props: SidebarLinkProps) => {
     </Link>
   )
 }
-function Sidebar({ children }: PropsWithChildren) {
+function Sidebar({
+  children,
+  directUrl,
+}: PropsWithChildren & { directUrl?: string }) {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const nextUrl = searchParams?.get('nextUrl')
   const [isPending, startTransition] = useTransition()
-
   function handleGoBack() {
     startTransition(() => {
-      if (nextUrl) {
-        router.push(nextUrl as Route)
+      if (directUrl) {
+        router.push(directUrl)
       } else {
         router.back()
       }

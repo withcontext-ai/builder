@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { getApp } from '@/db/apps/actions'
+import { getLatestSessionId } from '@/db/sessions/actions'
 import { checkIsAdminNotOwner, checkIsAdminOrOwner } from '@/utils/permission'
 import ManageLayout from '@/components/layouts/manage-layout'
 import WarningLabel from '@/components/warning-label'
@@ -17,6 +18,7 @@ interface IProps {
 export default async function Layout({ children, params }: IProps) {
   const { app_id } = params
   const appDetail = await getApp(app_id)
+  const session_id = await getLatestSessionId(app_id)
 
   const isAdminOrOwner = await checkIsAdminOrOwner(appDetail.created_by)
   if (!isAdminOrOwner) {
@@ -28,7 +30,13 @@ export default async function Layout({ children, params }: IProps) {
   return (
     <>
       <ManageLayout
-        sidebar={<Sidebar appId={app_id} appName={appDetail.name} />}
+        sidebar={
+          <Sidebar
+            appId={app_id}
+            appName={appDetail.name}
+            sessionId={session_id || ''}
+          />
+        }
       >
         {children}
       </ManageLayout>
