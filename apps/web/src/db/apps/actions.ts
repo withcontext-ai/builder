@@ -2,7 +2,7 @@ import 'server-only'
 
 import { redirect } from 'next/navigation'
 import { and, desc, eq, inArray } from 'drizzle-orm'
-import { difference, isEmpty, pick } from 'lodash'
+import { difference, isEmpty, pick, set } from 'lodash'
 
 import { api } from '@/lib/api'
 import { auth, currentUser } from '@/lib/auth'
