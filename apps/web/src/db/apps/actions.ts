@@ -633,3 +633,7 @@ export async function getDebugSessionId({
   const api_model_id = response?.id
   return await addDebugSession(api_model_id)
 }
+
+export async function forkApp(appId: string, newValue: Partial<NewApp>) {
+  return { error: 'error' }
+}

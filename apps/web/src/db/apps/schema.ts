@@ -1,4 +1,4 @@
-import { InferModel, relations } from 'drizzle-orm'
+import { InferInsertModel, InferSelectModel, relations } from 'drizzle-orm'
 import {
   boolean,
   index,
@@ -26,6 +26,7 @@ export const AppsTable = pgTable(
     workflow_data_str: text('workflow_data_str'),
     published_workflow_tree_str: text('published_workflow_tree_str'),
     published_workflow_data_str: text('published_workflow_data_str'),
+    parent_app_id: text('parent_app_id'),
     api_model_id: text('api_model_id').unique(),
     created_by: text('created_by')
       .references(() => UsersTable.short_id)
@@ -42,9 +43,13 @@ export const AppsTable = pgTable(
   }
 )
 
-export type App = InferModel<typeof AppsTable>
-export type NewApp = InferModel<typeof AppsTable, 'insert'>
+export type App = InferSelectModel<typeof AppsTable>
+export type NewApp = InferInsertModel<typeof AppsTable>
 
-export const AppsRelations = relations(AppsTable, ({ many }) => ({
+export const AppsRelations = relations(AppsTable, ({ one, many }) => ({
+  ParentAppTable: one(AppsTable, {
+    fields: [AppsTable.parent_app_id],
+    references: [AppsTable.short_id],
+  }),
   AppsDatasetsTable: many(AppsDatasetsTable),
 }))
