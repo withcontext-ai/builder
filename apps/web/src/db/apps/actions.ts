@@ -709,6 +709,42 @@ export async function forkApp(
 
     const [newApp] = await db.insert(AppsTable).values(appVal).returning()
 
+    if (isOwner) {
+      // BEGIN link datasets to this app
+      const newWorkflow = safeParse(published_workflow_data_str, [])
+      const allApiDatasetIds = newWorkflow.reduce(
+        (acc: string[], task: WorkflowItem) => {
+          const d =
+            (safeParse(task.formValueStr, {}).data?.datasets as string[]) || []
+          acc.push(...d)
+          return acc
+        },
+        []
+      ) as string[]
+      const newApiDatasetIds = [...new Set(allApiDatasetIds)]
+
+      const queue = []
+      if (newApiDatasetIds.length > 0) {
+        const addedDatasetIds = (
+          await db
+            .select({ id: DatasetsTable.short_id })
+            .from(DatasetsTable)
+            .where(inArray(DatasetsTable.api_dataset_id, newApiDatasetIds))
+        ).map((d) => d.id)
+        for (const datasetId of addedDatasetIds) {
+          const task = db.insert(AppsDatasetsTable).values({
+            app_id: newAppId,
+            dataset_id: datasetId,
+          })
+          queue.push(task)
+        }
+      }
+      if (queue.length > 0) {
+        await Promise.all(queue)
+      }
+      // END link datasets to this app
+    }
+
     const sessionData = await api.post<
       { model_id: string },
       { session_id: string }
