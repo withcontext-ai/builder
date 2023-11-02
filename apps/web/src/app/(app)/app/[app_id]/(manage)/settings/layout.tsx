@@ -17,15 +17,19 @@ interface IProps {
 
 export default async function Layout({ children, params }: IProps) {
   const { app_id } = params
-  const appDetail = await getApp(app_id)
-  const session_id = await getLatestSessionId(app_id)
 
-  const isAdminOrOwner = await checkIsAdminOrOwner(appDetail.created_by)
+  const [appDetail, session_id] = await Promise.all([
+    getApp(app_id),
+    getLatestSessionId(app_id),
+  ])
+  const [isAdminOrOwner, isAdminNotOwner] = await Promise.all([
+    checkIsAdminOrOwner(appDetail.created_by),
+    checkIsAdminNotOwner(appDetail.created_by),
+  ])
+
   if (!isAdminOrOwner) {
     redirect('/')
   }
-
-  const isAdminNotOwner = await checkIsAdminNotOwner(appDetail.created_by)
 
   return (
     <>
