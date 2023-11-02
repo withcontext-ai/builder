@@ -140,7 +140,12 @@ class TargetedChain(Chain):
             system_message = f"{prompt_value.to_string()}\n{self.suffix}{question}\n"
         messages = [SystemMessage(content=system_message)] + basic_messages
         if custom_iterator_handler:
-            callbacks.add_handler(custom_iterator_handler)
+            has_custom_iterator = False
+            for handler in callbacks.handlers:
+                if type(handler) == CustomAsyncIteratorCallbackHandler:
+                    has_custom_iterator = True
+            if has_custom_iterator is False:
+                callbacks.add_handler(custom_iterator_handler)
         response = await self.llm.agenerate(messages=[messages], callbacks=callbacks)
         return {self.output_key: response.generations[0][0].text}
 
@@ -220,9 +225,14 @@ class EnhanceSequentialChain(SequentialChain):
                     self.current_chain += 1
                     continue
                 else:
-                    callbacks.add_handler(
-                        CustomAsyncIteratorCallbackHandler(self.queue, self.done)
-                    )
+                    has_custom_iterator = False
+                    for handler in callbacks.handlers:
+                        if type(handler) == CustomAsyncIteratorCallbackHandler:
+                            has_custom_iterator = True
+                    if has_custom_iterator is False:
+                        callbacks.add_handler(
+                            CustomAsyncIteratorCallbackHandler(self.queue, self.done)
+                        )
                     outputs = await chain.acall(
                         self.known_values, return_only_outputs=True, callbacks=callbacks
                     )
@@ -264,9 +274,14 @@ class EnhanceSequentialChain(SequentialChain):
                         self.current_chain += 1
             else:
                 if self.current_chain == len(self.chains) - 1:
-                    callbacks.add_handler(
-                        CustomAsyncIteratorCallbackHandler(self.queue, self.done)
-                    )
+                    has_custom_iterator = False
+                    for handler in callbacks.handlers:
+                        if type(handler) == CustomAsyncIteratorCallbackHandler:
+                            has_custom_iterator = True
+                    if has_custom_iterator is False:
+                        callbacks.add_handler(
+                            CustomAsyncIteratorCallbackHandler(self.queue, self.done)
+                        )
                 outputs = await chain.acall(
                     self.known_values, return_only_outputs=True, callbacks=callbacks
                 )
