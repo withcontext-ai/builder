@@ -67,7 +67,7 @@ const CustomizeApp = (props: IProps) => {
   const modal = useModal(CreateAppDialog)
 
   return (
-    <div className={cn(!isAdmin || !isOwner ? 'block' : 'hidden')}>
+    <div className={cn(!isAdmin && !isOwner ? 'block' : 'hidden')}>
       <Button
         className="h-11 w-full justify-start gap-2 rounded-lg p-0 px-2 hover:bg-slate-200"
         variant="ghost"
