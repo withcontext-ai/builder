@@ -10,7 +10,10 @@ from models.controller import dataset_manager
 from models.retrieval import Retriever
 from pydantic import BaseModel
 from fastapi import Query
-from models.controller.celery.celery_task import background_create_dataset, background_add_document, background_delete_document
+from models.controller.celery.celery_task import \
+    background_create_dataset, \
+    background_add_document, \
+    background_delete_document
 
 
 class IndexResponse(BaseModel):
@@ -64,9 +67,11 @@ async def update_dataset(
                 if uid is None:
                     logger.warning(f"UID not found in document {doc}")
                 dataset_manager.delete_preview_segment(id, uid)
+
             current_data = dataset_manager.get_datasets(id)[0].dict()
             docs_to_add = dataset_manager.get_documents_to_add(current_data, dataset)
             docs_to_delete = dataset_manager.get_documents_to_delete(current_data, dataset)
+
             for doc in docs_to_add:
                 background_add_document.delay(id, doc)
             for doc in docs_to_delete:

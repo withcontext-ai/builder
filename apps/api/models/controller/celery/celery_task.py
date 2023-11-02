@@ -10,21 +10,22 @@ from functools import wraps
 logger.info("Celery Start")
 app = Celery('celery_task')
 
-
 # Configuration
 
 broker_host = UPSTASH_REDIS_REST_URL
 broker_port = 30535
-broker_db = 0 
+broker_db = 0
 results_db = 0
 password = UPSTASH_REDIS_REST_TOKEN
 
 app.conf.broker_url = f"rediss://:{password}@{broker_host}:{broker_port}/{broker_db}?ssl_cert_reqs=CERT_REQUIRED"
 app.conf.result_backend = f"rediss://:{password}@{broker_host}:{broker_port}/{results_db}?ssl_cert_reqs=CERT_REQUIRED"
 
+
 def retry_on_exception(task_func=None, max_retries=3, countdown=60):
     if task_func is None:
         return lambda func: retry_on_exception(func, max_retries=max_retries, countdown=countdown)
+
     @wraps(task_func)
     def wrapper(task_instance, *args, **kwargs):
         retries = 0
@@ -43,7 +44,9 @@ def retry_on_exception(task_func=None, max_retries=3, countdown=60):
                         break
                 else:
                     break
+
     return wrapper
+
 
 @app.task(bind=True)
 @retry_on_exception(countdown=10)
@@ -53,12 +56,14 @@ def background_create_dataset(self, dataset_dict: dict):
     logger.info(f"Dataset {dataset.id} created.")
     self.update_state(state='PROGRESS', meta={'progress': 100})
 
+
 @app.task(bind=True)
 @retry_on_exception
 def background_add_document(self, dataset_id: str, document: dict):
     dataset_manager.add_document_to_dataset(dataset_id, document)
     logger.info(f"Document {document['uid']} added to dataset {dataset_id}.")
     self.update_state(state='PROGRESS', meta={'progress': 100})
+
 
 @app.task(bind=True)
 @retry_on_exception
@@ -67,6 +72,7 @@ def background_delete_document(self, dataset_id: str, document_uid: str):
     logger.info(f"Document {document_uid} deleted from dataset {dataset_id}.")
     self.update_state(state='PROGRESS', meta={'progress': 100})
 
+
 @app.task(bind=True)
 @retry_on_exception(countdown=10)
 def background_create_model(self, model_dict: dict):
@@ -74,6 +80,7 @@ def background_create_model(self, model_dict: dict):
     model_manager.save_model(model)
     logger.info(f"model: {model} created")
     self.update_state(state='PROGRESS', meta={'progress': 100})
+
 
 @app.task(bind=True)
 @retry_on_exception(countdown=10)
