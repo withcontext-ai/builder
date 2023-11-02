@@ -29,10 +29,7 @@ import { SessionsTable } from '../sessions/schema'
 import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
-export async function addApp(
-  app: Omit<NewApp, 'short_id' | 'created_by'>,
-  isCopy?: boolean
-) {
+export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
   const requestId = nanoid()
 
   try {
@@ -78,18 +75,16 @@ export async function addApp(
       api_model_id = data?.id
     }
 
-    const appVal = !isCopy
-      ? {
-          ...app,
-          short_id: nanoid(),
-          workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
-          workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
-          published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
-          published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
-          api_model_id,
-          created_by: userId,
-        }
-      : { ...app, short_id: nanoid(), api_model_id, created_by: userId }
+    const appVal = {
+      ...app,
+      short_id: nanoid(),
+      workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+      workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+      published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+      published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+      api_model_id,
+      created_by: userId,
+    }
     const [newApp] = await db.insert(AppsTable).values(appVal).returning()
 
     const appId = newApp?.short_id
@@ -681,7 +676,6 @@ export async function forkApp(
           appDetail.published_workflow_data_str,
           SENSITIVE_DATA_MODIFIER
         )
-    console.log('published_workflow_data_str:', published_workflow_data_str)
 
     const chains = safeParse(published_workflow_data_str, []).map(
       taskToApiFormatter

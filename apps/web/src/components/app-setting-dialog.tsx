@@ -37,11 +37,18 @@ function leaveApp(url: string) {
 interface IProps {
   appId: string
   name: string
+  isAdmin: boolean
   isOwner: boolean
-  defaultValues?: Partial<NewApp>
+  appDetail: NewApp
 }
 
-const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
+const AppSettingDialog = ({
+  appId,
+  name,
+  isAdmin,
+  isOwner,
+  appDetail,
+}: IProps) => {
   const [open, setOpen] = useState<boolean>(false)
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false)
   const modal = useModal(CreateAppDialog)
@@ -79,7 +86,7 @@ const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
         className="cursor-pointer"
         onClick={() => {
           setOpen(false)
-          onClick?.()
+          setTimeout(() => onClick?.(), 0)
         }}
       >
         <Link
@@ -109,7 +116,7 @@ const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[220px]" align="end">
-          {isOwner && (
+          {(isOwner || isAdmin) && (
             <>
               {renderItem({
                 icon: <Settings size={16} />,
@@ -125,23 +132,18 @@ const AppSettingDialog = ({ appId, name, isOwner, defaultValues }: IProps) => {
             </>
           )}
           {isOwner && (
-            <Button
-              className={cn(
-                'flex h-8 w-full items-center justify-start gap-2	rounded-sm p-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
-              )}
-              onClick={() => {
-                setOpen(false)
-                modal.show({
-                  defaultValues,
-                  isCopy: true,
-                })
-              }}
-              variant="ghost"
-              type="button"
-            >
-              <CopyIcon size="16" />
-              Duplicate
-            </Button>
+            <>
+              {renderItem({
+                icon: <CopyIcon size={16} />,
+                link: '',
+                name: 'Duplicate',
+                onClick: () =>
+                  modal.show({
+                    defaultValues: appDetail,
+                    parentAppId: appId,
+                  }),
+              })}
+            </>
           )}
           {renderItem({
             icon: <Share size={16} />,
