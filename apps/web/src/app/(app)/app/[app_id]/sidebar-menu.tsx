@@ -54,7 +54,7 @@ function MenuItem({
 interface IProps {
   isAdmin?: boolean
   isOwner?: boolean
-  defaultValues?: Partial<NewApp>
+  appDetail?: NewApp
 }
 export default function Menu(props: IProps) {
   const { app_id } = useParams() as {

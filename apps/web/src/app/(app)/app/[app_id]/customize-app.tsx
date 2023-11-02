@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useModal } from '@ebay/nice-modal-react'
+import { omit } from 'lodash'
 import { GitForkIcon } from 'lucide-react'
 
 import { cn, safeParse } from '@/lib/utils'
@@ -19,17 +20,21 @@ interface IProps {
 
 const CustomizeApp = (props: IProps) => {
   const { isAdmin, isOwner, appDetail } = props
-
-  const [defaultValues, setDefaultValues] = useState(appDetail)
+  const _defaultValues = omit(appDetail, [
+    'api_model_id',
+    'id',
+    'short_id',
+    'created_at',
+    'updated_at',
+    'created_by',
+  ])
+  const [defaultValues, setDefaultValues] = useState(_defaultValues)
   const {
-    name,
-    description,
-    icon,
     published_workflow_data_str,
     published_workflow_tree_str,
     workflow_data_str,
     workflow_tree_str,
-  } = defaultValues as NewApp
+  } = defaultValues as Partial<NewApp>
 
   const filterTemplateData = (data: WorkflowItem[]) => {
     const template = data?.reduce((m: WorkflowItem[], item: WorkflowItem) => {
