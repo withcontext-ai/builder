@@ -1,34 +1,23 @@
-'use client'
-
 import * as React from 'react'
-import { useParams } from 'next/navigation'
-import { omit } from 'lodash'
+import { auth } from '@clerk/nextjs'
 
+import { currentUser } from '@/lib/auth'
 import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
-import { NewApp } from '@/db/apps/schema'
+import { getApp } from '@/db/apps/actions'
 import AppSettingDialog from '@/components/app-setting-dialog'
 
 interface IProps {
-  isAdmin?: boolean
-  isOwner?: boolean
-  appDetail?: NewApp
+  appId: string
 }
 
-export default function Header(props: IProps) {
-  const { isAdmin = false, isOwner = false, appDetail } = props
-  const { name, icon, description: desc } = appDetail as NewApp
-  const { app_id } = useParams() as {
-    app_id: string
-  }
-  const color = getAvatarBgColor(app_id)
-  const defaultValues = omit(appDetail, [
-    'api_model_id',
-    'id',
-    'short_id',
-    'created_at',
-    'updated_at',
-    'created_by',
-  ])
+export default async function Header({ appId }: IProps) {
+  const { userId } = auth()
+  const color = getAvatarBgColor(appId)
+  const appDetail = await getApp(appId)
+  const { name, description: desc, icon } = appDetail
+  const { isAdmin } = await currentUser()
+  const isOwner = userId === appDetail.created_by
+
   return (
     <div>
       <div
@@ -55,10 +44,11 @@ export default function Header(props: IProps) {
           <h1 className="mr-2 truncate text-lg font-semibold">{name}</h1>
           <div className="hidden lg:block">
             <AppSettingDialog
-              appId={app_id}
+              appId={appId}
               name={name}
-              defaultValues={defaultValues}
-              isOwner={isOwner || isAdmin}
+              appDetail={appDetail}
+              isAdmin={isAdmin}
+              isOwner={isOwner}
             />
           </div>
         </div>

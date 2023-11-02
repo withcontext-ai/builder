@@ -2,7 +2,7 @@ import 'server-only'
 
 import { redirect } from 'next/navigation'
 import { and, desc, eq, inArray } from 'drizzle-orm'
-import { difference, isEmpty, pick } from 'lodash'
+import { difference, isEmpty, pick, set } from 'lodash'
 
 import { api } from '@/lib/api'
 import { auth, currentUser } from '@/lib/auth'
@@ -29,10 +29,7 @@ import { SessionsTable } from '../sessions/schema'
 import { addToWorkspace } from '../workspace/actions'
 import { AppsTable, NewApp } from './schema'
 
-export async function addApp(
-  app: Omit<NewApp, 'short_id' | 'created_by'>,
-  isCopy?: boolean
-) {
+export async function addApp(app: Omit<NewApp, 'short_id' | 'created_by'>) {
   const requestId = nanoid()
 
   try {
@@ -78,18 +75,16 @@ export async function addApp(
       api_model_id = data?.id
     }
 
-    const appVal = !isCopy
-      ? {
-          ...app,
-          short_id: nanoid(),
-          workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
-          workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
-          published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
-          published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
-          api_model_id,
-          created_by: userId,
-        }
-      : { ...app, short_id: nanoid(), api_model_id, created_by: userId }
+    const appVal = {
+      ...app,
+      short_id: nanoid(),
+      workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+      workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+      published_workflow_tree_str: JSON.stringify(DEFAULT_WORKFLOW_TREE),
+      published_workflow_data_str: JSON.stringify(DEFAULT_WORKFLOW_DATA),
+      api_model_id,
+      created_by: userId,
+    }
     const [newApp] = await db.insert(AppsTable).values(appVal).returning()
 
     const appId = newApp?.short_id
@@ -634,6 +629,118 @@ export async function getDebugSessionId({
   return await addDebugSession(api_model_id)
 }
 
-export async function forkApp(appId: string, newValue: Partial<NewApp>) {
-  return { error: 'error' }
+function removeSensitiveData(
+  config: string | null,
+  modifies: { path: string; value: any }[] = []
+) {
+  if (!config) return null
+  const data = safeParse(config, [])
+  const newData = data.map((item: any) => {
+    const formValueStr = item.formValueStr
+    if (!formValueStr) return item
+    const formValue = safeParse(formValueStr, {})
+    for (const { path, value } of modifies) {
+      set(formValue, path, value)
+    }
+    return {
+      ...item,
+      formValueStr: JSON.stringify(formValue),
+    }
+  })
+  return JSON.stringify(newData)
+}
+
+const SENSITIVE_DATA_MODIFIER = [
+  { path: 'llm.api_key', value: '' },
+  { path: 'data.datasets', value: [] },
+]
+
+export async function forkApp(
+  appId: string,
+  newValue: Omit<NewApp, 'short_id' | 'created_by'>
+) {
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      throw new Error('Not authenticated')
+    }
+
+    const appDetail = await getApp(appId)
+    const isOwner = appDetail.created_by === userId
+
+    const newAppId = nanoid()
+    const { workflow_tree_str, published_workflow_tree_str } = appDetail
+    const workflow_data_str = isOwner
+      ? appDetail.workflow_data_str
+      : removeSensitiveData(
+          appDetail.workflow_data_str,
+          SENSITIVE_DATA_MODIFIER
+        )
+    const published_workflow_data_str = isOwner
+      ? appDetail.published_workflow_data_str
+      : removeSensitiveData(
+          appDetail.published_workflow_data_str,
+          SENSITIVE_DATA_MODIFIER
+        )
+
+    console.log('workflow_data_str:', workflow_data_str)
+    console.log('published_workflow_data_str:', published_workflow_data_str)
+
+    const chains = safeParse(published_workflow_data_str, []).map(
+      taskToApiFormatter
+    )
+    const appData = await api.post<{ chains: any[] }, { id: string }>(
+      '/v1/models',
+      { chains }
+    )
+    const api_model_id = appData?.id
+
+    const appVal = {
+      ...newValue,
+      short_id: newAppId,
+      workflow_tree_str,
+      workflow_data_str,
+      published_workflow_tree_str,
+      published_workflow_data_str,
+      api_model_id,
+      parent_app_id: appId,
+      created_by: userId,
+    }
+
+    const [newApp] = await db.insert(AppsTable).values(appVal).returning()
+
+    const sessionData = await api.post<
+      { model_id: string },
+      { session_id: string }
+    >('/v1/chat/session', { model_id: api_model_id })
+    const api_session_id = sessionData?.session_id
+    const sessionVal = {
+      short_id: nanoid(),
+      name: 'Chat 1',
+      app_id: appId,
+      created_by: userId,
+      api_session_id,
+    }
+    const [newSession] = await db
+      .insert(SessionsTable)
+      .values(sessionVal)
+      .returning()
+
+    if (newApp.opening_remarks) {
+      const message = formatEventMessage({
+        session_id: newSession.short_id,
+        event_type: 'basic.opening_remarks',
+        content: newApp.opening_remarks,
+      })
+      await addMessage(message)
+    }
+
+    await addToWorkspace(appId)
+
+    return { appId, sessionId: newSession?.short_id }
+  } catch (error: any) {
+    return {
+      error: error.message,
+    }
+  }
 }

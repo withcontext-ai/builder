@@ -37,8 +37,8 @@ import { UPLOAD_ACCEPT_MAP } from './upload/type'
 
 interface IProps {
   submit?: () => void
-  defaultValues?: Partial<NewApp>
-  isCopy?: boolean
+  defaultValues?: z.infer<typeof formSchema>
+  parentAppId?: string
 }
 
 interface FormValuesProps {
@@ -64,10 +64,7 @@ const formSchema = z.object({
   icon: z.string().optional(),
 })
 
-function addApp(
-  url: string,
-  { arg }: { arg: Partial<NewApp> & { isCopy?: boolean } }
-) {
+function addApp(url: string, { arg }: { arg: Partial<NewApp> }) {
   return fetcher(url, {
     method: 'POST',
     body: JSON.stringify(arg),
@@ -75,22 +72,26 @@ function addApp(
 }
 
 export default NiceModal.create((props: IProps) => {
+  const { defaultValues: _defaultValues, parentAppId, submit } = props
+  const isCopy = !!parentAppId
+
+  const router = useRouter()
+  const { mutate } = useSWRConfig()
+  const { trigger, isMutating } = useSWRMutation('/api/me/apps', addApp)
   const { modal, onOpenChange } = useNiceModal()
-  const { defaultValues: _defaultValues, isCopy, submit } = props
+  const { toast } = useToast()
 
   const defaultValues = {
     name: _defaultValues?.name || '',
     description: _defaultValues?.description || '',
     icon: _defaultValues?.icon || '',
   }
-  const router = useRouter()
-  const { mutate } = useSWRConfig()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
   const { reset, setValue } = form
-  const { toast } = useToast()
+
   const _image = defaultValues?.icon
     ? [
         {
@@ -103,13 +104,12 @@ export default NiceModal.create((props: IProps) => {
     : []
   const [image, setImage] = useState<FileProps[]>(_image)
   const [uploading, setUploading] = useState(false)
-  const { trigger, isMutating } = useSWRMutation('/api/me/apps', addApp)
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
       await submit?.()
-      const params = { ..._defaultValues, ...data }
-      const json = await trigger({ ...params, isCopy })
+      const params = { ...defaultValues, ...data }
+      const json = await trigger({ ...params, parent_app_id: parentAppId })
       onOpenChange(false)
       mutate('/api/me/workspace')
       router.push(`/app/${json.appId}/settings/basics`)
