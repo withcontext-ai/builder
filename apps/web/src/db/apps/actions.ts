@@ -661,7 +661,7 @@ const SENSITIVE_DATA_MODIFIER = [
 ]
 
 export async function forkApp(
-  appId: string,
+  parentAppId: string,
   newValue: Omit<NewApp, 'short_id' | 'created_by'>
 ) {
   try {
@@ -670,25 +670,17 @@ export async function forkApp(
       throw new Error('Not authenticated')
     }
 
-    const appDetail = await getApp(appId)
+    const appDetail = await getApp(parentAppId)
     const isOwner = appDetail.created_by === userId
 
-    const newAppId = nanoid()
-    const { workflow_tree_str, published_workflow_tree_str } = appDetail
-    const workflow_data_str = isOwner
-      ? appDetail.workflow_data_str
-      : removeSensitiveData(
-          appDetail.workflow_data_str,
-          SENSITIVE_DATA_MODIFIER
-        )
+    const appId = nanoid()
+    const { published_workflow_tree_str } = appDetail
     const published_workflow_data_str = isOwner
       ? appDetail.published_workflow_data_str
       : removeSensitiveData(
           appDetail.published_workflow_data_str,
           SENSITIVE_DATA_MODIFIER
         )
-
-    console.log('workflow_data_str:', workflow_data_str)
     console.log('published_workflow_data_str:', published_workflow_data_str)
 
     const chains = safeParse(published_workflow_data_str, []).map(
@@ -702,9 +694,9 @@ export async function forkApp(
 
     const appVal = {
       ...newValue,
-      short_id: newAppId,
-      workflow_tree_str,
-      workflow_data_str,
+      short_id: appId,
+      workflow_tree_str: published_workflow_tree_str,
+      workflow_data_str: published_workflow_data_str,
       published_workflow_tree_str,
       published_workflow_data_str,
       api_model_id,
@@ -738,7 +730,7 @@ export async function forkApp(
         ).map((d) => d.id)
         for (const datasetId of addedDatasetIds) {
           const task = db.insert(AppsDatasetsTable).values({
-            app_id: newAppId,
+            app_id: appId,
             dataset_id: datasetId,
           })
           queue.push(task)
