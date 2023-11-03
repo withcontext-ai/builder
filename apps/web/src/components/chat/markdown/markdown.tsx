@@ -5,7 +5,7 @@ import remarkMath from 'remark-math'
 
 import { cn } from '@/lib/utils'
 
-import { CodeBlock } from './code-block'
+import { CodeBlock, programmingLanguages } from './code-block'
 import { MarkdownProps } from './type'
 
 export const Markdown = (props: MarkdownProps) => {
@@ -32,8 +32,9 @@ export const Markdown = (props: MarkdownProps) => {
         },
         code({ node, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '')
-
-          if (match) {
+          const type = className?.split('-')?.[1] || ''
+          const isCode = programmingLanguages?.[type]
+          if (isCode && match) {
             return (
               <CodeBlock
                 language={match[1]}
@@ -43,12 +44,12 @@ export const Markdown = (props: MarkdownProps) => {
             )
           }
           return (
-            <code
+            <span
               {...props}
               className={cn(className, isUser ? 'text-white' : 'text-black')}
             >
               {children}
-            </code>
+            </span>
           )
         },
         a({ ...props }) {
