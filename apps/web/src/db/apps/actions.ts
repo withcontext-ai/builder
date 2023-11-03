@@ -353,78 +353,9 @@ export async function deployApp(appId: string, newValue: Partial<NewApp>) {
       await api.patch(`/v1/models/${api_model_id}`, { chains })
     }
 
-    // BEGIN link datasets to this app
-    const newWorkflow = safeParse(newValue.published_workflow_data_str, [])
-    const allApiDatasetIds = newWorkflow.reduce(
-      (acc: string[], task: WorkflowItem) => {
-        const d =
-          (safeParse(task.formValueStr, {}).data?.datasets as string[]) || []
-        acc.push(...d)
-        return acc
-      },
-      []
-    ) as string[]
-    const newApiDatasetIds = [...new Set(allApiDatasetIds)]
-
-    const oldApiDatasetIds = (
-      await db
-        .select({ api_dataset_id: DatasetsTable.api_dataset_id })
-        .from(AppsDatasetsTable)
-        .where(eq(AppsDatasetsTable.app_id, appId))
-        .leftJoin(
-          DatasetsTable,
-          eq(DatasetsTable.short_id, AppsDatasetsTable.dataset_id)
-        )
-    ).map((d) => d.api_dataset_id)
-
-    const addedApiDatasetIds = difference(
-      newApiDatasetIds,
-      oldApiDatasetIds
-    ) as string[]
-    const removedApiDatasetIds = difference(
-      oldApiDatasetIds,
-      newApiDatasetIds
-    ) as string[]
-
-    const queue = []
-    if (addedApiDatasetIds.length > 0) {
-      const addedDatasetIds = (
-        await db
-          .select({ id: DatasetsTable.short_id })
-          .from(DatasetsTable)
-          .where(inArray(DatasetsTable.api_dataset_id, addedApiDatasetIds))
-      ).map((d) => d.id)
-      for (const datasetId of addedDatasetIds) {
-        const task = db.insert(AppsDatasetsTable).values({
-          app_id: appId,
-          dataset_id: datasetId,
-        })
-        queue.push(task)
-      }
+    if (newValue.published_workflow_data_str) {
+      await modifyAppsDatasetsTable(appId, newValue.published_workflow_data_str)
     }
-    if (removedApiDatasetIds.length > 0) {
-      const removedDatasetIds = (
-        await db
-          .select({ id: DatasetsTable.short_id })
-          .from(DatasetsTable)
-          .where(inArray(DatasetsTable.api_dataset_id, removedApiDatasetIds))
-      ).map((d) => d.id)
-      for (const datasetId of removedDatasetIds) {
-        const task = db
-          .delete(AppsDatasetsTable)
-          .where(
-            and(
-              eq(AppsDatasetsTable.app_id, appId),
-              eq(AppsDatasetsTable.dataset_id, datasetId)
-            )
-          )
-        queue.push(task)
-      }
-    }
-    if (queue.length > 0) {
-      await Promise.all(queue)
-    }
-    // END link datasets to this app
 
     const [updatedApp] = await db
       .update(AppsTable)
@@ -700,40 +631,8 @@ export async function forkApp(
 
     const [newApp] = await db.insert(AppsTable).values(appVal).returning()
 
-    if (isOwner) {
-      // BEGIN link datasets to this app
-      const newWorkflow = safeParse(published_workflow_data_str, [])
-      const allApiDatasetIds = newWorkflow.reduce(
-        (acc: string[], task: WorkflowItem) => {
-          const d =
-            (safeParse(task.formValueStr, {}).data?.datasets as string[]) || []
-          acc.push(...d)
-          return acc
-        },
-        []
-      ) as string[]
-      const newApiDatasetIds = [...new Set(allApiDatasetIds)]
-
-      const queue = []
-      if (newApiDatasetIds.length > 0) {
-        const addedDatasetIds = (
-          await db
-            .select({ id: DatasetsTable.short_id })
-            .from(DatasetsTable)
-            .where(inArray(DatasetsTable.api_dataset_id, newApiDatasetIds))
-        ).map((d) => d.id)
-        for (const datasetId of addedDatasetIds) {
-          const task = db.insert(AppsDatasetsTable).values({
-            app_id: appId,
-            dataset_id: datasetId,
-          })
-          queue.push(task)
-        }
-      }
-      if (queue.length > 0) {
-        await Promise.all(queue)
-      }
-      // END link datasets to this app
+    if (isOwner && published_workflow_data_str) {
+      await modifyAppsDatasetsTable(appId, published_workflow_data_str)
     }
 
     const sessionData = await api.post<
@@ -769,5 +668,79 @@ export async function forkApp(
     return {
       error: error.message,
     }
+  }
+}
+
+// link the datasets of workflow to the app
+async function modifyAppsDatasetsTable(appId: string, workflowDataStr: string) {
+  const newWorkflow = safeParse(workflowDataStr, [])
+  const allApiDatasetIds = newWorkflow.reduce(
+    (acc: string[], task: WorkflowItem) => {
+      const d =
+        (safeParse(task.formValueStr, {}).data?.datasets as string[]) || []
+      acc.push(...d)
+      return acc
+    },
+    []
+  ) as string[]
+  const newApiDatasetIds = [...new Set(allApiDatasetIds)]
+
+  const oldApiDatasetIds = (
+    await db
+      .select({ api_dataset_id: DatasetsTable.api_dataset_id })
+      .from(AppsDatasetsTable)
+      .where(eq(AppsDatasetsTable.app_id, appId))
+      .leftJoin(
+        DatasetsTable,
+        eq(DatasetsTable.short_id, AppsDatasetsTable.dataset_id)
+      )
+  ).map((d) => d.api_dataset_id)
+
+  const addedApiDatasetIds = difference(
+    newApiDatasetIds,
+    oldApiDatasetIds
+  ) as string[]
+  const removedApiDatasetIds = difference(
+    oldApiDatasetIds,
+    newApiDatasetIds
+  ) as string[]
+
+  const queue = []
+  if (addedApiDatasetIds.length > 0) {
+    const addedDatasetIds = (
+      await db
+        .select({ id: DatasetsTable.short_id })
+        .from(DatasetsTable)
+        .where(inArray(DatasetsTable.api_dataset_id, addedApiDatasetIds))
+    ).map((d) => d.id)
+    for (const datasetId of addedDatasetIds) {
+      const task = db.insert(AppsDatasetsTable).values({
+        app_id: appId,
+        dataset_id: datasetId,
+      })
+      queue.push(task)
+    }
+  }
+  if (removedApiDatasetIds.length > 0) {
+    const removedDatasetIds = (
+      await db
+        .select({ id: DatasetsTable.short_id })
+        .from(DatasetsTable)
+        .where(inArray(DatasetsTable.api_dataset_id, removedApiDatasetIds))
+    ).map((d) => d.id)
+    for (const datasetId of removedDatasetIds) {
+      const task = db
+        .delete(AppsDatasetsTable)
+        .where(
+          and(
+            eq(AppsDatasetsTable.app_id, appId),
+            eq(AppsDatasetsTable.dataset_id, datasetId)
+          )
+        )
+      queue.push(task)
+    }
+  }
+  if (queue.length > 0) {
+    await Promise.all(queue)
   }
 }
