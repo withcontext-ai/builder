@@ -32,8 +32,7 @@ export const Markdown = (props: MarkdownProps) => {
         },
         code({ node, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '')
-          const type = className?.split('-')?.[1] || ''
-          const isCode = programmingLanguages?.[type]
+          const isCode = programmingLanguages?.[match?.[1] || '']
           if (isCode && match) {
             return (
               <CodeBlock
