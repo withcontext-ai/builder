@@ -694,7 +694,7 @@ export async function forkApp(
       published_workflow_tree_str,
       published_workflow_data_str,
       api_model_id,
-      parent_app_id: appId,
+      parent_app_id: parentAppId,
       created_by: userId,
     }
 
