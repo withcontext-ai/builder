@@ -105,8 +105,7 @@ export default NiceModal.create((props: IProps) => {
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
-      const params = { ..._defaultValues, ...data }
-      const json = await trigger({ ...params, parent_app_id: parentAppId })
+      const json = await trigger({ ...data, parent_app_id: parentAppId })
       onOpenChange(false)
       mutate('/api/me/workspace')
       router.push(`/app/${json.appId}/settings/basics`)
@@ -129,9 +128,10 @@ export default NiceModal.create((props: IProps) => {
     }
   }
 
-  const onChangeFileList = (file: FileProps[]) => {
-    setImage(file)
-    setValue('icon', file[0]?.url || '')
+  const onChangeFileList = (files: FileProps[]) => {
+    setImage(files)
+    const current = files[files?.length - 1]
+    setValue('icon', current?.url)
   }
 
   return (
