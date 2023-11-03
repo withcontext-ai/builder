@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { debounce } from 'lodash'
@@ -24,6 +24,17 @@ interface IProps {
   icon?: string
   appId?: string
 }
+
+const LoadingCards = () => (
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <Skeleton
+        key={i}
+        className="h-[182px] rounded-lg border border-transparent"
+      />
+    ))}
+  </div>
+)
 
 const SegmentPage = ({ datasetId, name, type, icon, appId }: IProps) => {
   const [open, setOpen] = useState(false)
@@ -75,51 +86,51 @@ const SegmentPage = ({ datasetId, name, type, icon, appId }: IProps) => {
   const throttledOnChange = useMemo(() => debounce(onChange, 500), [onChange])
   return (
     <div className="h-full w-full overflow-auto py-[68px]">
-      <SegmentHeader
-        datasetId={datasetId}
-        uid={uid}
-        name={name}
-        icon={icon}
-        type={type}
-        appId={appId}
-        addNew={() => {
-          setOpen(true)
-          current.current = { content: '', segment_id: '' }
-        }}
-      />
-      <div className="pl-14 pr-8">
-        <div className="mb-8 mt-6 flex">
-          <Input
-            className="w-[240px]"
-            placeholder="Search"
-            onChange={throttledOnChange}
-          />
-        </div>
-        <div className="flex-1 flex-col">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
+      <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+        <SegmentHeader
+          datasetId={datasetId}
+          uid={uid}
+          name={name}
+          icon={icon}
+          type={type}
+          appId={appId}
+          addNew={() => {
+            setOpen(true)
+            current.current = { content: '', segment_id: '' }
+          }}
+        />
+      </Suspense>
+      <Suspense fallback={<LoadingCards />}>
+        <div className="pl-14 pr-8">
+          <div className="mb-8 mt-6 flex">
+            <Input
+              className="w-[240px]"
+              placeholder="Search"
+              onChange={throttledOnChange}
+            />
+          </div>
+          <div className="flex-1 flex-col">
             {isLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className="h-[182px] rounded-lg border border-transparent"
-                />
-              ))
+              <LoadingCards />
             ) : (
-              <SegmentList
-                segments={data?.segments}
-                setOpen={setOpen}
-                current={current}
-                setShowDeleteAlter={setShowDeleteAlter}
-              />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 ">
+                <SegmentList
+                  segments={data?.segments}
+                  setOpen={setOpen}
+                  current={current}
+                  setShowDeleteAlter={setShowDeleteAlter}
+                />
+              </div>
             )}
           </div>
+          {!value && (
+            <div className="mt-8">
+              <DataTablePagination table={table} />
+            </div>
+          )}
         </div>
-        {!value && (
-          <div className="mt-8">
-            <DataTablePagination table={table} />
-          </div>
-        )}
-      </div>
+      </Suspense>
+
       <DeleteSegment
         dataset_id={datasetId}
         uid={uid}
