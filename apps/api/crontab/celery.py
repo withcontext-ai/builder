@@ -4,6 +4,10 @@ from celery.exceptions import MaxRetriesExceededError
 from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
 from functools import wraps
 
+from models.base import Model
+from models.base.dataset import Dataset
+from models.controller import dataset_manager, model_manager, session_state_manager
+
 # cmd: celery -A crontab worker -l INFO
 logger.info("Celery Start")
 app = Celery('crontab')
@@ -50,5 +54,44 @@ def retry_on_exception(task_func=None, max_retries=3, countdown=60):
     return wrapper
 
 
-if __name__ == '__main__':
-    app.start()
+@app.task(bind=True)
+@retry_on_exception(countdown=10)
+def background_create_dataset(self, dataset_dict: dict):
+    dataset = Dataset(**dataset_dict)
+    dataset_manager.save_dataset(dataset)
+    logger.info(f"Dataset {dataset.id} created.")
+    self.update_state(state='PROGRESS', meta={'progress': 100})
+
+
+@app.task(bind=True)
+@retry_on_exception
+def background_add_document(self, dataset_id: str, document: dict):
+    dataset_manager.add_document_to_dataset(dataset_id, document)
+    logger.info(f"Document {document['uid']} added to dataset {dataset_id}.")
+    self.update_state(state='PROGRESS', meta={'progress': 100})
+
+
+@app.task(bind=True)
+@retry_on_exception
+def background_delete_document(self, dataset_id: str, document_uid: str):
+    dataset_manager.delete_document_from_dataset(dataset_id, document_uid)
+    logger.info(f"Document {document_uid} deleted from dataset {dataset_id}.")
+    self.update_state(state='PROGRESS', meta={'progress': 100})
+
+
+@app.task(bind=True)
+@retry_on_exception(countdown=10)
+def background_create_model(self, model_dict: dict):
+    model = Model(**model_dict)
+    model_manager.save_model(model)
+    logger.info(f"model: {model} created")
+    self.update_state(state='PROGRESS', meta={'progress': 100})
+
+
+@app.task(bind=True)
+@retry_on_exception(countdown=10)
+def background_update_model(self, id: str, model: dict):
+    model_manager.upsert_model(id, model)
+    logger.info(f"model: {model} updated")
+    session_state_manager.delete_session_state_cache_via_model(id)
+    self.update_state(state='PROGRESS', meta={'progress': 100})
