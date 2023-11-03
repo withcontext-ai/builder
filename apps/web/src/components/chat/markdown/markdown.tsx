@@ -51,23 +51,13 @@ export const Markdown = (props: MarkdownProps) => {
               />
             )
           }
-          if (isCode) {
-            return (
-              <code
-                {...props}
-                className={cn(className, isUser ? 'text-white' : 'text-black')}
-              >
-                {children}
-              </code>
-            )
-          }
           return (
-            <span
+            <code
               {...props}
               className={cn(className, isUser ? 'text-white' : 'text-black')}
             >
               {children}
-            </span>
+            </code>
           )
         },
         a({ ...props }) {
