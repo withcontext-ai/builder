@@ -1,4 +1,4 @@
-from .client import app, retry_on_exception
+from .celery import app, retry_on_exception
 from models.base import Model
 from models.base.dataset import Dataset
 from models.controller import dataset_manager, model_manager, session_state_manager

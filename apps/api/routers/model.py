@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Request
 from loguru import logger
 from models.base import Model
 from models.controller import model_manager, session_state_manager
-from crontab.celery.task import background_create_model, background_update_model
+from crontab.task import background_create_model, background_update_model
 
 
 router = APIRouter(prefix="/v1/models")
