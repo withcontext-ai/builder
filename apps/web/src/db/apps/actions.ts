@@ -596,6 +596,8 @@ export async function forkApp(
       throw new Error('Not authenticated')
     }
 
+    const { email } = await currentUser()
+
     const appDetail = await getApp(parentAppId)
     const isOwner = appDetail.created_by === userId
 
@@ -671,6 +673,22 @@ export async function forkApp(
     }
 
     await addToWorkspace(appId)
+
+    const actionName = isOwner ? 'Duplicate' : 'Customize'
+    await logsnag?.track({
+      user_id: userId,
+      channel: 'creator',
+      event: `${actionName} App Request`,
+      icon: '✅',
+      description: `${email} ${actionName.toLowerCase()} app "${
+        appDetail.name
+      }" successfully`,
+      tags: {
+        'user-id': userId,
+        'parent-app-id': parentAppId,
+        'app-id': appId,
+      },
+    })
 
     return { appId, sessionId: newSession?.short_id }
   } catch (error: any) {
