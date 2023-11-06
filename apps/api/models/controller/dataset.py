@@ -89,12 +89,19 @@ class DatasetManager(BaseManager):
             chains = Retriever.get_relative_chains(dataset)
         for chain in chains:
             parts = chain.split("-", 1)
-            Retriever.add_relative_chain_to_document(new_document, parts[0], parts[1])
+            Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
 
         # create index for new document
         _new_document = {'documents': [new_document]}
         new_dataset = Dataset(id=dataset_id, **_new_document)
         Retriever.create_index(new_dataset)
+
+        # update document status to 0
+        webhook_handler = DocumentWebhookHandler()
+        for doc in new_dataset.documents:
+            webhook_handler.update_document_status(
+                dataset.id, doc.uid, doc.content_size, 0
+            )
         # set dataset index status for complete
         handler.update_dataset_status(dataset_id, 0)
 

@@ -71,6 +71,8 @@ async def update_dataset(
             current_data = dataset_manager.get_datasets(id)[0].dict()
             docs_to_add = dataset_manager.get_documents_to_add(current_data, dataset)
             docs_to_delete = dataset_manager.get_documents_to_delete(current_data, dataset)
+            logger.info(f"docs_to_add -> {docs_to_add}")
+            logger.info(f"docs_to_delete -> {docs_to_delete}")
 
             for doc in docs_to_add:
                 background_add_document.delay(id, doc)

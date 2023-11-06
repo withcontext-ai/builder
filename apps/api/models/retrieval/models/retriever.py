@@ -149,7 +149,7 @@ class Retriever:
                     set_metadata={"relative_chains": known_chains},
                     namespace="withcontext",
                 )
-                logger.info(f"Updated {id} with relative chains {known_chains}")
+                # logger.info(f"Updated {id} with relative chains {known_chains}")
             id = f"{dataset.id}-{doc.url}"
             index.update(
                 id=id,
