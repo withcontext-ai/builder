@@ -22,7 +22,7 @@ load_dotenv()
 app = FastAPI(docs_url=None, redoc_url=None)
 graphsignal.configure(api_key=GRAPH_SIGNAL_API_KEY, deployment="my-app-prod")
 
-if BACKEND_URL.startswith("http://api-test"):
+if BACKEND_URL.startswith("http://api-test") and os.getenv("TESTING"):
 
     @app.middleware("http")
     async def profiler_middleware(request: Request, call_next):
