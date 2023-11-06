@@ -59,9 +59,12 @@ export default function AppCard({
             </CardDescription>
           </div>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <CardTitle className="truncate text-xl">{name}</CardTitle>
-            </TooltipTrigger>
+            <div className="flex">
+              <TooltipTrigger asChild>
+                <CardTitle className="truncate text-xl">{name}</CardTitle>
+              </TooltipTrigger>
+              <div className="flex-1" />
+            </div>
             <TooltipContent side="top" className="max-w-[300px]" align="start">
               <p className="break-words">{name}</p>
             </TooltipContent>
