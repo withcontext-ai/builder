@@ -5,7 +5,7 @@ import remarkMath from 'remark-math'
 
 import { cn } from '@/lib/utils'
 
-import { CodeBlock, CodeType } from './code-block'
+import { CodeBlock } from './code-block'
 import { MarkdownProps } from './type'
 
 export const Markdown = (props: MarkdownProps) => {
@@ -39,10 +39,7 @@ export const Markdown = (props: MarkdownProps) => {
         },
         code({ node, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '')
-          const isCode = CodeType?.filter(
-            (item) => item?.includes(match?.[1] || '')
-          )?.length
-          if (isCode && match) {
+          if (match) {
             return (
               <CodeBlock
                 language={match[1]}

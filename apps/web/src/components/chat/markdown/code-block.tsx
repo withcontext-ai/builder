@@ -44,14 +44,6 @@ export const programmingLanguages: languageMap = {
   // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
 }
 
-export const CodeType = [
-  ...Object.values(programmingLanguages),
-  '.jsx',
-  '.tsx',
-  '.sass',
-  '.less',
-]
-
 export const generateRandomString = (length: number, lowercase = false) => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789' // excluding similar looking characters like Z, 2, I, 1, O, 0
   let result = ''
