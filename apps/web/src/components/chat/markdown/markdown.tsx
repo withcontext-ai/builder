@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 // markdown plugins
 import remarkGfm from 'remark-gfm'
@@ -8,13 +9,34 @@ import { cn } from '@/lib/utils'
 import { CodeBlock } from './code-block'
 import { MarkdownProps } from './type'
 
+function escapeMarkdownContent(content: string): string {
+  return content.replace(
+    // Exclude code blocks & math block from replacement
+    /(`{3}[\s\S]*?`{3}|`[^`]*`)|(?<!\$)(\$(?!\$))/g,
+    (match, codeBlock) => {
+      if (codeBlock) {
+        return match // Return the code block as it is
+      } else {
+        return '&#36;' // Escape dollar signs outside of code blocks
+      }
+    }
+  )
+}
+
 export const Markdown = (props: MarkdownProps) => {
   const {
+    children,
     className,
     showCustomerCard: showCustomerCard,
     isUser,
     ...others
   } = props
+
+  const escapedContent = useMemo(
+    () => escapeMarkdownContent(children || ''),
+    [children]
+  )
+
   return (
     <ReactMarkdown
       className={cn(
@@ -69,6 +91,8 @@ export const Markdown = (props: MarkdownProps) => {
       }}
       remarkPlugins={[remarkGfm, remarkMath]}
       {...others}
-    />
+    >
+      {escapedContent}
+    </ReactMarkdown>
   )
 }
