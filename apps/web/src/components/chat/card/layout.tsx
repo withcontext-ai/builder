@@ -125,7 +125,6 @@ function _MarkDownContent(content: string) {
     // Exclude code blocks & math block from replacement
     /(`{3}[\s\S]*?`{3}|`[^`]*`)|(?<!\$)(\$(?!\$))/g,
     (match: any, codeBlock: any) => {
-      console.log(codeBlock, match, '---math')
       if (codeBlock) {
         return match // Return the code block as it is
       } else {
