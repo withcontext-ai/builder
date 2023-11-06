@@ -55,6 +55,7 @@ export async function OpenAIStream({
 
   return stream
 }
+
 function createMetaTransformer(
   data: Record<string, unknown>
 ): TransformStream<string, string> {
