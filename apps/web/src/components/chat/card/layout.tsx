@@ -19,6 +19,8 @@ import { ChatUser } from '../types'
 import { useChat } from '../useChat'
 import { IChatCardProps } from './chat-card'
 
+// import ChatConversationRecord from './chat-conversation-record'
+
 interface Props extends IChatCardProps {
   actions?: React.ReactNode
   footer?: React.ReactNode
@@ -103,6 +105,9 @@ function EventMessage({ data }: { data: any }) {
       message = 'Call Canceled'
       break
     }
+    // case 'event.video_conversation_record': {
+    //   return <ChatConversationRecord />
+    // }
     default: {
       message = data.content ? data.content : 'Unknown event'
     }
@@ -157,6 +162,7 @@ const ChatCardLayout = (prop: Props) => {
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
+  const isVideo = false //  根据event_type 判断
 
   return (
     <div className="flex flex-col ">
@@ -200,7 +206,8 @@ const ChatCardLayout = (prop: Props) => {
                 mode === 'debug' &&
                   'max-w-[240px] md:max-w-md lg:max-w-md xl:max-w-md',
                 isUser ? 'bg-primary' : 'bg-gray-100',
-                showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
+                showError ? 'rounded-lg border border-red-500	bg-red-50' : '',
+                isVideo && 'rounded-md border bg-white'
               )}
               data-testid="chat-card-content"
             >

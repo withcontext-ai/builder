@@ -1,7 +1,7 @@
 import { Loader2Icon } from 'lucide-react'
 import useSWR from 'swr'
 
-import { fetcher } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import { getMessages } from '@/db/messages/actions'
 import { getSession } from '@/db/sessions/actions'
 
@@ -40,7 +40,9 @@ export default function ChatListWithData({ mode, sessionId }: IProps) {
 
   if (isLoading) {
     return (
-      <div className="mt-32 flex justify-center">
+      <div
+        className={cn('mt-32 flex justify-center', mode === 'debug' && 'mb-32')}
+      >
         <Loader2Icon className="h-8 w-8 animate-spin" />
       </div>
     )
