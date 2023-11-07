@@ -18,8 +18,7 @@ import { Markdown } from '../markdown/markdown'
 import { ChatUser } from '../types'
 import { useChat } from '../useChat'
 import { IChatCardProps } from './chat-card'
-
-// import ChatConversationRecord from './chat-conversation-record'
+import ChatConversationRecord from './chat-conversation-record'
 
 interface Props extends IChatCardProps {
   actions?: React.ReactNode
@@ -105,9 +104,9 @@ function EventMessage({ data }: { data: any }) {
       message = 'Call Canceled'
       break
     }
-    // case 'event.video_conversation_record': {
-    //   return <ChatConversationRecord />
-    // }
+    case 'video_conversation_record': {
+      return <ChatConversationRecord />
+    }
     default: {
       message = data.content ? data.content : 'Unknown event'
     }

@@ -14,13 +14,14 @@ import {
 
 import ChatListWithData from '../chat-list-with-data'
 import { Message } from '../types'
+import { useChat } from '../useChat'
 
 interface RecordDialogProps {
   selectedSessionId?: string
 }
-const ChatRecordDialog = NiceModal.create((props: RecordDialogProps) => {
+const ChatRecordDialog = NiceModal.create(() => {
   const { modal, onOpenChange } = useNiceModal()
-  const { selectedSessionId } = props
+  const { session } = useChat()
   // mode=debug: hidden fallback button
   return (
     <Dialog open={modal.visible} onOpenChange={onOpenChange}>
@@ -29,7 +30,7 @@ const ChatRecordDialog = NiceModal.create((props: RecordDialogProps) => {
           <DialogTitle>Conversation Record</DialogTitle>
         </DialogHeader>
         <div className="overflow-auto px-6 pr-8">
-          <ChatListWithData mode="debug" sessionId={'hWkMgxRohywl'} />
+          <ChatListWithData mode="debug" sessionId={session?.short_id} />
         </div>
       </DialogContent>
     </Dialog>
