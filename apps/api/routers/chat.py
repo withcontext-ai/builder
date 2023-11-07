@@ -69,6 +69,7 @@ async def send_message(
     start_time=None,
     disconnect_event: asyncio.Event = None,
 ) -> AsyncIterable[str]:
+    logger.info(f"======== START TIME: {start_time} ========")
     messages = []
     for message_content in messages_contents:
         if message_content.role == "user":
@@ -84,6 +85,7 @@ async def send_message(
 
     model_id = session_state_manager.get_model_id(session_id)
     models = model_manager.get_models(model_id)
+    logger.info(f"======== MODEL GET TIME: {time.time()} ========")
     if not models:
         raise HTTPException(
             status_code=400, detail=f"Model {model_id} not found in model manager"
@@ -95,6 +97,7 @@ async def send_message(
         )
     model = models[0]
     workflow = session_state_manager.get_workflow(session_id, model, disconnect_event)
+    logger.info(f"======== WORKFLOW GET TIME: {time.time()} ========")
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
@@ -110,7 +113,6 @@ async def send_message(
         task = asyncio.create_task(
             wrap_done(workflow.agenerate(messages), workflow.context.done)
         )
-
         yield wrap_token(CHUNK_DATA, model_id, session_id, filt=filt)
 
         async for token in workflow.context.aiter():
@@ -131,8 +133,10 @@ async def send_message(
                         },
                     )
                 )
+                logger.info(f"======== CHAT RESPONSE TIME: {time.time()} ========")
             yield wrap_token(token, model_id, session_id, filt=filt)
         await task
+        logger.info(f"======== END TIME: {time.time()} ========")
     except Exception as e:
         logger.warning(e)
 

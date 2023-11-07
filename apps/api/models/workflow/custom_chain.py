@@ -88,6 +88,7 @@ class TargetedChain(Chain):
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Coroutine[Any, Any, Dict[str, Any]]:
+        logger.info(f"======== TARGETED CHAIN CALL TIME: {time.time()} ========")
         if inputs.get(self.dialog_key, None) is not None and isinstance(
             inputs[self.dialog_key], str
         ):
@@ -113,13 +114,14 @@ class TargetedChain(Chain):
                     )
                 )
             ]
+            logger.info(f"======== FRIST LLM CALL TIME: {time.time()} ========")
             response = await self.llm.agenerate(
                 messages=[messages], callbacks=callbacks
             )
+            logger.info(f"======== FIRST LLM END TIME: {time.time()} ========")
             response_text = response.generations[0][0].text
             if response_text.startswith("AI:"):
                 response_text = response_text[3:]
-            # if response.generations[0][0].text.lower().startswith("yes"):
             if (
                 response_text.lower().strip().startswith("yes")
                 and len(response_text) < 5
@@ -146,7 +148,9 @@ class TargetedChain(Chain):
                     has_custom_iterator = True
             if has_custom_iterator is False:
                 callbacks.add_handler(custom_iterator_handler)
+        logger.info(f"======== SECOND LLM CALL TIME: {time.time()} ========")
         response = await self.llm.agenerate(messages=[messages], callbacks=callbacks)
+        logger.info(f"======== SECOND LLM END TIME: {time.time()} ========")
         return {self.output_key: response.generations[0][0].text}
 
     async def get_output(
@@ -212,6 +216,7 @@ class EnhanceSequentialChain(SequentialChain):
         inputs: Dict[str, Any],
         run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> Dict[str, Any]:
+        logger.info(f"======== SEQUENTIAL CHAIN CALL TIME: {time.time()} ========")
         self.known_values.update(inputs)
         _run_manager = run_manager or AsyncCallbackManagerForChainRun.get_noop_manager()
         callbacks = _run_manager.get_child()

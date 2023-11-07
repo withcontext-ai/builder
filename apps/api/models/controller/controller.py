@@ -674,16 +674,8 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
     @BaseManager.db_session
     def save_session_state(self, session_id: str, model_id: str):
         logger.info(f"Saving session state {session_id}")
+        self.save_model_id_to_redis(session_id, model_id)
         return self.table.insert().values(id=session_id, model_id=model_id)
-
-    @BaseManager.db_session
-    def update_session_state(self, session_id: str, model_id: str):
-        logger.info(f"Updating session state {session_id}")
-        return (
-            self.table.update()
-            .where(self.table.c.id == session_id)
-            .values(model_id=model_id)
-        )
 
     @BaseManager.db_session
     def delete_session_state(self, session_id: str):
@@ -704,7 +696,20 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         logger.info(f"Getting session id {model_id}")
         return self.table.select().where(self.table.c.model_id == model_id)
 
+    @staticmethod
+    def get_session_to_model_urn(self, session_id: str):
+        return f"session_to_model:{session_id}"
+
+    def get_model_id_from_redis(self, session_id: str):
+        return self.redis.get(self.get_session_to_model_urn(session_id))
+
+    def save_model_id_to_redis(self, session_id: str, model_id: str):
+        self.redis.set(self.get_session_to_model_urn(session_id), model_id)
+
     def get_model_id(self, session_id: str) -> Union[SessionState, list[SessionState]]:
+        model_id = self.get_model_id_from_redis(session_id)
+        if model_id is not None:
+            return model_id
         session_state_info = self._get_session_state(session_id)
         if session_state_info is None:
             return None
