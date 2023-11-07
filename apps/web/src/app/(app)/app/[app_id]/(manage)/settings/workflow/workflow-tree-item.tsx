@@ -42,8 +42,6 @@ export default function WorkflowTreeItem({
   const selectedTaskId = useWorkflowContext((state) => state.selectedTaskId)
   const selectTask = useWorkflowContext((state) => state.selectTask)
   const removeTask = useWorkflowContext((state) => state.removeTask)
-  const workflowData = useWorkflowContext((state) => state.workflowData)
-
   const isSelected = selectedTaskId === id
 
   const { key, type, subType, formValueStr } = value || {}
@@ -53,7 +51,8 @@ export default function WorkflowTreeItem({
   const TypeIcon = type ? TYPE_MAP[type]?.icon : null
   // @ts-ignore
   const subTypeTitle = subType ? SUB_TYPE_MAP[subType]?.title : ''
-  const openVideo = false
+  const openVideo = JSON.parse(formValueStr || '')?.video
+    ?.enable_video_interaction
   return (
     <div className={cn('relative mb-4 w-[360px]', clone && '-rotate-3')}>
       <div

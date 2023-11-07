@@ -101,6 +101,9 @@ const FormSchema = z.object({
     k: z.number().optional(),
     max_token_limit: z.number().optional(),
   }),
+  video: z.object({
+    enable_video_interaction: z.boolean().optional(),
+  }),
 })
 
 type IFormSchema = z.infer<typeof FormSchema>
