@@ -26,6 +26,7 @@ import {
   MentionTextareaItem,
   SelectItem,
   SlideItem,
+  VideoItem,
 } from './form-item'
 import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
@@ -145,6 +146,8 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
           <FormItemRetriever />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <FormItemData />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <VideoItem />
         </div>
       </div>
     </div>
