@@ -15,14 +15,12 @@ import { fetcher, getAvatarBgColor, getFirstLetter, nanoid } from '@/lib/utils'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Tooltip,
@@ -211,40 +209,6 @@ export default function BasicsSettingForm({ appId, defaultValues }: IProps) {
                       />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="h-px bg-slate-200" />
-
-              <h3 className="text-xl font-semibold">Video</h3>
-
-              <FormField
-                control={form.control}
-                name="enable_video_interaction"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex space-x-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Video Interaction</FormLabel>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </div>
-                        <FormDescription>
-                          Once activated, the App will communicate with users
-                          through video and voice.
-                        </FormDescription>
-                      </div>
-                      <img
-                        alt=""
-                        src="https://storage.googleapis.com/context-builder/public-tmp/rpzyVShaSqc8.jpeg"
-                        className="h-[170px] w-[250px] shrink-0 rounded-md"
-                      />
-                    </div>
                   </FormItem>
                 )}
               />
