@@ -62,7 +62,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const appId = body.appId as string
   const sessionId = body.sessionId as string
   const apiSessionId = body.apiSessionId as string
-  // const messages = body.messages as Message[]
   const query = body.query as string
   const reloadMessageId = body.reloadId as string
   const messageId = reloadMessageId || nanoid()
