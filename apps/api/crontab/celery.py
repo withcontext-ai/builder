@@ -60,7 +60,7 @@ def background_create_dataset(self, dataset_dict: dict):
     dataset = Dataset(**dataset_dict)
     dataset_manager.save_dataset(dataset)
     logger.info(f"Dataset {dataset.id} created.")
-    self.update_state(state='PROGRESS', meta={'progress': 100})
+    # self.update_state(state='PROGRESS', meta={'progress': 100})
 
 
 @app.task(bind=True)
@@ -68,7 +68,7 @@ def background_create_dataset(self, dataset_dict: dict):
 def background_add_document(self, dataset_id: str, document: dict):
     dataset_manager.add_document_to_dataset(dataset_id, document)
     logger.info(f"Document {document['uid']} added to dataset {dataset_id}.")
-    self.update_state(state='PROGRESS', meta={'progress': 100})
+    # self.update_state(state='PROGRESS', meta={'progress': 100})
 
 
 @app.task(bind=True)
@@ -76,7 +76,7 @@ def background_add_document(self, dataset_id: str, document: dict):
 def background_delete_document(self, dataset_id: str, document_uid: str):
     dataset_manager.delete_document_from_dataset(dataset_id, document_uid)
     logger.info(f"Document {document_uid} deleted from dataset {dataset_id}.")
-    self.update_state(state='PROGRESS', meta={'progress': 100})
+    # self.update_state(state='PROGRESS', meta={'progress': 100})
 
 
 @app.task(bind=True)

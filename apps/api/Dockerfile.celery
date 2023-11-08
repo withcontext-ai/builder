@@ -5,4 +5,4 @@ RUN pip install celery
 WORKDIR /app
 COPY . /app
 
-CMD ["celery", "-A", "crontab", "worker", "-l", "INFO"]
+CMD ["celery", "-A", "crontab", "worker", "-l", "INFO", "--without-heartbeat"]
