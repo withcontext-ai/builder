@@ -83,10 +83,7 @@ class DatasetManager(BaseManager):
         handler.update_dataset_status(dataset_id, 1)
 
         dataset = self.get_datasets(dataset_id)[0]
-        chains = []
-        # if chains == [], how to add relative chain for new documents ???
-        if len(dataset.documents) != 0:
-            chains = Retriever.get_relative_chains(dataset)
+        chains = Retriever.get_relative_chains(dataset)
         for chain in chains:
             parts = chain.split("-", 1)
             Retriever.add_relative_chain_to_dataset(dataset, parts[0], parts[1])
@@ -128,6 +125,12 @@ class DatasetManager(BaseManager):
         _document_to_delete = {'documents': [document_to_delete]}
         new_dataset = Dataset(id=dataset_id, **_document_to_delete)
         Retriever.delete_index(new_dataset)
+
+        # delete relative chain
+        chains = Retriever.get_relative_chains(new_dataset)
+        for chain in chains:
+            parts = chain.split("-", 1)
+            Retriever.delete_relative_chain_from_dataset(new_dataset, parts[0], parts[1])
 
         # update redis
         urn = self.get_dataset_urn(dataset_id)

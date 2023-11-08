@@ -9,7 +9,6 @@ from models.base import Model
 from models.controller import model_manager, session_state_manager
 from crontab.celery import background_create_model, background_update_model
 
-
 router = APIRouter(prefix="/v1/models")
 
 
@@ -21,6 +20,7 @@ def get_model(id: str):
             raise HTTPException(status_code=404, detail="Model not found")
         return {"data": model, "message": "success", "status": 200}
 
+
 @router.post("/", tags=["models"])
 async def create_model(model: Model):
     with graphsignal.start_trace("create_model"):
@@ -29,6 +29,7 @@ async def create_model(model: Model):
         create_result = background_create_model.delay(model.dict())
         create_result.get(timeout=30)
         return {"data": {"id": model.id}, "message": "success", "status": 200}
+
 
 @router.patch("/{id}", tags=["models"])
 async def update_model(id: str, model: dict):
@@ -39,6 +40,7 @@ async def update_model(id: str, model: dict):
         update_result = background_update_model.delay(id, model)
         update_result.get(timeout=30)
         return {"message": "success", "status": 200}
+
 
 @router.delete("/{id}", tags=["models"])
 def delete_model(id: str):
