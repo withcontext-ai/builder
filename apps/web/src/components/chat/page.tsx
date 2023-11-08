@@ -26,7 +26,6 @@ import {
 } from './types'
 import useConfigBase64 from './use-config-base64'
 import { useChat } from './useChat'
-import { validateOpenModal } from './utils'
 import VideoCallConfirmDialog from './video-call-confirm-dialog'
 
 function formatToTimestamp(date?: Date | number | null) {
@@ -246,7 +245,6 @@ const WrappedChat = (props: ChatProps) => {
       mode === 'live' && !!apiSessionId && !!app?.enable_video_interaction,
   })
 
-  console.log(validateOpenModal(app as any))
   return (
     <>
       <div className="relative h-full w-full">

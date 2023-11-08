@@ -1,41 +1,45 @@
 'use client'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { PlayCircleIcon } from 'lucide-react'
+import { PlayCircleIcon, XIcon } from 'lucide-react'
 
 import useNiceModal from '@/hooks/use-nice-modal'
-import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 import ChatListWithData from '../chat-list-with-data'
 import { Message } from '../types'
 import { useChat } from '../useChat'
 
-interface RecordDialogProps {
-  selectedSessionId?: string
-}
-const ChatRecordDialog = NiceModal.create(() => {
-  const { modal, onOpenChange } = useNiceModal()
-  const { session } = useChat()
-  // mode=debug: hidden fallback button
-  return (
-    <Dialog open={modal.visible} onOpenChange={onOpenChange}>
-      <DialogContent className=" h-4/5 overflow-hidden lg:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Conversation Record</DialogTitle>
-        </DialogHeader>
-        <div className="overflow-auto px-6 pr-8">
-          <ChatListWithData mode="debug" sessionId={session?.short_id} />
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-})
+const ChatRecordDialog = NiceModal.create(
+  ({ sessionId }: { sessionId: string }) => {
+    const { modal } = useNiceModal()
+
+    // mode=debug: hidden fallback button
+    return (
+      <AlertDialog open={modal.visible}>
+        <AlertDialogContent className=" h-4/5 overflow-hidden lg:max-w-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center justify-between">
+              Conversation Record
+              <Button className="h-8 w-8 p-0" variant="outline">
+                <XIcon size="16" onClick={() => modal.hide()} />
+              </Button>
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="overflow-auto px-6 pr-8">
+            <ChatListWithData mode="debug" sessionId={sessionId} />
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+  }
+)
 
 interface IProps {
   messages?: Message[]
@@ -65,12 +69,13 @@ const messages = [
 
 const ChatConversationRecord = (props: IProps) => {
   const modal = useModal(ChatRecordDialog)
+  const { session } = useChat()
   return (
     <Button
       variant="ghost"
       type="button"
       className="flex h-auto w-full flex-col justify-start p-0 hover:bg-white"
-      onClick={() => modal.show()}
+      onClick={() => modal.show({ sessionId: session?.short_id })}
     >
       <div className="flex w-full border-b pb-3 text-sm font-medium">
         Conversation Record
