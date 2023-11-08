@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 import Text from '../../ui/text'
 import { Markdown } from '../markdown/markdown'
-import { ChatUser } from '../types'
+import { ChatUser, Message } from '../types'
 import { useChat } from '../useChat'
 import { IChatCardProps } from './chat-card'
 import ChatConversationRecord from './chat-conversation-record'
@@ -75,7 +75,13 @@ const AlertErrorIcon = ({ className }: { className: string }) => (
   </svg>
 )
 
-function EventMessage({ data }: { data: any }) {
+function EventMessage({
+  data,
+  lateMessages,
+}: {
+  data: any
+  lateMessages?: Message[]
+}) {
   let icon
   let message
 
@@ -105,7 +111,7 @@ function EventMessage({ data }: { data: any }) {
       break
     }
     case 'video_conversation_record': {
-      return <ChatConversationRecord />
+      return <ChatConversationRecord messages={lateMessages} />
     }
     default: {
       message = data.content ? data.content : 'Unknown event'
@@ -161,7 +167,9 @@ const ChatCardLayout = (prop: Props) => {
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
-  const isVideo = false //  根据event_type 判断
+  const isVideo =
+    message?.type === 'event' &&
+    message?.eventType === 'video_conversation_record'
 
   return (
     <div className="flex flex-col ">
