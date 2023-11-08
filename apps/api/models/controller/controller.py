@@ -696,12 +696,11 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         logger.info(f"Getting session id {model_id}")
         return self.table.select().where(self.table.c.model_id == model_id)
 
-    @staticmethod
     def get_session_to_model_urn(self, session_id: str):
         return f"session_to_model:{session_id}"
 
     def get_model_id_from_redis(self, session_id: str):
-        return self.redis.get(self.get_session_to_model_urn(session_id))
+        return self.redis.get(self.get_session_to_model_urn(session_id)).decode()
 
     def save_model_id_to_redis(self, session_id: str, model_id: str):
         self.redis.set(self.get_session_to_model_urn(session_id), model_id)

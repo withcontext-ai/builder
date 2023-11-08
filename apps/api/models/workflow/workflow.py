@@ -133,10 +133,10 @@ class Workflow(BaseModel):
         # TODO add max_tokens to chain
         max_token = llm.pop("max_tokens")
         temperature = llm.pop("temperature")
-        if llm_model.startwith("gpt-3.5-turbo"):
+        if llm_model.startswith("gpt-3.5-turbo"):
             logger.info("switch llm_model to gpt-3.5-turbo-1106")
             llm_model = "gpt-3.5-turbo-1106"
-        elif llm_model.startwith("gpt-4"):
+        elif llm_model.startswith("gpt-4"):
             logger.info("switch llm_model to gpt-4-1106-preview")
             llm_model = "gpt-4-1106-preview"
         if llm_model == "Azure-GPT-3.5":
