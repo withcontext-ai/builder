@@ -67,9 +67,11 @@ class ModelManager(BaseManager):
                 for dataset_id in chain.datasets:
                     handler.update_dataset_status(dataset_id, 1)
                     relative_manager.delete_relative(dataset_id, model_id, chain.key)
-                    Retriever.delete_relative_chain_from_dataset(
-                        dataset_manager.get_datasets(dataset_id)[0], model_id, chain.key
-                    )
+                    get_dataset = dataset_manager.get_datasets(dataset_id)
+                    if get_dataset is not None:
+                        Retriever.delete_relative_chain_from_dataset(
+                            get_dataset[0], model_id, chain.key
+                        )
                     handler.update_dataset_status(dataset_id, 0)
             for chain in update_data["chains"]:
                 if "datasets" in chain:
