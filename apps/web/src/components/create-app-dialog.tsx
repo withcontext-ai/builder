@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import NiceModal from '@ebay/nice-modal-react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2Icon, SparklesIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
@@ -99,7 +100,7 @@ export default NiceModal.create((props: IProps) => {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
-  const { reset, setValue, getValues } = form
+  const { reset, setValue, getValues, watch } = form
   const _image = defaultValues?.icon
     ? [
         {
@@ -165,6 +166,7 @@ export default NiceModal.create((props: IProps) => {
       ])
     }
   }
+  const nameFieldIsEmpty = watch('name').trim() === ''
 
   return (
     <AlertDialog open={modal.visible} onOpenChange={onOpenChange}>
@@ -230,9 +232,14 @@ export default NiceModal.create((props: IProps) => {
                             variant="outline"
                             size="sm"
                             onClick={handleGenerateIcon}
-                            disabled={newImageIsMutating}
+                            disabled={newImageIsMutating || nameFieldIsEmpty}
                           >
-                            {newImageIsMutating ? 'generating' : 'generate'}
+                            {newImageIsMutating ? (
+                              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <SparklesIcon className="mr-2 h-4 w-4" />
+                            )}
+                            {newImageIsMutating ? 'Generating' : 'Generate'}
                           </Button>
                         </div>
                       </FormControl>
