@@ -67,15 +67,15 @@ class DatasetManager(BaseManager):
 
     @staticmethod
     def get_documents_to_add(current_data: dict, new_data: dict):
-        current_uids = {doc['uid'] for doc in current_data.get('documents', [])}
-        updated_documents = new_data.get('documents', [])
-        return [doc for doc in updated_documents if doc['uid'] not in current_uids]
+        current_uids = {doc["uid"] for doc in current_data.get("documents", [])}
+        updated_documents = new_data.get("documents", [])
+        return [doc for doc in updated_documents if doc["uid"] not in current_uids]
 
     @staticmethod
     def get_documents_to_delete(current_data: dict, new_data: dict):
-        new_uids = {doc['uid'] for doc in new_data.get('documents', [])}
-        current_documents = current_data.get('documents', [])
-        return [doc for doc in current_documents if doc['uid'] not in new_uids]
+        new_uids = {doc["uid"] for doc in new_data.get("documents", [])}
+        current_documents = current_data.get("documents", [])
+        return [doc for doc in current_documents if doc["uid"] not in new_uids]
 
     def add_document_to_dataset(self, dataset_id: str, new_document: dict):
         # set dataset index status for indexing
@@ -83,7 +83,7 @@ class DatasetManager(BaseManager):
         handler.update_dataset_status(dataset_id, 1)
 
         # create index for new document
-        _new_document = {'documents': [new_document]}
+        _new_document = {"documents": [new_document]}
         new_dataset = Dataset(id=dataset_id, **_new_document)
         Retriever.create_index(new_dataset)
 
@@ -120,18 +120,20 @@ class DatasetManager(BaseManager):
         self._update_dataset(dataset_id, current_data)
 
     def delete_document_from_dataset(self, dataset_id: str, document_to_delete: dict):
-        uid = document_to_delete['uid']
+        uid = document_to_delete["uid"]
         logger.info(f"Deleting document {uid} from dataset {dataset_id}")
 
         # delete documents's index
-        _document_to_delete = {'documents': [document_to_delete]}
+        _document_to_delete = {"documents": [document_to_delete]}
         new_dataset = Dataset(id=dataset_id, **_document_to_delete)
         Retriever.delete_index(new_dataset)
 
         # update redis
         urn = self.get_dataset_urn(dataset_id)
         current_data = json.loads(self.redis.get(urn))
-        current_data["documents"] = [doc for doc in current_data.get('documents', []) if doc['uid'] != uid]
+        current_data["documents"] = [
+            doc for doc in current_data.get("documents", []) if doc["uid"] != uid
+        ]
         self.redis.set(urn, json.dumps(current_data))
         logger.info(f"Deleted document {uid} from dataset {dataset_id}")
 
@@ -181,10 +183,10 @@ class DatasetManager(BaseManager):
         return datasets
 
     def get_document_segments(
-            self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10, query=None
+        self, dataset_id: str, uid: str, offset: int = 0, limit: int = 10, query=None
     ):
         preview = self.get_preview_segment(dataset_id, uid)
-        if preview is not None:
+        if preview is not None and limit == 5:
             logger.info(f"Preview found for dataset {dataset_id}, document {uid}")
             return len(preview), preview
         if query is not None:
@@ -317,10 +319,10 @@ class DatasetManager(BaseManager):
                                     doc.hundredth_ids[0] += 1
                             for i in range(len(doc.hundredth_ids) - 1):
                                 if (
-                                        adjusted
-                                        or doc.hundredth_ids[i]
-                                        <= current_page_size
-                                        <= doc.hundredth_ids[i + 1]
+                                    adjusted
+                                    or doc.hundredth_ids[i]
+                                    <= current_page_size
+                                    <= doc.hundredth_ids[i + 1]
                                 ):
                                     doc.hundredth_ids[i + 1] += 1
                                     adjusted = True
