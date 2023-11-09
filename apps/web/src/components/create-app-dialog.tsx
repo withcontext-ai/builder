@@ -70,6 +70,16 @@ function addApp(url: string, { arg }: { arg: Partial<NewApp> }) {
   })
 }
 
+function newImage(
+  url: string,
+  { arg }: { arg: { prompt: string; type: 'icon' } }
+) {
+  return fetcher(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  })
+}
+
 export default NiceModal.create((props: IProps) => {
   const { defaultValues: _defaultValues, parentAppId } = props
   const isCopy = !!parentAppId
@@ -89,7 +99,7 @@ export default NiceModal.create((props: IProps) => {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
-  const { reset, setValue } = form
+  const { reset, setValue, getValues } = form
   const _image = defaultValues?.icon
     ? [
         {
@@ -134,6 +144,28 @@ export default NiceModal.create((props: IProps) => {
     setValue('icon', current?.url)
   }
 
+  const { trigger: newImageTrigger, isMutating: newImageIsMutating } =
+    useSWRMutation('/api/images', newImage)
+  const handleGenerateIcon = async () => {
+    const { name, description } = getValues()
+    const prompt = `title: ${name}\n${
+      description ? `description: ${description}` : ``
+    }`
+    const urls = await newImageTrigger({ prompt, type: 'icon' })
+    const url = urls?.[0]
+    if (url) {
+      setValue('icon', url)
+      setImage([
+        {
+          uid: nanoid(),
+          url,
+          type: 'image',
+          name: '',
+        },
+      ])
+    }
+  }
+
   return (
     <AlertDialog open={modal.visible} onOpenChange={onOpenChange}>
       <AlertDialogContent className="sm:max-w-[488px]">
@@ -175,27 +207,41 @@ export default NiceModal.create((props: IProps) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="icon"
-              render={() => {
-                return (
-                  <FormItem>
-                    <FormLabel>Image</FormLabel>
-                    <FormControl>
-                      <Upload
-                        listType={image?.length ? 'update-image' : 'image'}
-                        setUploading={setUploading}
-                        accept={UPLOAD_ACCEPT_MAP.image}
-                        fileList={image}
-                        onChangeFileList={onChangeFileList}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
-            />
+            <div className="space-y-3">
+              <FormField
+                control={form.control}
+                name="icon"
+                render={() => {
+                  return (
+                    <FormItem>
+                      <FormLabel>Image</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <Upload
+                            key={image.map((item) => item?.uid).join('-')}
+                            listType={image?.length ? 'update-image' : 'image'}
+                            setUploading={setUploading}
+                            accept={UPLOAD_ACCEPT_MAP.image}
+                            fileList={image}
+                            onChangeFileList={onChangeFileList}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleGenerateIcon}
+                            disabled={newImageIsMutating}
+                          >
+                            {newImageIsMutating ? 'generating' : 'generate'}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
+              />
+            </div>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={handleCancel}>
                 Cancel

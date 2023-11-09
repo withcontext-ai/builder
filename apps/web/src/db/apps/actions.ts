@@ -9,6 +9,7 @@ import { auth, currentUser } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { flags } from '@/lib/flags'
 import { logsnag } from '@/lib/logsnag'
+import openai from '@/lib/openai'
 import { nanoid, safeParse } from '@/lib/utils'
 import { TreeItem } from '@/components/dnd/types'
 import {
@@ -773,5 +774,20 @@ async function modifyAppsDatasetsTable(appId: string, workflowDataStr: string) {
   }
   if (queue.length > 0) {
     await Promise.all(queue)
+  }
+}
+
+export async function generateIcon(prompt: string) {
+  try {
+    const response = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt: `Related with this content:\n\n${prompt}\n\n`,
+      n: 1,
+      size: '1024x1024',
+    })
+    const urls = response.data.map((d) => d.url)
+    return urls
+  } catch (error) {
+    console.log('generateIcon error:', error)
   }
 }
