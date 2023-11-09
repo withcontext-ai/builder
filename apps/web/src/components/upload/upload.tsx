@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { pick } from 'lodash'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
@@ -22,7 +21,6 @@ import UploadFileList from './upload-file-list'
 import {
   changeToUploadFile,
   file2Obj,
-  FileProps,
   handleSuccess,
   uploadToBytescale,
 } from './utils'
@@ -156,28 +154,22 @@ const Upload = (props: UploadProps) => {
 
   const handleRemove = useCallback((file: UploadFile) => {
     setMergedFileList((files: UploadFile<any>[]) => {
-      const removedFileList = files?.filter(
+      const removedFile = files?.find(
+        (item: UploadFile) => item?.uid === file?.uid
+      )
+      const otherFileList = files?.filter(
         (item: UploadFile) => item?.uid !== file?.uid
       )
-      if (removedFileList?.length) {
+      if (removedFile) {
         // to abort the current axios request
         const current = aborts?.current?.find((item) => item?.uid === file?.uid)
         current?.control?.abort()
         current?.cancel?.()
-
-        // handle fileList
-        const removed = removedFileList?.reduce(
-          (m: FileProps[], item: UploadFile) => {
-            m.push(pick(item, ['url', 'uid', 'type', 'name']))
-            return m
-          },
-          []
-        )
-        onChangeFileList?.(removed)
+        onChangeFileList?.(otherFileList)
       } else {
         onChangeFileList?.([])
       }
-      return removedFileList
+      return otherFileList
     })
   }, [])
 

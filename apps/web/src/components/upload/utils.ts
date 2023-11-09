@@ -189,7 +189,9 @@ export async function uploadToBytescale({
   const cancellationToken: Bytescale.CancellationToken = {
     isCancelled: false,
   }
-  const cancel = () => (cancellationToken.isCancelled = true)
+  const cancel = () => {
+    cancellationToken.isCancelled = true
+  }
   aborts?.current?.push({ uid: file?.uid, control: abort, cancel })
 
   const result = await uploadManager.upload({
@@ -198,6 +200,7 @@ export async function uploadToBytescale({
       file.percent = progress
       handelProcess(file, setProcess)
     },
+    cancellationToken,
   })
 
   const fileUrl = Bytescale.UrlBuilder.url({
