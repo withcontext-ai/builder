@@ -90,6 +90,7 @@ class DatasetManager(BaseManager):
         # update relative_chain to doc for dataset
         dataset = self.get_datasets(dataset_id)[0]
         chains = Retriever.get_relative_chains(dataset)
+        logger.info(f"get_relative_chains: {len(chains)} from dataset {dataset_id}")
         for chain in chains:
             parts = chain.split("-", 1)
             Retriever.add_relative_chain_to_dataset(new_dataset, parts[0], parts[1])
