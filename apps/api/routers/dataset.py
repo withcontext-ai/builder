@@ -13,7 +13,8 @@ from fastapi import Query
 from crontab.celery import \
     background_create_dataset, \
     background_add_document, \
-    background_delete_document
+    background_delete_document, \
+    background_delete_dataset
 
 
 class IndexResponse(BaseModel):
@@ -33,6 +34,7 @@ def get_dataset(id: str):
             raise HTTPException(status_code=404, detail="Dataset not found")
         return {"data": dataset, "message": "success", "status": 200}
 
+
 @router.post("/", tags=["datasets"])
 async def create_dataset(dataset: Dataset):
     with graphsignal.start_trace("create_dataset"):
@@ -48,12 +50,13 @@ async def create_dataset(dataset: Dataset):
                 status_code=400, detail="Dataset not created with error: {}".format(e)
             )
 
+
 @router.patch("/{id}", tags=["datasets"])
 async def update_dataset(
-    id: str,
-    dataset: dict,
-    preview: int = Query(0, description="Preview of the dataset"),
-    uid: str = Query(None, description="UID of the document"),
+        id: str,
+        dataset: dict,
+        preview: int = Query(0, description="Preview of the dataset"),
+        uid: str = Query(None, description="UID of the document"),
 ):
     with graphsignal.start_trace("update_dataset"):
         logger.info(f"dataset updating: {dataset}")
@@ -91,7 +94,8 @@ def delete_dataset(id: str):
     with graphsignal.start_trace("delete_dataset"):
         logger.info(f"dataset: {id}")
         try:
-            dataset_manager.delete_dataset(id)
+            background_delete_dataset.delay(id)
+            # dataset_manager.delete_dataset(id)
             return {"message": "success", "status": 200}
         except Exception as e:
             logger.error(e)
@@ -102,11 +106,11 @@ def delete_dataset(id: str):
 
 @router.get("/{dataset_id}/document/{uid}", tags=["datasets"])
 def retrieve_document_segments(
-    dataset_id: str,
-    uid: str,
-    offset: int = Query(0, description="Offset for pagination"),
-    limit: int = Query(10, description="Limit for pagination"),
-    query: str = Query(None, description="Query to search for"),
+        dataset_id: str,
+        uid: str,
+        offset: int = Query(0, description="Offset for pagination"),
+        limit: int = Query(10, description="Limit for pagination"),
+        query: str = Query(None, description="Query to search for"),
 ):
     with graphsignal.start_trace("get_document_segments"):
         logger.info(

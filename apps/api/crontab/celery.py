@@ -80,6 +80,14 @@ def background_delete_document(self, dataset_id: str, document_uid: str):
 
 
 @app.task(bind=True)
+@retry_on_exception
+def background_delete_dataset(self, dataset_id: str):
+    dataset_manager.delete_dataset(dataset_id)
+    logger.info(f"Deleted from dataset {dataset_id}.")
+    # self.update_state(state='PROGRESS', meta={'progress': 100})
+
+
+@app.task(bind=True)
 @retry_on_exception(countdown=10)
 def background_create_model(self, model_dict: dict):
     model = Model(**model_dict)
