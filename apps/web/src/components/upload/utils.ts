@@ -194,22 +194,19 @@ export async function uploadToBytescale({
 
   const result = await uploadManager.upload({
     data: file?.originFileObj,
-    onProgress: (progress) => {
-      console.log('uploadToBytescale progress:', progress)
+    onProgress: ({ progress }) => {
+      file.percent = progress
       handelProcess(file, setProcess)
     },
   })
-  console.log('result:', result)
+
   const fileUrl = Bytescale.UrlBuilder.url({
     accountId: result.accountId,
     filePath: result.filePath,
-    options: {
-      transformation: 'preset',
-      transformationPreset: 'thumbnail',
-    },
   })
+
   file.status = 'success'
   file.url = fileUrl
-  console.log('file:', file)
+
   return file
 }

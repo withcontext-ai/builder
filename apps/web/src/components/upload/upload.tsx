@@ -113,7 +113,6 @@ const Upload = (props: UploadProps) => {
       }
 
       setIsUploading(true)
-      // google api for upload
       if (isValid) {
         try {
           await uploadToBytescale({ file, aborts, setProcess })
