@@ -19,7 +19,13 @@ import {
 } from './type'
 import UploadButton from './upload-button'
 import UploadFileList from './upload-file-list'
-import { changeToUploadFile, file2Obj, FileProps, uploadFile } from './utils'
+import {
+  changeToUploadFile,
+  file2Obj,
+  FileProps,
+  handleSuccess,
+  uploadToBytescale,
+} from './utils'
 import UploadWrapper from './wrapper'
 
 const Upload = (props: UploadProps) => {
@@ -62,7 +68,10 @@ const Upload = (props: UploadProps) => {
   }
 
   const handleEndConcert = () => {
-    aborts?.current?.forEach((item) => item?.control?.abort())
+    aborts?.current?.forEach((item) => {
+      item?.control?.abort()
+      item?.cancel?.()
+    })
   }
 
   useEffect(() => {
@@ -106,13 +115,15 @@ const Upload = (props: UploadProps) => {
       setIsUploading(true)
       // google api for upload
       if (isValid) {
-        await uploadFile({
-          aborts: aborts,
-          setMergedFileList,
-          ...changeInfo,
-          onChangeFileList,
-          setProcess,
-        })
+        try {
+          await uploadToBytescale({ file, aborts, setProcess })
+          handleSuccess({
+            setMergedFileList,
+            onChangeFileList,
+          })
+        } catch (error) {
+          file.status = 'error'
+        }
       }
       setIsUploading(false)
     },
@@ -153,6 +164,7 @@ const Upload = (props: UploadProps) => {
         // to abort the current axios request
         const current = aborts?.current?.find((item) => item?.uid === file?.uid)
         current?.control?.abort()
+        current?.cancel?.()
 
         // handle fileList
         const removed = removedFileList?.reduce(
