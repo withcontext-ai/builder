@@ -3,7 +3,7 @@
 import { ReactNode, useState } from 'react'
 import { Download, Eye, Loader2, X } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { cn, getPresetUrlOfImage } from '@/lib/utils'
 import {
   Sheet,
   SheetContent,
@@ -189,7 +189,7 @@ export const ImageCard = (props: FileItemProps) => {
           ) : (
             file?.url && (
               <img
-                src={file?.url}
+                src={getPresetUrlOfImage(file?.url)}
                 className="aspect-square h-full w-full rounded-md border object-cover"
                 alt={file?.name}
               />
@@ -221,7 +221,7 @@ export const ImageCard = (props: FileItemProps) => {
         <Dialog open={open} onOpenChange={() => setOpen(false)}>
           <DialogContent className="sm:max-w-[425px]">
             <img
-              src={file?.url || ''}
+              src={getPresetUrlOfImage(file?.url || '')}
               sizes="(max-width: 500px)"
               width={500}
               height={500}
