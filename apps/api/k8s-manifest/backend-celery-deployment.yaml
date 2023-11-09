@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: withcontext-backend-celery
-  namespace: celery-test
+  namespace: withcontext-backend-test
 spec:
   replicas: 1
   selector:
@@ -91,4 +91,4 @@ spec:
           resources:
             limits:
               memory: '3000Mi'
-              cpu: '1'
+              cpu: '2'
