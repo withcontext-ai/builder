@@ -146,6 +146,11 @@ class DatasetManager(BaseManager):
     def delete_dataset(self, dataset_id: str):
         logger.info(f"Deleting dataset {dataset_id}")
         relative_manager.delete_relative(dataset_id=dataset_id)
+
+        # delete document's docs index
+        dataset = self.get_datasets(dataset_id)[0]
+        Retriever.delete_index(dataset)
+
         self.redis.delete(self.get_dataset_urn(dataset_id))
         return self.table.delete().where(self.table.c.id == dataset_id)
 
