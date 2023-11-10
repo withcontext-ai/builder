@@ -36,12 +36,6 @@ export const checkShowIcon = (listProps: boolean | listPropsInterface) => {
   }
 }
 
-export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
-  const reader = new FileReader()
-  reader.addEventListener('load', () => callback(reader.result as string))
-  reader.readAsDataURL(img)
-}
-
 export const handleSuccess = ({
   setMergedFileList,
   onChangeFileList,
