@@ -281,6 +281,7 @@ class Workflow(BaseModel):
                             }
                         }
                     )
+                    retriever.search_kwargs["k"] = 8
                     chain = EnhanceConversationalRetrievalChain(
                         prompt=prompt_template[0],
                         retriever=retriever,
