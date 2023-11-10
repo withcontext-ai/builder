@@ -59,7 +59,7 @@ async def update_dataset(
         uid: str = Query(None, description="UID of the document"),
 ):
     with graphsignal.start_trace("update_dataset"):
-        logger.info(f"dataset updating: {dataset}")
+        logger.info(f"dataset updating, id:{id}, dataset:{dataset}, preview:{preview}, uid:{uid}")
         try:
             if preview != 0 and uid is not None:
                 dataset_manager.upsert_preview(Dataset(**dataset, id=id), preview, uid)

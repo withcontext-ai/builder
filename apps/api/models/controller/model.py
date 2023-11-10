@@ -77,13 +77,14 @@ class ModelManager(BaseManager):
                 if "datasets" in chain:
                     for dataset_id in chain["datasets"]:
                         handler.update_dataset_status(dataset_id, 1)
-                        dataset = dataset_manager.get_datasets(dataset_id)[0]
-                        relative_manager.save_relative(
-                            dataset.id, model_id, chain["key"]
-                        )
-                        Retriever.add_relative_chain_to_dataset(
-                            dataset, model_id, chain["key"]
-                        )
+                        dataset = dataset_manager.get_datasets(dataset_id)
+                        if dataset is not None:
+                            relative_manager.save_relative(
+                                dataset[0].id, model_id, chain["key"]
+                            )
+                            Retriever.add_relative_chain_to_dataset(
+                                dataset[0], model_id, chain["key"]
+                            )
                         handler.update_dataset_status(dataset_id, 0)
             model_dict = model.dict()
             model_dict.update(update_data)
