@@ -4,6 +4,7 @@ import { desc, eq } from 'drizzle-orm'
 import pLimit from 'p-limit'
 
 import { db } from '@/lib/drizzle-edge'
+import { AppsTable } from '@/db/apps/schema'
 import { DocumentsTable } from '@/db/documents/schema'
 
 const limit = pLimit(5)
@@ -21,16 +22,53 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
+    const apps = await db
+      .select()
+      .from(AppsTable)
+      .orderBy(desc(AppsTable.created_at))
+      .limit(1)
+    const filteredApps = apps.filter(
+      (a) => !!a.icon && a.icon.startsWith('https://storage.googleapis.com/')
+    )
+    const newApps: any[] = []
+
     const docs = await db
       .select()
       .from(DocumentsTable)
       .orderBy(desc(DocumentsTable.created_at))
+      .limit(1)
     const filteredDocs = docs.filter(
       (d) => !!d.url && d.url.startsWith('https://storage.googleapis.com/')
     )
     const newDocs: any[] = []
 
     const queue = []
+
+    for (const app of filteredApps) {
+      const { short_id, icon } = app
+      if (icon && accountId) {
+        queue.push(
+          limit(async () => {
+            try {
+              const result = await uploadApi.uploadFromUrl({
+                accountId,
+                uploadFromUrlRequest: { url: icon },
+              })
+              const newUrl = result.fileUrl
+              console.log('new app:', short_id, newUrl)
+              newApps.push({ short_id, icon: newUrl })
+              return db
+                .update(DocumentsTable)
+                .set({ icon: newUrl })
+                .where(eq(DocumentsTable.short_id, short_id))
+            } catch (error) {
+              console.error('app upload error:', short_id, error)
+              return Promise.resolve()
+            }
+          })
+        )
+      }
+    }
 
     for (const doc of filteredDocs) {
       const { short_id, url } = doc
@@ -39,7 +77,7 @@ export async function GET(req: NextRequest) {
         queue.push(
           limit(async () => {
             try {
-              console.log('upload:', short_id, url)
+              console.log('doc upload:', short_id, url)
               const result = await uploadApi.uploadFromUrl({
                 accountId,
                 uploadFromUrlRequest: { url },
@@ -52,7 +90,7 @@ export async function GET(req: NextRequest) {
                 .set({ url: newUrl })
                 .where(eq(DocumentsTable.short_id, short_id))
             } catch (error) {
-              console.error('upload error:', short_id, error)
+              console.error('doc upload error:', short_id, error)
               return Promise.resolve()
             }
           })
@@ -63,6 +101,9 @@ export async function GET(req: NextRequest) {
     await Promise.allSettled(queue)
 
     const data = {
+      apps,
+      filteredApps,
+      newApps,
       docs,
       filteredDocs,
       newDocs,
