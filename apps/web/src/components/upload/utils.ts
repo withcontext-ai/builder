@@ -201,8 +201,7 @@ export async function uploadToBytescale({
   return file
 }
 
-
-export const formateFormFile = (files:UploadFile[])=>{
+export const formateFormFile = (files: UploadFile[]) => {
   const success = files?.filter(
     (item) => item?.status === 'success' && item?.url
   )
