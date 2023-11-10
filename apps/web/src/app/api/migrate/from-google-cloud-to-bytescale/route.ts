@@ -25,7 +25,6 @@ export async function GET(req: NextRequest) {
       .select()
       .from(DocumentsTable)
       .orderBy(desc(DocumentsTable.created_at))
-      .limit(3)
     const filteredDocs = docs.filter(
       (d) => !!d.url && d.url.startsWith('https://storage.googleapis.com/')
     )
@@ -39,18 +38,23 @@ export async function GET(req: NextRequest) {
       if (url && accountId) {
         queue.push(
           limit(async () => {
-            console.log('upload:', short_id, url)
-            const result = await uploadApi.uploadFromUrl({
-              accountId,
-              uploadFromUrlRequest: { url },
-            })
-            const newUrl = result.fileUrl
-            console.log('new doc:', short_id, newUrl)
-            newDocs.push({ short_id, url: newUrl })
-            return db
-              .update(DocumentsTable)
-              .set({ url: newUrl })
-              .where(eq(DocumentsTable.short_id, short_id))
+            try {
+              console.log('upload:', short_id, url)
+              const result = await uploadApi.uploadFromUrl({
+                accountId,
+                uploadFromUrlRequest: { url },
+              })
+              const newUrl = result.fileUrl
+              console.log('new doc:', short_id, newUrl)
+              newDocs.push({ short_id, url: newUrl })
+              return db
+                .update(DocumentsTable)
+                .set({ url: newUrl })
+                .where(eq(DocumentsTable.short_id, short_id))
+            } catch (error) {
+              console.error('upload error:', short_id, error)
+              return Promise.resolve()
+            }
           })
         )
       }
