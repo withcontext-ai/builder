@@ -38,9 +38,10 @@ export const IconBox = (props: IconBoxProps) => (
   <Button
     variant="outline"
     type="button"
-    className={`flex h-8 w-8 items-center justify-center rounded-md border p-0 ${cn(
+    className={cn(
+      'flex h-8 w-8 items-center justify-center rounded-md border p-0',
       props?.className
-    )}`}
+    )}
     onClick={props?.onClick}
   >
     {props?.children}
@@ -104,7 +105,7 @@ export const FileCard = (props: FileItemProps) => {
         )}
       >
         <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex-b flex w-[90%] items-center gap-2">
+          <div className="flex-b flex items-center gap-2 truncate">
             <FileImage type={file?.type as FileType} />
             <div className="flex w-full flex-col gap-1 truncate">
               <div className="truncate">{file?.name}</div>
