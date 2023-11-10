@@ -12,7 +12,6 @@ import {
   FilePercent,
   ListTypeProps,
   RcFile,
-  UploadChangeParam,
   UploadFile,
   UploadProps,
 } from './type'
@@ -105,12 +104,6 @@ const Upload = (props: UploadProps) => {
       flushSync(() => {
         setMergedFileList(cloneList)
       })
-      setMergedFileList(cloneList)
-      const changeInfo: UploadChangeParam<UploadFile> = {
-        file: file as UploadFile,
-        fileList: cloneList,
-      }
-
       setIsUploading(true)
       if (isValid) {
         try {
