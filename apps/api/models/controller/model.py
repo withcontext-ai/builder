@@ -8,7 +8,7 @@ from models.retrieval.relative import relative_manager
 
 from .webhook import WebhookHandler as DatasetWebhookHandler
 
-from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
+from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_PORT
 import redis
 import json
 
@@ -20,7 +20,7 @@ class ModelManager(BaseManager):
         self.redis = redis.Redis(
             host=UPSTASH_REDIS_REST_URL,
             password=UPSTASH_REDIS_REST_TOKEN,
-            port=30535,
+            port=UPSTASH_REDIS_REST_PORT,
             ssl=True,
         )
 

@@ -4,7 +4,7 @@ from models.controller import model_manager
 from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
 from models.workflow import Workflow
-from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
+from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_PORT
 import redis
 import json
 
@@ -18,7 +18,7 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
         self.redis = redis.Redis(
             host=UPSTASH_REDIS_REST_URL,
             password=UPSTASH_REDIS_REST_TOKEN,
-            port=30535,
+            port=UPSTASH_REDIS_REST_PORT,
             ssl=True,
         )
 

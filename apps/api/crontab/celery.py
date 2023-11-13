@@ -1,7 +1,7 @@
 from celery import Celery
 from loguru import logger
 from celery.exceptions import MaxRetriesExceededError
-from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL
+from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_PORT
 from functools import wraps
 
 from models.base import Model
@@ -14,7 +14,7 @@ app = Celery('crontab')
 
 # Configuration
 broker_host = UPSTASH_REDIS_REST_URL
-broker_port = 30535
+broker_port = UPSTASH_REDIS_REST_PORT
 broker_db = 0
 results_db = 0
 password = UPSTASH_REDIS_REST_TOKEN
