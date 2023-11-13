@@ -2,10 +2,17 @@
 
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
+import { useModal } from '@ebay/nice-modal-react'
 import { Box, PlusIcon } from 'lucide-react'
 import useSWR from 'swr'
 
-import { cn, fetcher, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import {
+  cn,
+  fetcher,
+  getAvatarBgColor,
+  getFirstLetter,
+  getPresetUrlOfImage,
+} from '@/lib/utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 import CreateAppDialog from './create-app-dialog'
@@ -50,6 +57,7 @@ export default function WorkspaceSidebar({ appList }: IProps) {
       fallbackData: appList,
     }
   )
+  const modal = useModal(CreateAppDialog)
 
   return (
     <div className="flex h-full w-18 shrink-0 flex-col overflow-y-auto bg-slate-900 scrollbar-none">
@@ -123,7 +131,7 @@ export default function WorkspaceSidebar({ appList }: IProps) {
                       >
                         {appItem.app_icon && (
                           <img
-                            src={appItem.app_icon}
+                            src={getPresetUrlOfImage(appItem.app_icon)}
                             alt=""
                             className="aspect-square h-full w-full object-cover"
                           />
@@ -148,22 +156,21 @@ export default function WorkspaceSidebar({ appList }: IProps) {
             )
           })}
           <div className="hidden lg:block">
-            <CreateAppDialog
-              dialogTrigger={
-                <li className="group flex justify-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Avatar className="h-12 w-12 cursor-pointer rounded-3xl bg-white transition-all group-hover:rounded-2xl">
-                        <AvatarFallback className="bg-white">
-                          <PlusIcon />
-                        </AvatarFallback>
-                      </Avatar>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Create an app</TooltipContent>
-                  </Tooltip>
-                </li>
-              }
-            />
+            <li
+              className="group flex justify-center"
+              onClick={() => modal.show()}
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Avatar className="h-12 w-12 cursor-pointer rounded-3xl bg-white transition-all group-hover:rounded-2xl">
+                    <AvatarFallback className="bg-white">
+                      <PlusIcon />
+                    </AvatarFallback>
+                  </Avatar>
+                </TooltipTrigger>
+                <TooltipContent side="right">Create an app</TooltipContent>
+              </Tooltip>
+            </li>
           </div>
         </ul>
       </nav>
