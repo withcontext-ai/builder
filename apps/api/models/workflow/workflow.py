@@ -167,6 +167,7 @@ class Workflow(BaseModel):
                         self.io_traces, self.get_chain_output_key(_chain.key)
                     ),
                 ],
+                request_timeout=5,
             )
         template = _chain.prompt.template
 
