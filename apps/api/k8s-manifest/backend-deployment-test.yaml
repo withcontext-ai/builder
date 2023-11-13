@@ -1,22 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: withcontext-backend-celery
+  name: withcontext-backend
   namespace: withcontext-backend-test
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: withcontext-backend-celery
+      app: withcontext-backend
   template:
     metadata:
       labels:
-        app: withcontext-backend-celery
+        app: withcontext-backend
     spec:
       imagePullSecrets:
         - name: ecr-registry
       containers:
-        - name: withcontext-backend-celery
+        - name: withcontext-backend
+          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:test
+          ports:
+            - containerPort: 8000
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -63,6 +66,11 @@ spec:
                 secretKeyRef:
                   name: withcontext-backend-env
                   key: GRAPH_SIGNAL_API_KEY
+            - name: LOGSNAG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: LOGSNAG_API_KEY
             - name: UPSTASH_REDIS_REST_URL
               valueFrom:
                 secretKeyRef:
@@ -73,22 +81,16 @@ spec:
                 secretKeyRef:
                   name: withcontext-backend-env
                   key: UPSTASH_REDIS_REST_TOKEN
-            - name: AZURE_API_KEY
+            - name: UPSTASH_REDIS_REST_PORT
               valueFrom:
                 secretKeyRef:
                   name: withcontext-backend-env
-                  key: AZURE_API_KEY
-            - name: LOGSNAG_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: withcontext-backend-env
-                  key: LOGSNAG_API_KEY
+                  key: UPSTASH_REDIS_REST_PORT
             - name: WEBHOOK_ENDPOINT
               value: https://dev-build-withcontext-ai.vercel.app/api/webhook/chat
             - name: BACKEND_URL
               value: http://api-test.withcontext.ai
-          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:celery
           resources:
             limits:
-              memory: '3000Mi'
+              memory: '5000Mi'
               cpu: '2'
