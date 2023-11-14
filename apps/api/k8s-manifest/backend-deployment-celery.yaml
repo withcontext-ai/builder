@@ -1,25 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: withcontext-backend
+  name: withcontext-backend-celery
   namespace: withcontext-backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: withcontext-backend
+      app: withcontext-backend-celery
   template:
     metadata:
       labels:
-        app: withcontext-backend
+        app: withcontext-backend-celery
     spec:
       imagePullSecrets:
         - name: ecr-registry
       containers:
-        - name: withcontext-backend
-          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:latest
-          ports:
-            - containerPort: 8000
+        - name: withcontext-backend-celery
+          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:celery
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -98,5 +96,5 @@ spec:
 
           resources:
             limits:
-              memory: '10000Mi'
-              cpu: '5'
+              memory: '5000Mi'
+              cpu: '2'
