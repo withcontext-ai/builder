@@ -43,6 +43,7 @@ export default function WorkspaceList({ appList }: IProps) {
     fetcher,
     {
       fallbackData: appList,
+      revalidateOnMount: !appList,
     }
   )
 
