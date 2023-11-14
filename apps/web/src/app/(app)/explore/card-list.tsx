@@ -10,7 +10,7 @@ interface IProps {
 export default async function CardList({ categoryName }: IProps) {
   const res = await fetch(`${BASE_URL}/api/apps/explore/${categoryName}`)
   const json = await res.json()
-  const list = json.data as App[]
+  const list = (json?.data || []) as App[]
 
   return (
     <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
