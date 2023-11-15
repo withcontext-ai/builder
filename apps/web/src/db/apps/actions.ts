@@ -14,12 +14,12 @@ import { TreeItem } from '@/components/dnd/types'
 import {
   DEFAULT_WORKFLOW_DATA,
   DEFAULT_WORKFLOW_TREE,
-} from '@/app/(app)/app/[app_id]/(manage)/settings/workflow/const'
-import { WorkflowItem } from '@/app/(app)/app/[app_id]/(manage)/settings/workflow/type'
+} from '@/app/(manage)/app/[app_id]/settings/workflow/const'
+import { WorkflowItem } from '@/app/(manage)/app/[app_id]/settings/workflow/type'
 import {
   formatTreeWithData,
   taskToApiFormatter,
-} from '@/app/(app)/app/[app_id]/(manage)/settings/workflow/utils'
+} from '@/app/(manage)/app/[app_id]/settings/workflow/utils'
 
 import { AppsDatasetsTable } from '../apps_datasets/schema'
 import { DatasetsTable } from '../datasets/schema'
@@ -475,20 +475,19 @@ export async function removeApp(appId: string) {
 }
 
 export async function getAppsBasedOnIds(ids: string[]) {
-  try {
-    const apps = await db
-      .select()
-      .from(AppsTable)
-      .where(
-        and(inArray(AppsTable.short_id, ids), eq(AppsTable.archived, false))
-      )
-    const sortedApps = ids
-      .map((id) => apps.find((app) => app.short_id === id))
-      .filter((app) => !!app) as typeof apps
-    return sortedApps
-  } catch (error) {
-    redirect('/')
-  }
+  const apps = await db
+    .select({
+      short_id: AppsTable.short_id,
+      name: AppsTable.name,
+      description: AppsTable.description,
+      icon: AppsTable.icon,
+    })
+    .from(AppsTable)
+    .where(and(inArray(AppsTable.short_id, ids), eq(AppsTable.archived, false)))
+  const sortedApps = ids
+    .map((id) => apps.find((app) => app.short_id === id))
+    .filter((app) => !!app) as typeof apps
+  return sortedApps
 }
 
 export async function addDebugSession(api_model_id: string) {
