@@ -2,6 +2,8 @@ import { getApp } from '@/db/apps/actions'
 
 import BasicsSettingForm from './form'
 
+export const dynamic = 'force-dynamic'
+
 interface IProps {
   params: {
     app_id: string
