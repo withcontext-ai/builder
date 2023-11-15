@@ -31,6 +31,7 @@ const SidebarLink = (props: SidebarLinkProps) => {
       )}
       href={href}
       replace
+      shallow
     >
       <div className="text-sm font-medium">{name}</div>
       <div className="text-sm text-slate-500">{desc}</div>

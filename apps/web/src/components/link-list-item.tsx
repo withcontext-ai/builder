@@ -14,7 +14,7 @@ const LinkListItem = React.forwardRef<
   const isSelected = href === pathname
 
   return (
-    <Link href={href} ref={ref}>
+    <Link href={href} ref={ref} shallow>
       <li>
         <div
           className={cn(

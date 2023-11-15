@@ -20,6 +20,7 @@ export default function LoginLink() {
     <Link
       href={href}
       className="flex h-full flex-1 items-center space-x-2 px-4"
+      shallow
     >
       <LogIn />
       <p className="pl-6 text-sm font-medium">Log In</p>

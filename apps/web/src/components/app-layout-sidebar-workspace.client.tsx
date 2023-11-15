@@ -63,6 +63,7 @@ export default function WorkspaceList({ appList }: IProps) {
               <TooltipTrigger asChild>
                 <Link
                   href={`/app/${appItem.app_id}/session/${appItem.session_id}`}
+                  shallow
                 >
                   <Avatar
                     className={cn(

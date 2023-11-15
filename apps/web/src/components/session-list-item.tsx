@@ -63,6 +63,7 @@ export default function SessionListItem({
             isSelected ? 'bg-slate-200' : 'hover:bg-slate-200',
             'relative group flex items-center gap-x-2 p-2 rounded-md text-sm font-medium text-slate-900'
           )}
+          shallow
         >
           <MessageCircleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="truncate">{name}</span>

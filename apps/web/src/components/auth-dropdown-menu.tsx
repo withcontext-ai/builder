@@ -55,6 +55,7 @@ export default function AuthDropdownMenu({ children }: IProps) {
               href="https://context-builder.gitbook.io/helpdocument/"
               className="flex flex-1 items-center"
               target="_blank"
+              shallow
             >
               <HelpCircleIcon className="mr-2 h-4 w-4" />
               Help document

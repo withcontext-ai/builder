@@ -13,7 +13,7 @@ export default function Account() {
         <div className="flex max-w-sm items-center gap-8">
           <Profile />
           <Button asChild variant="outline">
-            <Link href="/profile" target="_blank">
+            <Link href="/profile" target="_blank" shallow>
               Edit
             </Link>
           </Button>

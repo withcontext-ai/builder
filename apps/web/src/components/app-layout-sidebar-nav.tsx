@@ -44,7 +44,7 @@ function NavItem({
     <div className="group relative flex shrink-0 items-center justify-center">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Link href={link}>
+          <Link href={link} shallow>
             <Avatar
               className={cn(
                 'h-12 w-12 rounded-3xl bg-white transition-all group-hover:rounded-2xl',

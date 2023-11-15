@@ -95,6 +95,7 @@ const AppSettingDialog = ({
             'flex w-full items-center gap-2	text-sm font-medium',
             danger ? 'text-red-500 hover:text-red-500' : 'text-slate-700'
           )}
+          shallow
         >
           {icon} {name}
         </Link>

@@ -35,6 +35,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
               : 'hover:bg-transparent hover:underline',
             'justify-start'
           )}
+          shallow
         >
           {item.title}
         </Link>

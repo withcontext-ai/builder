@@ -38,7 +38,7 @@ export default function AppCard({
   const color = getAvatarBgColor(id || '')
 
   return (
-    <Link href={`/app/${id}`}>
+    <Link href={`/app/${id}`} shallow>
       <Card className="relative h-[278px] shadow-none hover:shadow-md">
         <div className="absolute top-20 h-px w-full bg-slate-200" />
         <CardHeader className="p-4">
