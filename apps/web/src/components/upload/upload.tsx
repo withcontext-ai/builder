@@ -208,11 +208,17 @@ const Upload = (props: UploadProps) => {
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
       <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
-        <RcUpload {...rcUploadProps} ref={upload} className="outline-none">
+        <RcUpload
+          {...rcUploadProps}
+          ref={upload}
+          tabIndex={-1}
+          className="block ring-offset-background transition-colors focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <UploadButton
             bgColor={bgColor}
             listType={listType as ListTypeProps}
             type={type}
+            isUploading={isUploading}
             mergedFileList={mergedFileList}
           >
             {showUpdateImageList}
