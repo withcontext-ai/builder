@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { TreeItem } from '@/components/dnd/types'
 
-import { SUB_TYPE_MAP } from '../(manage)/settings/workflow/const'
+import { SUB_TYPE_MAP } from '../../../../(manage)/app/[app_id]/settings/workflow/const'
 import { useWorkflowContext } from './store'
 
 interface IProps {

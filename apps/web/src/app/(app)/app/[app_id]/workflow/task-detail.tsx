@@ -9,9 +9,9 @@ import {
   HAS_K,
   HAS_MAX_TOKEN_LIMIT,
   SUB_TYPE_MAP,
-} from '../(manage)/settings/workflow/const'
-import { WorkflowItem } from '../(manage)/settings/workflow/type'
-import { formatRetrieverType } from '../(manage)/settings/workflow/utils'
+} from '../../../../(manage)/app/[app_id]/settings/workflow/const'
+import { WorkflowItem } from '../../../../(manage)/app/[app_id]/settings/workflow/type'
+import { formatRetrieverType } from '../../../../(manage)/app/[app_id]/settings/workflow/utils'
 import styles from './mention-textarea.module.css'
 import { DatasetProps } from './page'
 import { useWorkflowContext } from './store'
