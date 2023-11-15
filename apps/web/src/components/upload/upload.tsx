@@ -208,7 +208,7 @@ const Upload = (props: UploadProps) => {
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
       <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
-        <RcUpload {...rcUploadProps} ref={upload}>
+        <RcUpload {...rcUploadProps} ref={upload} className="outline-none">
           <UploadButton
             bgColor={bgColor}
             listType={listType as ListTypeProps}
