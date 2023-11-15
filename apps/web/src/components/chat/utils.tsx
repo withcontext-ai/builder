@@ -2,7 +2,7 @@ import { type Message as RawMessage } from 'ai'
 
 import { App } from '@/db/apps/schema'
 import { Message as MessageSchema } from '@/db/messages/schema'
-import { WorkflowItem } from '@/app/(app)/app/[app_id]/(manage)/settings/workflow/type'
+import { WorkflowItem } from '@/app/(manage)/app/[app_id]/settings/workflow/type'
 
 import { ChatMessage, EventMessage } from './types'
 
