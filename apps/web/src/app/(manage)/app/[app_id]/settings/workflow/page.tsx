@@ -9,8 +9,6 @@ import { WorkflowProvider } from './store'
 import TaskDetail from './task-detail'
 import TaskList from './task-list'
 
-export const runtime = 'edge'
-
 interface IProps {
   params: {
     app_id: string
