@@ -12,8 +12,8 @@ import {
   messagesBuilder,
 } from '@/components/chat/utils'
 import { TreeItem } from '@/components/dnd/types'
+import { WorkflowItem } from '@/app/(manage)/app/[app_id]/settings/workflow/type'
 
-import { WorkflowItem } from '../../(manage)/settings/workflow/type'
 import AddAppToWorkspace from './add-app-to-workspace'
 import AppNotFound from './app-not-found'
 
