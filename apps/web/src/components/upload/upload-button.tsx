@@ -3,7 +3,6 @@ import { Camera, UploadCloud, UploadIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-import { Button } from '../ui/button'
 import { ListTypeProps, UploadFile } from './type'
 
 interface IProps {
@@ -26,11 +25,25 @@ flex h-20 w-[440px] items-center justify-center gap-4 rounded-lg border border-d
   </div>
 )
 
+const Wrapper = (
+  props: PropsWithChildren<{ className?: string; disabled?: boolean }>
+) => (
+  <div
+    className={cn(
+      'flex items-center justify-center rounded-md text-sm font-medium ',
+      props?.disabled && 'pointer-events-none opacity-50',
+      props?.className
+    )}
+  >
+    {props?.children}
+  </div>
+)
+
 const FilesUploadButton = (
-  <Button type="button">
+  <Wrapper>
     <UploadIcon size={16} strokeWidth={3} />
     <span className="pl-2">Upload File</span>
-  </Button>
+  </Wrapper>
 )
 
 const UploadButton = ({
@@ -46,20 +59,14 @@ const UploadButton = ({
   if (listType === 'files') return FilesUploadButton
   if (listType === 'image') {
     return (
-      <Button
-        type="button"
-        variant="outline"
-        className="z-1 h-16 w-16 bg-slate-50 "
-      >
+      <Wrapper className="z-1 h-16 w-16 bg-slate-50">
         {children || <Camera size={28} />}
-      </Button>
+      </Wrapper>
     )
   }
   if (listType === 'update-image') {
     return (
-      <Button
-        type="button"
-        variant="outline"
+      <Wrapper
         disabled={isUploading}
         className={cn(
           'relative z-10 flex h-16 w-16 items-center justify-center rounded-lg border p-0',
@@ -74,7 +81,7 @@ const UploadButton = ({
         <div className="z-1 absolute bottom-[-8px] right-[-8px] flex h-6 w-6  items-center justify-center rounded-full border bg-white text-black">
           <Camera size={16} strokeWidth={2} />
         </div>
-      </Button>
+      </Wrapper>
     )
   }
 }
