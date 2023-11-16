@@ -99,7 +99,7 @@ function getRecords(url: string) {
 const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
-  const { session, mode, app, user } = useChat()
+  const { session, app, user } = useChat()
   // const { trigger, isMutating } = useSWRMutation(
   //   `record_id=${recordId}`,
   //   getRecords

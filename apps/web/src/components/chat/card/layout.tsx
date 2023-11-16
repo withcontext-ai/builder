@@ -168,10 +168,9 @@ const ChatCardLayout = (prop: Props) => {
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
-  // const isVideo =
-  //   message?.type === 'event' &&
-  //   message?.eventType === 'video_conversation_record'
-  let isVideo = true
+  const isVideo =
+    message?.type === 'event' &&
+    message?.eventType === 'video_conversation_record'
   return (
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
@@ -219,9 +218,8 @@ const ChatCardLayout = (prop: Props) => {
               )}
               data-testid="chat-card-content"
             >
-              {/* {renderContent}
-               */}
-              <ChatConversationRecord />
+              {renderContent}
+
               {!showError && (
                 <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
                   {actions}
