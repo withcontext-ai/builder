@@ -1,5 +1,5 @@
 fastapi==0.100.0
-langchain==0.0.264
+langchain==0.0.335
 uvicorn==0.22.0
 python-dotenv==1.0.0
 sqlalchemy==2.0.18
@@ -19,3 +19,4 @@ gunicorn==21.2.0
 redis==5.0.0
 python-docx==0.8.11
 celery==5.2.7
+python-multipart==0.0.6

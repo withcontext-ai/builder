@@ -10,7 +10,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from loguru import logger
-from routers import chat, dataset, model
+from routers import chat, dataset, model, auth
 from starlette.responses import JSONResponse
 from utils import GRAPH_SIGNAL_API_KEY, BACKEND_URL
 
@@ -45,6 +45,7 @@ async def health_check():
 app.include_router(chat.router)
 app.include_router(dataset.router)
 app.include_router(model.router)
+app.include_router(auth.router)
 
 if __name__ == "__main__":
     uvicorn.run(host="0.0.0.0", port=8000, app=app)

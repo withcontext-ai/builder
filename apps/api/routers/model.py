@@ -3,17 +3,18 @@ import sys
 from uuid import uuid4
 
 import graphsignal
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from loguru import logger
 from models.base import Model
 from models.controller import model_manager, session_state_manager
 from crontab.celery import background_create_model, background_update_model
+from auth.jwt import get_currrent_user
 
 router = APIRouter(prefix="/v1/models")
 
 
 @router.get("/{id}", tags=["models"])
-def get_model(id: str):
+def get_model(id: str, user: str = Depends(get_currrent_user)):
     with graphsignal.start_trace("get_model"):
         model = model_manager.get_models(id)
         if model is None:

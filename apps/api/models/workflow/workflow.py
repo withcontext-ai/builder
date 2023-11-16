@@ -133,6 +133,7 @@ class Workflow(BaseModel):
         # TODO add max_tokens to chain
         max_token = llm.pop("max_tokens")
         temperature = llm.pop("temperature")
+        api_key = llm.pop("api_key")
         if llm_model.startswith("gpt-3.5-turbo"):
             logger.info("switch llm_model to gpt-3.5-turbo-1106")
             llm_model = "gpt-3.5-turbo-1106"
@@ -168,6 +169,7 @@ class Workflow(BaseModel):
                     ),
                 ],
                 request_timeout=5,
+                api_key=api_key,
             )
         template = _chain.prompt.template
 
