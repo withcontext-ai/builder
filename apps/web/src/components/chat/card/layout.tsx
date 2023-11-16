@@ -112,7 +112,7 @@ function EventMessage({
       break
     }
     case 'video_conversation_record': {
-      return <ChatConversationRecord messages={lateMessages} />
+      return <ChatConversationRecord />
     }
     default: {
       message = data.content ? data.content : 'Unknown event'
@@ -168,10 +168,10 @@ const ChatCardLayout = (prop: Props) => {
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
-  const isVideo =
-    message?.type === 'event' &&
-    message?.eventType === 'video_conversation_record'
-
+  // const isVideo =
+  //   message?.type === 'event' &&
+  //   message?.eventType === 'video_conversation_record'
+  let isVideo = true
   return (
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
@@ -219,7 +219,9 @@ const ChatCardLayout = (prop: Props) => {
               )}
               data-testid="chat-card-content"
             >
-              {renderContent}
+              {/* {renderContent}
+               */}
+              <ChatConversationRecord />
               {!showError && (
                 <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
                   {actions}
