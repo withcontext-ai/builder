@@ -38,7 +38,7 @@ export const MessagesTable = pgTable(
     raw: text('raw'),
     annotation: text('annotation'),
     // event message
-    content: text('content'), //event_type===conversation.record:content=message_id
+    content: text('content'), //conversation.record:message_id
     event_type: text('event_type'), // 'basic.opening_remarks' | 'call.created' | 'call.declined' | 'call.ended' | 'call.canceled'|'conversation.record'
     call_duration: bigint('call_duration', { mode: 'number' }),
   },

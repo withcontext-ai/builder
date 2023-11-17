@@ -64,6 +64,10 @@ export async function POST(req: NextRequest) {
         const data = await getAnnotations(event.data)
         return NextResponse.json({ success: true, data })
       }
+      case 'message.add': {
+        await addEventMessage(event.data)
+        break
+      }
       default: {
         throw new Error(`Unknown event type: ${event.type}`)
       }
@@ -156,6 +160,59 @@ async function endCall(eventType: string, data: any) {
       'user-id': user?.short_id || '',
     },
   })
+}
+
+async function addEventMessage(data: any) {
+  const {
+    session_id: api_session_id,
+    message_type: event_type,
+    message_id,
+  } = data
+  const session = await getSession(api_session_id)
+  if (!session) return
+
+  const newEvent = {
+    id: nanoid(),
+    type: 'event',
+    eventType: event_type,
+    createdAt: Date.now(),
+    content: '',
+  }
+  const newMessage = {
+    short_id: newEvent.id,
+    session_id: session.short_id,
+    event_type: newEvent.eventType,
+    content: '',
+  }
+  const channelId = formatChannelId(session.short_id)
+  const pusher = initPusher()
+
+  const user = await getUserBySessionId(session.short_id)
+  const baseLog = {
+    ...(user?.short_id ? { user_id: user?.short_id } : {}),
+    channel: 'chat',
+    tags: {
+      'session-id': session.short_id,
+      'api-session-id': api_session_id,
+      'user-id': user?.short_id || '',
+    },
+  }
+
+  if (event_type === 'conversation.record') {
+    newEvent.content = message_id
+    newMessage.content = message_id
+
+    await pusher?.trigger(channelId, 'user-chat', newEvent)
+    await addMessage(formatEventMessage(newMessage))
+    await logsnag?.track({
+      ...baseLog,
+      event: 'conversation.record',
+      icon: '▶',
+      description: `${
+        user?.email || `Session ${session.short_id}`
+      } video conversation record`,
+    })
+  }
 }
 
 async function updateDataset(data: any) {
