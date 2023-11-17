@@ -68,6 +68,7 @@ async def send_message(
     filt=False,
     start_time=None,
     disconnect_event: asyncio.Event = None,
+    video=False,
 ) -> AsyncIterable[str]:
     messages = []
     for message_content in messages_contents:
@@ -95,6 +96,7 @@ async def send_message(
         )
     model = models[0]
     workflow = session_state_manager.get_workflow(session_id, model, disconnect_event)
+    workflow.context.is_face_to_ai_service = video
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
@@ -167,32 +169,32 @@ async def stream_completions(body: CompletionsRequest):
         logger.info(f"completions payload: {body.dict()}")
         model_id = session_state_manager.get_model_id(body.session_id)
         model = model_manager.get_models(model_id)[0]
-        if model.enable_video_interaction:
-            link = FaceToAiManager.get_room_link(
-                model.opening_remarks,
+        # if model.enable_video_interaction:
+        #     link = FaceToAiManager.get_room_link(
+        #         model.opening_remarks,
+        #         body.session_id,
+        #         model_id,
+        #     )
+        #     webhook_handler = WebhookHandler()
+        #     webhook_handler.create_video_room_link(body.session_id, link)
+        #     disconnect_event = asyncio.Event()
+        #     return OpenAIStreamResponse(
+        #         content=send_done_message(),
+        #         media_type="text/event-stream",
+        #         disconnect_event=disconnect_event,
+        #     )
+        # else:
+        disconnect_event = asyncio.Event()
+        return OpenAIStreamResponse(
+            content=send_message(
+                body.messages,
                 body.session_id,
-                model_id,
-            )
-            webhook_handler = WebhookHandler()
-            webhook_handler.create_video_room_link(body.session_id, link)
-            disconnect_event = asyncio.Event()
-            return OpenAIStreamResponse(
-                content=send_done_message(),
-                media_type="text/event-stream",
+                start_time=start_time,
                 disconnect_event=disconnect_event,
-            )
-        else:
-            disconnect_event = asyncio.Event()
-            return OpenAIStreamResponse(
-                content=send_message(
-                    body.messages,
-                    body.session_id,
-                    start_time=start_time,
-                    disconnect_event=disconnect_event,
-                ),
-                media_type="text/event-stream",
-                disconnect_event=disconnect_event,
-            )
+            ),
+            media_type="text/event-stream",
+            disconnect_event=disconnect_event,
+        )
 
 
 @router.post("/completions/video/{session_id}")
@@ -210,6 +212,7 @@ async def video_stream_completions(
             ),
             media_type="text/event-stream",
             disconnect_event=disconnect_event,
+            video=True,
         )
 
 

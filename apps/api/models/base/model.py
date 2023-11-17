@@ -42,12 +42,12 @@ class Chain(BaseModel):
     chain_type: str
     memory: Optional[Memory] = Field(default_factory=lambda: Memory())
     key: Optional[str] = None
+    enable_video_interaction: Optional[bool] = Field(default=False)
 
 
 class Model(BaseModel):
     id: Optional[str] = Field(default="")
     chains: Optional[list[Chain]] = Field(default=[])
-    enable_video_interaction: Optional[bool] = Field(default=False)
     opening_remarks: Optional[str] = Field(default="")
 
 

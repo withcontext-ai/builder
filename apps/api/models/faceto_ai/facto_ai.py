@@ -10,6 +10,14 @@ from utils import (
     FACE_TO_CLIENT_SECRET,
     WEBHOOK_KEY,
 )
+from pydantic import BaseModel
+from .webhook import WebhookHandler
+from utils import (
+    UPSTASH_REDIS_REST_PORT,
+    UPSTASH_REDIS_REST_TOKEN,
+    UPSTASH_REDIS_REST_URL,
+)
+import redis
 
 
 class FaceToAiManager:
@@ -70,4 +78,72 @@ class FaceToAiManager:
             "POST", url, headers=headers, data=json.dumps(payload)
         )
 
+        room_name = response.json()["name"]
+        cls.save_room_name(session_id, room_name)
         return response.json()["link"]
+
+    @classmethod
+    def send_done_message(cls, room_name):
+        pass
+
+    @classmethod
+    def save_room_name(self, session_id, name):
+        redis_client = redis.Redis(
+            host=UPSTASH_REDIS_REST_URL,
+            port=UPSTASH_REDIS_REST_PORT,
+            password=UPSTASH_REDIS_REST_TOKEN,
+            ssl=True,
+        )
+        redis_client.set(f"session_id_to_room_link:{session_id}", name)
+
+    @classmethod
+    def get_room_name(self, session_id):
+        redis_client = redis.Redis(
+            host=UPSTASH_REDIS_REST_URL,
+            port=UPSTASH_REDIS_REST_PORT,
+            password=UPSTASH_REDIS_REST_TOKEN,
+            ssl=True,
+        )
+        return redis_client.get(f"session_id_to_room_link:{session_id}").decode("utf-8")
+
+    @classmethod
+    def delete_room_name(self, session_id):
+        redis_client = redis.Redis(
+            host=UPSTASH_REDIS_REST_URL,
+            port=UPSTASH_REDIS_REST_PORT,
+            password=UPSTASH_REDIS_REST_TOKEN,
+            ssl=True,
+        )
+        redis_client.delete(f"session_id_to_room_link:{session_id}")
+
+
+class FaceToAiMixin(BaseModel):
+    is_face_to_ai_service: bool = False
+    session_id: str = ""
+    model_id: str = ""
+
+    def switch_to_face_to_ai(self, final_message: str):
+        link = FaceToAiManager.get_room_link(
+            final_message, self.session_id, self.model_id
+        )
+        webhook_handler = WebhookHandler()
+        webhook_handler.create_video_room_link(self.session_id, link)
+
+    def switch_to_context_builder(self, final_message: str):
+        self.send_done_message_to_builder()
+
+    def send_done_message_to_builder(self):
+        pass
+
+    def send_done_message_to_face_to_ai(self):
+        room_name = FaceToAiManager.get_room_name(self.session_id)
+        url = FACE_TO_AI_ENDPOINT + f"/v1/room/{room_name}/event"
+        payload = {"event": {"event": "CloseRoom", "status": 1}}
+        token = FaceToAiManager.get_token()
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+        }
+        response = requests.request(
+            "POST", url, headers=headers, data=json.dumps(payload)
+        )
