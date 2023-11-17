@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { PlayCircleIcon, XIcon } from 'lucide-react'
+import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
 import useNiceModal from '@/hooks/use-nice-modal'
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useToast } from '@/components/ui/use-toast'
 
 import { ChatContextProvider } from '../chat-context'
 import ChatList from '../chat-list'
@@ -62,27 +64,6 @@ interface IProps {
   recordId?: string
 }
 
-const messages = [
-  {
-    role: 'assistant',
-    content:
-      ' Hello, welcome to the voice interview, please let me know when you are ready.',
-  },
-  {
-    role: 'user',
-    content: ' I am ready.',
-  },
-  {
-    role: 'assistant',
-    content: 'AI Interview: Ok, let’s start. Please introduce yourself.',
-  },
-  {
-    role: 'user',
-    content:
-      ' Hi, my name is (what?)My name is (who?)My name is (chka-chka, Slim Shady)Hi, my name is (huh?) ffjf qjeejwrtttyyy lalalala ccccc',
-  },
-] as Message[]
-
 const Loading = (
   <div className="w-full min-w-[500px] space-y-1">
     <Skeleton className="h-4 w-full" />
@@ -96,29 +77,49 @@ function getRecords(url: string) {
   return fetcher(url)
 }
 
+interface ConversationRecordData {
+  messages: Message[]
+  video_url: string
+  status?: 0 | 1 //1:done
+}
+
 const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
   const { session, app, user } = useChat()
-  const [data, setData] = useState()
-  // const { trigger, isMutating } = useSWRMutation(
-  //   `record_id=${recordId}`,
-  //   getRecords
-  // )
+  const [data, setData] = useState<ConversationRecordData>()
+  const { toast } = useToast()
+  const { trigger, isMutating } = useSWRMutation(
+    `record_id=${recordId}`,
+    getRecords
+  )
   // useEffect(() => {
   //   trigger()
   // }, [recordId])
-  let isMutating = false
 
-  function replay() {
-    //toast: Video playback is being generated, please wait.
+  const openModal = async () => {
+    modal.show({ messages: data?.messages, session, app, user })
   }
+
+  const replay = async () => {
+    const { data } = await trigger()
+    setData(data)
+    if (data?.status === 0) {
+      toast({
+        description: 'Video playback is being generated, please wait.',
+      })
+      return
+    } else {
+      window.open(data?.video_url)
+    }
+  }
+  const latest = useMemo(() => data?.messages?.slice(0, 4), [data?.messages])
   return (
     <Button
       variant="ghost"
       type="button"
       className="flex h-auto w-full flex-col justify-start p-0 hover:bg-white"
-      onClick={() => modal.show({ messages, session, app, user })}
+      onClick={openModal}
     >
       <div className="flex w-full border-b pb-3 text-sm font-medium">
         Conversation Record
@@ -126,7 +127,7 @@ const ChatConversationRecord = (props: IProps) => {
       <div className="flex w-full flex-col truncate pt-3">
         {isMutating
           ? Loading
-          : messages?.map((item, index) => {
+          : latest?.map((item, index) => {
               const label = item?.role === 'user' ? 'Me:' : 'AI Interview:'
               return (
                 <div
@@ -145,7 +146,7 @@ const ChatConversationRecord = (props: IProps) => {
             type="button"
             onClick={(e) => {
               e.stopPropagation()
-              window.open('https://build.withcontext.ai/apps')
+              replay()
             }}
           >
             <PlayCircleIcon />

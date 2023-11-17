@@ -110,7 +110,7 @@ function EventMessage({ data }: { data: any }) {
       break
     }
     case 'conversation.record': {
-      return <ChatConversationRecord recordId={data.content} />
+      return <ChatConversationRecord recordId={data?.content} />
     }
     default: {
       message = data.content ? data.content : 'Unknown event'
