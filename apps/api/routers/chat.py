@@ -97,6 +97,7 @@ async def send_message(
     model = models[0]
     workflow = session_state_manager.get_workflow(session_id, model, disconnect_event)
     workflow.context.is_face_to_ai_service = video
+    workflow.context.start_time = start_time
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
@@ -167,23 +168,6 @@ async def stream_completions(body: CompletionsRequest):
     logger.info(f"start_time: {start_time}")
     with graphsignal.start_trace("completions"):
         logger.info(f"completions payload: {body.dict()}")
-        model_id = session_state_manager.get_model_id(body.session_id)
-        model = model_manager.get_models(model_id)[0]
-        # if model.enable_video_interaction:
-        #     link = FaceToAiManager.get_room_link(
-        #         model.opening_remarks,
-        #         body.session_id,
-        #         model_id,
-        #     )
-        #     webhook_handler = WebhookHandler()
-        #     webhook_handler.create_video_room_link(body.session_id, link)
-        #     disconnect_event = asyncio.Event()
-        #     return OpenAIStreamResponse(
-        #         content=send_done_message(),
-        #         media_type="text/event-stream",
-        #         disconnect_event=disconnect_event,
-        #     )
-        # else:
         disconnect_event = asyncio.Event()
         return OpenAIStreamResponse(
             content=send_message(
@@ -314,3 +298,10 @@ async def get_process_status(session_id: str):
                     case _:
                         logger.warning(f"invalid chain status: {chain.process}")
         return {"data": process_list, "message": "success", "status": 200}
+
+
+@router.get("/message/{message_id}")
+async def get_message(message_id: str):
+    with graphsignal.start_trace("get_message"):
+        url, status, messages = FaceToAiManager.get_room_info(message_id)
+        return {"video_status": status, "video_url": url, "messages": messages}

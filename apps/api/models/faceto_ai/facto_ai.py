@@ -1,6 +1,6 @@
 import json
-import sys
-
+from models.workflow.callbacks import TokenCostProcess
+from typing import List
 import requests
 from loguru import logger
 from utils import (
@@ -16,8 +16,11 @@ from utils import (
     UPSTASH_REDIS_REST_PORT,
     UPSTASH_REDIS_REST_TOKEN,
     UPSTASH_REDIS_REST_URL,
+    WEBHOOK_ENDPOINT,
 )
 import redis
+import time
+from langchain.schema import HumanMessage, AIMessage, get_buffer_string
 
 
 class FaceToAiManager:
@@ -83,10 +86,6 @@ class FaceToAiManager:
         return response.json()["link"]
 
     @classmethod
-    def send_done_message(cls, room_name):
-        pass
-
-    @classmethod
     def save_room_name(self, session_id, name):
         redis_client = redis.Redis(
             host=UPSTASH_REDIS_REST_URL,
@@ -116,11 +115,57 @@ class FaceToAiManager:
         )
         redis_client.delete(f"session_id_to_room_link:{session_id}")
 
+    @classmethod
+    def get_room_info(cls, room_id):
+        token = cls.get_token()
+        url = FACE_TO_AI_ENDPOINT + "/v1/room/transcript"
+        payload = {"name": room_id}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+        }
+        response = requests.request(
+            "POST", url, headers=headers, data=json.dumps(payload)
+        )
+        try:
+            response.raise_for_status()
+            res = response.json()
+            url = res.get("vod", {}).get("url")
+            status = res.get("vod", {}).get("status")
+            messages = []
+            message_list = res.get("transcript", {}).get("list", [])
+            for message in message_list:
+                if message.get("is_bot"):
+                    messages.append(
+                        {
+                            "createAt": message.get("timestamp"),
+                            "content": message.get("text"),
+                            "rold": "assistant",
+                        }
+                    )
+                else:
+                    messages.append(
+                        {
+                            "createAt": message.get("timestamp"),
+                            "content": message.get("text"),
+                            "rold": "user",
+                        }
+                    )
+            return url, status, messages
+        except Exception as e:
+            logger.error(e)
+            logger.error(response.text)
+            raise e
+
 
 class FaceToAiMixin(BaseModel):
     is_face_to_ai_service: bool = False
     session_id: str = ""
     model_id: str = ""
+    cost_content: TokenCostProcess = TokenCostProcess()
+    io_traces: List[str] = []
+    error_flags: List[Exception] = []
+    start_time: float = 0
 
     def switch_to_face_to_ai(self, final_message: str):
         link = FaceToAiManager.get_room_link(
@@ -130,10 +175,54 @@ class FaceToAiMixin(BaseModel):
         webhook_handler.create_video_room_link(self.session_id, link)
 
     def switch_to_context_builder(self, final_message: str):
-        self.send_done_message_to_builder()
+        self.send_done_message_to_builder(final_message)
 
-    def send_done_message_to_builder(self):
-        pass
+    def send_face_to_ai_info_to_builder(self):
+        payload = {
+            "type": "message.add",
+            "data": {
+                "session_id": self.session_id,
+                "message_type": "conversation.record",
+                "message_id": FaceToAiManager.get_room_name(self.session_id),
+            },
+        }
+        url = WEBHOOK_ENDPOINT
+        headers = {"Content-Type": "application/json"}
+        response = requests.request(
+            "POST", url, headers=headers, data=json.dumps(payload)
+        )
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            logger.error(e)
+            logger.error(response.text)
+
+    def send_done_message_to_builder(self, final_message):
+        # TODO latency total_tokens raw
+        end_time = time.time()
+        payload = {
+            "type": "message.add",
+            "data": {
+                "session_id": self.session_id,
+                "message_type": "chat",
+                "message_data": {
+                    "answer": final_message,
+                    "latency": end_time - self.start_time,
+                    "total_tokens": self.cost_content.total_tokens,
+                    "raw": self.io_traces,
+                },
+            },
+        }
+        url = WEBHOOK_ENDPOINT
+        headers = {"Content-Type": "application/json"}
+        response = requests.request(
+            "POST", url, headers=headers, data=json.dumps(payload)
+        )
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            logger.error(e)
+            logger.error(response.text)
 
     def send_done_message_to_face_to_ai(self):
         room_name = FaceToAiManager.get_room_name(self.session_id)
@@ -147,3 +236,8 @@ class FaceToAiMixin(BaseModel):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(payload)
         )
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            logger.error(e)
+            logger.error(response.text)

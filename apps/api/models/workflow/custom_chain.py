@@ -40,7 +40,7 @@ from models.prompt_manager.compress import PromptCompressor
 from pydantic import Extra, Field
 from utils.base import to_string
 
-from .callbacks import CustomAsyncIteratorCallbackHandler
+from .callbacks import CustomAsyncIteratorCallbackHandler, TokenCostProcess
 from models.faceto_ai import FaceToAiMixin
 
 

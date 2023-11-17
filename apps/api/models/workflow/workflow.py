@@ -93,6 +93,9 @@ class Workflow(BaseModel):
             ],
             queue=asyncio.Queue(),
             done=asyncio.Event(),
+            cost_content=self.cost_content,
+            io_traces=self.io_traces,
+            error_flags=self.error_flags,
         )
         self._set_target_chain_output()
 
@@ -117,15 +120,6 @@ class Workflow(BaseModel):
 
     def get_chain_dialog_key(self, chain_key):
         return f"{chain_key}-dialog".replace("-", "_")
-
-    def clear(self):
-        self.context.done = asyncio.Event()
-        self.io_traces.clear()
-        self.cost_content.total_tokens = 0
-        self.cost_content.prompt_tokens = 0
-        self.cost_content.completion_tokens = 0
-        self.cost_content.successful_requests = 0
-        self.context.queue = asyncio.Queue()
 
     def _prepare_llm_and_template(self, _chain: Chain):
         llm = _chain.llm.dict()
