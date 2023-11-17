@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { PlayCircleIcon, XIcon } from 'lucide-react'
 
@@ -30,7 +31,6 @@ const ChatRecordDialog = NiceModal.create(
   ({ messages, app, session, user }: IRecordModal) => {
     const { modal } = useNiceModal()
 
-    // mode=debug: hidden fallback button
     return (
       <AlertDialog open={modal.visible}>
         <AlertDialogContent className=" h-4/5 overflow-hidden lg:max-w-2xl">
@@ -100,6 +100,7 @@ const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
   const { session, app, user } = useChat()
+  const [data, setData] = useState()
   // const { trigger, isMutating } = useSWRMutation(
   //   `record_id=${recordId}`,
   //   getRecords
@@ -108,6 +109,10 @@ const ChatConversationRecord = (props: IProps) => {
   //   trigger()
   // }, [recordId])
   let isMutating = false
+
+  function replay() {
+    //toast: Video playback is being generated, please wait.
+  }
   return (
     <Button
       variant="ghost"

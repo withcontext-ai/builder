@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 import Text from '../../ui/text'
 import { Markdown } from '../markdown/markdown'
-import { ChatUser, Message } from '../types'
+import { ChatUser } from '../types'
 import { useChat } from '../useChat'
 import { IChatCardProps } from './chat-card'
 import ChatConversationRecord from './chat-conversation-record'
@@ -76,13 +76,7 @@ const AlertErrorIcon = ({ className }: { className: string }) => (
   </svg>
 )
 
-function EventMessage({
-  data,
-  lateMessages,
-}: {
-  data: any
-  lateMessages?: Message[]
-}) {
+function EventMessage({ data }: { data: any }) {
   let icon
   let message
 
@@ -111,7 +105,7 @@ function EventMessage({
       message = 'Call Canceled'
       break
     }
-    case 'video_conversation_record': {
+    case 'conversation.record': {
       return <ChatConversationRecord />
     }
     default: {

@@ -74,19 +74,6 @@ const getFormValueStr = (data: WorkflowItem) => {
   return JSON.parse(data?.formValueStr || '')
 }
 
-const getChainTypes = (data: any[]) => {
-  return data.map((item: WorkflowItem) => {
-    const formStr = getFormValueStr(item)
-    return {
-      type: item?.subType,
-      video: formStr?.video?.enable_video_interaction,
-    }
-  }) as {
-    type: string
-    video: boolean
-  }[]
-}
-
 export const validateOpenModal = (app: App) => {
   const published_workflow_data_str = JSON.parse(
     app?.published_workflow_data_str || ''
@@ -97,22 +84,5 @@ export const validateOpenModal = (app: App) => {
     return formStr?.video?.enable_video_interaction === true
   })
 
-  if (!openVideo) {
-    return false
-  }
-
-  const chainTypes = getChainTypes(published_workflow_data_str) as {
-    type: string
-    video: boolean
-  }[]
-  const isConversation = chainTypes?.every(
-    (item: any) => item?.type === 'conversation_chain'
-  )
-  if (isConversation) {
-    return chainTypes?.slice(-1)[0]?.video
-  }
-  const findGlobal = chainTypes?.filter(
-    (item: any) => item?.type === 'self_checking_chain'
-  )
-  return findGlobal?.some((item) => item?.video)
+  return openVideo
 }
