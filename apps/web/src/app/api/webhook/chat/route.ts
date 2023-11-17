@@ -65,7 +65,11 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: true, data })
       }
       case 'message.add': {
-        await addEventMessage(event.data)
+        if (event.data.message_type === 'chat') {
+          await addChatMessage(event.data)
+        } else {
+          await addEventMessage(event.data)
+        }
         break
       }
       default: {
@@ -162,6 +166,33 @@ async function endCall(eventType: string, data: any) {
   })
 }
 
+async function addChatMessage(data: any) {
+  const { session_id: api_session_id, message_type, message_data } = data
+  const session = await getSession(api_session_id)
+  if (!session) return
+
+  const id = nanoid()
+  // push to user
+  const newEvent = {
+    id,
+    type: 'event',
+    eventType: message_type,
+    content: message_data.answer,
+    createdAt: Date.now(),
+  }
+  const channelId = formatChannelId(session.short_id)
+  const pusher = initPusher()
+  await pusher?.trigger(channelId, 'user-chat', newEvent)
+  // save to db
+  const newMessage = {
+    short_id: id,
+    session_id: session.short_id,
+    type: 'chat',
+    ...message_data, // answer, latency, total_tokens, raw
+  }
+  await addMessage(newMessage)
+}
+
 async function addEventMessage(data: any) {
   const {
     session_id: api_session_id,
@@ -171,48 +202,26 @@ async function addEventMessage(data: any) {
   const session = await getSession(api_session_id)
   if (!session) return
 
+  const id = nanoid()
+  // push to user
   const newEvent = {
-    id: nanoid(),
+    id,
     type: 'event',
     eventType: event_type,
     createdAt: Date.now(),
-    content: '',
-  }
-  const newMessage = {
-    short_id: newEvent.id,
-    session_id: session.short_id,
-    event_type: newEvent.eventType,
-    content: '',
+    content: message_id,
   }
   const channelId = formatChannelId(session.short_id)
   const pusher = initPusher()
-
-  const user = await getUserBySessionId(session.short_id)
-  const baseLog = {
-    ...(user?.short_id ? { user_id: user?.short_id } : {}),
-    channel: 'chat',
-    tags: {
-      'session-id': session.short_id,
-      'api-session-id': api_session_id,
-      'user-id': user?.short_id || '',
-    },
+  await pusher?.trigger(channelId, 'user-chat', newEvent)
+  // save to db
+  const newMessage = {
+    short_id: id,
+    session_id: session.short_id,
+    event_type,
+    content: message_id,
   }
-
-  if (event_type === 'conversation.record') {
-    newEvent.content = message_id
-    newMessage.content = message_id
-
-    await pusher?.trigger(channelId, 'user-chat', newEvent)
-    await addMessage(formatEventMessage(newMessage))
-    await logsnag?.track({
-      ...baseLog,
-      event: 'conversation.record',
-      icon: '▶',
-      description: `${
-        user?.email || `Session ${session.short_id}`
-      } video conversation record`,
-    })
-  }
+  await addMessage(formatEventMessage(newMessage))
 }
 
 async function updateDataset(data: any) {

@@ -81,6 +81,10 @@ function EventMessage({ data }: { data: any }) {
   let message
 
   switch (data.eventType) {
+    case 'chat': {
+      message = data.content
+      break
+    }
     case 'basic.opening_remarks': {
       message = data.content
       break
@@ -106,7 +110,7 @@ function EventMessage({ data }: { data: any }) {
       break
     }
     case 'conversation.record': {
-      return <ChatConversationRecord />
+      return <ChatConversationRecord recordId={data.content} />
     }
     default: {
       message = data.content ? data.content : 'Unknown event'
