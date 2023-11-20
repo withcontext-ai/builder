@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { PlayCircleIcon, XIcon } from 'lucide-react'
+import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
 import { fetcher } from '@/lib/utils'
@@ -90,12 +90,13 @@ const ChatConversationRecord = (props: IProps) => {
   const [data, setData] = useState<ConversationRecordData>()
   const { toast } = useToast()
   const { trigger, isMutating } = useSWRMutation(
-    `record_id=${recordId}`,
+    `/api/chat/event/message_id=${recordId}`,
     getRecords
   )
-  // useEffect(() => {
-  //   trigger()
-  // }, [recordId])
+
+  useEffect(() => {
+    trigger()
+  }, [recordId])
 
   const openModal = async () => {
     modal.show({ messages: data?.messages, session, app, user })
@@ -148,8 +149,9 @@ const ChatConversationRecord = (props: IProps) => {
               e.stopPropagation()
               replay()
             }}
+            disabled={isMutating}
           >
-            <PlayCircleIcon />
+            {isMutating ? <Loader2Icon /> : <PlayCircleIcon />}
             Video Replay
           </Button>
         </div>

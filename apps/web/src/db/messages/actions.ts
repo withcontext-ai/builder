@@ -3,6 +3,7 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { and, asc, desc, eq } from 'drizzle-orm'
 
+import { api } from '@/lib/api'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/drizzle-edge'
 import { createPool } from '@/lib/drizzle-pool'
@@ -199,4 +200,13 @@ export async function getFormattedMessages(sessionId: string) {
   }
 
   return formattedMessages
+}
+
+export function getVideoRecord(messageId: string) {
+  const data = api.get<{
+    messages: Message[]
+    video_url: string
+    video_status: 0 | 1
+  }>(`/v1/messages/${messageId}`)
+  return data
 }

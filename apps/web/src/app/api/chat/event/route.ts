@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { eq } from 'drizzle-orm'
 
 import { db } from '@/lib/drizzle-edge'
-import { addMessage } from '@/db/messages/actions'
+import { addMessage, getVideoRecord } from '@/db/messages/actions'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { EventMessage } from '@/components/chat/types'
@@ -31,6 +31,19 @@ export async function POST(req: NextRequest) {
     })
     await addMessage(message)
     return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message })
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    // get message record by message_id
+    const query = req.nextUrl.searchParams
+    const message_id = query.get('message_id') || ''
+
+    const data = await getVideoRecord(message_id)
+    return NextResponse.json({ success: true, data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }
