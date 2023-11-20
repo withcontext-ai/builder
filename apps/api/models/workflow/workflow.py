@@ -265,6 +265,7 @@ class Workflow(BaseModel):
             validate_template=True,
             template_format="jinja2",
         )
+
         return llm, [prompt_template]
 
     def _prepare_chain(self, _chain: Chain, llm, prompt_template: List[PromptTemplate]):
@@ -330,7 +331,7 @@ class Workflow(BaseModel):
             case _:
                 logger.error(f"Chain type {_chain.chain_type} not supported")
                 raise Exception("Chain type not supported")
-
+        chain.enable_video_interaction = _chain.enable_video_interaction
         return chain
 
     async def agenerate(self, messages: List[BaseMessage]) -> str:
