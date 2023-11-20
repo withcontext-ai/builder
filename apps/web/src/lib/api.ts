@@ -3,7 +3,10 @@ export const API_KEY = process.env.AI_SERVICE_API_KEY
 
 async function http<T>(path: string, config: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${API_KEY}`,
+    },
     ...config,
   })
   if (!response.ok) {
