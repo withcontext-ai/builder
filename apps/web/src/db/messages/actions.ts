@@ -207,6 +207,6 @@ export function getVideoRecord(messageId: string) {
     messages: Message[]
     video_url: string
     video_status: 0 | 1
-  }>(`/v1/messages/${messageId}`)
+  }>(`/v1/chat/messages/${messageId}`)
   return data
 }
