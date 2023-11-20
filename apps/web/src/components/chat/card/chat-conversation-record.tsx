@@ -90,7 +90,7 @@ const ChatConversationRecord = (props: IProps) => {
   const [data, setData] = useState<ConversationRecordData>()
   const { toast } = useToast()
   const { trigger, isMutating } = useSWRMutation(
-    `/api/chat/event/message_id=${recordId}`,
+    `/api/chat/event?message_id=${recordId}`,
     getRecords
   )
 
