@@ -51,8 +51,7 @@ export default function WorkflowTreeItem({
   const TypeIcon = type ? TYPE_MAP[type]?.icon : null
   // @ts-ignore
   const subTypeTitle = subType ? SUB_TYPE_MAP[subType]?.title : ''
-  const openVideo = JSON.parse(formValueStr || '')?.video
-    ?.enable_video_interaction
+  const openVideo = JSON.parse(formValueStr || '')?.enable_video_interaction
   return (
     <div className={cn('relative mb-4 w-[360px]', clone && '-rotate-3')}>
       <div

@@ -521,7 +521,7 @@ export function VideoItem() {
     <div className="space-y-4">
       <div className="text-sm font-medium text-slate-500">Video</div>
       <SwitchItem
-        name="video.enable_video_interaction"
+        name="enable_video_interaction"
         label={
           <FormItemTitle
             title="Video Interaction"
