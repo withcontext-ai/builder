@@ -28,6 +28,7 @@ executor = ThreadPoolExecutor(max_workers=1000)
 router = APIRouter(prefix="/v1/chat")
 CHUNK_DATA = "chunk data"
 
+
 # {"data": [{"key": "tool-0", "finished": True, "succeed": True}]}
 
 
@@ -41,7 +42,7 @@ def get_token_header(request: Request):
 
 
 def wrap_token(
-    token: str, model_id: str, session_id: str, filt: bool = False, openai_callback=None
+        token: str, model_id: str, session_id: str, filt: bool = False, openai_callback=None
 ) -> str:
     if filt:
         content = {"content": token}
@@ -63,12 +64,12 @@ def wrap_error(error: str):
 
 
 async def send_message(
-    messages_contents: List[MessagesContent],
-    session_id: str,
-    filt=False,
-    start_time=None,
-    disconnect_event: asyncio.Event = None,
-    video=False,
+        messages_contents: List[MessagesContent],
+        session_id: str,
+        filt=False,
+        start_time=None,
+        disconnect_event: asyncio.Event = None,
+        video=False,
 ) -> AsyncIterable[str]:
     messages = []
     for message_content in messages_contents:
@@ -183,9 +184,9 @@ async def stream_completions(body: CompletionsRequest):
 
 @router.post("/completions/video/{session_id}")
 async def video_stream_completions(
-    session_id: str,
-    body: VideoCompletionsRequest,
-    token: str = Depends(get_token_header),
+        session_id: str,
+        body: VideoCompletionsRequest,
+        token: str = Depends(get_token_header),
 ):
     with graphsignal.start_trace("completions_video"):
         logger.info(f"completions payload: {body.dict()}")
@@ -202,9 +203,9 @@ async def video_stream_completions(
 
 @router.post("/completions/video/{session_id}/webhook")
 async def video_stream_completions_webhook(
-    session_id: str,
-    body: dict,
-    token: str = Depends(get_token_header),
+        session_id: str,
+        body: dict,
+        token: str = Depends(get_token_header),
 ):
     with graphsignal.start_trace("completions_video_webhook"):
         logger.info(f"wbhook payload: {body}")
@@ -304,4 +305,5 @@ async def get_process_status(session_id: str):
 async def get_message(message_id: str):
     with graphsignal.start_trace("get_message"):
         url, status, messages = FaceToAiManager.get_room_info(message_id)
-        return {"video_status": status, "video_url": url, "messages": messages}
+        messages_data = {"video_status": status, "video_url": url, "messages": messages}
+        return {"data": messages_data, "message": "success", "status": 200}

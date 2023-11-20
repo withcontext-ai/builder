@@ -131,9 +131,15 @@ class FaceToAiManager:
             response.raise_for_status()
             res = response.json()
             url = res.get("vod", {}).get("url")
+            # 0.init 1.ing 2.complete
             status = res.get("vod", {}).get("status")
+            resp_status = 0
+            if status == 2:
+                resp_status = 1
+
             messages = []
             message_list = res.get("transcript", {}).get("list", [])
+
             for message in message_list:
                 if message.get("is_bot"):
                     messages.append(
@@ -151,7 +157,7 @@ class FaceToAiManager:
                             "rold": "user",
                         }
                     )
-            return url, status, messages
+            return url, resp_status, messages
         except Exception as e:
             logger.error(e)
             logger.error(response.text)
