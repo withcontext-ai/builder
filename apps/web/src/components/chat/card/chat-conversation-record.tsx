@@ -103,7 +103,7 @@ const ChatConversationRecord = (props: IProps) => {
   }
 
   const replay = async () => {
-    const { data } = await trigger()
+    const data = await trigger()
     setData(data)
     if (data?.status === 0) {
       toast({
