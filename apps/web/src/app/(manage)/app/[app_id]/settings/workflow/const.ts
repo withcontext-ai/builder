@@ -23,10 +23,6 @@ export const DEFAULT_MEMORY = {
   max_token_limit: 2000,
 }
 
-export const DEFAULT_VIDEO = {
-  enable_video_interaction: false,
-}
-
 export const TYPE_MAP = {
   tool: {
     title: 'Tools',
@@ -99,7 +95,7 @@ export const TASK_DEFAULT_VALUE_MAP = {
       template: '',
     },
     memory: DEFAULT_MEMORY,
-    video: DEFAULT_VIDEO,
+    enable_video_interaction: false,
   },
   conversational_retrieval_qa_chain: {
     llm: DEFAULT_LLM,
@@ -115,7 +111,7 @@ Use the text separated by three quotation marks in the background to answer the 
     data: {
       datasets: [],
     },
-    video: DEFAULT_VIDEO,
+    enable_video_interaction: false,
   },
   self_checking_chain: {
     llm: DEFAULT_LLM,
@@ -128,7 +124,7 @@ Please determine if this conversation has achieved its objective. If the objecti
       output_definition: '',
     },
     memory: DEFAULT_MEMORY,
-    video: DEFAULT_VIDEO,
+    enable_video_interaction: false,
   },
 }
 

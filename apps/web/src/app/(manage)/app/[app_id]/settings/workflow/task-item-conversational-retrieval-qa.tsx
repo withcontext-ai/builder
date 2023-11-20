@@ -88,9 +88,7 @@ const FormSchema = z.object({
   data: z.object({
     datasets: z.array(z.string()).optional(),
   }),
-  video: z.object({
-    enable_video_interaction: z.boolean().optional(),
-  }),
+  enable_video_interaction: z.boolean().optional(),
 })
 
 export type IFormSchema = z.infer<typeof FormSchema>

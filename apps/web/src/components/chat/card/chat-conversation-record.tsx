@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
@@ -95,7 +95,7 @@ const ChatConversationRecord = (props: IProps) => {
   )
 
   useEffect(() => {
-    trigger()
+    trigger().then((res) => setData(res))
   }, [recordId])
 
   const openModal = async () => {
@@ -103,8 +103,6 @@ const ChatConversationRecord = (props: IProps) => {
   }
 
   const replay = async () => {
-    const data = await trigger()
-    setData(data)
     if (data?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
@@ -114,7 +112,7 @@ const ChatConversationRecord = (props: IProps) => {
       window.open(data?.video_url)
     }
   }
-  const latest = useMemo(() => data?.messages?.slice(0, 4), [data?.messages])
+
   return (
     <Button
       variant="ghost"
@@ -128,7 +126,7 @@ const ChatConversationRecord = (props: IProps) => {
       <div className="flex w-full flex-col truncate pt-3">
         {isMutating
           ? Loading
-          : latest?.map((item, index) => {
+          : data?.messages?.slice(0, 4)?.map((item, index) => {
               const label = item?.role === 'user' ? 'Me:' : 'AI Interview:'
               return (
                 <div

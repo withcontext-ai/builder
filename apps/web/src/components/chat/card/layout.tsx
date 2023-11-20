@@ -110,7 +110,7 @@ function EventMessage({ data }: { data: any }) {
       break
     }
     case 'conversation.record': {
-      return <ChatConversationRecord recordId={data?.content} />
+      return <ChatConversationRecord recordId={'qr4m-aap7'} />
     }
     default: {
       message = data.content ? data.content : 'Unknown event'
@@ -216,7 +216,8 @@ const ChatCardLayout = (prop: Props) => {
               )}
               data-testid="chat-card-content"
             >
-              {renderContent}
+              {/* {renderContent} */}
+              <ChatConversationRecord recordId={'qr4m-aap7'} />
 
               {!showError && (
                 <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
