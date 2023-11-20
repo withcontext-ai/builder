@@ -167,6 +167,9 @@ class FaceToAiMixin(BaseModel):
     error_flags: List[Exception] = []
     start_time: float = 0
 
+    class Config:
+        arbitrary_types_allowed = True
+
     def switch_to_face_to_ai(self, final_message: str):
         link = FaceToAiManager.get_room_link(
             final_message, self.session_id, self.model_id
