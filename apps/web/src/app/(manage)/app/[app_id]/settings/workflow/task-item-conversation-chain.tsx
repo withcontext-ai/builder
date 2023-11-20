@@ -74,7 +74,6 @@ const FormSchema = z.object({
     k: z.number().optional(),
     max_token_limit: z.number().optional(),
   }),
-
   enable_video_interaction: z.boolean().optional(),
 })
 

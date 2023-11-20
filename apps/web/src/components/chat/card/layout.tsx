@@ -216,9 +216,7 @@ const ChatCardLayout = (prop: Props) => {
               )}
               data-testid="chat-card-content"
             >
-              {/* {renderContent} */}
-              <ChatConversationRecord recordId={'qr4m-aap7'} />
-
+              {renderContent}
               {!showError && (
                 <div className="absolute bottom-full left-full flex -translate-x-14 translate-y-4">
                   {actions}
