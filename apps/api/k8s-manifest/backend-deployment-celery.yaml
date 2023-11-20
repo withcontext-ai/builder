@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: withcontext-backend-celery
+  namespace: withcontext-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: withcontext-backend-celery
+  template:
+    metadata:
+      labels:
+        app: withcontext-backend-celery
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry
+      containers:
+        - name: withcontext-backend-celery
+          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:celery
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: DATABASE_URL
+            - name: PINECONE_ENVIRONMENT
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: PINECONE_ENVIRONMENT
+            - name: PINECONE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: PINECONE_API_KEY
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: OPENAI_API_KEY
+            - name: FACE_TO_AI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: FACE_TO_AI_ENDPOINT
+            - name: FACE_TO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: FACE_TO_CLIENT_ID
+            - name: FACE_TO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: FACE_TO_CLIENT_SECRET
+            - name: WEBHOOK_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: WEBHOOK_KEY
+            - name: GRAPH_SIGNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: GRAPH_SIGNAL_API_KEY
+            - name: UPSTASH_REDIS_REST_URL
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: UPSTASH_REDIS_REST_URL
+            - name: UPSTASH_REDIS_REST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: UPSTASH_REDIS_REST_TOKEN
+            - name: UPSTASH_REDIS_REST_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: UPSTASH_REDIS_REST_PORT
+            - name: AZURE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: AZURE_API_KEY
+            - name: LOGSNAG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: LOGSNAG_API_KEY
+            - name: WEBHOOK_ENDPOINT
+              value: https://build.withcontext.ai/api/webhook/chat
+            - name: BACKEND_URL
+              value: http://api.withcontext.ai
+
+          resources:
+            limits:
+              memory: '5000Mi'
+              cpu: '2'

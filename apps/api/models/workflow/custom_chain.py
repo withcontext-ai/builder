@@ -148,9 +148,13 @@ class TargetedChain(Chain):
                     has_custom_iterator = True
             if has_custom_iterator is False:
                 callbacks.add_handler(custom_iterator_handler)
+<<<<<<< HEAD
         logger.info(f"======== SECOND LLM CALL TIME: {time.time()} ========")
         response = await self.llm.agenerate(messages=[messages], callbacks=callbacks)
         logger.info(f"======== SECOND LLM END TIME: {time.time()} ========")
+=======
+        response = await self.llm.agenerate(messages=[messages], callbacks=callbacks)
+>>>>>>> main
         return {self.output_key: response.generations[0][0].text}
 
     async def get_output(

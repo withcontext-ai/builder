@@ -167,6 +167,7 @@ class Workflow(BaseModel):
                         self.io_traces, self.get_chain_output_key(_chain.key)
                     ),
                 ],
+                request_timeout=5,
             )
         template = _chain.prompt.template
 
@@ -281,6 +282,7 @@ class Workflow(BaseModel):
                             }
                         }
                     )
+                    retriever.search_kwargs["k"] = 8
                     chain = EnhanceConversationalRetrievalChain(
                         prompt=prompt_template[0],
                         retriever=retriever,

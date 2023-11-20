@@ -1,3 +1,4 @@
+import * as Bytescale from '@bytescale/sdk'
 import axios from 'axios'
 import { pick } from 'lodash'
 
@@ -35,12 +36,6 @@ export const checkShowIcon = (listProps: boolean | listPropsInterface) => {
   }
 }
 
-export const getBase64 = (img: RcFile, callback: (url: string) => void) => {
-  const reader = new FileReader()
-  reader.addEventListener('load', () => callback(reader.result as string))
-  reader.readAsDataURL(img)
-}
-
 export const handleSuccess = ({
   setMergedFileList,
   onChangeFileList,
@@ -49,14 +44,7 @@ export const handleSuccess = ({
   onChangeFileList?: (files: FileProps[]) => void
 }) => {
   setMergedFileList?.((files: UploadFile[]) => {
-    const success = files?.filter(
-      (item) => item?.status === 'success' && item?.url
-    )
-    const data = success?.reduce((m: FileProps[], item: UploadFile) => {
-      const cur = pick(item, ['url', 'uid', 'type', 'name'])
-      m.push(cur)
-      return m
-    }, [])
+    const data = formateFormFile(files)
     onChangeFileList?.(data)
     return files
   })
@@ -170,4 +158,56 @@ export const changeToUploadFile = (
   } else {
     return stringUrlToFile(value)
   }
+}
+
+const uploadManager = new Bytescale.UploadManager({
+  apiKey: process.env.NEXT_PUBLIC_BYTESCALE_PUBLIC_API_KEY || 'free',
+})
+
+export async function uploadToBytescale({
+  file,
+  aborts,
+  setProcess,
+}: Partial<UploadFileProps>) {
+  if (!file || !file?.originFileObj) return
+  file.status = 'uploading'
+
+  const abort = new AbortController()
+  const cancellationToken: Bytescale.CancellationToken = {
+    isCancelled: false,
+  }
+  const cancel = () => {
+    cancellationToken.isCancelled = true
+  }
+  aborts?.current?.push({ uid: file?.uid, control: abort, cancel })
+
+  const result = await uploadManager.upload({
+    data: file?.originFileObj,
+    onProgress: ({ progress }) => {
+      file.percent = progress
+      handelProcess(file, setProcess)
+    },
+    cancellationToken,
+  })
+
+  const fileUrl = Bytescale.UrlBuilder.url({
+    accountId: result.accountId,
+    filePath: result.filePath,
+  })
+
+  file.status = 'success'
+  file.url = fileUrl
+
+  return file
+}
+
+export const formateFormFile = (files: UploadFile[]) => {
+  const success = files?.filter(
+    (item) => item?.status === 'success' && item?.url
+  )
+  return success?.reduce((m: FileProps[], item: UploadFile) => {
+    const cur = pick(item, ['url', 'uid', 'type', 'name'])
+    m.push(cur)
+    return m
+  }, [])
 }

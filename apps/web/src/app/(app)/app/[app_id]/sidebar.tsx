@@ -17,13 +17,16 @@ export default async function Sidebar({ appId }: { appId: string }) {
             <Header appId={appId} />
           </Suspense>
           <div className="m-full h-px bg-slate-200" />
-          <Menu />
+          <Suspense fallback={<Skeleton className="h-[108px] w-full" />}>
+            <Menu appId={appId} />
+          </Suspense>
+
           <div className="m-full h-px bg-slate-200" />
           <SessionListHeader appId={appId} />
           <Suspense
             fallback={
-              <div className="space-y-1 p-2">
-                <Skeleton className="h-8 w-full bg-slate-200 p-2" />
+              <div className="mt-1 px-2">
+                <Skeleton className="h-9 w-full bg-slate-200 p-2" />
               </div>
             }
           >

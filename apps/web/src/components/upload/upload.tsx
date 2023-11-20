@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { pick } from 'lodash'
 import RcUpload from 'rc-upload'
 import type { UploadProps as RcUploadProps } from 'rc-upload'
 import { flushSync } from 'react-dom'
@@ -13,13 +12,18 @@ import {
   FilePercent,
   ListTypeProps,
   RcFile,
-  UploadChangeParam,
   UploadFile,
   UploadProps,
 } from './type'
 import UploadButton from './upload-button'
 import UploadFileList from './upload-file-list'
-import { changeToUploadFile, file2Obj, FileProps, uploadFile } from './utils'
+import {
+  changeToUploadFile,
+  file2Obj,
+  formateFormFile,
+  handleSuccess,
+  uploadToBytescale,
+} from './utils'
 import UploadWrapper from './wrapper'
 
 const Upload = (props: UploadProps) => {
@@ -62,7 +66,10 @@ const Upload = (props: UploadProps) => {
   }
 
   const handleEndConcert = () => {
-    aborts?.current?.forEach((item) => item?.control?.abort())
+    aborts?.current?.forEach((item) => {
+      item?.control?.abort()
+      item?.cancel?.()
+    })
   }
 
   useEffect(() => {
@@ -97,22 +104,17 @@ const Upload = (props: UploadProps) => {
       flushSync(() => {
         setMergedFileList(cloneList)
       })
-      setMergedFileList(cloneList)
-      const changeInfo: UploadChangeParam<UploadFile> = {
-        file: file as UploadFile,
-        fileList: cloneList,
-      }
-
       setIsUploading(true)
-      // google api for upload
       if (isValid) {
-        await uploadFile({
-          aborts: aborts,
-          setMergedFileList,
-          ...changeInfo,
-          onChangeFileList,
-          setProcess,
-        })
+        try {
+          await uploadToBytescale({ file, aborts, setProcess })
+          handleSuccess({
+            setMergedFileList,
+            onChangeFileList,
+          })
+        } catch (error) {
+          file.status = 'error'
+        }
       }
       setIsUploading(false)
     },
@@ -146,27 +148,23 @@ const Upload = (props: UploadProps) => {
 
   const handleRemove = useCallback((file: UploadFile) => {
     setMergedFileList((files: UploadFile<any>[]) => {
-      const removedFileList = files?.filter(
+      const removedFile = files?.find(
+        (item: UploadFile) => item?.uid === file?.uid
+      )
+      const otherFileList = files?.filter(
         (item: UploadFile) => item?.uid !== file?.uid
       )
-      if (removedFileList?.length) {
+      if (removedFile) {
         // to abort the current axios request
         const current = aborts?.current?.find((item) => item?.uid === file?.uid)
         current?.control?.abort()
-
-        // handle fileList
-        const removed = removedFileList?.reduce(
-          (m: FileProps[], item: UploadFile) => {
-            m.push(pick(item, ['url', 'uid', 'type', 'name']))
-            return m
-          },
-          []
-        )
-        onChangeFileList?.(removed)
+        current?.cancel?.()
+        const data = formateFormFile(otherFileList)
+        onChangeFileList?.(data)
       } else {
         onChangeFileList?.([])
       }
-      return removedFileList
+      return otherFileList
     })
   }, [])
 
@@ -210,11 +208,17 @@ const Upload = (props: UploadProps) => {
   return (
     <UploadWrapper className={className} listType={listType as ListTypeProps}>
       <div className={cn(hiddenUploadIcon ? 'hidden' : 'block')}>
-        <RcUpload {...rcUploadProps} ref={upload}>
+        <RcUpload
+          {...rcUploadProps}
+          ref={upload}
+          tabIndex={-1}
+          className="block ring-offset-background transition-colors focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <UploadButton
             bgColor={bgColor}
             listType={listType as ListTypeProps}
             type={type}
+            isUploading={isUploading}
             mergedFileList={mergedFileList}
           >
             {showUpdateImageList}

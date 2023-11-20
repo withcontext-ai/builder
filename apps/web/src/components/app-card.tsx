@@ -1,12 +1,24 @@
+'use client'
+
 import Link from 'next/link'
 
-import { cn, getAvatarBgColor, getFirstLetter } from '@/lib/utils'
+import {
+  cn,
+  getAvatarBgColor,
+  getFirstLetter,
+  getPresetUrlOfImage,
+} from '@/lib/utils'
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface IProps {
   id: string
@@ -33,7 +45,7 @@ export default function AppCard({
           <div className="space-y-2">
             {icon ? (
               <img
-                src={icon}
+                src={getPresetUrlOfImage(icon)}
                 alt={id}
                 className="relative h-24 w-24 rounded-lg bg-white object-cover"
               />
@@ -51,7 +63,17 @@ export default function AppCard({
               {creator}
             </CardDescription>
           </div>
-          <CardTitle className="truncate text-xl">{name}</CardTitle>
+          <Tooltip>
+            <div className="flex">
+              <TooltipTrigger asChild>
+                <CardTitle className="truncate text-xl">{name}</CardTitle>
+              </TooltipTrigger>
+              <div className="flex-1" />
+            </div>
+            <TooltipContent side="top" className="max-w-[300px]" align="start">
+              <p className="break-words">{name}</p>
+            </TooltipContent>
+          </Tooltip>
           <CardDescription className="line-clamp-4 break-words text-xs leading-5">
             {description}
           </CardDescription>

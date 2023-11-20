@@ -8,8 +8,7 @@ import useSWRMutation from 'swr/mutation'
 import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import ConfirmDialog from '@/components/confirm-dialog'
-
-import BaseSideBar from '../../../(app)/app/[app_id]/(manage)/sidebar'
+import BaseSideBar from '@/app/(manage)/app/[app_id]/sidebar'
 
 interface IProps {
   name: string
@@ -35,9 +34,8 @@ const Sidebar = ({ datasetId, name }: IProps) => {
       router.refresh()
     } catch (error) {}
   }
-  const nextUrl = 'nextUrl=/datasets'
   return (
-    <BaseSideBar>
+    <BaseSideBar directUrl="/datasets">
       <div className="pl-3 text-sm font-medium uppercase text-slate-500">
         Datasets
       </div>
@@ -45,7 +43,6 @@ const Sidebar = ({ datasetId, name }: IProps) => {
       <BaseSideBar.Link
         href={{
           pathname: `/dataset/${datasetId}/settings/basics`,
-          search: nextUrl,
         }}
         name="Basics"
         desc=""
@@ -53,7 +50,6 @@ const Sidebar = ({ datasetId, name }: IProps) => {
       <BaseSideBar.Link
         href={{
           pathname: `/dataset/${datasetId}/settings/documents`,
-          search: nextUrl,
         }}
         name="Data"
         desc=""
