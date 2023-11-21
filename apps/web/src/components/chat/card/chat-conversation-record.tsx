@@ -31,7 +31,7 @@ interface IRecordModal {
 
 const ChatRecordDialog = NiceModal.create(
   ({ messages, app, session, user }: IRecordModal) => {
-    const { modal } = useNiceModal()
+    const { modal, onOpenChange } = useNiceModal()
 
     return (
       <AlertDialog open={modal.visible}>
@@ -39,8 +39,12 @@ const ChatRecordDialog = NiceModal.create(
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center justify-between">
               Conversation Record
-              <Button className="h-8 w-8 p-0" variant="outline">
-                <XIcon size="16" onClick={() => modal.remove()} />
+              <Button
+                className="h-8 w-8 p-0"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                <XIcon size="16" />
               </Button>
             </AlertDialogTitle>
           </AlertDialogHeader>
@@ -107,7 +111,6 @@ const ChatConversationRecord = (props: IProps) => {
       window.open(res?.video_url)
     }
   }
-
   return (
     <Button
       variant="ghost"
@@ -126,7 +129,7 @@ const ChatConversationRecord = (props: IProps) => {
               return (
                 <div
                   key={index}
-                  className="truncate text-left text-xs text-slate-500"
+                  className="truncate text-left text-xs leading-5 text-slate-500"
                 >
                   {label} {item?.content}
                 </div>
