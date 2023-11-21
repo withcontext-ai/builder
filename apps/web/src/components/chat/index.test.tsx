@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect } from 'react'
 import { cleanup, render, waitFor } from '@testing-library/react'
 import user from '@testing-library/user-event'
@@ -8,7 +10,7 @@ import Chat from '@/components/chat/page'
 
 import { commonTestWrapper } from '../../../test/utils'
 
-const testVideo = (video: boolean) => {
+export const testVideo = (video: boolean) => {
   return JSON.stringify([
     { formValueStr: JSON.stringify({ enable_video_interaction: video }) },
   ])
