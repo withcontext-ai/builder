@@ -1,5 +1,6 @@
 import { createParser } from 'eventsource-parser'
 
+import { API_BASE_URL, API_KEY } from './api'
 import {
   MESSAGE_FOR_KEEP_STREAM_CONNECTION,
   MESSAGE_FOR_STREAM_ENDING,
@@ -10,7 +11,6 @@ function encodeData(data: Record<string, unknown>) {
 }
 
 type StreamParams = {
-  baseUrl: string
   payload: any
   callback?: {
     onStart?: () => Promise<void> | void
@@ -23,17 +23,12 @@ type StreamParams = {
   data: Record<string, unknown>
 }
 
-export async function OpenAIStream({
-  baseUrl,
-  payload,
-  callback,
-  data,
-}: StreamParams) {
+export async function OpenAIStream({ payload, callback, data }: StreamParams) {
   const abortController = new AbortController()
-  const res = await fetch(`${baseUrl}/chat/completions`, {
+  const res = await fetch(`${API_BASE_URL}/v1/chat/completions`, {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ''}`,
+      Authorization: `Bearer ${API_KEY ?? ''}`,
     },
     method: 'POST',
     body: JSON.stringify(payload),

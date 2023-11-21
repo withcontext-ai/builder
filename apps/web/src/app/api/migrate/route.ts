@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import axios from 'axios'
 import { eq } from 'drizzle-orm'
 
+import { api } from '@/lib/api'
 import { db } from '@/lib/drizzle-edge'
 import { safeParse } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
@@ -43,10 +43,7 @@ export async function GET(req: NextRequest) {
 
     const chains = new_published_workflow_data.map(taskToApiFormatter)
 
-    await axios.patch(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-      { chains }
-    )
+    await api.patch(`/v1/models/${api_model_id}`, { chains })
 
     const newValue = {
       workflow_data_str: JSON.stringify(new_workflow_data),

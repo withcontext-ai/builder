@@ -24,6 +24,8 @@ import {
 import { SlackUser, SlackUsersTable } from '@/db/slack_users/schema'
 import { UsersTable } from '@/db/users/schema'
 
+import { api } from './api'
+
 export const createSlackClient = (token?: string) => new WebClient(token)
 
 export const getAccessToken = async (app_id: string, team_id: string) => {
@@ -330,24 +332,14 @@ export class SlackUtils {
     }
 
     let api_session_id = null
-    if (flags.enabledAIService) {
-      const res = await fetch(
-        `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session`,
+    if (flags.enabledAIService && foundApp?.api_model_id) {
+      const data = await api.post<{ model_id: string }, { session_id: string }>(
+        '/v1/chat/session',
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model_id: foundApp?.api_model_id,
-          }),
+          model_id: foundApp?.api_model_id,
         }
       )
-      const json = await res.json()
-      if (json.status !== 200) {
-        throw new Error(`AI service error: ${json.message}`)
-      }
-      api_session_id = json?.data?.session_id
+      api_session_id = data?.session_id
     }
 
     const [allSessions] = await db

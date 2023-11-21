@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import axios from 'axios'
 import { eq } from 'drizzle-orm'
 import pLimit from 'p-limit'
 
+import { api } from '@/lib/api'
 import { db } from '@/lib/drizzle-edge'
 import { safeParse } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
@@ -190,10 +190,7 @@ export async function GET(req: NextRequest) {
       queue.push(
         limit(() => {
           console.log('update model:', api_model_id)
-          return axios.patch(
-            `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-            { chains }
-          )
+          return api.patch(`/v1/models/${api_model_id}`, { chains })
         })
       )
     }

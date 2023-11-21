@@ -4,8 +4,8 @@ import { and, desc, eq, ilike, sql } from 'drizzle-orm'
 import { pick } from 'lodash'
 import { nanoid } from 'nanoid'
 
+import { api } from '@/lib/api'
 import { db } from '@/lib/drizzle-edge'
-import { flags } from '@/lib/flags'
 import {
   DataProps,
   DocumentParamsType,
@@ -248,23 +248,16 @@ export async function getDataSplitPreview(
   preview: number
 ) {
   const { userId } = auth()
-  if (!userId) return Promise.resolve([])
-  let api_dataset_id
-  if (flags.enabledAIService) {
-    const dataset = await getDataset(datasetId)
-    api_dataset_id = dataset?.api_dataset_id
-    if (!api_dataset_id) return Promise.resolve([])
-    const data = await fetch(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/datasets/${api_dataset_id}?preview=${preview}&uid=${uid}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'PATCH',
-        body: JSON.stringify({ documents: files }),
-      }
-    ).then((res) => res.json())
-    Promise.resolve(data)
-  }
-  return Promise.resolve([])
+  if (!userId) return []
+
+  const dataset = await getDataset(datasetId)
+  const api_dataset_id = dataset?.api_dataset_id
+  if (!api_dataset_id) return Promise.resolve([])
+  const data = await api.patch(
+    `/v1/datasets/${api_dataset_id}?preview=${preview}&uid=${uid}`,
+    {
+      documents: files,
+    }
+  )
+  return data
 }

@@ -10,8 +10,6 @@ export const runtime = 'edge'
 export const preferredRegion = 'cle1'
 export const dynamic = 'force-dynamic'
 
-const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
-
 export async function POST(req: NextRequest) {
   const { userId } = auth()
   if (!userId) {
@@ -53,7 +51,6 @@ export async function POST(req: NextRequest) {
   const requestTimestamp = Date.now()
 
   const stream = await OpenAIStream({
-    baseUrl,
     payload,
     callback: {
       async onStart() {
