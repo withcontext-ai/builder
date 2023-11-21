@@ -26,7 +26,7 @@ import {
 } from './types'
 import useConfigBase64 from './use-config-base64'
 import { useChat } from './useChat'
-import { checkIfWorkflowHasEnabledVideoInteracion } from './utils'
+import { checkIfWorkflowHasEnabledVideoInteraction } from './utils'
 import VideoCallConfirmDialog from './video-call-confirm-dialog'
 
 function formatToTimestamp(date?: Date | number | null) {
@@ -245,7 +245,7 @@ const WrappedChat = (props: ChatProps) => {
     enabled:
       mode === 'live' &&
       !!apiSessionId &&
-      checkIfWorkflowHasEnabledVideoInteracion(app as any),
+      checkIfWorkflowHasEnabledVideoInteraction(app as any),
   })
 
   return (

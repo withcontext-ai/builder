@@ -71,7 +71,7 @@ export const keyBuilder = (m: RawMessage) => {
   return `${m.id}`
 }
 
-export const checkIfWorkflowHasEnabledVideoInteracion = (app: App) => {
+export const checkIfWorkflowHasEnabledVideoInteraction = (app: App) => {
   const published_workflow_data_str = safeParse(
     app?.published_workflow_data_str
   )
