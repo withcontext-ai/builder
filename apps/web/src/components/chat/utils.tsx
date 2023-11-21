@@ -81,7 +81,7 @@ export const validateOpenModal = (app: App) => {
   // check chains
   const openVideo = published_workflow_data_str?.some((item: WorkflowItem) => {
     const formStr = getFormValueStr(item)
-    return !!formStr?.enable_video_interaction
+    return formStr?.enable_video_interaction === true
   })
 
   return openVideo
