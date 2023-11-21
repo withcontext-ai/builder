@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
 import useSWR from 'swr'
@@ -80,7 +81,8 @@ const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
   const { session, app, user } = useChat()
-  const { data, isLoading, mutate, isValidating } = useSWR(
+  const [replaying, setReplaying] = useState(false)
+  const { data, isLoading, mutate } = useSWR(
     `/api/chat/event?message_id=${recordId}`,
     getRecords
   )
@@ -93,14 +95,16 @@ const ChatConversationRecord = (props: IProps) => {
 
   const replay = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
-    await mutate()
-    if (data?.status === 0) {
+    setReplaying(true)
+    const res = await mutate()
+    setReplaying(false)
+    if (res?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
       return
     } else {
-      window.open(data?.video_url)
+      window.open(res?.video_url)
     }
   }
 
@@ -129,18 +133,19 @@ const ChatConversationRecord = (props: IProps) => {
               )
             })}
       </div>
-
-      <div className="mt-3 flex w-full justify-start border-t pt-3">
-        <Button
-          className="gap-2"
-          type="button"
-          onClick={replay}
-          disabled={isValidating}
-        >
-          {isValidating ? <Loader2Icon /> : <PlayCircleIcon />}
-          Video Replay
-        </Button>
-      </div>
+      {!isLoading && (
+        <div className="mt-3 flex w-full justify-start border-t pt-3">
+          <Button
+            className="gap-2"
+            type="button"
+            onClick={replay}
+            disabled={replaying}
+          >
+            {replaying ? <Loader2Icon /> : <PlayCircleIcon />}
+            Video Replay
+          </Button>
+        </div>
+      )}
     </Button>
   )
 }
