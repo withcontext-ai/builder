@@ -30,8 +30,7 @@ export default function TaskItem({
 
   const title =
     SUB_TYPE_MAP[value?.subType as keyof typeof SUB_TYPE_MAP]?.title ?? ''
-  const video = JSON.parse(value?.formValueStr || '')?.video
-    ?.enable_video_interaction
+  const video = JSON.parse(value?.formValueStr || '')?.enable_video_interaction
 
   return (
     <div className="pl-12 pt-4">
