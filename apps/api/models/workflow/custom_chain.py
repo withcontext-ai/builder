@@ -222,11 +222,8 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
             chain = self.chains[self.current_chain]
             if not self.is_face_to_ai_service and chain.enable_video_interaction:
                 self._cancel_message_generations()
-                final_message = await self.get_message()
-                self.switch_to_face_to_ai(final_message=final_message)
             elif self.is_face_to_ai_service and not chain.enable_video_interaction:
                 self._cancel_message_generations()
-                self.switch_to_context_builder()
             if type(chain) in self.state_dependent_chains:
                 if (
                     chain.process == TargetedChainStatus.FINISHED
@@ -274,10 +271,14 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                         TargetedChainStatus.ERROR,
                     ]:
                         # await self._put_tokens_into_queue(current_output)
-                        return self._construct_return_dict()
+                        return self._construct_return_dict(
+                            chain.enable_video_interaction
+                        )
                     elif self.current_chain == len(self.chains) - 1:
                         await self._handle_final_chain()
-                        return self._construct_return_dict()
+                        return self._construct_return_dict(
+                            chain.enable_video_interaction
+                        )
                     else:
                         inputs["question"] = ""
                         self.known_values["question"] = ""
@@ -316,10 +317,10 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                 )
                 if self.current_chain == len(self.chains) - 1:
                     self.current_chain = 0
-                    return self._construct_return_dict()
+                    return self._construct_return_dict(chain.enable_video_interaction)
                 else:
                     self.current_chain += 1
-        return self._construct_return_dict()
+        return self._construct_return_dict(chain.enable_video_interaction)
 
     def _cancel_message_generations(self):
         self.cancel_generation = True
@@ -342,11 +343,20 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
         while not self.queue.empty():
             await asyncio.sleep(2)
 
-    def _construct_return_dict(self):
+    def _construct_return_dict(self, enable_video_interaction):
         return_dict = {}
         for k in self.output_variables:
             return_dict[k] = self.known_values.get(k, "")
+
         self.done.set()
+        final_message = self.get_messages()
+        if not self.is_face_to_ai_service and enable_video_interaction:
+            self._cancel_message_generations()
+
+            self.switch_to_face_to_ai(final_message=final_message)
+        elif self.is_face_to_ai_service and not enable_video_interaction:
+            self._cancel_message_generations()
+            self.switch_to_context_builder(final_message=final_message)
         return return_dict
 
     async def aiter(self) -> AsyncIterator[str]:
@@ -366,9 +376,13 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                 return_when=asyncio.FIRST_COMPLETED,
             )
             if other:
-                other.pop().cancel()
+                task = other.pop()
+                while task is not None:
+                    task.cancel()
+                    task = other.pop()
             if self.cancel_generation:
                 break
+
             token_or_done = cast(Union[str, Literal[True]], done.pop().result())
             if token_or_done is True:
                 while not self.queue.empty():
@@ -376,26 +390,10 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                 break
             yield token_or_done
 
-    async def get_tokens(self) -> AsyncIterator[str]:
-        while not self.queue.empty() or not self.done.is_set():
-            done, other = await asyncio.wait(
-                [
-                    asyncio.ensure_future(self.queue.get()),
-                    asyncio.ensure_future(self.done.wait()),
-                ],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-            if other:
-                other.pop().cancel()
-            token_or_done = cast(Union[str, Literal[True]], done.pop().result())
-            if token_or_done is True:
-                break
-            yield token_or_done
-
-    async def get_message(self) -> str:
+    def get_messages(self) -> str:
         message = ""
-        async for token in self.get_tokens():
-            message += token
+        while not self.queue.empty():
+            message += self.queue.get_nowait()
         return message
 
 

@@ -4,7 +4,11 @@ from models.controller import model_manager
 from loguru import logger
 from models.base import BaseManager, Dataset, Model, SessionState
 from models.workflow import Workflow
-from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_PORT
+from utils.config import (
+    UPSTASH_REDIS_REST_TOKEN,
+    UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_PORT,
+)
 import redis
 import json
 
@@ -123,6 +127,8 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             )
         # get workflow step
         workflow.context.current_chain = self.get_workflow_step(session_id)
+        workflow.context.session_id = session_id
+        workflow.context.model_id = model.id
         return workflow
 
     def delete_session_state_cache_via_model(self, model_id):
