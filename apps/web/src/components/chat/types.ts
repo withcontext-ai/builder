@@ -10,7 +10,12 @@ export type ChatSession = Pick<Session, 'short_id' | 'api_session_id' | 'name'>
 
 export type ChatApp = Pick<
   App,
-  'short_id' | 'icon' | 'name' | 'opening_remarks' | 'enable_video_interaction'
+  | 'short_id'
+  | 'icon'
+  | 'name'
+  | 'opening_remarks'
+  | 'enable_video_interaction'
+  | 'published_workflow_data_str'
 >
 
 export type ChatUser = Pick<User, 'first_name' | 'last_name' | 'image_url'>

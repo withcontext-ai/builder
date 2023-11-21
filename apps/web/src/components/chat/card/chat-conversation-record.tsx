@@ -103,19 +103,15 @@ const ChatConversationRecord = (props: IProps) => {
   }
 
   const replay = async () => {
-    if (data?.status === 0) {
+    const res = await trigger()
+    setData(res)
+    if (res?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
-      setTimeout(async () => {
-        {
-          const res = await trigger()
-          setData(res)
-        }
-      }, 2000)
       return
     } else {
-      window.open(data?.video_url)
+      window.open(res?.video_url)
     }
   }
 

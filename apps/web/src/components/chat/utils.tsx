@@ -75,13 +75,13 @@ const getFormValueStr = (data: WorkflowItem) => {
 }
 
 export const validateOpenModal = (app: App) => {
-  const published_workflow_data_str = JSON.parse(
-    app?.published_workflow_data_str || ''
-  )
+  const published_workflow_data_str = app?.published_workflow_data_str
+    ? JSON.parse(app?.published_workflow_data_str || '')
+    : []
   // check chains
   const openVideo = published_workflow_data_str?.some((item: WorkflowItem) => {
     const formStr = getFormValueStr(item)
-    return formStr?.video?.enable_video_interaction === true
+    return !!formStr?.enable_video_interaction
   })
 
   return openVideo
