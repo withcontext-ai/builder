@@ -499,7 +499,6 @@ export function SwitchItem<T extends FieldValues>({
   label,
 }: ISwitchItem<T>) {
   const form = useFormContext()
-  const { getValues } = form
   return (
     <FormField
       control={form.control}

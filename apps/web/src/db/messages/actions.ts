@@ -202,7 +202,7 @@ export async function getFormattedMessages(sessionId: string) {
   return formattedMessages
 }
 
-export function getVideoRecord(messageId: string) {
+export function getMessageDetail(messageId: string) {
   const data = api.get<{
     messages: Message[]
     video_url: string

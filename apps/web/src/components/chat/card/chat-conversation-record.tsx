@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
-import useSWRMutation from 'swr/mutation'
+import { PlayCircleIcon, XIcon } from 'lucide-react'
+import useSWR from 'swr'
 
 import { fetcher } from '@/lib/utils'
 import useNiceModal from '@/hooks/use-nice-modal'
@@ -64,7 +64,7 @@ interface IProps {
   recordId?: string
 }
 
-const Loading = (
+const LoadingCard = (
   <div className="w-full min-w-[500px] space-y-1">
     <Skeleton className="h-4 w-full" />
     <Skeleton className="h-4 w-4/5" />
@@ -87,31 +87,36 @@ const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
   const { session, app, user } = useChat()
-  const [data, setData] = useState<ConversationRecordData>()
-  const { toast } = useToast()
-  const { trigger, isMutating } = useSWRMutation(
+  const [shouldFresh, setShouldFresh] = useState(false)
+  const { data, isLoading } = useSWR(
     `/api/chat/event?message_id=${recordId}`,
-    getRecords
+    getRecords,
+    {
+      ...(shouldFresh ? { refreshInterval: 2000 } : {}),
+    }
   )
 
-  useEffect(() => {
-    trigger().then((res) => setData(res))
-  }, [recordId])
+  const { toast } = useToast()
 
   const openModal = async () => {
     modal.show({ messages: data?.messages, session, app, user })
   }
 
+  useEffect(() => {
+    if (data.status === 1) {
+      setShouldFresh(false)
+    }
+  }, [data?.status])
+
   const replay = async () => {
-    const res = await trigger()
-    setData(res)
-    if (res?.status === 0) {
+    if (data?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
+      setShouldFresh(true)
       return
     } else {
-      window.open(res?.video_url)
+      window.open(data?.video_url)
     }
   }
 
@@ -126,9 +131,9 @@ const ChatConversationRecord = (props: IProps) => {
         Conversation Record
       </div>
       <div className="flex w-full flex-col truncate pt-3">
-        {isMutating
-          ? Loading
-          : data?.messages?.slice(0, 4)?.map((item, index) => {
+        {isLoading
+          ? LoadingCard
+          : data?.messages?.slice(0, 4)?.map((item: Message, index: number) => {
               const label = item?.role === 'user' ? 'Me:' : 'AI Interview:'
               return (
                 <div
@@ -140,7 +145,7 @@ const ChatConversationRecord = (props: IProps) => {
               )
             })}
       </div>
-      {!isMutating && (
+      {!isLoading && (
         <div className="mt-3 flex w-full justify-start border-t pt-3">
           <Button
             className="gap-2"
@@ -149,9 +154,8 @@ const ChatConversationRecord = (props: IProps) => {
               e.stopPropagation()
               replay()
             }}
-            disabled={isMutating}
           >
-            {isMutating ? <Loader2Icon /> : <PlayCircleIcon />}
+            <PlayCircleIcon />
             Video Replay
           </Button>
         </div>

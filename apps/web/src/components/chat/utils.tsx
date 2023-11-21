@@ -1,5 +1,6 @@
 import { type Message as RawMessage } from 'ai'
 
+import { safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { Message as MessageSchema } from '@/db/messages/schema'
 import { WorkflowItem } from '@/app/(manage)/app/[app_id]/settings/workflow/type'
@@ -70,17 +71,13 @@ export const keyBuilder = (m: RawMessage) => {
   return `${m.id}`
 }
 
-const getFormValueStr = (data: WorkflowItem) => {
-  return JSON.parse(data?.formValueStr || '')
-}
-
-export const validateOpenModal = (app: App) => {
-  const published_workflow_data_str = app?.published_workflow_data_str
-    ? JSON.parse(app?.published_workflow_data_str || '')
-    : []
+export const checkIfWorkflowHasEnabledVideoInteracion = (app: App) => {
+  const published_workflow_data_str = safeParse(
+    app?.published_workflow_data_str
+  )
   // check chains
   const openVideo = published_workflow_data_str?.some((item: WorkflowItem) => {
-    const formStr = getFormValueStr(item)
+    const formStr = safeParse(item?.formValueStr)
     return formStr?.enable_video_interaction === true
   })
 

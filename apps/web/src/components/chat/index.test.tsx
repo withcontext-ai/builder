@@ -10,7 +10,7 @@ import Chat from '@/components/chat/page'
 
 import { commonTestWrapper } from '../../../test/utils'
 
-export const testVideo = (video: boolean) => {
+const testVideo = (video: boolean) => {
   return JSON.stringify([
     { formValueStr: JSON.stringify({ enable_video_interaction: video }) },
   ])

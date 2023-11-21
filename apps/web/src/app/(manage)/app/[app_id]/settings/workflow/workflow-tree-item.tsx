@@ -2,7 +2,7 @@
 
 import { TrashIcon, VideoIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { cn, safeParse } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -51,9 +51,8 @@ export default function WorkflowTreeItem({
   const TypeIcon = type ? TYPE_MAP[type]?.icon : null
   // @ts-ignore
   const subTypeTitle = subType ? SUB_TYPE_MAP[subType]?.title : ''
-  const openVideo = formValueStr
-    ? JSON.parse(formValueStr)?.enable_video_interaction
-    : false
+  const openVideo = safeParse(formValueStr)?.enable_video_interaction
+
   return (
     <div className={cn('relative mb-4 w-[360px]', clone && '-rotate-3')}>
       <div

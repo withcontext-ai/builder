@@ -212,7 +212,7 @@ const ChatCardLayout = (prop: Props) => {
                   'max-w-[240px] md:max-w-md lg:max-w-md xl:max-w-md',
                 isUser ? 'bg-primary' : 'bg-gray-100',
                 showError ? 'rounded-lg border border-red-500	bg-red-50' : '',
-                isVideo && 'rounded-md border bg-white hover:bg-white'
+                isVideo && 'rounded-lg border bg-white hover:bg-white'
               )}
               data-testid="chat-card-content"
             >
