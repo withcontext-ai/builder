@@ -116,6 +116,27 @@ Please output the target based on this conversation.`
   return result
 }
 
+function addWorkflowVideoInteraction(data: WorkflowItem[]) {
+  const result = []
+
+  for (const item of data) {
+    const { formValueStr } = item
+    const formValue = safeParse(formValueStr, {})
+    let newValue = { ...formValue }
+    if (formValue.enable_video_interaction === undefined) {
+      newValue = {
+        ...newValue,
+        enable_video_interaction: false,
+      }
+    }
+
+    const newItem = { ...item, formValueStr: JSON.stringify(newValue) }
+    result.push(newItem)
+  }
+
+  return result
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -143,8 +164,10 @@ export async function GET(req: NextRequest) {
         []
       ) as WorkflowItem[]
 
-      const new_workflow_data = fixTokenLimit(workflow_data)
-      const new_published_workflow_data = fixTokenLimit(published_workflow_data)
+      const new_workflow_data = addWorkflowVideoInteraction(workflow_data)
+      const new_published_workflow_data = addWorkflowVideoInteraction(
+        published_workflow_data
+      )
       const newApp = {
         short_id,
         api_model_id,
