@@ -123,7 +123,7 @@ function addWorkflowVideoInteraction(data: WorkflowItem[]) {
     const { formValueStr } = item
     const formValue = safeParse(formValueStr, {})
     let newValue = { ...formValue }
-    if (formValue.enable_video_interaction === undefined) {
+    if (formValue?.enable_video_interaction === undefined) {
       newValue = {
         ...newValue,
         enable_video_interaction: false,
