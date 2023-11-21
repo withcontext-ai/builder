@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { PlayCircleIcon, XIcon } from 'lucide-react'
+import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
 import useSWR from 'swr'
 
 import { fetcher } from '@/lib/utils'
@@ -81,13 +80,9 @@ const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
   const { session, app, user } = useChat()
-  const [shouldFresh, setShouldFresh] = useState(false)
-  const { data, isLoading } = useSWR(
+  const { data, isLoading, mutate, isValidating } = useSWR(
     `/api/chat/event?message_id=${recordId}`,
-    getRecords,
-    {
-      ...(shouldFresh ? { refreshInterval: 2000 } : {}),
-    }
+    getRecords
   )
 
   const { toast } = useToast()
@@ -96,19 +91,13 @@ const ChatConversationRecord = (props: IProps) => {
     modal.show({ messages: data?.messages, session, app, user })
   }
 
-  useEffect(() => {
-    if (data.status === 1) {
-      setShouldFresh(false)
-    }
-  }, [data?.status])
-
   const replay = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
+    await mutate()
     if (data?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
-      setShouldFresh(true)
       return
     } else {
       window.open(data?.video_url)
@@ -140,14 +129,18 @@ const ChatConversationRecord = (props: IProps) => {
               )
             })}
       </div>
-      {!isLoading && (
-        <div className="mt-3 flex w-full justify-start border-t pt-3">
-          <Button className="gap-2" type="button" onClick={replay}>
-            <PlayCircleIcon />
-            Video Replay
-          </Button>
-        </div>
-      )}
+
+      <div className="mt-3 flex w-full justify-start border-t pt-3">
+        <Button
+          className="gap-2"
+          type="button"
+          onClick={replay}
+          disabled={isValidating}
+        >
+          {isValidating ? <Loader2Icon /> : <PlayCircleIcon />}
+          Video Replay
+        </Button>
+      </div>
     </Button>
   )
 }
