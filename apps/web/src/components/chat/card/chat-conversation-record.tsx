@@ -77,12 +77,6 @@ function getRecords(url: string) {
   return fetcher(url)
 }
 
-interface ConversationRecordData {
-  messages: Message[]
-  video_url: string
-  status?: 0 | 1 //1:done
-}
-
 const ChatConversationRecord = (props: IProps) => {
   const { recordId } = props
   const modal = useModal(ChatRecordDialog)
@@ -108,7 +102,8 @@ const ChatConversationRecord = (props: IProps) => {
     }
   }, [data?.status])
 
-  const replay = async () => {
+  const replay = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation()
     if (data?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
@@ -147,14 +142,7 @@ const ChatConversationRecord = (props: IProps) => {
       </div>
       {!isLoading && (
         <div className="mt-3 flex w-full justify-start border-t pt-3">
-          <Button
-            className="gap-2"
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              replay()
-            }}
-          >
+          <Button className="gap-2" type="button" onClick={replay}>
             <PlayCircleIcon />
             Video Replay
           </Button>
