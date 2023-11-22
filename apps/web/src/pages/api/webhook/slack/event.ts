@@ -4,7 +4,7 @@ import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { SlackUtils } from '@/lib/slack'
 import { nanoid } from '@/lib/utils'
-import { addMessage, getFormattedMessages } from '@/db/messages/actions'
+import { addMessage } from '@/db/messages/actions'
 import { removeTeam } from '@/db/slack_teams/actions'
 
 export default async function handler(
@@ -71,11 +71,10 @@ export default async function handler(
         return res.status(200).json(body)
       }
 
-      const messages = await getFormattedMessages(session_id)
       const content = message.event.text
       const payload = {
         session_id: api_session_id,
-        messages: [...messages, { role: 'user', content }],
+        messages: [{ role: 'user', content }],
       }
 
       let completion = ''

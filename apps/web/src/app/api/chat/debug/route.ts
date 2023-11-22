@@ -4,10 +4,8 @@ import { auth, currentUserEmail } from '@/lib/auth'
 import { logsnag } from '@/lib/logsnag'
 import { OpenAIStream } from '@/lib/openai-stream'
 import { nanoid } from '@/lib/utils'
-import { ChatMessage } from '@/components/chat/types'
 
 export const runtime = 'edge'
-export const preferredRegion = 'cle1'
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
@@ -20,15 +18,19 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const appId = body.appId as string
   const apiSessionId = body.apiSessionId as string
-  const messages = body.messages as ChatMessage[]
-  const reloadMessageId = body.reload_message_id as string
+  const query = body.query as string
+  const reloadMessageId = body.reloadId as string
+  const messageId = reloadMessageId || nanoid()
 
   const payload = {
     session_id: apiSessionId,
-    messages: messages?.map((message) => ({
-      role: message.role,
-      content: message.content,
-    })),
+    messages: [
+      {
+        role: 'user',
+        content: query,
+      },
+    ],
+    message_id: messageId,
   }
 
   const requestId = nanoid()
@@ -37,16 +39,13 @@ export async function POST(req: NextRequest) {
     channel: 'chat',
     event: 'Chat Request (debug)',
     icon: '➡️',
-    description: `${email} send a request with ${messages.length} messages`,
+    description: `${email} send a chat request`,
     tags: {
       'request-id': requestId,
       'user-id': userId,
       'app-id': appId || 'unknown',
-      'message-count': messages.length,
     },
   })
-
-  const messageId = reloadMessageId || nanoid()
 
   const requestTimestamp = Date.now()
 
