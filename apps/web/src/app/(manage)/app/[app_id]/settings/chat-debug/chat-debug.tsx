@@ -5,7 +5,7 @@ import { Loader2Icon, Play } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import useSWRMutation from 'swr/mutation'
 
-import { fetcher } from '@/lib/utils'
+import { fetcher, safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
@@ -51,11 +51,24 @@ const ChatDebug = ({ app }: IProps) => {
     [apiSessionId, workflowData, latestWorkflowData]
   )
 
+  function formateWorkflowData() {
+    return workflowData?.reduce((m: WorkflowItem[], item: WorkflowItem) => {
+      const formValueStr = safeParse(item?.formValueStr)
+      let newValue = { ...formValueStr }
+      if (formValueStr?.enable_video_interaction) {
+        newValue.enable_video_interaction = false
+      }
+      m.push({ ...item, formValueStr: JSON.stringify(newValue) })
+      return m
+    }, [])
+  }
+
   const { trigger, isMutating } = useSWRMutation(`/api/debug`, getApiSessionId)
   const handleClick = () => {
     getMessageHistory()
+    const newWorkflowData = formateWorkflowData()
     if (shouldResetApiSessionId) {
-      trigger({ tree: workflowTree, data: workflowData }).then((res) => {
+      trigger({ tree: workflowTree, data: newWorkflowData }).then((res) => {
         setApiSessionId(res?.api_session_id)
         setOpen(true)
       })
