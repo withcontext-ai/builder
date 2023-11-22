@@ -55,7 +55,9 @@ export const messagesBuilder = (messages: Partial<MessageSchema>[]) => {
   const result = []
   for (const m of messages) {
     if (m.type === 'chat') {
-      result.push({ ...m, role: 'user', content: m.query })
+      if (m.query) {
+        result.push({ ...m, role: 'user', content: m.query })
+      }
       if (m.answer) {
         result.push({ ...m, role: 'assistant', content: m.answer })
       }
