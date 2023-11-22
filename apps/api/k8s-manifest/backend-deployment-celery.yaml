@@ -89,6 +89,16 @@ spec:
                 secretKeyRef:
                   name: withcontext-backend-env
                   key: LOGSNAG_API_KEY
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: JWT_SECRET_KEY
+            - name: CONTEXT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: CONTEXT_TOKEN
             - name: WEBHOOK_ENDPOINT
               value: https://build.withcontext.ai/api/webhook/chat
             - name: BACKEND_URL
