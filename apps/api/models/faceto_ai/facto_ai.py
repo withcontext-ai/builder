@@ -153,7 +153,7 @@ class FaceToAiManager:
                 else:
                     messages.append(
                         {
-                            "createAt": message.get("timestamp"),
+                            "createdAt": message.get("timestamp"),
                             "content": message.get("text"),
                             "role": "user",
                         }
