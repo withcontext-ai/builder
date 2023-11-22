@@ -349,13 +349,11 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
             return_dict[k] = self.known_values.get(k, "")
 
         self.done.set()
+        self.chain_done_event.set()
         final_message = self.get_messages()
         if not self.is_face_to_ai_service and enable_video_interaction:
-            self._cancel_message_generations()
-
             self.switch_to_face_to_ai(final_message=final_message)
         elif self.is_face_to_ai_service and not enable_video_interaction:
-            self._cancel_message_generations()
             self.switch_to_context_builder(final_message=final_message)
         return return_dict
 
@@ -375,7 +373,7 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                 ],
                 return_when=asyncio.FIRST_COMPLETED,
             )
-            if other:
+            if other and self.cancel_generation:
                 task = other.pop()
                 while task is not None:
                     task.cancel()

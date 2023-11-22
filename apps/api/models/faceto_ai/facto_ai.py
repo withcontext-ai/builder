@@ -21,6 +21,7 @@ from utils import (
 import redis
 import time
 from langchain.schema import HumanMessage, AIMessage, get_buffer_string
+import asyncio
 
 
 class FaceToAiManager:
@@ -41,7 +42,7 @@ class FaceToAiManager:
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(payload)
         )
-        logger.info(response.json())
+        # logger.info(response.json())
         return response.json()["access_token"]
 
     @classmethod
@@ -141,12 +142,12 @@ class FaceToAiManager:
             message_list = res.get("transcript", {}).get("list", [])
 
             for message in message_list:
-                if message.get("is_bot"):
+                if message.get("is_bot") and message.get("text") not in (None, ""):
                     messages.append(
                         {
-                            "createAt": message.get("timestamp"),
+                            "createdAt": int(message.get("timestamp")) * 1000,
                             "content": message.get("text"),
-                            "rold": "assistant",
+                            "role": "assistant",
                         }
                     )
                 else:
@@ -154,7 +155,7 @@ class FaceToAiManager:
                         {
                             "createAt": message.get("timestamp"),
                             "content": message.get("text"),
-                            "rold": "user",
+                            "role": "user",
                         }
                     )
             return url, resp_status, messages
@@ -172,6 +173,7 @@ class FaceToAiMixin(BaseModel):
     io_traces: List[str] = []
     error_flags: List[Exception] = []
     start_time: float = 0
+    chain_done_event = asyncio.Event()
 
     class Config:
         arbitrary_types_allowed = True
@@ -184,7 +186,9 @@ class FaceToAiMixin(BaseModel):
         webhook_handler.create_video_room_link(self.session_id, link)
 
     def switch_to_context_builder(self, final_message: str):
+        self.send_face_to_ai_info_to_builder()
         self.send_done_message_to_builder(final_message)
+        self.send_done_message_to_face_to_ai()
 
     def send_face_to_ai_info_to_builder(self):
         payload = {
@@ -200,6 +204,7 @@ class FaceToAiMixin(BaseModel):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(payload)
         )
+        logger.info(f"send face to ai info to builder payload: {payload}")
         try:
             response.raise_for_status()
         except Exception as e:
@@ -216,12 +221,13 @@ class FaceToAiMixin(BaseModel):
                 "message_type": "chat",
                 "message_data": {
                     "answer": final_message,
-                    "latency": end_time - self.start_time,
+                    "latency": int((end_time - self.start_time) * 1000),
                     "total_tokens": self.cost_content.total_tokens,
                     "raw": self.io_traces,
                 },
             },
         }
+        logger.info(f"send done message to builder payload: {payload}")
         url = WEBHOOK_ENDPOINT
         headers = {"Content-Type": "application/json"}
         response = requests.request(
@@ -242,6 +248,7 @@ class FaceToAiMixin(BaseModel):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
         }
+        logger.info(f"send done message to face to ai payload: {payload}")
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(payload)
         )

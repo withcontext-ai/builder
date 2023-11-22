@@ -42,7 +42,7 @@ def get_token_header(request: Request):
 
 
 def wrap_token(
-        token: str, model_id: str, session_id: str, filt: bool = False, openai_callback=None
+    token: str, model_id: str, session_id: str, filt: bool = False, openai_callback=None
 ) -> str:
     if filt:
         content = {"content": token}
@@ -64,12 +64,13 @@ def wrap_error(error: str):
 
 
 async def send_message(
-        messages_contents: List[MessagesContent],
-        session_id: str,
-        filt=False,
-        start_time=None,
-        disconnect_event: asyncio.Event = None,
-        video=False,
+    messages_contents: List[MessagesContent],
+    session_id: str,
+    filt=False,
+    start_time=time.time(),
+    disconnect_event: asyncio.Event = None,
+    video=False,
+    workflow_saved_event: asyncio.Event = None,
 ) -> AsyncIterable[str]:
     messages = []
     for message_content in messages_contents:
@@ -155,8 +156,14 @@ async def send_message(
             yield f"data: {json.dumps(info)}\n\n"
 
     if not workflow.disconnect_event.is_set():
-        yield "data: [DONE]\n\n"
-        session_state_manager.save_workflow_status(session_id, workflow)
+        try:
+            yield "data: [DONE]\n\n"
+            await workflow.context.chain_done_event.wait()
+            session_state_manager.save_workflow_status(session_id, workflow)
+            workflow_saved_event.set()
+        except Exception as e:
+            logger.exception(e)
+            raise e
 
 
 async def send_done_message():
@@ -170,42 +177,53 @@ async def stream_completions(body: CompletionsRequest):
     with graphsignal.start_trace("completions"):
         logger.info(f"completions payload: {body.dict()}")
         disconnect_event = asyncio.Event()
+        workflow_saved_event = asyncio.Event()
         return OpenAIStreamResponse(
             content=send_message(
                 body.messages,
                 body.session_id,
                 start_time=start_time,
                 disconnect_event=disconnect_event,
+                workflow_saved_event=workflow_saved_event,
             ),
             media_type="text/event-stream",
             disconnect_event=disconnect_event,
+            workflow_saved_event=workflow_saved_event,
+            is_faceto_service=False,
         )
 
 
 @router.post("/completions/video/{session_id}")
 async def video_stream_completions(
-        session_id: str,
-        body: VideoCompletionsRequest,
-        token: str = Depends(get_token_header),
+    session_id: str,
+    body: VideoCompletionsRequest,
+    token: str = Depends(get_token_header),
 ):
     with graphsignal.start_trace("completions_video"):
         logger.info(f"completions payload: {body.dict()}")
         disconnect_event = asyncio.Event()
+        workflow_saved_event = asyncio.Event()
         return OpenAIStreamResponse(
             content=send_message(
-                body.messages, session_id, filt=True, disconnect_event=disconnect_event
+                body.messages,
+                session_id,
+                filt=True,
+                disconnect_event=disconnect_event,
+                video=True,
+                workflow_saved_event=workflow_saved_event,
             ),
             media_type="text/event-stream",
             disconnect_event=disconnect_event,
-            video=True,
+            workflow_saved_event=workflow_saved_event,
+            is_faceto_service=True,
         )
 
 
 @router.post("/completions/video/{session_id}/webhook")
 async def video_stream_completions_webhook(
-        session_id: str,
-        body: dict,
-        token: str = Depends(get_token_header),
+    session_id: str,
+    body: dict,
+    token: str = Depends(get_token_header),
 ):
     with graphsignal.start_trace("completions_video_webhook"):
         logger.info(f"wbhook payload: {body}")
