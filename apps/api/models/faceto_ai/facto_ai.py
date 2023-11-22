@@ -153,7 +153,7 @@ class FaceToAiManager:
                 else:
                     messages.append(
                         {
-                            "createdAt": message.get("timestamp"),
+                            "createdAt": int(message.get("timestamp")) * 1000,
                             "content": message.get("text"),
                             "role": "user",
                         }
