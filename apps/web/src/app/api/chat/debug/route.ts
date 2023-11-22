@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
   const payload = {
     session_id: apiSessionId,
-    messages: messages.map((message) => ({
+    messages: messages?.map((message) => ({
       role: message.role,
       content: message.content,
     })),

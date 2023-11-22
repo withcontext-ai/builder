@@ -168,6 +168,7 @@ const ChatCardLayout = (prop: Props) => {
   }, [isUser, message, showError, error])
   const isVideo =
     message?.type === 'event' && message?.eventType === 'conversation.record'
+
   return (
     <div className="flex flex-col ">
       <div className="flex gap-2 ">
@@ -199,7 +200,7 @@ const ChatCardLayout = (prop: Props) => {
             <Text variant="body2">{isUser ? 'Me' : appName}</Text>
             {message.createdAt && (
               <Text variant="caption">
-                {formatTime(new Date(message.createdAt))}
+                {formatTime(new Date(Number(message.createdAt || '')))}
               </Text>
             )}
           </div>
