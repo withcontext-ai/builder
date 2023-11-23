@@ -229,7 +229,7 @@ const WrappedChat = (props: ChatProps) => {
     (newEventMessage: any) => {
       if (newEventMessage?.eventType === 'call.created') {
         callLinkRef.current = `${newEventMessage?.link || ''}${
-          configStr ? `?c=${configStr}` : ''
+          configStr ? `?c=${window.encodeURIComponent(configStr)}` : ''
         }`
         openModal()
         return
