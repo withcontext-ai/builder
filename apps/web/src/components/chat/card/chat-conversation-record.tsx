@@ -5,7 +5,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
 import useSWR from 'swr'
 
-import { fetcher } from '@/lib/utils'
+import { cn, fetcher, nanoid } from '@/lib/utils'
 import useNiceModal from '@/hooks/use-nice-modal'
 import {
   AlertDialog,
@@ -34,7 +34,7 @@ const ChatRecordDialog = NiceModal.create(
     const { modal, onOpenChange } = useNiceModal()
 
     return (
-      <AlertDialog open={modal.visible}>
+      <AlertDialog open={modal.visible} key={nanoid()}>
         <AlertDialogContent className=" h-4/5 overflow-hidden lg:max-w-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center justify-between">
@@ -99,23 +99,26 @@ const ChatConversationRecord = (props: IProps) => {
 
   const replay = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
-    setReplaying(true)
-    const res = await mutate()
-    setReplaying(false)
-    if (res?.status === 0) {
+    if (!data?.video_url) {
+      setReplaying(true)
+      await mutate()
+      setReplaying(false)
+    }
+    if (data?.status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
       return
     } else {
-      window.open(res?.video_url)
+      window.open(data?.video_url)
     }
   }
   return (
-    <Button
-      variant="ghost"
-      type="button"
-      className="flex h-auto w-full flex-col justify-start p-0 hover:bg-white"
+    <div
+      className={cn(
+        'flex h-auto w-full cursor-pointer flex-col justify-start p-0 hover:bg-white',
+        isLoading && 'pointer-events-none opacity-50'
+      )}
       onClick={openModal}
     >
       <div className="flex w-full border-b pb-3 text-sm font-medium">
@@ -149,7 +152,7 @@ const ChatConversationRecord = (props: IProps) => {
           </Button>
         </div>
       )}
-    </Button>
+    </div>
   )
 }
 
