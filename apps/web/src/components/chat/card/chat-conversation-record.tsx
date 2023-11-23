@@ -5,7 +5,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Loader2Icon, PlayCircleIcon, XIcon } from 'lucide-react'
 import useSWR from 'swr'
 
-import { cn, fetcher, nanoid } from '@/lib/utils'
+import { cn, fetcher } from '@/lib/utils'
 import useNiceModal from '@/hooks/use-nice-modal'
 import {
   AlertDialog,
@@ -34,7 +34,7 @@ const ChatRecordDialog = NiceModal.create(
     const { modal, onOpenChange } = useNiceModal()
 
     return (
-      <AlertDialog open={modal.visible} key={nanoid()}>
+      <AlertDialog open={modal.visible}>
         <AlertDialogContent className="overflow-hidden lg:max-w-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center justify-between">
@@ -104,7 +104,7 @@ const ChatConversationRecord = (props: IProps) => {
       await mutate()
       setReplaying(false)
     }
-    if (data?.status === 0) {
+    if (data?.video_status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
