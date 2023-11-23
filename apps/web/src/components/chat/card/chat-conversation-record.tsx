@@ -99,18 +99,19 @@ const ChatConversationRecord = (props: IProps) => {
 
   const replay = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation()
-    if (!data?.video_url) {
-      setReplaying(true)
-      await mutate()
-      setReplaying(false)
+
+    if (data?.video_url) {
+      window.open(data?.video_url)
+      return
     }
-    if (data?.video_status === 0) {
+
+    setReplaying(true)
+    const res = await mutate()
+    setReplaying(false)
+    if (res?.video_status === 0) {
       toast({
         description: 'Video playback is being generated, please wait.',
       })
-      return
-    } else {
-      window.open(data?.video_url)
     }
   }
   return (
