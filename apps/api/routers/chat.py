@@ -99,9 +99,9 @@ async def send_message(
         )
     model = models[0]
     current_message_id = session_state_manager.get_current_message_id(session_id)
-    if current_message_id == message_id:
+    if current_message_id == message_id and message_id is not None:
         session_state_manager.reload_session(session_id)
-    else:
+    elif message_id is not None:
         session_state_manager.save_current_message_id(session_id, message_id)
     workflow = session_state_manager.get_workflow(session_id, model, disconnect_event)
     workflow.context.is_face_to_ai_service = video
@@ -191,6 +191,7 @@ async def stream_completions(body: CompletionsRequest):
                 start_time=start_time,
                 disconnect_event=disconnect_event,
                 workflow_saved_event=workflow_saved_event,
+                message_id=body.message_id,
             ),
             media_type="text/event-stream",
             disconnect_event=disconnect_event,

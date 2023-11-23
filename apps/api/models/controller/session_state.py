@@ -158,7 +158,8 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             current_status = json.loads(current_status)
             # save reload status
             self.redis.set(
-                self.get_reload_session_state_urn(session_id), json.dump(current_status)
+                self.get_reload_session_state_urn(session_id),
+                json.dumps(current_status),
             )
 
             # save current status
@@ -212,7 +213,10 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             self.redis.set(self.get_workflow_step_urn(session_id), reload_step)
 
     def get_current_message_id(self, session_id):
-        return self.redis.get(f"current_message_id:{session_id}").decode("utf-8")
+        current_message_id = self.redis.get(f"current_message_id:{session_id}")
+        if current_message_id is None:
+            return current_message_id
+        return current_message_id.decode("utf-8")
 
     def save_current_message_id(self, session_id, message_id):
         self.redis.set(f"current_message_id:{session_id}", message_id)

@@ -164,6 +164,7 @@ class Workflow(BaseModel):
                 ],
                 max_retries=3,
                 api_key=api_key,
+                timeout=100,
             )
         template = _chain.prompt.template
 
