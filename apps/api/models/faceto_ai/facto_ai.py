@@ -186,7 +186,6 @@ class FaceToAiMixin(BaseModel):
         webhook_handler.create_video_room_link(self.session_id, link)
 
     def switch_to_context_builder(self, final_message: str):
-        self.send_face_to_ai_info_to_builder()
         self.send_done_message_to_builder(final_message)
         self.send_done_message_to_face_to_ai()
 

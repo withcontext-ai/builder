@@ -71,6 +71,7 @@ async def send_message(
     disconnect_event: asyncio.Event = None,
     video=False,
     workflow_saved_event: asyncio.Event = None,
+    message_id: str = None,
 ) -> AsyncIterable[str]:
     messages = []
     for message_content in messages_contents:
@@ -97,6 +98,11 @@ async def send_message(
             detail=f"Model {model_id} has {len(models)} models in model manager",
         )
     model = models[0]
+    current_message_id = session_state_manager.get_current_message_id(session_id)
+    if current_message_id == message_id:
+        session_state_manager.reload_session(session_id)
+    else:
+        session_state_manager.save_current_message_id(session_id, message_id)
     workflow = session_state_manager.get_workflow(session_id, model, disconnect_event)
     workflow.context.is_face_to_ai_service = video
     workflow.context.start_time = start_time
@@ -246,6 +252,8 @@ async def video_stream_completions_webhook(
                         status_code=500, detail="data.vod.duration not found"
                     )
                 webhook_handler.forward_data(body, session_id)
+                workflow = session_state_manager.get_workflow(session_id, None, None)
+                workflow.context.send_face_to_ai_info_to_builder()
             else:
                 return {"message": "success", "status": 200}
         except Exception as e:
@@ -325,3 +333,9 @@ async def get_message(message_id: str):
         url, status, messages = FaceToAiManager.get_room_info(message_id)
         messages_data = {"video_status": status, "video_url": url, "messages": messages}
         return {"data": messages_data, "message": "success", "status": 200}
+
+
+@router.post("/session/{session_id}/reload")
+async def reload(session_id: str):
+    session_state_manager.reload_session(session_id)
+    return {"message": "success", "status": 200}

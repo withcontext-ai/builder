@@ -11,6 +11,7 @@ class Messages(BaseModel):
 class CompletionsRequest(BaseModel):
     session_id: str
     messages: List[Messages]
+    message_id: str
 
 
 class VideoCompletionsRequest(BaseModel):

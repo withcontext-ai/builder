@@ -30,6 +30,10 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
     def get_session_state_urn(session_id: str):
         return f"session:{session_id}"
 
+    @staticmethod
+    def get_reload_session_state_urn(session_id: str):
+        return f"reload_session:{session_id}"
+
     @BaseManager.db_session
     def save_session_state(self, session_id: str, model_id: str):
         logger.info(f"Saving session state {session_id}")
@@ -149,8 +153,15 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
 
     def save_chain_status(self, session_id, output_key, status, max_retries):
         current_status = self.redis.get(self.get_session_state_urn(session_id))
+
         if current_status:
             current_status = json.loads(current_status)
+            # save reload status
+            self.redis.set(
+                self.get_reload_session_state_urn(session_id), json.dump(current_status)
+            )
+
+            # save current status
             current_status[output_key] = (status, max_retries)
             self.redis.set(
                 self.get_session_state_urn(session_id),
@@ -160,6 +171,14 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             self.redis.set(
                 self.get_session_state_urn(session_id),
                 json.dumps({output_key: (status, max_retries)}),
+            )
+
+    def reload_chain_status(self, sesion_id):
+        reload_status = self.redis.get(self.get_reload_session_state_urn(sesion_id))
+        if reload_status:
+            self.redis.set(
+                self.get_session_state_urn(sesion_id),
+                reload_status,
             )
 
     def get_chain_status(self, session_id, output_key):
@@ -175,8 +194,37 @@ class SessionStateManager(BaseManager, PromptManagerMixin):
             return 0
         return int(current_step)
 
+    def get_workflow_step_urn(self, session_id):
+        return f"workflow_step:{session_id}"
+
+    def get_reload_workflow_step_urn(self, session_id):
+        return f"reload_workflow_step:{session_id}"
+
     def save_workflow_step(self, session_id, current_step):
-        self.redis.set(f"workflow_step:{session_id}", current_step)
+        reload_step = self.redis.get(self.get_workflow_step_urn(session_id))
+        if reload_step:
+            self.redis.set(self.get_reload_workflow_step_urn(session_id), reload_step)
+        self.redis.set(self.get_workflow_step_urn(session_id), current_step)
+
+    def reload_workflow_step(self, session_id):
+        reload_step = self.redis.get(self.get_reload_workflow_step_urn(session_id))
+        if reload_step:
+            self.redis.set(self.get_workflow_step_urn(session_id), reload_step)
+
+    def get_current_message_id(self, session_id):
+        return self.redis.get(f"current_message_id:{session_id}").decode("utf-8")
+
+    def save_current_message_id(self, session_id, message_id):
+        self.redis.set(f"current_message_id:{session_id}", message_id)
+
+    def reload_session(self, session_id):
+        workflow = self.get_workflow(session_id, None, None)
+        self.reload_chain_status(session_id)
+        for chain in workflow.context.chains:
+            if type(chain) in workflow.context.state_dependent_chains:
+                self.reload_chain_output(session_id, chain.output_keys[0])
+            self.reload_chain_memory(session_id, chain.output_keys[0])
+            self.reload_workflow_step(session_id)
 
 
 session_state_manager = SessionStateManager()

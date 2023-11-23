@@ -7,15 +7,40 @@ class PromptManagerMixin:
     def get_chain_output_urn(session_id: str, output_key: str):
         return f"output:{session_id}:{output_key}"
 
+    @staticmethod
+    def get_reload_chain_output_urn(session_id: str, output_key: str):
+        return f"reload_output:{session_id}:{output_key}"
+
     def save_chain_output(self, session_id: str, output_key: str, output: str):
+        # save reload output
+        current_output = self.redis.get(
+            self.get_chain_output_urn(session_id, output_key)
+        )
+        if current_output:
+            self.redis.set(
+                self.get_reload_chain_output_urn(session_id, output_key), current_output
+            )
+        # save current output
         self.redis.set(self.get_chain_output_urn(session_id, output_key), output)
 
     def get_chain_output(self, session_id: str, output_key: str):
         content = self.redis.get(self.get_chain_output_urn(session_id, output_key))
         return to_string(content)
 
+    def reload_chain_output(self, session_id: str, output_key: str):
+        reload_output = self.redis.get(
+            self.get_reload_chain_output_urn(session_id, output_key)
+        )
+        if reload_output:
+            self.redis.set(
+                self.get_chain_output_urn(session_id, output_key), reload_output
+            )
+
     def get_chain_memory_urn(self, session_id, output_key):
         return f"memory:{session_id}-{output_key}"
+
+    def get_reload_chain_memory_urn(self, session_id, output_key):
+        return f"reload_memory:{session_id}-{output_key}"
 
     def save_chain_memory(self, session_id: str, contents: list):
         def get_human_input(content):
@@ -24,10 +49,13 @@ class PromptManagerMixin:
             return content["input"]
 
         # [{"input":"xxx", "output":"xxx", "chain_key": "xxx"}, ...]
-
         for content in contents:
             current_chain_memory = self.get_chain_memory(
                 session_id, content["chain_key"]
+            )
+            self.redis.set(
+                self.get_reload_chain_memory_urn(session_id, content["chain_key"]),
+                json.dumps(current_chain_memory),
             )
             if current_chain_memory == []:
                 current_chain_memory.append(
@@ -45,6 +73,15 @@ class PromptManagerMixin:
             self.redis.set(
                 self.get_chain_memory_urn(session_id, content["chain_key"]),
                 json.dumps(current_chain_memory),
+            )
+
+    def reload_chain_memory(self, session_id: str, output_key: str):
+        reload_chain_memory = self.redis.get(
+            self.get_reload_chain_memory_urn(session_id, output_key)
+        )
+        if reload_chain_memory:
+            self.redis.set(
+                self.get_chain_memory_urn(session_id, output_key), reload_chain_memory
             )
 
     def get_chain_memory(self, session_id: str, output_key: str):
