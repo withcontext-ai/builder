@@ -200,7 +200,7 @@ const ChatCardLayout = (prop: Props) => {
             <Text variant="body2">{isUser ? 'Me' : appName}</Text>
             {message.createdAt && (
               <Text variant="caption">
-                {formatTime(new Date(Number(message.createdAt || '')))}
+                {formatTime(new Date(message.createdAt || ''))}
               </Text>
             )}
           </div>
