@@ -1,6 +1,6 @@
 import { type Message as RawMessage } from 'ai'
 
-import { safeParse } from '@/lib/utils'
+import { nanoid, safeParse } from '@/lib/utils'
 import { App } from '@/db/apps/schema'
 import { Message as MessageSchema } from '@/db/messages/schema'
 import { WorkflowItem } from '@/app/(manage)/app/[app_id]/settings/workflow/type'
@@ -69,7 +69,8 @@ export const messagesBuilder = (messages: Partial<MessageSchema>[]) => {
 }
 
 export const keyBuilder = (m: RawMessage) => {
-  if (m.role) return `${m.id}-${m.role}`
+  if (m.role && m.id) return `${m.id}-${m.role}`
+  if (!m.id) return nanoid()
   return `${m.id}`
 }
 
