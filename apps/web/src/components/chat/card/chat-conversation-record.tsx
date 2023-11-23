@@ -35,7 +35,7 @@ const ChatRecordDialog = NiceModal.create(
 
     return (
       <AlertDialog open={modal.visible} key={nanoid()}>
-        <AlertDialogContent className=" h-4/5 overflow-hidden lg:max-w-2xl">
+        <AlertDialogContent className="overflow-hidden lg:max-w-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center justify-between">
               Conversation Record
@@ -48,7 +48,7 @@ const ChatRecordDialog = NiceModal.create(
               </Button>
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <div className="overflow-auto px-6 pr-8">
+          <div className="max-h-[640px] w-full overflow-auto px-6 pr-8">
             <ChatContextProvider
               mode="debug"
               app={app}
