@@ -345,7 +345,10 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
     async def _handle_final_chain(self):
         target_finished = "This chat has completed its goal. Please create a new chat to have a conversation."
         logger.info(f"Putting {target_finished} into queue")
-        await self._put_tokens_into_queue(target_finished)
+        if not self.is_face_to_ai_service:
+            await self._put_tokens_into_queue(target_finished)
+        else:
+            self.switch_to_context_builder(target_finished)
 
     async def _put_tokens_into_queue(self, tokens: str):
         for token in tokens:
