@@ -504,7 +504,7 @@ export function SwitchItem<T extends FieldValues>({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex items-center justify-start space-x-6">
+        <FormItem className="flex items-center justify-start space-x-6 space-y-0">
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Switch checked={field.value} onCheckedChange={field.onChange} />
