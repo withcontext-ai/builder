@@ -160,6 +160,7 @@ class FaceToAiManager:
                     )
             return url, resp_status, messages
         except Exception as e:
+            logger.error(room_id)
             logger.error(e)
             logger.error(response.text)
             raise e
