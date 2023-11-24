@@ -617,23 +617,20 @@ export async function forkApp(
       taskToApiFormatter
     )
     const opening_remarks = appDetail.opening_remarks || ''
-    const enable_video_interaction = appDetail.enable_video_interaction || false
 
     const appData = await api.post<
       {
         chains: any[]
         opening_remarks: string
-        enable_video_interaction: boolean
       },
       { id: string }
-    >('/v1/models', { chains, opening_remarks, enable_video_interaction })
+    >('/v1/models', { chains, opening_remarks })
     const api_model_id = appData?.id
 
     const appVal = {
       ...newValue,
       short_id: appId,
       opening_remarks,
-      enable_video_interaction,
       workflow_tree_str: published_workflow_tree_str,
       workflow_data_str: published_workflow_data_str,
       published_workflow_tree_str,
