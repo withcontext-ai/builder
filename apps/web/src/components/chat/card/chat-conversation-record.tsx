@@ -133,7 +133,7 @@ const ChatConversationRecord = (props: IProps) => {
               return (
                 <div
                   key={index}
-                  className="line-clamp-1	text-left text-xs leading-5 text-slate-500"
+                  className="line-clamp-1 text-left text-xs leading-5 text-slate-500"
                 >
                   {label} {item?.content}
                 </div>
