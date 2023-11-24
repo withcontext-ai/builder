@@ -73,6 +73,7 @@ async def send_message(
     workflow_saved_event: asyncio.Event = None,
     message_id: str = None,
 ) -> AsyncIterable[str]:
+    start_time = time.time()
     messages = []
     for message_content in messages_contents:
         if message_content.role == "user":
@@ -255,6 +256,8 @@ async def video_stream_completions_webhook(
                 webhook_handler.forward_data(body, session_id)
                 workflow = session_state_manager.get_workflow(session_id, None, None)
                 workflow.context.send_face_to_ai_info_to_builder()
+                workflow.context.send_done_message_to_builder()
+                logger.info("send_face_to_ai_info_to_builder done")
             else:
                 return {"message": "success", "status": 200}
         except Exception as e:

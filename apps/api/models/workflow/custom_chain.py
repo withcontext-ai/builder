@@ -198,6 +198,7 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
     chains: List[BaseCustomChain]
     cancel_generation = False
     cancel_generation_event = asyncio.Event()
+    aiter_done_event = asyncio.Event()
 
     class Config:
         extra = Extra.allow
@@ -220,6 +221,14 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
         callbacks = _run_manager.get_child()
         while self.current_chain < len(self.chains):
             chain = self.chains[self.current_chain]
+            if type(chain) in self.state_dependent_chains:
+                if (
+                    chain.process == TargetedChainStatus.FINISHED
+                    or chain.process == TargetedChainStatus.ERROR
+                ):
+                    self.current_chain += 1
+                    self.current_chain %= len(self.chains)
+                    continue
             if not self.is_face_to_ai_service and chain.enable_video_interaction:
                 self._cancel_message_generations()
             elif self.is_face_to_ai_service and not chain.enable_video_interaction:
@@ -271,14 +280,16 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                         TargetedChainStatus.ERROR,
                     ]:
                         # await self._put_tokens_into_queue(current_output)
-                        return self._construct_return_dict(
+                        return_dict = await self._construct_return_dict(
                             chain.enable_video_interaction
                         )
+                        return return_dict
                     elif self.current_chain == len(self.chains) - 1:
                         await self._handle_final_chain()
-                        return self._construct_return_dict(
+                        return_dict = await self._construct_return_dict(
                             chain.enable_video_interaction
                         )
+                        return return_dict
                     else:
                         inputs["question"] = ""
                         self.known_values["question"] = ""
@@ -317,14 +328,19 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                 )
                 if self.current_chain == len(self.chains) - 1:
                     self.current_chain = 0
-                    return self._construct_return_dict(chain.enable_video_interaction)
+                    return_dict = await self._construct_return_dict(
+                        chain.enable_video_interaction
+                    )
+                    return return_dict
                 else:
                     self.current_chain += 1
-        return self._construct_return_dict(chain.enable_video_interaction)
+        return_dict = await self._construct_return_dict(chain.enable_video_interaction)
+        return return_dict
 
     def _cancel_message_generations(self):
         self.cancel_generation = True
         self.cancel_generation_event.set()
+        self.aiter_done_event.set()
 
     async def _handle_final_chain(self):
         target_finished = "This chat has completed its goal. Please create a new chat to have a conversation."
@@ -343,14 +359,14 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
         while not self.queue.empty():
             await asyncio.sleep(2)
 
-    def _construct_return_dict(self, enable_video_interaction):
+    async def _construct_return_dict(self, enable_video_interaction):
         return_dict = {}
         for k in self.output_variables:
             return_dict[k] = self.known_values.get(k, "")
 
         self.done.set()
         self.chain_done_event.set()
-        final_message = self.get_messages()
+        final_message = await self.get_messages()
         if not self.is_face_to_ai_service and enable_video_interaction:
             self.switch_to_face_to_ai(final_message=final_message)
         elif self.is_face_to_ai_service and not enable_video_interaction:
@@ -387,9 +403,11 @@ class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
                     yield await self.queue.get()
                 break
             yield token_or_done
+        self.aiter_done_event.set()
 
-    def get_messages(self) -> str:
+    async def get_messages(self) -> str:
         message = ""
+        await self.aiter_done_event.wait()
         while not self.queue.empty():
             message += self.queue.get_nowait()
         return message

@@ -164,6 +164,28 @@ class FaceToAiManager:
             logger.error(response.text)
             raise e
 
+    @classmethod
+    def get_final_message(cls, session_id: str):
+        redis_client = redis.Redis(
+            host=UPSTASH_REDIS_REST_URL,
+            port=UPSTASH_REDIS_REST_PORT,
+            password=UPSTASH_REDIS_REST_TOKEN,
+            ssl=True,
+        )
+        return redis_client.get(f"session_id_to_final_message:{session_id}").decode(
+            "utf-8"
+        )
+
+    @classmethod
+    def save_final_message(cls, session_id: str, final_message: str):
+        redis_client = redis.Redis(
+            host=UPSTASH_REDIS_REST_URL,
+            port=UPSTASH_REDIS_REST_PORT,
+            password=UPSTASH_REDIS_REST_TOKEN,
+            ssl=True,
+        )
+        redis_client.set(f"session_id_to_final_message:{session_id}", final_message)
+
 
 class FaceToAiMixin(BaseModel):
     is_face_to_ai_service: bool = False
@@ -186,7 +208,7 @@ class FaceToAiMixin(BaseModel):
         webhook_handler.create_video_room_link(self.session_id, link)
 
     def switch_to_context_builder(self, final_message: str):
-        self.send_done_message_to_builder(final_message)
+        FaceToAiManager.save_final_message(self.session_id, final_message)
         self.send_done_message_to_face_to_ai()
 
     def send_face_to_ai_info_to_builder(self):
@@ -210,8 +232,8 @@ class FaceToAiMixin(BaseModel):
             logger.error(e)
             logger.error(response.text)
 
-    def send_done_message_to_builder(self, final_message):
-        # TODO latency total_tokens raw
+    def send_done_message_to_builder(self):
+        final_message = FaceToAiManager.get_final_message(self.session_id)
         end_time = time.time()
         payload = {
             "type": "message.add",
