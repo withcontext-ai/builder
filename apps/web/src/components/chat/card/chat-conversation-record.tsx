@@ -125,7 +125,7 @@ const ChatConversationRecord = (props: IProps) => {
       <div className="flex w-full border-b pb-3 text-sm font-medium">
         Conversation Record
       </div>
-      <div className="flex w-full flex-col truncate pt-3">
+      <div className="flex w-full flex-col pt-3">
         {isLoading
           ? LoadingCard
           : data?.messages?.slice(0, 4)?.map((item: Message, index: number) => {
@@ -133,7 +133,7 @@ const ChatConversationRecord = (props: IProps) => {
               return (
                 <div
                   key={index}
-                  className="truncate text-left text-xs leading-5 text-slate-500"
+                  className="line-clamp-1	text-left text-xs leading-5 text-slate-500"
                 >
                   {label} {item?.content}
                 </div>
