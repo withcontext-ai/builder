@@ -103,9 +103,9 @@ const TableAction = ({
 
   const handelEdit = () => {
     currentId.current.shortId = shortId
-    startTransition(() => {
-      router.push(`/dataset/${datasetId}/document/${shortId}`)
-    })
+    // startTransition(() => {
+    router.push(`/dataset/${datasetId}/document/${shortId}`)
+    // })
   }
 
   const { toast } = useToast()
