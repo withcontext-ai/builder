@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2Icon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import useSWRMutation from 'swr/mutation'
 import { z } from 'zod'
@@ -152,7 +151,9 @@ const DataForm = () => {
     } else {
       await onSubmit()
       router.refresh()
-      router.push(`/dataset/${datasetId}/settings/documents`)
+      startTransition(() => {
+        router.push(`/dataset/${datasetId}/settings/documents`)
+      })
     }
   }
 
@@ -184,26 +185,32 @@ const DataForm = () => {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              className="gap-1"
-              disabled={isPending}
               onClick={() => {
                 form.reset()
-                startTransition(() => {
-                  router.push(`/dataset/${datasetId}/settings/documents`)
-                })
+                router.push(`/dataset/${datasetId}/settings/documents`)
               }}
             >
-              {isPending && <Loader2Icon size={16} />}
               Cancel
             </Button>
             {isAdd && (
-              <Button onClick={handleClick} disabled={isMutating}>
-                {step !== 3 ? 'Next' : isMutating ? 'Creating' : 'Create'}
+              <Button onClick={handleClick} disabled={isPending || isMutating}>
+                {step !== 3
+                  ? 'Next'
+                  : isPending || isMutating
+                  ? 'Creating'
+                  : 'Create'}
               </Button>
             )}
             {!isAdd && (
-              <Button onClick={handleClick} disabled={editMutating}>
-                {step !== 3 ? 'Next' : editMutating ? 'Saving' : 'Save'}
+              <Button
+                onClick={handleClick}
+                disabled={isPending || editMutating}
+              >
+                {step !== 3
+                  ? 'Next'
+                  : isPending || editMutating
+                  ? 'Saving'
+                  : 'Save'}
               </Button>
             )}
           </div>
