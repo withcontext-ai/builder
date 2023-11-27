@@ -227,6 +227,14 @@ async def video_stream_completions(
         )
 
 
+async def send_info_to_builder(session_id, body):
+    webhook_handler = WebhookHandler()
+    webhook_handler.forward_data(body, session_id)
+    workflow = session_state_manager.get_workflow(session_id, None, None)
+    workflow.context.send_face_to_ai_info_to_builder()
+    workflow.context.send_done_message_to_builder()
+
+
 @router.post("/completions/video/{session_id}/webhook")
 async def video_stream_completions_webhook(
     session_id: str,
@@ -246,18 +254,16 @@ async def video_stream_completions_webhook(
             "Event.RoomFinished",
         ]:
             raise HTTPException(status_code=500, detail="event not allowed")
-        webhook_handler = WebhookHandler()
+
         try:
             if body.get("type") == "Event.ParticipantLeft":
                 if body.get("data", {}).get("vod", {}).get("duration", None) is None:
                     raise HTTPException(
                         status_code=500, detail="data.vod.duration not found"
                     )
-                webhook_handler.forward_data(body, session_id)
-                workflow = session_state_manager.get_workflow(session_id, None, None)
-                workflow.context.send_face_to_ai_info_to_builder()
-                workflow.context.send_done_message_to_builder()
-                logger.info("send_face_to_ai_info_to_builder done")
+                if FaceToAiManager.get_final_message(session_id) != "":
+                    await send_info_to_builder(session_id, body)
+                    return {"message": "success", "status": 200}
             else:
                 return {"message": "success", "status": 200}
         except Exception as e:

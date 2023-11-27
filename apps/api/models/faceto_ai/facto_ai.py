@@ -173,9 +173,10 @@ class FaceToAiManager:
             password=UPSTASH_REDIS_REST_TOKEN,
             ssl=True,
         )
-        return redis_client.get(f"session_id_to_final_message:{session_id}").decode(
-            "utf-8"
-        )
+        final_message = redis_client.get(f"session_id_to_final_message:{session_id}")
+        if final_message is None:
+            return ""
+        return final_message.decode("utf-8")
 
     @classmethod
     def save_final_message(cls, session_id: str, final_message: str):
@@ -186,6 +187,16 @@ class FaceToAiManager:
             ssl=True,
         )
         redis_client.set(f"session_id_to_final_message:{session_id}", final_message)
+
+    @classmethod
+    def delete_final_message(cls, session_id: str):
+        redis_client = redis.Redis(
+            host=UPSTASH_REDIS_REST_URL,
+            port=UPSTASH_REDIS_REST_PORT,
+            password=UPSTASH_REDIS_REST_TOKEN,
+            ssl=True,
+        )
+        redis_client.delete(f"session_id_to_final_message:{session_id}")
 
 
 class FaceToAiMixin(BaseModel):
