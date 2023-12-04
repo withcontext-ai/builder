@@ -19,8 +19,8 @@ export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
           gradientUnits="userSpaceOnUse"
           id="color-1_pGHcje298xSl_gr1"
         >
-          <stop offset="0" stop-color="#42a3f2"></stop>
-          <stop offset="1" stop-color="#42a4eb"></stop>
+          <stop offset="0" stopColor="#42a3f2"></stop>
+          <stop offset="1" stopColor="#42a4eb"></stop>
         </linearGradient>
         <linearGradient
           x1="28"
@@ -30,8 +30,8 @@ export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
           gradientUnits="userSpaceOnUse"
           id="color-2_pGHcje298xSl_gr2"
         >
-          <stop offset="0" stop-color="#11408a"></stop>
-          <stop offset="1" stop-color="#103f8f"></stop>
+          <stop offset="0" stopColor="#11408a"></stop>
+          <stop offset="1" stopColor="#103f8f"></stop>
         </linearGradient>
         <linearGradient
           x1="28"
@@ -41,8 +41,8 @@ export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
           gradientUnits="userSpaceOnUse"
           id="color-3_pGHcje298xSl_gr3"
         >
-          <stop offset="0" stop-color="#3079d6"></stop>
-          <stop offset="1" stop-color="#297cd2"></stop>
+          <stop offset="0" stopColor="#3079d6"></stop>
+          <stop offset="1" stopColor="#297cd2"></stop>
         </linearGradient>
         <linearGradient
           x1="12"
@@ -52,8 +52,8 @@ export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
           gradientUnits="userSpaceOnUse"
           id="color-4_pGHcje298xSl_gr4"
         >
-          <stop offset="0" stop-color="#1d59b3"></stop>
-          <stop offset="1" stop-color="#195bbc"></stop>
+          <stop offset="0" stopColor="#1d59b3"></stop>
+          <stop offset="1" stopColor="#195bbc"></stop>
         </linearGradient>
         <linearGradient
           x1="4.744"
@@ -63,25 +63,25 @@ export function MicrosoftWordIcon(props: SVGProps<SVGSVGElement>) {
           gradientUnits="userSpaceOnUse"
           id="color-5_pGHcje298xSl_gr5"
         >
-          <stop offset="0" stop-color="#256ac2"></stop>
-          <stop offset="1" stop-color="#1247ad"></stop>
+          <stop offset="0" stopColor="#256ac2"></stop>
+          <stop offset="1" stopColor="#1247ad"></stop>
         </linearGradient>
       </defs>
       <g transform="">
         <g
           fill="none"
-          fill-rule="nonzero"
+          fillRule="nonzero"
           stroke="none"
-          stroke-width="1"
-          stroke-linecap="butt"
-          stroke-linejoin="miter"
-          stroke-miterlimit="10"
-          stroke-dasharray=""
-          stroke-dashoffset="0"
-          font-family="none"
-          font-weight="none"
-          font-size="none"
-          text-anchor="none"
+          strokeWidth="1"
+          strokeLinecap="butt"
+          strokeLinejoin="miter"
+          strokeMiterlimit="10"
+          strokeDasharray=""
+          strokeDashoffset="0"
+          fontFamily="none"
+          fontWeight="none"
+          fontSize="none"
+          textAnchor="none"
         >
           <g transform="scale(5.33333,5.33333)">
             <path
