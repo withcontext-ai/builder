@@ -7,8 +7,6 @@ import { nanoid } from '@/lib/utils'
 import { addMessage } from '@/db/messages/actions'
 import { removeTeam } from '@/db/slack_teams/actions'
 
-const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -100,7 +98,6 @@ export default async function handler(
       const requestTimestamp = Date.now()
 
       await OpenAIStream({
-        baseUrl,
         payload,
         callback: {
           async onStart() {

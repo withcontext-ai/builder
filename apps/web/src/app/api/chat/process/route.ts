@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { api } from '@/lib/api'
+
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
@@ -8,16 +10,8 @@ export async function GET(req: NextRequest) {
   try {
     const query = req.nextUrl.searchParams
     const api_session_id = query.get('api_session_id') || ''
-
-    let res = await fetch(
-      `${process.env.AI_SERVICE_API_BASE_URL}/v1/chat/session/${api_session_id}/process`
-    )
-    let data = await res.json()
-    if (data.status !== 200) {
-      throw new Error(`API service error: ${data.message}`)
-    }
-
-    return NextResponse.json({ success: true, data: data?.data })
+    let data = await api.get(`/v1/chat/session/${api_session_id}/process`)
+    return NextResponse.json({ success: true, data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }

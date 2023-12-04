@@ -13,6 +13,9 @@ const ChatDebugPage = () => {
       short_id: '11',
       opening_remarks: '',
       enable_video_interaction: false,
+      published_workflow_data_str: JSON.stringify([
+        { formValueStr: JSON.stringify({ enable_video_interaction: false }) },
+      ]),
     },
   }
   return (

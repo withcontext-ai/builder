@@ -26,6 +26,7 @@ import {
 } from './types'
 import useConfigBase64 from './use-config-base64'
 import { useChat } from './useChat'
+import { checkIfWorkflowHasEnabledVideoInteraction } from './utils'
 import VideoCallConfirmDialog from './video-call-confirm-dialog'
 
 function formatToTimestamp(date?: Date | number | null) {
@@ -228,7 +229,7 @@ const WrappedChat = (props: ChatProps) => {
     (newEventMessage: any) => {
       if (newEventMessage?.eventType === 'call.created') {
         callLinkRef.current = `${newEventMessage?.link || ''}${
-          configStr ? `?c=${configStr}` : ''
+          configStr ? `?c=${window.encodeURIComponent(configStr)}` : ''
         }`
         openModal()
         return
@@ -242,7 +243,9 @@ const WrappedChat = (props: ChatProps) => {
     eventName: 'user-chat',
     onAdd,
     enabled:
-      mode === 'live' && !!apiSessionId && !!app?.enable_video_interaction,
+      mode === 'live' &&
+      !!apiSessionId &&
+      checkIfWorkflowHasEnabledVideoInteraction(app as any),
   })
 
   return (

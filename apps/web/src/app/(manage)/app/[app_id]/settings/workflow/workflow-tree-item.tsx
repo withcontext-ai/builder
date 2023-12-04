@@ -1,8 +1,8 @@
 'use client'
 
-import { TrashIcon } from 'lucide-react'
+import { TrashIcon, VideoIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { cn, safeParse } from '@/lib/utils'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -42,16 +42,16 @@ export default function WorkflowTreeItem({
   const selectedTaskId = useWorkflowContext((state) => state.selectedTaskId)
   const selectTask = useWorkflowContext((state) => state.selectTask)
   const removeTask = useWorkflowContext((state) => state.removeTask)
-
   const isSelected = selectedTaskId === id
 
-  const { key, type, subType } = value || {}
+  const { key, type, subType, formValueStr } = value || {}
 
   const keyLabel = key != null ? `${type}-${key}` : undefined
   const typeTitle = type ? TYPE_MAP[type]?.title : ''
   const TypeIcon = type ? TYPE_MAP[type]?.icon : null
   // @ts-ignore
   const subTypeTitle = subType ? SUB_TYPE_MAP[subType]?.title : ''
+  const openVideo = safeParse(formValueStr)?.enable_video_interaction
 
   return (
     <div className={cn('relative mb-4 w-[360px]', clone && '-rotate-3')}>
@@ -74,9 +74,13 @@ export default function WorkflowTreeItem({
             </Badge>
           )}
         </div>
-        <div className="mt-3 text-sm font-medium text-slate-900">
-          {subTypeTitle}
+        <div className="mt-3 flex items-center justify-between">
+          <div className="text-sm font-medium text-slate-900">
+            {subTypeTitle}
+          </div>
+          {openVideo && <VideoIcon className="text-green-600" />}
         </div>
+
         {ghost && (
           <div
             className={cn(

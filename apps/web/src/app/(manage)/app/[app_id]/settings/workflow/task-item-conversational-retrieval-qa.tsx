@@ -28,6 +28,7 @@ import {
   MentionTextareaItem,
   SelectItem,
   SlideItem,
+  VideoItem,
 } from './form-item'
 import FormItemTitle from './form-item-title'
 import { useWorkflowContext } from './store'
@@ -87,6 +88,7 @@ const FormSchema = z.object({
   data: z.object({
     datasets: z.array(z.string()).optional(),
   }),
+  enable_video_interaction: z.boolean().optional(),
 })
 
 export type IFormSchema = z.infer<typeof FormSchema>
@@ -147,6 +149,8 @@ function FormItems({ keyLabel }: { keyLabel?: string }) {
           <FormItemRetriever />
           <div className="-mx-6 h-px shrink-0 bg-slate-100" />
           <FormItemData />
+          <div className="-mx-6 h-px shrink-0 bg-slate-100" />
+          <VideoItem />
         </div>
       </div>
     </div>

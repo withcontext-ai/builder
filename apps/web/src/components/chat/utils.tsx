@@ -1,6 +1,9 @@
 import { type Message as RawMessage } from 'ai'
 
+import { nanoid, safeParse } from '@/lib/utils'
+import { App } from '@/db/apps/schema'
 import { Message as MessageSchema } from '@/db/messages/schema'
+import { WorkflowItem } from '@/app/(manage)/app/[app_id]/settings/workflow/type'
 
 import { ChatMessage, EventMessage } from './types'
 
@@ -52,7 +55,9 @@ export const messagesBuilder = (messages: Partial<MessageSchema>[]) => {
   const result = []
   for (const m of messages) {
     if (m.type === 'chat') {
-      result.push({ ...m, role: 'user', content: m.query })
+      if (m.query) {
+        result.push({ ...m, role: 'user', content: m.query })
+      }
       if (m.answer) {
         result.push({ ...m, role: 'assistant', content: m.answer })
       }
@@ -64,6 +69,20 @@ export const messagesBuilder = (messages: Partial<MessageSchema>[]) => {
 }
 
 export const keyBuilder = (m: RawMessage) => {
-  if (m.role) return `${m.id}-${m.role}`
+  if (m.role && m.id) return `${m.id}-${m.role}`
+  if (!m.id) return nanoid()
   return `${m.id}`
+}
+
+export const checkIfWorkflowHasEnabledVideoInteraction = (app: App) => {
+  const published_workflow_data_str = safeParse(
+    app?.published_workflow_data_str
+  )
+  // check chains
+  const openVideo = published_workflow_data_str?.some((item: WorkflowItem) => {
+    const formStr = safeParse(item?.formValueStr)
+    return formStr?.enable_video_interaction === true
+  })
+
+  return openVideo
 }

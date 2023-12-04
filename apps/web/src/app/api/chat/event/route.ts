@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { eq } from 'drizzle-orm'
 
+import { api } from '@/lib/api'
 import { db } from '@/lib/drizzle-edge'
-import { addMessage } from '@/db/messages/actions'
+import { addMessage, getMessageDetail } from '@/db/messages/actions'
 import { formatEventMessage } from '@/db/messages/utils'
 import { SessionsTable } from '@/db/sessions/schema'
 import { EventMessage } from '@/components/chat/types'
@@ -30,7 +31,24 @@ export async function POST(req: NextRequest) {
       event_type: event.eventType,
     })
     await addMessage(message)
+    if (['call.declined', 'call.canceled'].includes(event.eventType)) {
+      // tell api backend to reload workflow
+      await api.post(`/v1/chat/session/${session.api_session_id}/reload`, {})
+    }
     return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message })
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    // get message record by message_id
+    const query = req.nextUrl.searchParams
+    const message_id = query.get('message_id') || ''
+
+    const data = await getMessageDetail(message_id)
+    return NextResponse.json({ success: true, data })
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message })
   }

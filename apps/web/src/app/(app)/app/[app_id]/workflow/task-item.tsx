@@ -1,7 +1,7 @@
 import { UniqueIdentifier } from '@dnd-kit/core'
-import { WrenchIcon } from 'lucide-react'
+import { VideoIcon, WrenchIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { cn, safeParse } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { TreeItem } from '@/components/dnd/types'
 import { SUB_TYPE_MAP } from '@/app/(manage)/app/[app_id]/settings/workflow/const'
@@ -30,6 +30,7 @@ export default function TaskItem({
 
   const title =
     SUB_TYPE_MAP[value?.subType as keyof typeof SUB_TYPE_MAP]?.title ?? ''
+  const video = safeParse(value?.formValueStr)?.enable_video_interaction
 
   return (
     <div className="pl-12 pt-4">
@@ -49,7 +50,10 @@ export default function TaskItem({
             </Badge>
           )}
         </div>
-        <div className="mt-4 text-sm text-slate-900">{title}</div>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-slate-900">{title}</div>
+          {video && <VideoIcon className="shrink-0 text-green-600" />}
+        </div>
       </button>
       {childItems &&
         childItems.length > 0 &&

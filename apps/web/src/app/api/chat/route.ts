@@ -13,8 +13,6 @@ export const runtime = 'edge'
 // export const preferredRegion = 'cle1' // now at us-east-2 where ai service is located
 export const dynamic = 'force-dynamic'
 
-const baseUrl = `${process.env.AI_SERVICE_API_BASE_URL}/v1`
-
 export async function POST(req: NextRequest, res: NextResponse) {
   // if (process.env.NODE_ENV === 'development' && process.env.MOCK_CHAT) {
   //   const s = new ReadableStream({
@@ -96,7 +94,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const requestTimestamp = Date.now()
 
   const stream = await OpenAIStream({
-    baseUrl,
     payload,
     callback: {
       async onStart() {

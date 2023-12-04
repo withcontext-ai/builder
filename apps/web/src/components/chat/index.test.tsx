@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect } from 'react'
 import { cleanup, render, waitFor } from '@testing-library/react'
 import user from '@testing-library/user-event'
@@ -7,6 +9,12 @@ import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 import Chat from '@/components/chat/page'
 
 import { commonTestWrapper } from '../../../test/utils'
+
+const testVideo = (video: boolean) => {
+  return JSON.stringify([
+    { formValueStr: JSON.stringify({ enable_video_interaction: video }) },
+  ])
+}
 
 describe('Chat', () => {
   global.fetch = mockChat()
@@ -91,6 +99,7 @@ describe('Chat', () => {
             icon: '',
             enable_video_interaction: false,
             opening_remarks: 'yo',
+            published_workflow_data_str: testVideo(false),
           }}
           mode="live"
           session={{
@@ -197,6 +206,7 @@ describe('Chat', () => {
             icon: '',
             enable_video_interaction: true,
             opening_remarks: 'yo',
+            published_workflow_data_str: testVideo(true),
           }}
           mode="live"
           session={{
@@ -227,6 +237,7 @@ describe('Chat', () => {
             icon: '',
             enable_video_interaction: true,
             opening_remarks: 'yo',
+            published_workflow_data_str: testVideo(true),
           }}
           mode="live"
           session={{
@@ -266,6 +277,7 @@ describe('Chat', () => {
             icon: '',
             enable_video_interaction: true,
             opening_remarks: 'yo',
+            published_workflow_data_str: testVideo(true),
           }}
           mode="live"
           session={{
@@ -298,6 +310,7 @@ describe('Chat', () => {
             icon: '',
             enable_video_interaction: false,
             opening_remarks: 'yo',
+            published_workflow_data_str: testVideo(false),
           }}
           mode="live"
           session={{
@@ -369,6 +382,7 @@ describe('Chat', () => {
             icon: '',
             enable_video_interaction: false,
             opening_remarks: 'yo',
+            published_workflow_data_str: testVideo(false),
           }}
           mode="live"
           session={{

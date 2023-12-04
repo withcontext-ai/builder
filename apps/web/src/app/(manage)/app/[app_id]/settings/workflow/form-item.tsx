@@ -35,6 +35,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Tooltip,
@@ -44,6 +45,7 @@ import {
 import { MentionTextarea } from '@/components/mention-textarea'
 
 import { HAS_K, HAS_MAX_TOKEN_LIMIT, MEMORY_TYPE } from './const'
+import FormItemTitle from './form-item-title'
 import { IFormSchema } from './task-item-conversational-retrieval-qa'
 
 interface IInputItem<T> {
@@ -483,6 +485,49 @@ export function MemoryFormItem<T extends FieldValues>() {
           />
         )}
       </div>
+    </div>
+  )
+}
+
+export interface ISwitchItem<T> {
+  name: Path<T>
+  label?: string | ReactNode
+}
+
+export function SwitchItem<T extends FieldValues>({
+  name,
+  label,
+}: ISwitchItem<T>) {
+  const form = useFormContext()
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex items-center justify-start space-x-6 space-y-0">
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export function VideoItem() {
+  return (
+    <div className="space-y-4">
+      <div className="text-sm font-medium text-slate-500">Video</div>
+      <SwitchItem
+        name="enable_video_interaction"
+        label={
+          <FormItemTitle
+            title="Video Interaction"
+            tip="Once activated, the App will communicate with users through video and voice."
+          />
+        }
+      />
     </div>
   )
 }

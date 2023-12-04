@@ -19,6 +19,7 @@ import { Markdown } from '../markdown/markdown'
 import { ChatUser } from '../types'
 import { useChat } from '../useChat'
 import { IChatCardProps } from './chat-card'
+import ChatConversationRecord from './chat-conversation-record'
 
 interface Props extends IChatCardProps {
   actions?: React.ReactNode
@@ -80,6 +81,10 @@ function EventMessage({ data }: { data: any }) {
   let message
 
   switch (data.eventType) {
+    case 'chat': {
+      message = data.content
+      break
+    }
     case 'basic.opening_remarks': {
       message = data.content
       break
@@ -103,6 +108,9 @@ function EventMessage({ data }: { data: any }) {
       icon = <PhoneIcon className="mr-4 rotate-[135deg]" />
       message = 'Call Canceled'
       break
+    }
+    case 'conversation.record': {
+      return <ChatConversationRecord recordId={data?.content} />
     }
     default: {
       message = data.content ? data.content : 'Unknown event'
@@ -158,6 +166,8 @@ const ChatCardLayout = (prop: Props) => {
     }
     return <Markdown isUser={isUser}>{content}</Markdown>
   }, [isUser, message, showError, error])
+  const isVideo =
+    message?.type === 'event' && message?.eventType === 'conversation.record'
 
   return (
     <div className="flex flex-col ">
@@ -190,7 +200,7 @@ const ChatCardLayout = (prop: Props) => {
             <Text variant="body2">{isUser ? 'Me' : appName}</Text>
             {message.createdAt && (
               <Text variant="caption">
-                {formatTime(new Date(message.createdAt))}
+                {formatTime(new Date(message.createdAt || ''))}
               </Text>
             )}
           </div>
@@ -201,7 +211,8 @@ const ChatCardLayout = (prop: Props) => {
                 mode === 'debug' &&
                   'max-w-[240px] md:max-w-md lg:max-w-md xl:max-w-md',
                 isUser ? 'bg-primary' : 'bg-gray-100',
-                showError ? 'rounded-lg border border-red-500	bg-red-50' : ''
+                showError ? 'rounded-lg border border-red-500	bg-red-50' : '',
+                isVideo && 'rounded-lg border bg-white hover:bg-white'
               )}
               data-testid="chat-card-content"
             >

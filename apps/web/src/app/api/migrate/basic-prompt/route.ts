@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import axios from 'axios'
 import { eq } from 'drizzle-orm'
 import pLimit from 'p-limit'
 
+import { api } from '@/lib/api'
 import { db } from '@/lib/drizzle-edge'
 import { safeParse } from '@/lib/utils'
 import { AppsTable } from '@/db/apps/schema'
@@ -116,6 +116,27 @@ Please output the target based on this conversation.`
   return result
 }
 
+function addWorkflowVideoInteraction(data: WorkflowItem[]) {
+  const result = []
+
+  for (const item of data) {
+    const { formValueStr } = item
+    const formValue = safeParse(formValueStr, {})
+    let newValue = { ...formValue }
+    if (formValue?.enable_video_interaction === undefined) {
+      newValue = {
+        ...newValue,
+        enable_video_interaction: false,
+      }
+    }
+
+    const newItem = { ...item, formValueStr: JSON.stringify(newValue) }
+    result.push(newItem)
+  }
+
+  return result
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -143,8 +164,10 @@ export async function GET(req: NextRequest) {
         []
       ) as WorkflowItem[]
 
-      const new_workflow_data = fixTokenLimit(workflow_data)
-      const new_published_workflow_data = fixTokenLimit(published_workflow_data)
+      const new_workflow_data = addWorkflowVideoInteraction(workflow_data)
+      const new_published_workflow_data = addWorkflowVideoInteraction(
+        published_workflow_data
+      )
       const newApp = {
         short_id,
         api_model_id,
@@ -190,10 +213,7 @@ export async function GET(req: NextRequest) {
       queue.push(
         limit(() => {
           console.log('update model:', api_model_id)
-          return axios.patch(
-            `${process.env.AI_SERVICE_API_BASE_URL}/v1/models/${api_model_id}`,
-            { chains }
-          )
+          return api.patch(`/v1/models/${api_model_id}`, { chains })
         })
       )
     }
