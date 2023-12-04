@@ -30,7 +30,7 @@ const CodeEditor = ({ defaultValue, className, name, theme, mode }: IProps) => {
       Code Editor
       <AceEditor
         mode={mode || 'json'}
-        theme={theme || 'monokai'}
+        theme={theme || 'tomorrow'}
         name={name}
         className={className}
         fontSize={14}
