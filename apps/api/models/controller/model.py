@@ -8,7 +8,11 @@ from models.retrieval.relative import relative_manager
 
 from .webhook import WebhookHandler as DatasetWebhookHandler
 
-from utils.config import UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_PORT
+from utils.config import (
+    UPSTASH_REDIS_REST_TOKEN,
+    UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_PORT,
+)
 import redis
 import json
 
@@ -50,9 +54,9 @@ class ModelManager(BaseManager):
 
     @BaseManager.db_session
     def update_model(
-            self,
-            model_id: str,
-            update_data: dict,
+        self,
+        model_id: str,
+        update_data: dict,
     ):
         logger.info(f"Updating model {model_id}")
         urn = self.get_model_urn(model_id)

@@ -28,6 +28,7 @@ executor = ThreadPoolExecutor(max_workers=1000)
 router = APIRouter(prefix="/v1/chat")
 CHUNK_DATA = "chunk data"
 
+
 # {"data": [{"key": "tool-0", "finished": True, "succeed": True}]}
 
 
@@ -66,9 +67,13 @@ async def send_message(
     messages_contents: List[MessagesContent],
     session_id: str,
     filt=False,
-    start_time=None,
+    start_time=time.time(),
     disconnect_event: asyncio.Event = None,
+    video=False,
+    workflow_saved_event: asyncio.Event = None,
+    message_id: str = None,
 ) -> AsyncIterable[str]:
+    start_time = time.time()
     messages = []
     for message_content in messages_contents:
         if message_content.role == "user":
@@ -94,7 +99,14 @@ async def send_message(
             detail=f"Model {model_id} has {len(models)} models in model manager",
         )
     model = models[0]
+    current_message_id = session_state_manager.get_current_message_id(session_id)
+    if current_message_id == message_id and message_id is not None:
+        session_state_manager.reload_session(session_id)
+    elif message_id is not None:
+        session_state_manager.save_current_message_id(session_id, message_id)
     workflow = session_state_manager.get_workflow(session_id, model, disconnect_event)
+    workflow.context.is_face_to_ai_service = video
+    workflow.context.start_time = start_time
 
     async def wrap_done(fn: Awaitable, event: asyncio.Event):
         try:
@@ -151,8 +163,14 @@ async def send_message(
             yield f"data: {json.dumps(info)}\n\n"
 
     if not workflow.disconnect_event.is_set():
-        yield "data: [DONE]\n\n"
-        session_state_manager.save_workflow_status(session_id, workflow)
+        try:
+            yield "data: [DONE]\n\n"
+            await workflow.context.chain_done_event.wait()
+            session_state_manager.save_workflow_status(session_id, workflow)
+            workflow_saved_event.set()
+        except Exception as e:
+            logger.exception(e)
+            raise e
 
 
 async def send_done_message():
@@ -165,34 +183,22 @@ async def stream_completions(body: CompletionsRequest):
     logger.info(f"start_time: {start_time}")
     with graphsignal.start_trace("completions"):
         logger.info(f"completions payload: {body.dict()}")
-        model_id = session_state_manager.get_model_id(body.session_id)
-        model = model_manager.get_models(model_id)[0]
-        if model.enable_video_interaction:
-            link = FaceToAiManager.get_room_link(
-                model.opening_remarks,
+        disconnect_event = asyncio.Event()
+        workflow_saved_event = asyncio.Event()
+        return OpenAIStreamResponse(
+            content=send_message(
+                body.messages,
                 body.session_id,
-                model_id,
-            )
-            webhook_handler = WebhookHandler()
-            webhook_handler.create_video_room_link(body.session_id, link)
-            disconnect_event = asyncio.Event()
-            return OpenAIStreamResponse(
-                content=send_done_message(),
-                media_type="text/event-stream",
+                start_time=start_time,
                 disconnect_event=disconnect_event,
-            )
-        else:
-            disconnect_event = asyncio.Event()
-            return OpenAIStreamResponse(
-                content=send_message(
-                    body.messages,
-                    body.session_id,
-                    start_time=start_time,
-                    disconnect_event=disconnect_event,
-                ),
-                media_type="text/event-stream",
-                disconnect_event=disconnect_event,
-            )
+                workflow_saved_event=workflow_saved_event,
+                message_id=body.message_id,
+            ),
+            media_type="text/event-stream",
+            disconnect_event=disconnect_event,
+            workflow_saved_event=workflow_saved_event,
+            is_faceto_service=False,
+        )
 
 
 @router.post("/completions/video/{session_id}")
@@ -204,13 +210,29 @@ async def video_stream_completions(
     with graphsignal.start_trace("completions_video"):
         logger.info(f"completions payload: {body.dict()}")
         disconnect_event = asyncio.Event()
+        workflow_saved_event = asyncio.Event()
         return OpenAIStreamResponse(
             content=send_message(
-                body.messages, session_id, filt=True, disconnect_event=disconnect_event
+                body.messages,
+                session_id,
+                filt=True,
+                disconnect_event=disconnect_event,
+                video=True,
+                workflow_saved_event=workflow_saved_event,
             ),
             media_type="text/event-stream",
             disconnect_event=disconnect_event,
+            workflow_saved_event=workflow_saved_event,
+            is_faceto_service=True,
         )
+
+
+async def send_info_to_builder(session_id, body):
+    webhook_handler = WebhookHandler()
+    webhook_handler.forward_data(body, session_id)
+    workflow = session_state_manager.get_workflow(session_id, None, None)
+    workflow.context.send_face_to_ai_info_to_builder()
+    workflow.context.send_done_message_to_builder()
 
 
 @router.post("/completions/video/{session_id}/webhook")
@@ -232,14 +254,16 @@ async def video_stream_completions_webhook(
             "Event.RoomFinished",
         ]:
             raise HTTPException(status_code=500, detail="event not allowed")
-        webhook_handler = WebhookHandler()
+
         try:
             if body.get("type") == "Event.ParticipantLeft":
                 if body.get("data", {}).get("vod", {}).get("duration", None) is None:
                     raise HTTPException(
                         status_code=500, detail="data.vod.duration not found"
                     )
-                webhook_handler.forward_data(body, session_id)
+                if FaceToAiManager.get_final_message(session_id) != "":
+                    await send_info_to_builder(session_id, body)
+                    return {"message": "success", "status": 200}
             else:
                 return {"message": "success", "status": 200}
         except Exception as e:
@@ -311,3 +335,17 @@ async def get_process_status(session_id: str):
                     case _:
                         logger.warning(f"invalid chain status: {chain.process}")
         return {"data": process_list, "message": "success", "status": 200}
+
+
+@router.get("/message/{message_id}")
+async def get_message(message_id: str):
+    with graphsignal.start_trace("get_message"):
+        url, status, messages = FaceToAiManager.get_room_info(message_id)
+        messages_data = {"video_status": status, "video_url": url, "messages": messages}
+        return {"data": messages_data, "message": "success", "status": 200}
+
+
+@router.post("/session/{session_id}/reload")
+async def reload(session_id: str):
+    session_state_manager.reload_session(session_id)
+    return {"message": "success", "status": 200}

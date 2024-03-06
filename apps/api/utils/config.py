@@ -27,3 +27,5 @@ AZURE_API_KEY = os.environ.get("AZURE_API_KEY")
 OUTPUT_DEFINITION_TEMPLATE = """The goal is [{target}].
 [{dialog}].
 Please output the target based on this conversation."""
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+CONTEXT_TOKEN = os.environ.get("CONTEXT_TOKEN")

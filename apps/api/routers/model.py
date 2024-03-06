@@ -3,17 +3,18 @@ import sys
 from uuid import uuid4
 
 import graphsignal
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from loguru import logger
 from models.base import Model
 from models.controller import model_manager, session_state_manager
 from crontab.celery import background_create_model, background_update_model
+from auth.jwt import get_currrent_user
 
 router = APIRouter(prefix="/v1/models")
 
 
 @router.get("/{id}", tags=["models"])
-def get_model(id: str):
+def get_model(id: str, user: str = Depends(get_currrent_user)):
     with graphsignal.start_trace("get_model"):
         model = model_manager.get_models(id)
         if model is None:
@@ -27,7 +28,7 @@ async def create_model(model: Model):
         logger.info(f"model creating: {model}")
         model.id = uuid4().hex
         create_result = background_create_model.delay(model.dict())
-        # create_result.get(timeout=30)
+        create_result.get(timeout=100)
         return {"data": {"id": model.id}, "message": "success", "status": 200}
 
 
@@ -38,7 +39,7 @@ async def update_model(id: str, model: dict):
         if model == {}:
             raise HTTPException(status_code=444, detail="Model is empty")
         update_result = background_update_model.delay(id, model)
-        # update_result.get(timeout=100)
+        update_result.get(timeout=100)
         return {"message": "success", "status": 200}
 
 

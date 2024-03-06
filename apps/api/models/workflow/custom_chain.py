@@ -40,7 +40,8 @@ from models.prompt_manager.compress import PromptCompressor
 from pydantic import Extra, Field
 from utils.base import to_string
 
-from .callbacks import CustomAsyncIteratorCallbackHandler
+from .callbacks import CustomAsyncIteratorCallbackHandler, TokenCostProcess
+from models.faceto_ai import FaceToAiMixin
 
 
 class TargetedChainStatus(str, Enum):
@@ -50,17 +51,21 @@ class TargetedChainStatus(str, Enum):
     RUNNING = "running"
 
 
-class TargetedChain(Chain):
+class BaseCustomChain(Chain):
+    memory_option: Memory = Field(default_factory=Memory)
+    enable_video_interaction: Optional[bool] = Field(default=False)
+    dialog_key: str = "dialog"
+
+
+class TargetedChain(BaseCustomChain):
     system_prompt: BasePromptTemplate
     check_prompt: BasePromptTemplate
     output_definition: BasePromptTemplate
     llm: ChatOpenAI
-    memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
     max_retries: int = 0
     process: str = TargetedChainStatus.INIT
     suffix: str = "The content you want to output first is:"
-    dialog_key: str = "dialog"
     target: str = "target"
     need_output: bool = True
 
@@ -183,13 +188,17 @@ class TargetedChain(Chain):
         return response.generations[0][0].text
 
 
-class EnhanceSequentialChain(SequentialChain):
+class EnhanceSequentialChain(SequentialChain, FaceToAiMixin):
     queue: asyncio.Queue[str]
     done: asyncio.Event
     known_values: Dict[str, Any] = Field(default_factory=dict)
     state_dependent_chains = [TargetedChain]
     current_chain: int = 0
     current_chain_io: List = []
+    chains: List[BaseCustomChain]
+    cancel_generation = False
+    cancel_generation_event = asyncio.Event()
+    aiter_done_event = asyncio.Event()
 
     class Config:
         extra = Extra.allow
@@ -212,6 +221,18 @@ class EnhanceSequentialChain(SequentialChain):
         callbacks = _run_manager.get_child()
         while self.current_chain < len(self.chains):
             chain = self.chains[self.current_chain]
+            if type(chain) in self.state_dependent_chains:
+                if (
+                    chain.process == TargetedChainStatus.FINISHED
+                    or chain.process == TargetedChainStatus.ERROR
+                ):
+                    self.current_chain += 1
+                    self.current_chain %= len(self.chains)
+                    continue
+            if not self.is_face_to_ai_service and chain.enable_video_interaction:
+                self._cancel_message_generations()
+            elif self.is_face_to_ai_service and not chain.enable_video_interaction:
+                self._cancel_message_generations()
             if type(chain) in self.state_dependent_chains:
                 if (
                     chain.process == TargetedChainStatus.FINISHED
@@ -259,10 +280,16 @@ class EnhanceSequentialChain(SequentialChain):
                         TargetedChainStatus.ERROR,
                     ]:
                         # await self._put_tokens_into_queue(current_output)
-                        return self._construct_return_dict()
+                        return_dict = await self._construct_return_dict(
+                            chain.enable_video_interaction
+                        )
+                        return return_dict
                     elif self.current_chain == len(self.chains) - 1:
                         await self._handle_final_chain()
-                        return self._construct_return_dict()
+                        return_dict = await self._construct_return_dict(
+                            chain.enable_video_interaction
+                        )
+                        return return_dict
                     else:
                         inputs["question"] = ""
                         self.known_values["question"] = ""
@@ -301,15 +328,27 @@ class EnhanceSequentialChain(SequentialChain):
                 )
                 if self.current_chain == len(self.chains) - 1:
                     self.current_chain = 0
-                    return self._construct_return_dict()
+                    return_dict = await self._construct_return_dict(
+                        chain.enable_video_interaction
+                    )
+                    return return_dict
                 else:
                     self.current_chain += 1
-        return self._construct_return_dict()
+        return_dict = await self._construct_return_dict(chain.enable_video_interaction)
+        return return_dict
+
+    def _cancel_message_generations(self):
+        self.cancel_generation = True
+        self.cancel_generation_event.set()
+        self.aiter_done_event.set()
 
     async def _handle_final_chain(self):
         target_finished = "This chat has completed its goal. Please create a new chat to have a conversation."
         logger.info(f"Putting {target_finished} into queue")
-        await self._put_tokens_into_queue(target_finished)
+        if not self.is_face_to_ai_service:
+            await self._put_tokens_into_queue(target_finished)
+        else:
+            self.switch_to_context_builder(target_finished)
 
     async def _put_tokens_into_queue(self, tokens: str):
         for token in tokens:
@@ -323,15 +362,24 @@ class EnhanceSequentialChain(SequentialChain):
         while not self.queue.empty():
             await asyncio.sleep(2)
 
-    def _construct_return_dict(self):
+    async def _construct_return_dict(self, enable_video_interaction):
         return_dict = {}
         for k in self.output_variables:
             return_dict[k] = self.known_values.get(k, "")
+
         self.done.set()
+        self.chain_done_event.set()
+        final_message = await self.get_messages()
+        if not self.is_face_to_ai_service and enable_video_interaction:
+            self.switch_to_face_to_ai(final_message=final_message)
+        elif self.is_face_to_ai_service and not enable_video_interaction:
+            self.switch_to_context_builder(final_message=final_message)
         return return_dict
 
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
+            if self.cancel_generation:
+                break
             # Wait for the next token in the queue,
             # but stop waiting if the done event is set
             done, other = await asyncio.wait(
@@ -340,25 +388,38 @@ class EnhanceSequentialChain(SequentialChain):
                     # which assumes each set has exactly one task each
                     asyncio.ensure_future(self.queue.get()),
                     asyncio.ensure_future(self.done.wait()),
+                    asyncio.ensure_future(self.cancel_generation_event.wait()),
                 ],
                 return_when=asyncio.FIRST_COMPLETED,
             )
-            if other:
-                other.pop().cancel()
+            if other and self.cancel_generation:
+                task = other.pop()
+                while task is not None:
+                    task.cancel()
+                    task = other.pop()
+            if self.cancel_generation:
+                break
+
             token_or_done = cast(Union[str, Literal[True]], done.pop().result())
             if token_or_done is True:
                 while not self.queue.empty():
                     yield await self.queue.get()
                 break
             yield token_or_done
+        self.aiter_done_event.set()
+
+    async def get_messages(self) -> str:
+        message = ""
+        await self.aiter_done_event.wait()
+        while not self.queue.empty():
+            message += self.queue.get_nowait()
+        return message
 
 
-class EnhanceConversationChain(Chain):
+class EnhanceConversationChain(BaseCustomChain):
     prompt: BasePromptTemplate
     llm: ChatOpenAI
-    memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
-    dialog_key: str = "dialog"
 
     def _call(
         self,
@@ -398,13 +459,12 @@ class EnhanceConversationChain(Chain):
         return {self.output_key: response.generations[0][0].text}
 
 
-class EnhanceConversationalRetrievalChain(Chain):
+class EnhanceConversationalRetrievalChain(BaseCustomChain):
     prompt: BasePromptTemplate
     llm: ChatOpenAI
     memory_option: Memory = Field(default_factory=Memory)
     output_key: str = "text"
     retriever: SelfQueryRetriever
-    dialog_key: str = "dialog"
 
     @property
     def input_keys(self) -> List[str]:

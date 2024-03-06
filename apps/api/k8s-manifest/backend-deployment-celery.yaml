@@ -17,7 +17,7 @@ spec:
         - name: ecr-registry
       containers:
         - name: withcontext-backend-celery
-          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:celery
+          image: 326596634873.dkr.ecr.us-east-2.amazonaws.com/withcontext-backend:online-celery-v1.0
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -89,6 +89,16 @@ spec:
                 secretKeyRef:
                   name: withcontext-backend-env
                   key: LOGSNAG_API_KEY
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: JWT_SECRET_KEY
+            - name: CONTEXT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: withcontext-backend-env
+                  key: CONTEXT_TOKEN
             - name: WEBHOOK_ENDPOINT
               value: https://build.withcontext.ai/api/webhook/chat
             - name: BACKEND_URL
@@ -96,5 +106,5 @@ spec:
 
           resources:
             limits:
-              memory: '5000Mi'
+              memory: '2000Mi'
               cpu: '2'

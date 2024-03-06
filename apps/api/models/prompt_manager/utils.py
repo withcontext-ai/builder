@@ -11,4 +11,5 @@ MODEL_TO_MAX_TOKEN = {
     "gpt-4-1106-preview": 128000,
 }
 
-RESPONSE_BUFFER_SIZE = 500
+# openai 11.06 update
+RESPONSE_BUFFER_SIZE = 4096

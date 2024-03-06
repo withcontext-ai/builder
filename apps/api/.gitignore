@@ -2,4 +2,6 @@ __pycache__
 .env
 backend-secret.yaml
 test-backend-deployment.yaml
+backend-deployment-celery-test.yaml
 Dockerfile.test
+test-backend-deployment-celery.yaml
